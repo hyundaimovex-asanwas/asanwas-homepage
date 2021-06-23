@@ -1,0 +1,29 @@
+/* COMMON */
+
+td {  font-family: "µ¸¿ò", verdana; font-size: 12px; color: #555555; }
+input {font-size: 12px; color: #555555;}
+
+A:link {text-decoration:none; color:#555555; line-height: 14px}
+A:visited {text-decoration:none; color:#555555; line-height: 14px}
+A:active {text-decoration:none; color:#555555; line-height: 14px}
+A:hover {text-decoration: underline; color:#000000; line-height: 14px}
+
+.top A:link {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#ffffff; line-height: 14px}
+.top A:visited {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#ffffff; line-height: 14px}
+.top A:active {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#ffffff; line-height: 14px}
+.top A:hover {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration: underline; color:#ffffff; line-height: 14px}
+
+.left {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#555555; line-height: 14px}
+.left A:link {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#555555; line-height: 14px}
+.left A:visited {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#555555; line-height: 14px}
+.left A:active {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#555555; line-height: 14px}
+.left A:hover {  font-family: "µ¸¿ò", verdana; font-size: 12px; color:#000000; text-decoration: underline; line-height: 14px}
+
+.pass {  font-family: "µ¸¿ò", verdana; font-size: 11px; text-decoration:none; color:#555555}
+.large {  font-family: "µ¸¿ò", verdana; font-size: 14px; text-decoration:none; color:#000000}
+
+
+/*FORM*/
+.log_input { border: 1px solid #CCCCCC; font-family: verdana; font-size: 12px; color: #555555; bgcolor:#C6E6E7;}
+.pop_input { border: 1px solid #C3BC9F; font-family: verdana; font-size: 12px; color: #555555;}
+.text_input {font-size: 12px; color: #555555;}

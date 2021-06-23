@@ -1,0 +1,55 @@
+/** Common **/
+body{margin:0 0 0 0px;}
+
+td,textarea{font-family:"dotum";font-size:12px;color:#666666;line-height:18px;text-decoration:none}
+.topnavcell{border-right:2px solid #000000;}	/* 문법이 정확하지 않으면 크롬에서 무시당함.. px 단위 표시*/
+a:link,a:visited,a:active{font-family:dotum;color:#666666;font-size:12px;text-decoration:none;}
+a:hover{font-family:dotum;color:#424242;font-size:12px;text-decoration:underline;}
+
+img{border:0;}
+.noborder{border:0;}
+
+
+
+/** text **/
+.txt_white{color:#FFFFFF;}
+.txt_sky{color:#00A5D5;}
+.txt_dsky{color:#BBCDD6;}
+.txt_gray{color:#C5C4C5;}
+.txt_gray2{color:#999999;}
+.txt_dblue{color:#3F667D;}
+.txt_dgray{color:#444444;}
+.txt_dgreen{color:#3F7D7C;}
+.txt_green{color:#44AD6D;}
+.txt_lpurple{color:#AA9FBE;}
+.txt_lpurple2{color:#DDD9E5;}
+.txt_lpurple3{color:#CDC1E4;}
+.txt_purple{color:#D402FC;}
+.txt_orange{color:#F04B01;}
+.txt_orange2{color:#FF4F00;}
+.txt_brown{color:#7D543F;}
+.b{font-weight:bold;}
+.fs11{font-size:11px;}
+.fs14{font-size:14px;}
+.fs16{font-size:16px;}
+.lh13{line-height:13px;}
+.lh14{line-height:14px;}
+.lh16{line-height:16px;}
+.lh20{line-height:20px;}
+
+
+/** list line **/
+.line_dg{background-color:#424242;}
+.line_g{background-color:#E6E6E6;}
+.line_g2{background-color:#EDEDED;}
+.line_g3{background-color:#DADCDA;}
+.imgline{background-color:#E1E1E1;}
+.list_bg_tle{background-color:#F1F9FB;color:#007CA5;font-weight:bold;}
+.list_bg_lb{background-color:#F1F9FB;color:#444444;}
+.list_bg_lg{background-color:#F6F6F6;color:#444444;}
+.rbl{border-right: 1px solid #E0E0E0;}
+.lbl{border-left: 1px solid #E0E0E0;}
+.bbl{border-bottom: 1px solid #E0E0E0;}
+.bg_white{background-color:#FFFFFF;}
+
+

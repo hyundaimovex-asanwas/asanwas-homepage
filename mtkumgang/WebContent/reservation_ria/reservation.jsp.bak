@@ -1,0 +1,37 @@
+<%@ page language="java" contentType="text/html; charset=euc-kr"%>
+<%@ page import="kr.co.imjk.util.*"%>
+<%@ page import="kr.co.imjk.reservation.bean.RiaReservation_bean"%>
+<%@ page import="kr.co.imjk.reservation.dao.RiaReservationInfo"%>
+<%@ page import="java.text.NumberFormat"%>
+<%@ page import="java.util.*"%>
+<%
+
+    int h_val = 0;
+    String h_nm = "";
+    int r_val = 0;
+    String r_nm = "";
+    String ser_date = "200607";
+
+    //DAO
+    RiaReservationInfo dao = new RiaReservationInfo();
+    RiaReservation_bean bean = new RiaReservation_bean();
+    
+    bean.setH_val(h_val);
+    bean.setH_nm(h_nm);
+    bean.setR_val(r_val);
+    bean.setR_nm(r_nm);
+    bean.setSer_date(ser_date);
+    
+    RiaReservation_bean record []  = dao.getList(bean);
+
+if (record.length > 0){
+ for(int i=0;i< record.length; i++){ 
+     RiaReservation_bean tbean = record[i];
+     out.println("CURR_DATE:"+tbean.getCurr_date()+"<br>");
+ 
+ }
+}else{
+     out.println("등록된 데이터가 없습니다.");
+}
+%>
+

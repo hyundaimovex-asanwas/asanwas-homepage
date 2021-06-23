@@ -1,0 +1,2 @@
+
+document.write("<div id='quickmenu' style='position:absolute;left:921px;top:87px;'><table cellpadding=0 cellspacing=0 border=0><tr><td><script language='JavaScript'>writeObject('../../asanway/img/tour_swf/quickMenu.swf','75','565','')</script></td></tr></table></div>");

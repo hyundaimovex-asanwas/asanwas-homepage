@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>파라미터 날라기</title>
+</head>
+<body>
+<form name="order_info" action="cPlugOnline.asp" method="post" >
+<table border='0' cellpadding='0' cellspacing='1' width='500' align='center'>
+   <tr>
+        <td colspan="2">
+            <br>
+            <table width="90%" align="center">
+                <tr>
+                <!--주문정보 : 필수 사항 입니다 -->
+                    <td align="center"> 주 문 정 보 </td>
+                </tr>
+            </table>
+            <table width="90%" align="center">
+				<tr>
+                    <td>지불방법</td>
+                    <td>
+                        <select name='c_pay_gubn'>
+			    	    <option value="050">온란카드</option>
+                    	</select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>결제관리번호</td>
+                    <td>
+                        <input type='text' name='c_pay_manage_no' value='onlin67' size='30'>
+                    </td>
+                </tr>
+
+				<tr>
+                    <td>결제금액</td>
+                    <td>
+                        <input type='text' name='c_pay_amt' value='1097' size='10'>원
+                    </td>
+                </tr>
+                <tr>
+                    <td>주문자명</td>
+                    <td>
+                        <input type='text' name='r_order_nm' value='심동현' size='20'>
+                    </td>
+                </tr>
+                <tr>
+                    <td>휴대폰번호</td>
+                    <td>
+                        <input type='text' name='r_order_tel_no' value='010-7574-9010' size='20'>
+                    </td>
+                </tr>
+                <tr>
+                    <td>E-Mail</td>
+                    <td>
+                        <input type='text' name='r_order_e_mail' value='webmaster@hdasan.com' size='25'>
+                    </td>
+                </tr>
+				<tr>
+                    <td>유저키</td>
+                    <td>
+                        <input type='text' name='r_user_key' value='online상품명' size='30'>
+                    </td>
+                </tr>
+				<tr>
+                    <td>리턴</td>
+                    <td>
+                        <input type='text' name='c_return_url' value='cResultOnline.asp' size='30'>
+                    </td>
+                </tr>
+				<tr>
+                    <td>단말기 ID</td>
+                    <td>
+                        <input type='text' name='c_terminal_id' value='단말기아뒤' size='30'>
+                    </td>
+                </tr>
+				<tr>
+                    <td>가맹점 번호</td>
+                    <td>
+                        <input type='text' name='c_acct_join_no' value='가맹번호' size='30'>
+                    </td>
+                </tr>
+				<tr>
+                    <td>밴코드</td>
+                    <td>
+                        <input type='text' name='c_van_cd' value='밴코드' size='30'>
+                    </td>
+                </tr>
+				<tr>
+                    <td colspan="2" align="center">
+                        <input type="submit" value="전송" class="box">
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td bgcolor="CFCFCF" height='3' colspan='2'></td>
+    </tr>
+    <tr>
+        <td colspan='2' align="center" height='25'>ⓒ Copyright 2005. KCP Inc.  All Rights Reserved.</td>
+    </tr>
+</table>
+
+
+</form>
+</center>
+</body>
+</html>

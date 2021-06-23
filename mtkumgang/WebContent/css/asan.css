@@ -1,0 +1,144 @@
+
+body{
+		scrollbar-face-color: #F9F8F5;
+		scrollbar-highlight-color: #B5B5AF;
+		scrollbar-3dlight-color: #FFFFFF;
+		scrollbar-shadow-color: #B5B5AF;
+		scrollbar-darkshadow-color: #FFFFFF;
+		scrollbar-track-color: #EAE9DF;
+		scrollbar-arrow-color: #000000;
+		overflow-y:scroll;
+}
+
+
+/**********************************************************************/
+/*PUB color STYLE******************************************************/
+/**********************************************************************/
+
+IMG		{border:0px;}
+
+TD		{font-family:dotum ,seoul,arial; font-size: 12px; color: #7A6D4E; line-height: 135%;}
+
+SELECT 	{font-family:dotum ,seoul,arial; font-size: 12px; line-height: 135%; color: #777777; }
+
+a:link		{font-family:dotum ,seoul,arial; font-size: 12px; color: #5a5a5a; text-decoration: none}
+a:visited		{font-family:dotum ,seoul,arial; font-size: 12px; color: #5a5a5a; text-decoration: none}
+a:active		{font-family:dotum ,seoul,arial; font-size: 12px; color: #5a5a5a; text-decoration: none}
+a:hover		{font-family:dotum ,seoul,arial; font-size: 12px; color: #000000; text-decoration: none}
+
+
+/**********************************************************************/
+/*INPUT STYLE**********************************************************/
+/**********************************************************************/
+INPUT.radio_01 		{height:12px; width:12px; margin-bottom:2px; border:solid 0px; background-color:transparent}
+INPUT.serach_input 	{font-family:dotum ,seoul,arial; border:solid #D0D0D0 1px;padding-left:10px; font-size: 11px; background-color:#FFFFFF; color:#777777; padding-top:3px;}
+INPUT.gray_input 	{font-family:dotum ,seoul,arial; border:solid #D0D0D0 1px;padding-left:3px; font-size: 12px; background-color:#FFFFFF; color:#777777; padding-top:2px;}
+.log_main { border: 1px solid #D5DAE3; font-size: 12px; color: #444444; background:#D5DAE3;}
+
+/**********************************************************************/
+/*BG color STYLE*******************************************************/
+/**********************************************************************/
+
+.black		{background-color: #000000;}
+
+
+/**********************************************************************/
+/*IMG BORDER color STYLE***********************************************/
+/**********************************************************************/
+
+/*News*/
+	IMG.news		{border:solid 1px #E0DFD1; width:79px; height:62px;}
+/*CEO*/
+	IMG.ceo		{border:solid 1px #E0DFD1; width:209px; height:163px;}
+/*Photo*/
+	IMG.photo		{border:solid 1px #B0A681; width:79px; height:62px;}
+/*Photo_on*/
+	IMG.photo_on		{border:solid 3px #CFA336; width:79px; height:62px;}
+/*line color*/
+	.line		{background-color: #E2DFBF;}
+
+
+/**********************************************************************/
+/*TEXT color STYLE*****************************************************/
+/**********************************************************************/
+
+.date			    {  font-family: "µ¸¿ò"; font-size: 11px; text-decoration:none; color:#8696B7; word-spacing:-1px;}
+.data				{  font-family: "µ¸¿ò"; font-size: 11px; text-decoration:none; color:#424242; word-spacing:-1px;}
+.table_tx			{  font-family: "µ¸¿ò"; font-size: 11px; text-decoration:none; color:#727262; word-spacing:-1px; padding-left:10px; padding-right:10px; padding-top:4px;}
+.table_tx02		{  font-family: "µ¸¿ò"; font-size: 11px; text-decoration:none; color:#727262; word-spacing:-1px;  padding-top:4px;}
+.table_tx03		{  font-family: "µ¸¿ò"; font-size: 11px; text-decoration:none; color:#666666; word-spacing:-1px;  padding-top:4px;}/*È¸»ö*/
+.bbs_brown	{ color: #705A39; padding-top:3px;}
+.bbs_read		{ color: #666666; padding-top:3px;}
+.tx					{ color: #666666; }/* °ËÁ¤ ÆùÆ®*/
+.ti					{ color: #444444; }/*¼ÒÁ¦¸ñ °ËÁ¤ ÆùÆ®*/
+.ti_b				{ color: #000000; }/*¼ÒÁ¦¸ñ ºí·¢ ÆùÆ®*/
+
+
+/**********************************************************************/
+/* A TAG STYLE*********************************************************/
+/**********************************************************************/
+
+/*Navigation*/
+	.navi						{font-size: 11px; color: #8F8943; padding-top:11px; }
+	.navi		A:link 		{font-size: 11px; color: #8F8943; padding-top:11px; }
+	.navi		A:visited 	{font-size: 11px; color: #8F8943; padding-top:11px; }
+	.navi		A:active 	{font-size: 11px; color: #8F8943; padding-top:11px; }
+	.navi		A:hover 		{font-size: 11px; color: #8F8943; padding-top:11px; }
+
+/*BBS_list*/
+	.bbs						{font-size: 12px; color: #555555; padding-top:3px; }
+	.bbs		A:link 		{font-size: 12px; color: #555555; padding-top:3px; }
+	.bbs		A:visited 	{font-size: 12px; color: #555555; padding-top:3px; }
+	.bbs		A:active 	{font-size: 12px; color: #555555; padding-top:3px; }
+	.bbs		A:hover 		{font-size: 12px; color: #222222; padding-top:3px; }
+
+/*borwn*/
+	.brown						{font-size: 12px; color: #7A6D4E; }
+	.brown		A:link 		{font-size: 12px; color: #7A6D4E; }
+	.brown		A:visited 	{font-size: 12px; color: #7A6D4E; }
+	.brown		A:active 	{font-size: 12px; color: #7A6D4E; }
+	.brown		A:hover	 	{font-size: 12px; color: #7A6D4E; }
+
+/*borwn*/
+	.brown11						{font-size: 11px; color: #7A6D4E; }
+	.brown11		A:link 		{font-size: 11px; color: #7A6D4E; }
+	.brown11		A:visited 	{font-size: 11px; color: #7A6D4E; }
+	.brown11		A:active 	{font-size: 11px; color: #7A6D4E; }
+	.brown11		A:hover	 	{font-size: 11px; color: #7A6D4E; }
+
+/*red*/
+	.red						{font-size: 12px; color: #C15200; }
+	.red		A:link 		{font-size: 12px; color: #C15200; }
+	.red		A:visited 	{font-size: 12px; color: #C15200; }
+	.red		A:active 	{font-size: 12px; color: #C15200; }
+	.red		A:hover	 	{font-size: 12px; color: #C15200; }
+
+/*Main8*/
+.main A:link {  font-family: "µ¸¿ò", verdana; font-size: 11px; text-decoration:none; color:#666666; line-height: 14px}
+.main A:visited {  font-family: "µ¸¿ò", verdana; font-size: 11px; text-decoration:none; color:#666666; line-height: 14px}
+.main A:active {  font-family: "µ¸¿ò", verdana; font-size: 11px; text-decoration:none; color:#666666; line-height: 14px}
+.main A:hover {  font-family: "µ¸¿ò", verdana; font-size: 11px; text-decoration:none; color:#000000; line-height: 14px}
+
+
+
+/**********************************************************************/
+/* SELECT BOX STYLE****************************************************/
+/**********************************************************************/
+
+/*SELECT BOX*/
+.searchSelect 				{background-color:#FFFFFF; border:solid 1px #D0D0D0;}
+.searchSelectedArea 		{color:#777777; background-color:#FFFFFF; padding-top:0px; padding-left:3px; font-size:11px;}
+.searchSelectedAreaFocus 	{color:#777777; background-color:#ECECEC; padding-top:0px; padding-left:3px; font-size:11px;}
+.searchOption 				{color:#777777; background-color:#FFFFFF; padding-top:2px; padding-left:3px; font-size:11px; line-height:17px;}
+.searchOptionOver 			{color:#777777; background-color:#ECECEC; padding-top:2px; padding-left:3px; font-size:11px; line-height:17px;}
+.searchOptionInnerLayer 	{background-color:#FFFFFF; overflow:auto; font-size:11px;}
+
+
+
+/*½ºÅ©·¦ ¸¶½ºÅÍ */
+.top A:link {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#ffffff; line-height: 14px}
+.top A:visited {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#ffffff; line-height: 14px}
+.top A:active {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration:none; color:#ffffff; line-height: 14px}
+.top A:hover {  font-family: "µ¸¿ò", verdana; font-size: 12px; text-decoration: underline; color:#ffffff; line-height: 14px}
+
+.large {  font-family: "µ¸¿ò", verdana; font-size: 14px; text-decoration:none; color:#000000}
