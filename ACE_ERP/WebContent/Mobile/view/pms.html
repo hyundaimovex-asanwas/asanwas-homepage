@@ -1,0 +1,155 @@
+
+
+<%@ page import="Resource.DBManager" %>
+<%@ page import="sales.common.*"%>
+<%@ page import="sales.common.HDUtil" %>
+<%@ page import="sales.common.HDConstant" %>
+<%@ page import="sales.org.common.*"%>
+<%@ page import="sales.org.common.request.SmartRequest"%>
+<%@ page import="sales.common.DateUtil"%>
+<%@ page import="sales.common.StringUtil" %>
+<%@ page import="java.sql.*,java.io.*,java.util.*"%>
+<%@ page import="javax.servlet.http.Cookie" %>
+
+
+
+<%	
+
+		// ContextPath 변수 설정.
+		String dirPath = request.getContextPath(); //HDASan
+
+		//서버시간 만들기
+	    java.util.Calendar date = java.util.Calendar.getInstance();
+	    java.text.SimpleDateFormat m_today = new java.text.SimpleDateFormat("ssMMmmyyyyHHdd");
+	    String strD = m_today.format(date.getTime());
+	
+		//로그인 정보에서 불러오는 값 /////011-06-14 심동현수정 ///////////////////////////////////////////////////////////////////////////////////////
+		String gusrid	= (String)session.getAttribute("vusrid");
+		String gusrnm	= (String)session.getAttribute("vusrnm");
+		String gusrpos	= (String)session.getAttribute("vusrpos");	//페이지 이동시 세션변수("로긴") 체크
+		String gusrip	= (String)session.getAttribute("vusrip");	//페이지 이동시 IP변경 체크
+		//로그인 정보에서 불러오는 값 /////
+		
+		String requestedPage = HDUtil.nullCheckStr(request.getParameter("requestedPage"));
+		String pageSize  	= "10";  	//1페이지에 표시될 개수
+
+	//시작 //////////////////////////////////////////////////////////////////
+	
+	SmartRequest sr_db= new SmartRequest(request);	
+
+		requestedPage = "1";
+		pageSize  	 = "10";  												//1페이지에 표시될 개수
+		ArrayList data_db = new ArrayList();								//게시물 리스트를 받아올 것 생성.
+		int len_db = 0;
+		BaseDataClass bean_db;
+	
+		//이부분을 해줘야 매니저파일에서 sr.getObject()로 읽어올 수 있다.
+		sr_db.setObject("requestedPage",(Object)requestedPage);				//요청페이지 세팅
+		sr_db.setObject("pageSize",(Object)pageSize);						//페이지 사이즈 세팅
+		sr_db.setObject("v_login_id",(Object)gusrid);						//로긴 아이디 셋팅 
+
+		
+		DBManager manager_db = new DBManager();
+		data_db		= manager_db.list(sr_db);								//화면에 표시될 리스트 불러오기.
+		manager_db.close();
+		
+	//끝//////////////////////////////////////////////////////////////////////
+		
+	//최초 tree_idx
+	int tree_idx = 0;
+
+	
+%>
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/Mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/Mobile/lib/mobipick.css" />
+    <link rel="stylesheet" href="/Mobile/lib/common.css" />
+    
+    <script src="/Mobile/controller/nomu.js?v5"></script>
+    <script data-main="/Mobile/lib/app" src="/Mobile/lib/require.js"></script>
+
+	<link rel="stylesheet" href="../../Resource/jui/jui-master/jui-master/dist/ui.min.css" />
+	<link rel="stylesheet" href="../../Resource/jui/jui-master/jui-master/dist/ui-jennifer.min.css" />
+	
+	<!-- Grid style components -->
+	<link rel="stylesheet" href="../../Resource/jui/jui-grid-master/jui-grid-master/dist/grid.min.css" />
+	<link rel="stylesheet" href="../../Resource/jui/jui-grid-master/jui-grid-master/dist/grid-jennifer.min.css" />
+
+
+</head>
+
+
+
+
+<body class="jui">
+
+
+<!--  
+    <div id="pagePMS" data-role="page">
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div>
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>PROJECT</h1>
+        </div>
+    </div>
+-->    
+    
+    <!--  
+    <div id="pageNomuDetail" data-role="page">
+        <div data-role="header">
+			<a href="#pageNomu" data-icon="back">목록</a>
+            <h1>PROJECT</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div class="ui-field-contain">
+                <label for="txtDS_NAME">이름:</label>
+                <input type="text" id="txtDS_NAME" />
+                <label for="txtNO_ID">주민번호:</label>
+                <input type="text" id="txtNO_ID" />
+                <label for="txtTY_CHAIYOUNG">채용구분:</label>
+                <input type="text" id="txtTY_CHAIYONG" />
+                <label for="txtDT_IPSA">입사일자:</label>
+                <input type="text" id="txtDT_IPSA" />
+                <label for="files">증빙:</label>
+            </div>
+        </div>
+    </div>
+    -->
+    
+<div class="container-fluid">
+
+  <h1>My First JUI Page</h1>      
+  <p>This part is inside class.</p> 
+         
+</div>
+
+<div id="datepicker_2" class="datepicker large">
+    <div class="head">
+        <div class="prev"><i class="icon-chevron-left"></i></div>
+        <div class="title"></div>
+        <div class="next"><i class="icon-chevron-right"></i></div>
+    </div>
+    <table class="body">
+        <tr>
+            <th>SU</th><th>MO</th><th>TU</th><th>WE</th><th>TH</th><th>FR</th><th>SA</th>
+        </tr>
+    </table>
+</div>
+    
+    
+</body>
+</html>

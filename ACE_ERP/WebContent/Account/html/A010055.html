@@ -1,0 +1,401 @@
+<!---------------------------------------------------------------------------
++ 시 스 템 명	:  거래처코드 조회 팝업	
++ 프로그램 ID	:  Gczm_vender_poopup33.html
++ 기 능 정 의	:  거래처코드 조회 팝업	창
++ 작   성  자   :  정하나
++ 작 성 일 자   :  2009.06.18
+-----------------------------------------------------------------------------
++ 서 블 릿 명	:  Account.a010003_s77
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title>거래처코드조회</title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+get_cookdata();
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+	gcra_useyn.codevalue ="T";
+	var strParam = new Array();
+	strParam=window.dialogArguments;
+	
+}
+
+
+/******************************************************************************
+	Description : 거래처명/거래처코드/사업자등록번호/담당자명으로 조회가능
+******************************************************************************/
+function ln_Query2(){
+	gcds_code01.DataID =  g_servlet+"/Account.a010003_s77?v_str1="+gcem_vend_cd.text+"&v_str2="+gcem_vendnm.text+"&v_str3="+gcem_vend_id.text+"&v_str4="+gcem_empnm.text+"&v_str5="
+	+gcra_useyn.codevalue;                           
+	gcds_code01.Reset();
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save(){
+
+}
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+/******************************************************************************
+	Description : 창닫기
+	parameter   : A - 선택
+******************************************************************************/
+function ln_Close(p){
+	if (p=="A") {
+		var row = gcds_code01.rowposition;
+		window.returnValue = gcds_code01.namevalue(row,"SEQ")  + ";" 
+
+						+ gcds_code01.namevalue(row,"EMAIL")  + ";"
+						+ gcds_code01.namevalue(row,"HPNO")  + ";"
+						+ gcds_code01.namevalue(row,"TELNO")  + ";"
+						+ gcds_code01.namevalue(row,"USEGB")  + ";"
+						+ gcds_code01.namevalue(row,"VEND_ID");
+						window.close();
+	} else {
+		window.close();
+	}
+}
+</script>
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object  id=gcds_code01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<script language="javascript" for="gcds_code01" event="OnLoadStarted()">
+	ft_cnt1.innerText="데이타 조회중입니다.";
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language="javascript" for="gcds_code01" event="onloadCompleted(row,colid)">
+	ft_cnt1.innerText = "조회건수 : " + row + " 건";
+	window.status="조회가 완료 되었습니다.";
+	document.all.LowerFrame.style.visibility="hidden";
+	if(gcds_code01.countrow <=0)
+			alert("조회된 데이타가 없습니다.");
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcgd_disp" event="OnDblClick()">
+	ln_Close('A');
+</script>
+
+<script language=JavaScript for="gcgd_disp" event=OnKeyPress(kcode)>
+	if (kcode==13) ln_Close('A');
+</script>
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+
+<table border="0" cellpadding="0" cellspacing="0" style="position:relative;left:5px;top:5px;width:685px;border:0 solid #708090">
+					<tr> 
+						<td class="tab37" width="100px" bgcolor="#eeeeee"><nobr>지점코드</nobr></td>
+						<td class="tab18" width="169px;"><comment id="__NSID__">
+							<object  id=gclx_fdcode2 classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69  style="position:relative;left:5px;top:1px;width:160px;height:110px;">
+								<param name=ComboDataID			value="gcds_fdcode2">
+								<param name=CBDataColumns		value="FDCODE,FDNAME">
+								<param name=SearchColumn		value="FDNAME">
+								<param name=Sort						value=false>
+								<param name=Enable					value=false>
+								<param name=ListExprFormat	value="FDNAME^0^160">
+								<param name=BindColumn			value="FDCODE">
+							</object></comment><script>__ws__(__NSID__);</script> 
+						</td>
+						<td class="tab14" width="100px" bgcolor="#eeeeee">계산서번호</td>
+						<td class="tab31" width="89px"><comment id="__NSID__">
+							<object  id=gcem_staxnbr2 class="txtbox" style="position:relative;left:5px;top:1px;width:75px;height:20px;"  classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F onKeyDown="if(event.keyCode==13) ln_Query2('1')">
+								<param name=Text          value="">
+								<param name=Alignment			value=0>
+								<param name=Border	      value=True>
+								<param name=ClipMode			value=true>
+								<param name=Format	      value="######-####">
+								<param name=MaxLength     value=10>
+								<param name=PromptChar	  value="_">
+								<param name=BackColor     value="#CCCCCC">
+								<param name=InheritColor  value=false>
+								<param name=Enable				value=true>
+							</object></comment><script>__ws__(__NSID__);</script> 
+							<comment id="__NSID__"><object  id=gcem_taxnbr2 class="txtbox" style="position:relative;left:5px;top:1px;width:10px;height:20px;"  classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F>
+								<param name=Text          value="">
+								<param name=Alignment			value=0>
+								<param name=Border	      value=True>
+								<param name=ClipMode			value=true>
+								<param name=Format	      value="#######-####">
+								<param name=MaxLength     value=10>
+								<param name=PromptChar	  value="_">
+								<param name=BackColor     value="#CCCCCC">
+								<param name=InheritColor  value=false>
+								<param name=visible				value=false>
+								<param name=Enable				value=false>
+							</object></comment><script>__ws__(__NSID__);</script> 
+						</td>
+					</tr>
+
+    <tr>
+		<td class="tab33" width="100px;" bgcolor="#eeeeee" align="center">사업자번호</td>
+		<td width="90px" class="tab11" colspan="3" ><comment id="__NSID__">
+			<object  id=gcem_vend_id classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F	style="position:relative;top:0px;left:0px;width:80px" onkeydown="if(event.keyCode==13) ln_Query2();">
+				<param name=Text				value="">
+				<param name=Alignment		value=0>
+				<param name=Border			value=true>
+				<param name=GeneralEdit value="true">
+				<param name=PromptChar	value="_">
+			</object></comment><script>__ws__(__NSID__);</script>
+		</td>
+	</tr>
+
+					<tr> 
+						<td class="tab33" width="100px" bgcolor="#eeeeee"><nobr>거&nbsp;래&nbsp;처</nobr></td>
+						<td class="tab19" width="400px;" colspan="3"><nobr><comment id="__NSID__">
+							<object  id=gcem_vendcd2 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F	style="position:relative;top:2px;left:5px;width:90px">
+								<param name=Text				value="">
+								<param name=Alignment		value=0>
+								<param name=Border			value=true>
+								<param name=Format			value="#############">
+								<param name=PromptChar	value="_">
+								<!-- <param name=Enable			value="false"> -->
+								<param name=ReadOnly      value=true>
+								<param name=ReadOnlyBackColor   value="#CCFFCC">
+							</object></comment><script>__ws__(__NSID__);</script> &nbsp;&nbsp;
+							<img name="btn_find2" src="../../Common/img/btn/com_b_find.gif"	style="position:relative;top:2px;left:-2px;cursor:hand"	 onclick="ln_Popup('B')">
+							<input id=txt_fdcodenm2 type="text" class="txt11" style="position:relative;top:-4px;left:5px;width:230px;" readOnly>
+						</td>
+					<tr>
+
+					<tr> 
+						<td class="tab33" width="100px" bgcolor="#eeeeee"><nobr>거래처담당정보</nobr></td>
+						<td class="tab22" width="189px" colspan=3><nobr><comment id="__NSID__">
+						  <!-- 담당자명 -->
+							<object  id=gcem_empnm2 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:90px;height:20px;position:relative;left:5px;top:2px">		
+								<param name=Text					value="">
+								<param name=Alignment     value=0>
+								<param name=Border        value=true>
+								<param name=GeneralEdit   value=true>
+								<param name=Language			value=1>
+								<param name=ReadOnly      value=true>
+								<param name=ReadOnlyBackColor   value="#CCFFCC">
+							</object>&nbsp;&nbsp;             	
+							
+							 <object  id=gcem_email2 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:162px;height:20px;position:relative;left:7px;top:2px">		
+								<param name=Text					value="">
+								<param name=Alignment     value=0>
+								<param name=Border        value=true>
+								<param name=GeneralEdit   value=true>
+								<param name=Language			value=1>
+								<param name=ReadOnly      value=true> 
+								<param name=ReadOnlyBackColor   value="#CCFFCC">
+							</object>&nbsp;
+
+							<object  id=gcem_seq2 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:1px;height:20px;">		
+								<param name=Text					value="">
+								<param name=Alignment     value=0>
+								<param name=Border        value=true>
+								<param name=GeneralEdit   value=true>
+								<param name=Language			value=1>
+							  <param name=Visible       value=false>
+							</object>&nbsp;
+							</comment><script>__ws__(__NSID__);</script> </nobr>
+						</td>           
+					</tr>
+
+					 <tr> 
+						<td class="tab33" width="100px" bgcolor="#eeeeee"><nobr>적&nbsp;&nbsp;&nbsp;&nbsp;요</nobr></td>
+						<td class="tab19" width="400px" colspan="3"><nobr><comment id="__NSID__">
+							<object  id=gcem_remark2 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:461px;height:20px;position:relative;left:5px;top:0px">		
+								<param name=Text					value="">
+								<param name=Alignment     value=0>
+								<param name=Border        value=true>
+								<param name=GeneralEdit   value=true>
+								<param name=Language			value=1>
+							</object></comment><script>__ws__(__NSID__);</script> </nobr>
+						</td>
+					</tr>
+
+					 <tr> 
+						<td class="tab33" width="100px" bgcolor="#eeeeee"><nobr>금&nbsp;&nbsp;&nbsp;&nbsp;액</nobr></td>
+						<td class="tab19" width="100px" colspan="3"><nobr><comment id="__NSID__">
+							<object  id=gcem_remark2 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:461px;height:20px;position:relative;left:5px;top:0px">		
+								<param name=Text					value="">
+								<param name=Alignment     value=0>
+								<param name=Border        value=true>
+								<param name=GeneralEdit   value=true>
+								<param name=Language			value=1>
+							</object></comment><script>__ws__(__NSID__);</script> </nobr>
+						</td>
+					</tr>
+
+
+<!--
+		<td class="tab14" width="100px;" bgcolor="#eeeeee" align="center">거래처명</td>
+		<td width="175px" class="tab31" align=CENTER ><comment id="__NSID__">
+			<object  id=gcem_vendnm classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F	style="position:relative;top:0px;left:0px;width:165px" onkeydown="if(event.keyCode==13) ln_Query2();">
+				<param name=Text				value="">
+				<param name=Alignment		value=0>
+				<param name=Border			value=true>
+				<param name=GeneralEdit value="true">
+				<param name=PromptChar	value="_">
+			</object></comment><script>__ws__(__NSID__);</script>
+		</td>
+		<td class="tab24" height="25px" width="155px" align="right" ><img src="../../common/img/btn/com_b_find.gif" alt="거래처코드를 검색합니다" style="position:relative;left:0px;top:0px;cursor:hand;" onclick="ln_Query2()"></td>
+	</tr>  
+    <tr>
+		<td class="tab11" width="100px;" bgcolor="#eeeeee" align="center">사업자번호</td>
+		<td width="90px" class="tab11" ><comment id="__NSID__">
+			<object  id=gcem_vend_id classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F	style="position:relative;top:0px;left:0px;width:80px" onkeydown="if(event.keyCode==13) ln_Query2();">
+				<param name=Text				value="">
+				<param name=Alignment		value=0>
+				<param name=Border			value=true>
+				<param name=GeneralEdit value="true">
+				<param name=PromptChar	value="_">
+			</object></comment><script>__ws__(__NSID__);</script>
+		</td>
+		<td class="tab11" width="100px;" bgcolor="#eeeeee" align="center">담당자명</td>
+		<td width="175px" class="tab11"><comment id="__NSID__">
+			<object  id=gcem_empnm classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F	style="position:relative;top:0px;left:0px;width:165px" onkeydown="if(event.keyCode==13) ln_Query2();">
+				<param name=Text				value="">
+				<param name=Alignment		value=0>
+				<param name=Border			value=true>
+				<param name=GeneralEdit value="true">
+				<param name=PromptChar	value="_">
+			</object></comment><script>__ws__(__NSID__);</script>
+		</td>
+		<td class="tab11" >&nbsp;
+			<comment id="__NSID__">
+			<object id=gcra_useyn classid=CLSID:754F3DC4-0C79-4C92-AD64-A806D8FF2AB0 style="width:155px;height:20px" >
+				<param name=Cols		value="2">
+				<param name=Format	value="T^사용,F^미사용">
+			</object></comment><script>__ws__(__NSID__);</script> 
+		</td> 	
+
+	</tr>
+	
+</table>
+ <table cellpadding="0" cellspacing="0" border="0" style="position:relative;left:5px;top:10px">
+	<tr>
+		<td class="tab21" colspan="3">
+			<comment id="__NSID__"><object  classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_disp style="width:680;height:239px;border:0 solid #708090;border-left-width:1px;border-top-width:1px;">
+		    <PARAM NAME="DataID"			VALUE="gcds_code01">
+			  <PARAM NAME="BorderStyle" VALUE="0">
+			  <PARAM NAME="Indwidth"		VALUE="0">
+				<PARAM NAME="Fillarea"		VALUE="true">
+				<PARAM NAME="ColSizing"		VALUE="true">
+				<param name="sortview"    value=left>
+			  <PARAM NAME="Format"			VALUE="  
+					<FC>ID=SEQ,		 Name=순번,		width=40,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true show = false </FC>
+					<FC>ID=VEND_CD,		 Name=거래처코드,		width=90,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true</FC>
+					<FC>ID=VEND_NM,		 Name=거래처명,			width=160,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=left, sort = true</FC>
+					<FC>ID=VEND_ID,		 Name='사업자번호',		width=120,	HeadBgColor=#B9D4DC, align=center,   mask='XXX-XX-XXXXX', edit=none, sort=true</FC>
+					<FC>ID=EMPNM,		 Name=담당자명,			width=80,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=left,		sort = true show = true </FC>
+					<C>ID=EMAIL,		 Name=E-mail,			width=160,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=left,		sort = true show = true </C>
+					<C>ID=DEPTNM,		 Name=담당자부서명,		width=150,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=left,		sort = true show = true </C>
+					<C>ID=HPNO,			 Name=전화번호1,		width=90,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true show = true </C>
+					<C>ID=TELNO,		 Name=전화번호2,		width=90,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true show = true </C>
+					<C>ID=USEGB,		 Name=사용구분,			width=80,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=left,		sort = true show = true </C>
+				">
+	    </object></comment><script>__ws__(__NSID__);</script> 
+		</td>
+	</tr>  -->
+	<tr>
+		<td>
+			<fieldset id=ft_div1 style="width:685;height:20px;border:0 solid #708090;border-top-width:0px;text-align:left;">
+				&nbsp;<font id=ft_cnt1 style="position:relative;top:3px;"></font>
+			</fieldset>
+		</td>
+	</tr>
+	<tr><td height="4px"></td></tr>
+	<tr>
+		<td height="30px;" align="center">
+			<img name="btn_select" border="0" src="../../Common/img/btn/com_b_select.gif" style="cursor:hand" onClick="ln_Close('A')">
+			<img name="btn_close" border="0" src="../../Common/img/btn/com_b_close.gif" style="cursor:hand" onClick="ln_Close('C')">
+		</td>
+	</tr>
+</table>
+
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:100px; top:130px;" FrameBorder="0" src="../../Common/img/flash/loading.swf" width="320px" height="42px"> </iframe>
+
+</body>
+</html>

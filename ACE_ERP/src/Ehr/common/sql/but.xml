@@ -1,0 +1,4303 @@
+
+
+<sqls>
+
+<!-- 출장관리 -->
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA010
+* @description : 출장품의결재
+***********************************************************************
+* 2007/03/08     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 출장품의 현황 조회 -->
+    <sql name="BUTA010_SHR">
+        <description>출장품의 현황</description>
+        <query>
+            <![CDATA[
+		   SELECT distinct '9'  AS APP_GBN,
+		          '국내출장' AS APP_GBN_NM
+		          ,ASNHR.SF_GET_ENONAME('01',A.PENO_NO)   AS PENO_NM
+		          ,TO_CHAR(TO_DATE(C.BUT_FR_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' ('||BUT_DAY||'일) '||C.BUT_OBJ AS APP_TITLE
+		          ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+		          ,A.REQ_NO
+		          ,B.ENO_NO PENO_NO
+		          ,B.APP_CMT
+				  ,B.TRANS_GBN ,B.TRANS_NO -- 전표구분, 번호
+				  ,B.COM_YN                -- 인사확인
+				  ,B.APP_STATUS-- 상태
+		     FROM ASNHR.T_DI_APPROVAL A, ASNHR.T_DI_BUSINESSTRIP C, ASNHR.T_DI_BUSINESSTRIP_STATE B
+		    WHERE A.GUN_GBN  ='B'
+		      AND A.REQ_NO = C.ORD_NO
+		      AND A.REQ_NO = B.ORD_NO
+		      AND A.PENO_NO LIKE ? || '%' -- 상신자
+			  AND A.ENO_NO  LIKE ? || '%' -- 결재자
+			  AND   ( (BUT_FR_YMD >= ? AND   BUT_FR_YMD <= ?) OR  (BUT_TO_YMD >= ? AND   BUT_TO_YMD <= ?) ) -- 상신기간==>출장기간
+		                        [1]
+		                        [2]
+		                        [3]
+		
+			ORDER BY  REQ_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 작업권한 조회 -->
+    <sql name="BUTA010_SHR_01">
+        <description>작업권한 조회</description>
+        <query>
+            <![CDATA[
+
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장품의서 삭제 -->
+    <sql name="BUTA010_DEL_01">
+        <description>출장품의서 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_BUSINESSTRIP
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장품의서 결재현황 삭제 -->
+    <sql name="BUTA010_DEL_02">
+        <description>출장품의서결재현황 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_BUSINESSTRIP_STATE
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 여비계산서 삭제 -->
+    <sql name="BUTA010_DEL_03">
+        <description>여비계산서 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장결재자정보 삭제 -->
+    <sql name="BUTA010_DEL_04">
+        <description>출장결재자정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+            AND    GUN_GBN = 'B'
+            ]]>
+        </query>
+    </sql>
+
+  <!--  전표 발생에 필요한 변수값을 가져옴 조회 -->
+    <sql name="BUTA010_PRC_SHR_01">
+        <description>전표 발생에 필요한 변수값을 가져옴 조회</description>
+        <query>
+            <![CDATA[
+
+				SELECT
+				        A.BUT_FR_YMD
+				  	    ,A.BUT_TO_YMD
+					  ,SUBSTR(V1.COMM_NM,1,2)	AS JOB_NM
+				        ,A.JOB_CD                                                   AS JOB_CD
+				       , V2.COST_AMT                                                                        AS COST_AMT
+				       , SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),1,4)            AS ACC_YYYY
+				       , SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),5,2)            AS ACC_MM
+				       , (TO_CHAR(SYSDATE,'YYYYMMDD'))                                      AS IPT_YMD
+				       , V3.REMARK                                                                          AS REMARK
+				       , V3.HEAD_CD                                                                         AS HEAD_CD
+				       , V3.GBN2_TAG                                                                        AS GBN2_TAG
+				       , A.ENO_NO
+				       , A.NAM_KOR
+				       ,TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF4') FILE_NAME
+				       ,PC_GBN
+					   ,PC_CCTRCD
+					   ,PC_CCTRNM
+					   ,BUT_GBN
+					   ,SUBSTR(ACC_CD, 1, 1) AS ACC_CD
+					   ,TAX_DPT
+			    FROM ASNHR.T_DI_BUSINESSTRIP A
+			           , (SELECT COMM_CD
+			                   , COMM_NM
+			                FROM T_CM_COMMON
+			               WHERE CD_GBN = 'A2') V1
+				  	 , (
+						select ORD_NO, SUM(COST_AMT) AS COST_AMT
+						from ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+						where ORD_NO = ?
+						and   GBN_CD = 'G3'
+						GROUP BY ORD_NO
+						) V2
+			           , (SELECT DPT_CD
+			                   , REMARK
+			                   , HEAD_CD
+			                   , GBN2_TAG
+			                FROM T_CM_DEPT
+			               WHERE CD_GBN = 'A4'
+			                 AND REMARK IS NOT NULL ) V3
+			           ,T_CM_PERSON V4
+					   ,T_CP_ACCOUNT_DEPT V5
+			       WHERE A.ORD_NO  = ?
+			         AND A.JOB_CD  = V1.COMM_CD
+			         AND A.ORD_NO  = V2.ORD_NO
+			         AND A.DPT_CD  = V3.DPT_CD
+					 AND A.ENO_NO  = V4.ENO_NO
+					 AND PC_CCTRCD = LPAD(V5.DPT_CD(+), 10, '0')-- AND SUBSTR(V4.TAX_DPT, 1, 4) = V5.DPT_CD(+)-
+            ]]>
+        </query>
+    </sql>
+
+  <!--  출장품의현황Table에 출장전표정보 Update* -->
+    <sql name="BUTA010_PRC_UPT_01">
+        <description>BUTA010_PRC_UPT_01</description>
+        <query>
+            <![CDATA[
+      UPDATE ASNHR.T_DI_BUSINESSTRIP_STATE
+         SET TRANS_GBN  = 'Y'  /*전송여부*/
+           , COM_YN  = 'Y'     /*인사팀 확인여부*/
+           , TRANS_NO   = ?    /*관리번호1*/
+           , TRANS_YMD  = ?    /*전송일자*/
+       WHERE ORD_NO     = ?	   /*주문번호*/
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장전표정보 작성 내용 조회 -->
+    <sql name="BUTA010_PRC_SHR_02">
+        <description>출장전표정보 작성 내용 조회</description>
+        <query>
+            <![CDATA[
+
+			  SELECT ORD_NO, ENO_NO, NAM_KOR, DPT_CD, SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+			         JOB_CD, SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM,
+			         TO_CHAR(TO_DATE(BUT_FR_YMD),'YYYY-MM-DD') AS BUT_FR_YMD, BUT_FR_GBN,
+			         TO_CHAR(TO_DATE(BUT_TO_YMD),'YYYY-MM-DD') AS BUT_TO_YMD, BUT_TO_GBN,
+			         OFFER_GBN,START_GBN,
+			         SLEEP_DAY, BUT_DAY, BUT_CITY,
+					 CITY_DPT1, CITY_ARV1, CITY_GBN1, (SELECT GBN_NAME FROM ASNHR.T_DI_BUSINESSTRIP_BASIS WHERE GBN_CD = CITY_GBN1) CITY_GBNM1,
+					 CITY_DPT2, CITY_ARV2, CITY_GBN2, (SELECT GBN_NAME FROM ASNHR.T_DI_BUSINESSTRIP_BASIS WHERE GBN_CD = CITY_GBN2) CITY_GBNM2,
+					 CITY_DPT3, CITY_ARV3, CITY_GBN3, (SELECT GBN_NAME FROM ASNHR.T_DI_BUSINESSTRIP_BASIS WHERE GBN_CD = CITY_GBN3) CITY_GBNM3,
+					 CITY_DPT4, CITY_ARV4, CITY_GBN4, (SELECT GBN_NAME FROM ASNHR.T_DI_BUSINESSTRIP_BASIS WHERE GBN_CD = CITY_GBN4) CITY_GBNM4,
+					 CITY_DPT5, CITY_ARV5, CITY_GBN5, (SELECT GBN_NAME FROM ASNHR.T_DI_BUSINESSTRIP_BASIS WHERE GBN_CD = CITY_GBN5) CITY_GBNM5,
+					 CITY_DPT6, CITY_ARV6, CITY_GBN6, (SELECT GBN_NAME FROM ASNHR.T_DI_BUSINESSTRIP_BASIS WHERE GBN_CD = CITY_GBN6) CITY_GBNM6,
+			         CITY_DPT7, CITY_ARV7, CITY_GBN7, (SELECT GBN_NAME FROM ASNHR.T_DI_BUSINESSTRIP_BASIS WHERE GBN_CD = CITY_GBN7) CITY_GBNM7,
+					 CITY_DPT8, CITY_ARV8, CITY_GBN8, (SELECT GBN_NAME FROM ASNHR.T_DI_BUSINESSTRIP_BASIS WHERE GBN_CD = CITY_GBN8) CITY_GBNM8,
+					 BUT_OBJ,BUT_AFF,BUT_GBN,
+			         BUT_ADDR, BUT_NAME, BUT_PHONE, REMARK, COM_YN,NVL(COM_CNT, 0) COM_CNT,
+			         COM_CD1, COM_NM1, COM_NO1, COM_NAM1,
+			         COM_CD2, COM_NM2, COM_NO2, COM_NAM2,
+			         COM_CD3, COM_NM3, COM_NO3, COM_NAM3,
+			         COM_CD4, COM_NM4, COM_NO4, COM_NAM4,
+			         COM_CD5, COM_NM5, COM_NO5, COM_NAM5, '' AS BASIS_YN
+			  FROM   ASNHR.T_DI_BUSINESSTRIP
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장전표정보 작성 내용 조회 -->
+    <sql name="BUTA010_PRC_SHR_03">
+        <description>출장전표정보 작성 내용 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO, GBN_CD,
+		            SF_GET_COMMNAME('01','T4',GBN_CD) AS GBN_NM,
+                    SQN_NO, ENO_NO, NAM_KOR, DPT_CD, JOB_CD,
+                    NVL(CITY_DPT,' ') CITY_DPT,
+                    NVL(CITY_AVR,' ') CITY_AVR,
+                    NVL(REMARK,' ')   REMARK,
+                    TO_CHAR(PRICE_AMT,'FM999,999')    PRICE_AMT,
+                    TO_CHAR(COST_AMT,'FM999,999')    COST_AMT,
+                    BAS_CNT,  DESC_AMT,
+                    TO_CHAR(CAR_TOLL,'FM999,999')    CAR_TOLL,
+                    TO_CHAR(CAR_OIL,'FM999,999')       CAR_OIL,
+                    CAR_DISTANCE, CAR_EFFICIENCY
+            FROM   ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+            WHERE  ORD_NO = ?
+            ORDER BY GBN_CD, SQN_NO
+            ]]>
+        </query>
+    </sql>
+
+
+  <!--  출장품의현황Table에 출장전표정보 Update(인사팀확인여부)* -->
+    <sql name="BUTA010_UPT_01">
+        <description>BUTA010_UPT_01</description>
+        <query>
+            <![CDATA[
+      UPDATE ASNHR.T_DI_BUSINESSTRIP_STATE
+         SET COM_YN  = 'Y'     /*인사팀 확인여부*/
+       WHERE ORD_NO     = ?	   /*주문번호*/
+            ]]>
+        </query>
+    </sql>
+	
+	
+<!--
+***********************************************************************
+* @UseCase     : BUTA020
+* @description : 출장품의서작성
+***********************************************************************
+* 2007/03/08     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 품의번호 조회 -->
+    <sql name="BUTA020_SHR_01">
+        <description>품의번호 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_CHAR(SYSDATE,'YYYYMM')||LPAD(ASNHR.S_BUT_REQ_NO.NEXTVAL, 4, '0') AS ORD_NO FROM DUAL
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 교통수단 조회 -->
+    <sql name="BUTA020_SHR_02">
+        <description>교통수단 조회</description>
+        <query>
+            <![CDATA[
+            SELECT GBN_CD, GBN_NAME
+            FROM   ASNHR.T_DI_BUSINESSTRIP_BASIS
+            WHERE  GBN_CD LIKE ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장품의서 작성 내용 조회 -->
+    <sql name="BUTA020_PRT_03">
+        <description>출장품의서 작성 내용 조회</description>
+        <query>
+            <![CDATA[
+      		SELECT ORD_NO, ENO_NO, NAM_KOR, DPT_CD,
+                   JOB_CD, (ASNHR.SF_GET_DPTNAME('01','A4',DPT_CD) || '/' || ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD)) AS DPT_JOB_NM,
+                   (TO_CHAR(TO_DATE(BUT_FR_YMD),'YYYY.MM.DD') || DECODE( BUT_FR_GBN,'A','(오전)','(오후)')|| ' - ' ||
+				   TO_CHAR(TO_DATE(BUT_TO_YMD),'YYYY.MM.DD') || DECODE( BUT_TO_GBN,'A','(오전)','(오후)') ||
+				    '   (' || DECODE(SLEEP_DAY,NULL,'0',SLEEP_DAY) || '박' ||DECODE(BUT_DAY,NULL,'0',BUT_DAY) ||'일)' ) AS BUT_FROM_TO,
+                   SLEEP_DAY, BUT_DAY, BUT_CITY,
+				   (DECODE(CITY_DPT1,NULL,'',('1.'||CITY_DPT1||'-'||CITY_ARV1)) || ' ' ||
+				   DECODE(CITY_DPT2,NULL,'',('2.'||CITY_DPT2||'-'||CITY_ARV2)) || ' ' ||
+				   DECODE(CITY_DPT3,NULL,'',('3.'||CITY_DPT3||'-'||CITY_ARV3)) || ' ' ||
+				   DECODE(CITY_DPT4,NULL,'',('4.'||CITY_DPT4||'-'||CITY_ARV4)) || ' ' ||
+				   DECODE(CITY_DPT5,NULL,'',('5.'||CITY_DPT5||'-'||CITY_ARV5)) || ' ' ||
+				   DECODE(CITY_DPT6,NULL,'',('6.'||CITY_DPT6||'-'||CITY_ARV6)) || ' ' ||
+				   DECODE(CITY_DPT7,NULL,'',('7.'||CITY_DPT7||'-'||CITY_ARV7)) || ' ' ||
+				   DECODE(CITY_DPT8,NULL,'',('8.'||CITY_DPT8||'-'||CITY_ARV8))) AS CITY_TOTAL,
+				   BUT_OBJ,BUT_ADDR, BUT_NAME || ' (Tel:' || BUT_PHONE || ')' as BUT_NAME,BUT_PHONE, REMARK, COM_YN
+            FROM   ASNHR.T_DI_BUSINESSTRIP
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 출장품의서 작성 내용 조회 -->
+    <sql name="BUTA020_SHR_03">
+        <description>출장품의서 작성 내용 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO, ENO_NO, NAM_KOR, DPT_CD, ASNHR.SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+                   JOB_CD, ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM,
+                   TO_CHAR(TO_DATE(BUT_FR_YMD),'YYYY-MM-DD') AS BUT_FR_YMD, BUT_FR_GBN,
+                   TO_CHAR(TO_DATE(BUT_TO_YMD),'YYYY-MM-DD') AS BUT_TO_YMD, BUT_TO_GBN,
+                   OFFER_GBN,START_GBN,
+                   SLEEP_DAY, BUT_DAY, BUT_CITY, CITY_DPT1, CITY_ARV1, CITY_GBN1, CITY_DPT2,
+                   CITY_ARV2, CITY_GBN2, CITY_DPT3, CITY_ARV3, CITY_GBN3, CITY_DPT4, CITY_ARV4,
+                   CITY_GBN4, CITY_DPT5, CITY_ARV5, CITY_GBN5, CITY_DPT6, CITY_ARV6, CITY_GBN6,
+                   CITY_DPT7, CITY_ARV7, CITY_GBN7, CITY_DPT8, CITY_ARV8, CITY_GBN8, BUT_OBJ,
+                   BUT_AFF,BUT_GBN,
+                   BUT_ADDR, BUT_NAME, BUT_PHONE, REMARK, COM_YN, COM_CNT, COM_CD1, COM_NM1,
+                   COM_NO1, COM_NAM1, COM_CD2, COM_NM2, COM_NO2, COM_NAM2, COM_CD3, COM_NM3,
+                   COM_NO3, COM_NAM3, COM_CD4, COM_NM4, COM_NO4, COM_NAM4, COM_CD5, COM_NM5,
+                   COM_NO5, COM_NAM5, '' AS BASIS_YN, PC_CCTRCD, PC_CCTRNM, PC_GBN
+            FROM   ASNHR.T_DI_BUSINESSTRIP
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTA020_SHR_04">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+        SELECT * FROM     
+           (SELECT ENO_NO
+		    	  , ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+		   		  , REQ_NO
+				  , GUN_DPT
+				  , ASNHR.SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+				  , JOB_CD
+				  , CASE WHEN JOB_CD = '700' THEN '사원' 
+					WHEN JOB_CD = '890' THEN '사원'    
+					ELSE ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) END AS JOB_NM				  
+				  , SEQ_NO
+				  , '' SEQ_NM,'99991231' GUN_YMD, GUN_DPT as DPT_CD
+				  , APP_YN
+                  , (CASE WHEN APP_YN = 'R' THEN  '상신  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'N' THEN  '부결  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'E' THEN  '반송  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'Y' THEN  '승인  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                    	       ELSE '미결'
+                      END ) APP_STATUS
+                   ,REMARK
+                   ,NVL2(REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+			AND    GUN_GBN = ?
+			AND    SEQ_NO < '90'
+            ORDER BY SEQ_NO)
+     UNION ALL       
+       SELECT * FROM 
+           (SELECT ENO_NO
+		    	  , ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+		   		  , REQ_NO
+				  , GUN_DPT
+				  , ASNHR.SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+				  , JOB_CD
+				  , CASE WHEN JOB_CD = '700' THEN '사원' 
+					WHEN JOB_CD = '890' THEN '사원'    
+					ELSE ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) END AS JOB_NM	
+				  , SEQ_NO
+				  , '' SEQ_NM,'99991231' GUN_YMD, GUN_DPT as DPT_CD
+				  , APP_YN
+                  , (CASE WHEN APP_YN = 'R' THEN  '상신  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'N' THEN  '부결  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'E' THEN  '반송  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'Y' THEN  '승인  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                    	       ELSE '미결'
+                      END ) APP_STATUS
+                   ,REMARK
+                   ,NVL2(REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+			AND    GUN_GBN = ?
+			AND    SEQ_NO > '90'			
+            ORDER BY SEQ_NO DESC)           
+            
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+	<!-- 결재정보 조회 -->
+    <sql name="BUTA020_SHR_05">
+        <description>결재정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.APP_COMP, B.BUT_FR_YMD, B.BUT_TO_YMD, B.DPT_CD, B.ENO_NO,A.APP_STATUS, B.COM_YN, B.COM_CNT, B.COM_NO1, B.COM_NO2, B.COM_NO3, B.COM_NO4, B.COM_NO5
+            FROM   ASNHR.T_DI_BUSINESSTRIP_STATE A, ASNHR.T_DI_BUSINESSTRIP B
+            WHERE  A.ORD_NO = ?
+            AND    A.ENO_NO = ?
+			AND    A.ORD_NO = B.ORD_NO
+			AND    A.ENO_NO = B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 결재정보 SMS 통보조회 -->
+    <sql name="BUTA020_SHR_06">
+        <description>결재정보 SMS 통보조회</description>
+        <query>
+            <![CDATA[
+            SELECT  ENO_NM, TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3') AS CMID,nvl(EM_PHN_NO,'No Phone') AS EM_PHN_NO,'국내출장' AS ETC1,'ASAN-HRMS / 국내출장-결재문서가 상신되었습니다.['||?||']' AS MSG_BODY
+            FROM   ASNHR.T_CM_PERSON
+            WHERE  ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="BUTA020_SHR_07">
+        <description>결재정보 SMS 통보조회</description>
+        <query>
+            <![CDATA[
+            SELECT  ENO_NM,TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3') AS CMID,NVL(EM_PHN_NO,' ') AS EM_PHN_NO,'근태신청' AS ETC1,'ASAN-HRMS / 근태신청-결재문서가 상신되었습니다.[' || ? || ']' AS MSG_BODY
+            FROM   ASNHR.T_CM_PERSON
+            WHERE  ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="BUTA020_SHR_PER">
+        <description>출장 입력자 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  
+            	ENO_NO,
+            	DPT_CD,
+                ASNHR.SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+            	JOB_CD,
+           	    ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM            
+            FROM   ASNHR.T_CM_PERSON
+            WHERE  ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTA020_PRT_04">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+    SELECT
+         MIN (DECODE (C_GRP, 1, NM)) NM1
+       , MIN (DECODE (C_GRP, 1, APP_STATUS)) APP_STATUS1
+       , MIN (DECODE (C_GRP, 2, NM)) NM2
+       , MIN (DECODE (C_GRP, 2, APP_STATUS)) APP_STATUS2
+       , MIN (DECODE (C_GRP, 3, NM)) NM3
+       , MIN (DECODE (C_GRP, 3, APP_STATUS)) APP_STATUS3
+       , MIN (DECODE (C_GRP, 4, NM)) NM4
+       , MIN (DECODE (C_GRP, 4, APP_STATUS)) APP_STATUS4
+       , MIN (DECODE (C_GRP, 5, NM)) NM5
+       , MIN (DECODE (C_GRP, 5, APP_STATUS)) APP_STATUS5
+      FROM (
+            SELECT MOD (ROWNUM - 1, 5) + 1 C_GRP, CEIL (ROWNUM / 5) R_GRP, NM, APP_STATUS
+                   FROM
+                    (
+                     SELECT ENO_NO
+                            , ASNHR.SF_GET_ENONAME('01', ENO_NO) || ' ' || ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) AS NM
+                            , REQ_NO
+                            , GUN_DPT
+                            , ASNHR.SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+                            , JOB_CD
+                            , ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM
+                            , SEQ_NO
+                            , '' SEQ_NM,'99991231' GUN_YMD, GUN_DPT as DPT_CD
+                            , APP_YN
+                            , (CASE WHEN APP_YN = 'R' THEN  '상신  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                                             WHEN APP_YN = 'N' THEN  '부결  ' || TO_CHAR(UPT_YMD, 'YY-MM-DD  HH24:MI')
+                                             WHEN APP_YN = 'E' THEN  '반송  ' || TO_CHAR(UPT_YMD, 'YY-MM-DD  HH24:MI')
+                                             WHEN APP_YN = 'Y' THEN  '승인  ' || TO_CHAR(UPT_YMD, 'YY-MM-DD  HH24:MI')
+                                         ELSE '미결'
+                                END ) APP_STATUS
+                             ,REMARK
+                             ,NVL2(REMARK,'Click','') AS REMARK1
+                     FROM   ASNHR.T_DI_APPROVAL
+                     WHERE  REQ_NO = ?
+                     AND    GUN_GBN = 'B'
+                     ORDER BY SEQ_NO)
+                )
+                GROUP BY R_GRP
+                ORDER BY R_GRP            ]]>
+        </query>
+    </sql>
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTA023_PRT">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DECODE(TRANS_YMD,NULL,'', '전송일자 : ' || TO_CHAR(TO_DATE(TRANS_YMD),'YYYY/MM/DD') ) AS TRANS_DAY,
+	            DECODE(TRANS_NO,NULL,'', '관리번호 : ' || TRANS_NO ) AS TRANS_NUM
+				FROM ASNHR.T_DI_BUSINESSTRIP_STATE
+				 WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 출장품의서 작성 -->
+    <sql name="BUTA020_INS_01">
+        <description>출장품의서 작성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_DI_BUSINESSTRIP
+            ( ORD_NO, ENO_NO, NAM_KOR, DPT_CD, JOB_CD, BUT_FR_YMD, BUT_FR_GBN,
+              BUT_TO_YMD, BUT_TO_GBN,
+              OFFER_GBN, START_GBN,
+              SLEEP_DAY, BUT_DAY, BUT_CITY, CITY_DPT1,
+              CITY_ARV1, CITY_GBN1, CITY_DPT2, CITY_ARV2, CITY_GBN2, CITY_DPT3,
+              CITY_ARV3, CITY_GBN3, CITY_DPT4, CITY_ARV4, CITY_GBN4, CITY_DPT5,
+              CITY_ARV5, CITY_GBN5, CITY_DPT6, CITY_ARV6, CITY_GBN6, CITY_DPT7,
+              CITY_ARV7, CITY_GBN7, CITY_DPT8, CITY_ARV8, CITY_GBN8, BUT_OBJ,
+              BUT_ADDR, BUT_NAME, BUT_PHONE, REMARK, COM_YN, COM_CNT, COM_CD1,
+              COM_NM1, COM_NO1, COM_NAM1, COM_CD2, COM_NM2, COM_NO2, COM_NAM2,
+              COM_CD3, COM_NM3, COM_NO3, COM_NAM3, COM_CD4, COM_NM4, COM_NO4,
+              COM_NAM4, COM_CD5, COM_NM5, COM_NO5, COM_NAM5,
+              IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD,BUT_AFF,BUT_GBN,PC_GBN , PC_CCTRCD, PC_CCTRNM)
+            VALUES
+            ( ?     , ?     , ?      , ?     , ?     , ?         , ?         ,
+              ?         , ?         ,
+              ?         , ?         ,
+              ?        , ?      , ?       , ?        ,
+              ?        , ?        , ?        , ?        , ?        , ?        ,
+              ?        , ?        , ?        , ?        , ?        , ?        ,
+              ?        , ?        , ?        , ?        , ?        , ?        ,
+              ?        , ?        , ?        , ?        , ?        , ?      ,
+              ?       , ?       , ?        , ?     , ?     , ?      , ?      ,
+              ?      , ?      , ?       , ?      , ?      , ?      , ?       ,
+              ?      , ?      , ?       , ?      , ?      , ?      , ?      ,
+              ?       , ?      , ?      , ?      , ?       ,
+              ?      , SYSDATE, ?      , SYSDATE, ?, ?, ?, ?, ?)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 출장품의 결재현황 저장 -->
+    <sql name="BUTA020_INS_02">
+        <description>출장품의 결재현황 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_DI_BUSINESSTRIP_STATE
+            ( ORD_NO, ENO_NO, NAM_KOR, DPT_CD, JOB_CD, APP_STATUS,
+              APP_COMP,
+               APP_CMT, TRANS_GBN,
+              IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+            ( ?     , ?     , ?      , ?     , ?     , ?         ,
+              ?       ,
+               ?      , ?        ,
+              ?      , SYSDATE, ?      , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 출장 결재자정보 저장 -->
+    <sql name="BUTA020_INS_03">
+        <description>출장 결재자정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO ASNHR.T_DI_APPROVAL
+                    (GUN_YMD, GUN_GBN, GUN_DPT, SEQ_NO, ENO_NO, JOB_CD, PENO_NO, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD, REQ_NO)
+             VALUES (      ?,       ?,       ?,      ?,      ?,      ?,       ?,       ?, sysdate,       ?, sysdate, ?)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재처리(출장품의 결재현황) -->
+    <sql name="BUTA020_UPT_01">
+        <description>결재정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_BUSINESSTRIP_STATE
+            SET    [1]
+                   UPT_MAN = ?,
+                   UPT_YMD = SYSDATE
+            WHERE  ORD_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상신처리(출장 결재자 정보) -->
+    <sql name="BUTA020_UPT_02">
+        <description>상신정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_APPROVAL
+            SET    APP_YN = ?,
+                   APP_TIME = TO_CHAR(sysdate,'HH24:MI'),
+                   REMARK   = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD = sysdate
+            WHERE REQ_NO = ?
+            AND     ENO_NO = ?
+            AND    GUN_GBN = 'B'
+            ]]>
+        </query>
+    </sql>
+    <!-- 상신처리(출장 결재자 정보) -->
+    <sql name="BUTA020_UPT_APP">
+        <description>결재상태 상신 변경</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_APPROVAL
+            SET    APP_YN = null,
+            		 APP_TIME = null,
+            		 REMARK = null,
+                   UPT_MAN = ?,
+                   UPT_YMD = sysdate
+            WHERE REQ_NO = ?
+            AND    GUN_GBN = 'B'
+            ]]>
+        </query>
+    </sql>
+    <!-- 결재처리(출장품의 결재현황) -->
+    <sql name="BUTA020_UPT_STA">
+        <description>결재정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_BUSINESSTRIP_STATE
+            SET   APP_STATUS = 'SA',
+		             APP_CMT      ='상신',
+		             APP_COMP   = 'N',
+		             TRANS_GBN  = 'N',
+		             ORD_YMD     = TO_CHAR(SYSDATE, 'YYYYMMDD'),
+		             ORD_TIME    = TO_CHAR(SYSDATE, 'HH24:MI:SS'),
+                   UPT_MAN = ?,
+                   UPT_YMD = SYSDATE
+            WHERE  ORD_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장품의서 정보 수정 -->
+    <sql name="BUTA020_UPT_03">
+        <description>출장품의서 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_BUSINESSTRIP
+            SET    BUT_FR_YMD = ?,		--출장시작일
+                   BUT_FR_GBN = ?,		--출장시작일구분
+                   BUT_TO_YMD = ?,		--출장종료일
+                   BUT_TO_GBN = ?,		--출장종료일구분
+                   OFFER_GBN = ?,		--숙식제공교육 구분
+                   START_GBN = ?,		--숙식제공교육 출발구분
+                   SLEEP_DAY = ?,		--숙박일수
+                   BUT_DAY = ?,			--출장일수
+                   BUT_CITY = ?,		--출장지
+                   CITY_DPT1 = ?,		--출장구간1출발지
+                   CITY_ARV1 = ?,		--출장구간1도착지
+                   CITY_GBN1 = ?,		--출장구간1교통수단
+                   CITY_DPT2 = ?,		--출장구간2출발지
+                   CITY_ARV2 = ?,		--출장구간2도착지
+                   CITY_GBN2 = ?,		--출장구간2교통수단
+                   CITY_DPT3 = ?,		--출장구간3출발지
+                   CITY_ARV3 = ?,		--출장구간3도착지
+                   CITY_GBN3 = ?,		--출장구간3교통수단
+                   CITY_DPT4 = ?,		--출장구간4출발지
+                   CITY_ARV4 = ?,		--출장구간4도착지
+                   CITY_GBN4 = ?,		--출장구간4교통수단
+                   CITY_DPT5 = ?,		--출장구간5출발지
+                   CITY_ARV5 = ?,		--출장구간5도착지
+                   CITY_GBN5 = ?,		--출장구간5교통수단
+                   CITY_DPT6 = ?,		--출장구간6출발지
+                   CITY_ARV6 = ?,		--출장구간6도착지
+                   CITY_GBN6 = ?,		--출장구간6교통수단
+                   CITY_DPT7 = ?,		--출장구간7출발지
+                   CITY_ARV7 = ?,		--출장구간7도착지
+                   CITY_GBN7 = ?,		--출장구간7교통수단
+                   CITY_DPT8 = ?,		--출장구간8출발지
+                   CITY_ARV8 = ?,		--출장구간8도착지
+                   CITY_GBN8 = ?,		--출장구간8교통수단
+                   BUT_OBJ = ?,			--출장목적
+                   BUT_ADDR = ?,		--긴급연락주소
+                   BUT_NAME = ?,		--긴급연락성명
+                   BUT_PHONE = ?,		--긴급연락전화번호
+                   REMARK = ?,			--비고
+                   COM_YN = ?,			--동행인여부
+                   COM_CNT = ?,			--동행인수
+                   COM_CD1 = ?,			--동행인직위코드1
+                   COM_NM1 = ?,			--동행인직위1
+                   COM_NO1 = ?,			--동행인사번1
+                   COM_NAM1 = ?,		--동행인이름1
+                   COM_CD2 = ?,			--동행인직위코드2
+                   COM_NM2 = ?,			--동행인직위2
+                   COM_NO2 = ?,			--동행인사번2
+                   COM_NAM2 = ?,		--동행인이름2
+                   COM_CD3 = ?,			--동행인직위코드3
+                   COM_NM3 = ?,			--동행인직위3
+                   COM_NO3 = ?,			--동행인사번3
+                   COM_NAM3 = ?,		--동행인이름3
+                   COM_CD4 = ?,			--동행인직위코드4
+                   COM_NM4 = ?,			--동행인직위4
+                   COM_NO4 = ?,			--동행인사번4
+                   COM_NAM4 =?,			--동행인이름4
+                   COM_CD5 = ?,			--동행인직위코드5
+                   COM_NM5 = ?,			--동행인직위5
+                   COM_NO5 = ?,			--동행인사번5
+                   COM_NAM5 = ?,		--동행인이름5
+                   UPT_MAN = ?,
+                   UPT_YMD = SYSDATE,
+                   BUT_AFF = ?,			-- 출장효과
+                   BUT_GBN = ?,			-- 출장유형
+                   PC_GBN = ?,			-- 전표구분
+                   PC_CCTRCD = ?,			-- 전표코드
+                   PC_CCTRNM = ?			-- 전표명
+            WHERE ORD_NO = ?
+            AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장 결재자 정보 수정 -->
+    <sql name="BUTA020_UPT_04">
+        <description>출장 결재자 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_AD_DECISION
+            SET    AUTHO_CD = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD = SYSDATE
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            AND    CK_TAG = 'C'
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 출장 결재자 정보 수정 -->
+    <sql name="BUTA020_UPT_06">
+        <description>출장 결재자 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_AD_DECISION
+               SET APP_YN = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD = SYSDATE
+            WHERE ORD_NO = ?
+              AND   AUTHO_CD <> 'A1'
+              AND   CK_TAG = 'C'
+
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 출장 날짜 정보 수정 -->
+    <sql name="BUTA020_UPT_DATE">
+        <description>출장 날짜 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_BUSINESSTRIP
+            SET    BUT_FR_YMD = ?,		--출장시작일
+                   BUT_FR_GBN = ?,		--출장시작일구분
+                   BUT_TO_YMD = ?,		--출장종료일
+                   BUT_TO_GBN = ?,		--출장종료일구분
+                   SLEEP_DAY = ?,		--숙박일수
+                   BUT_DAY = ?			--출장일수
+            WHERE ORD_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+	<!-- 출장결재자정보 삭제 -->
+    <sql name="BUTA020_DEL_01">
+        <description>출장결재자정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_AD_DECISION
+            WHERE  ORD_NO = ?
+            AND    CK_TAG = 'C'
+            ]]>
+        </query>
+    </sql>
+
+
+
+	<!-- 근태정보에 Update 할 데이터 조회 -->
+    <sql name="BUTA020_DIL_SHR_01">
+        <description>근태정보에 Update 할 데이터 조회</description>
+        <query>
+            <![CDATA[
+					SELECT *
+					FROM
+					(
+							SELECT ENO_NO,
+							       PIS_YY,
+								   PIS_MM,
+								   DECODE(LENGTH(LV), 1, '0'|| LV, LV)  AS PIS_DD,
+							       PIS_YY || PIS_MM || DECODE(LENGTH(LV), 1, '0'|| LV, LV) AS PIS_YMD
+							FROM
+							(
+								 SELECT ENO_NO,
+								        PIS_YY,
+										PIS_MM,
+								        LV,
+								        DECODE(lv,1,AT1_CD,
+								                  2,AT2_CD,
+								                  3,AT3_CD,
+								                  4,AT4_CD,
+								                  5,AT5_CD,
+								                  6,AT6_CD,
+								                  7 , AT7_CD,
+								                  8 , AT8_CD,
+								                  9 , AT9_CD,
+								                  10, AT10_CD,
+								                  11, AT11_CD,
+								                  12, AT12_CD,
+								                  13, AT13_CD,
+								                  14, AT14_CD,
+								                  15, AT15_CD,
+								                  16, AT16_CD,
+								                  17, AT17_CD,
+								                  18, AT18_CD,
+								                  19, AT19_CD,
+								                  20, AT20_CD,
+								                  21, AT21_CD,
+								                  22, AT22_CD,
+								                  23, AT23_CD,
+								                  24, AT24_CD,
+								                  25, AT25_CD,
+								                  26, AT26_CD,
+								                  27, AT27_CD,
+								                  28, AT28_CD,
+								                  29, AT29_CD,
+							                  30, AT30_CD,
+							                  31, AT31_CD
+							        ) col_new
+							FROM ASNHR.T_DI_DILIGENCE
+							, (SELECT LEVEL lv FROM dual CONNECT BY LEVEL <= 31)
+							WHERE  1 = 1
+							AND    PIS_YY || PIS_MM >= ? -- 근태시작일
+							AND    PIS_YY || PIS_MM <= ? -- 근태종료일
+							AND    ENO_NO = ?			 -- 사번
+							)
+						) A
+						WHERE A.PIS_YMD >= ?
+						AND   A.PIS_YMD <= ?
+            ]]>
+        </query>
+    </sql>
+
+  <!-- 개인별근태신청에 반영 -->
+    <sql name="BUTA020_DIL_IND_01">
+        <description>근태변경신청 정보 수정</description>
+        <query>
+            <![CDATA[
+		INSERT INTO ASNHR.T_DI_DILIGENCE (
+			PIS_YY, PIS_MM, ENO_NO, OCC_CD, DPT_CD, MD_DSP,
+			ATT_A, ATT_B, ATT_C, ATT_D, ATT_E, ATT_F, ATT_G, ATT_H, ATT_I, ATT_J, ATT_K, ATT_L, ATT_M, ATT_N, ATT_O, ATT_P, ATT_Q, ATT_R, ATT_S, ATT_U, ATT_V, ATT_X, ATT_Z, ATW_CNT, HOL_CNT, HOW_CNT,
+			IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+		SELECT  ?, LV, ?, 'A', ?, SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(?||LV||'01')),'YYYYMMDD'),7),
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,
+			?, SYSDATE, ?, SYSDATE
+		FROM
+			(SELECT PIS_YY, PIS_MM, ENO_NO
+			FROM ASNHR.T_DI_DILIGENCE
+			WHERE PIS_YY = ?
+			AND   ENO_NO = ?) A,
+			(SELECT DECODE(LENGTH(LEVEL), 1, '0'||LEVEL, LEVEL) LV FROM DUAL CONNECT BY LEVEL <= 12) B
+		WHERE B.LV = A.PIS_MM (+)
+		AND   PIS_MM IS NULL
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재한개수 세기 -->
+    <sql name="BUTA020_CNT">
+        <description>결재정보개수세기</description>
+        <query>
+            <![CDATA[
+              SELECT TOTAL,APP,REJ,BAN,
+              case
+                 when REJ > 0 then 'N'
+                 when BAN > 0 then 'E'
+                 when APP = TOTAL then 'Y'
+                 else '-'
+            end APP_YN
+            FROM
+                (SELECT COUNT(*) APP
+	                FROM ASNHR.T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?
+	                AND APP_YN = 'Y') Y,
+	            (SELECT COUNT(*) REJ
+	                FROM ASNHR.T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?
+	                AND APP_YN = 'N') N,
+	            (SELECT COUNT(*) BAN
+	                FROM ASNHR.T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?
+	                AND APP_YN = 'E') B,
+                (SELECT COUNT(*) CNT
+	                FROM ASNHR.T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?
+	                AND APP_YN IS NOT NULL) I,
+                (SELECT COUNT(*) TOTAL
+	                FROM ASNHR.T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?) T
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA021
+* @description : 여비계산서
+***********************************************************************
+* 2007/03/12     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 여비지급기준 조회 -->
+    <sql name="BUTA021_SHR_01">
+        <description>여비지급기준 조회</description>
+        <query>
+            <![CDATA[
+            SELECT GBN_CD, GBN_CD||'  '||GBN_NAME AS GBN_NAME,
+                   EXP_AMT1, EXP_AMT2, EXP_AMT3, EXP_AMT4, EXP_AMT5, EXP_AMT6
+            FROM   ASNHR.T_DI_BUSINESSTRIP_BASIS
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 직급에 따른 단가명 조회 -->
+    <sql name="BUTA021_SHR_02">
+        <description>단가명 조회</description>
+        <query>
+            <![CDATA[
+            SELECT EXT_02
+            FROM   ASNHR.T_CM_COMMON
+            WHERE  CD_GBN = ?
+            AND    COMM_CD = ?
+            AND    (END_YMD IS NULL OR END_YMD >= SYSDATE)
+            [1]
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 식비공제를 위한 휴일 조회 -->
+    <sql name="BUTA021_SHR_03">
+        <description>휴일 조회</description>
+        <query>
+            <![CDATA[
+            SELECT REG_YMD, HOL_GBN
+            FROM   ASNHR.T_DI_HOLIDAY
+            WHERE  REG_YMD >= ?
+            AND    REG_YMD <= ?
+            ORDER BY REG_YMD
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 여비계산서 조회 -->
+    <sql name="BUTA021_PRT">
+        <description>여비계산서 조회</description>
+        <query>
+            <![CDATA[
+              SELECT
+					ASNHR.SF_GET_COMMNAME('01','T4',GBN_CD) AS GBN_NM,
+					SQN_NO,
+					ENO_NO,
+					NAM_KOR,
+					DPT_CD,
+					JOB_CD,
+				        DECODE( (CITY_DPT || '-' || CITY_AVR),'-','', (CITY_DPT || '-' || CITY_AVR))AS CITY_RANGE,
+				        PRICE_AMT,
+				        BAS_CNT,
+				        COST_AMT,
+				        REMARK,
+				        DESC_AMT,
+					DECODE(CAR_TOLL,0,CAR_TOLL||' ',CAR_TOLL||'원') AS CAR_TOLL,
+					DECODE(CAR_OIL,0,CAR_OIL||'',CAR_OIL||'원(단가)X(') AS CAR_OIL,
+					DECODE(CAR_DISTANCE,0,CAR_DISTANCE||' ',CAR_DISTANCE||'   Km(거리)/') AS CAR_DISTANCE,
+					DECODE(CAR_EFFICIENCY,0,CAR_EFFICIENCY||' ',CAR_EFFICIENCY||'  Km/L(연비))') AS CAR_EFFICIENCY
+				FROM ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+				       WHERE  ORD_NO = ?
+				       ORDER BY GBN_CD, SQN_NO
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 품의현황 조회 -->
+    <sql name="BUTA021_SHR_04">
+        <description>품의현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO, A.ENO_NO, A.NAM_KOR AS ENO_NM, A.DPT_CD, A.JOB_CD,
+                   ASNHR.SF_GET_DPTNAME('01','A4',A.DPT_CD) AS DPT_NM,
+                   ASNHR.SF_GET_COMMNAME('01','A2',A.JOB_CD) AS JOB_NM,
+                   NVL2(A.ORD_YMD,TO_CHAR(TO_DATE(A.ORD_YMD),'YYYY-MM-DD')||' '||
+                        SUBSTR(A.ORD_TIME,0,2)||':'||SUBSTR(A.ORD_TIME,3,2),'') AS ORD_YMD,
+                   A.APP_STATUS,
+                   A.APP_COMP,
+                   A.TRANS_GBN, A.TRANS_NO, A.APP_CMT,
+                   DECODE(A.APP_STATUS,'SV','N','Y') AS FLAG,
+                   A.COM_YN
+            FROM   ASNHR.T_DI_BUSINESSTRIP_STATE A
+            WHERE  A.ORD_NO = ?   --결재자는 상신이후의 자료만 보여야한다(저장상태인것은 X)
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+    	<!-- 여비계산서 조회 -->
+    <sql name="BUTA024_PRT">
+        <description>여비계산서 조회</description>
+        <query>
+            <![CDATA[
+             SELECT DECODE( (CITY_DPT || '-' || CITY_AVR),'-','', (CITY_DPT || '-' || CITY_AVR))AS CITY_RANGE,
+                    DECODE(CAR_TOLL,0,NULL,TO_CHAR(CAR_TOLL,'FM999,999')||'원') AS CAR_TOLL,
+					DECODE(CAR_OIL,0,NULL,TO_CHAR(CAR_OIL,'FM99,999')||'원(단가) X (') AS CAR_OIL,
+					DECODE(CAR_DISTANCE,0,NULL,CAR_DISTANCE||' Km(거리) /') AS CAR_DISTANCE,
+					DECODE(CAR_EFFICIENCY,0,NULL,CAR_EFFICIENCY||' Km/L(연비) )') AS CAR_EFFICIENCY,
+					TO_CHAR(COST_AMT,'FM999,999,999')||'원' AS COST_AMT
+				FROM ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+				       WHERE  ORD_NO = ?
+				       AND GBN_CD = 'C5'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 여비계산서 조회 -->
+    <sql name="BUTA021_SHR">
+        <description>여비계산서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO, GBN_CD, SQN_NO, ENO_NO, NAM_KOR, DPT_CD, JOB_CD, CITY_DPT,
+                   CITY_AVR, PRICE_AMT, BAS_CNT, COST_AMT, REMARK, DESC_AMT,
+                   CAR_TOLL, CAR_OIL, CAR_DISTANCE, CAR_EFFICIENCY
+            FROM   ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+            WHERE  ORD_NO = ?
+            ORDER BY GBN_CD, SQN_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 여비계산서 저장 -->
+    <sql name="BUTA021_INS">
+        <description>여비계산서 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+            ( ORD_NO, GBN_CD, SQN_NO, ENO_NO, NAM_KOR, DPT_CD, JOB_CD,
+              CITY_DPT, CITY_AVR, PRICE_AMT, BAS_CNT, COST_AMT, REMARK,
+              IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+            ( ?     , ?     , ?     , ?     , ?      , ?     , ?     ,
+              ?     , ?     , ?     , ?     , ?      , ?     ,
+              ?      , SYSDATE, ?      , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 여비계산서 수정 -->
+    <sql name="BUTA021_UPT">
+        <description>여비계산서 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+            SET    CITY_DPT = ?,
+                   CITY_AVR = ?,
+                   PRICE_AMT = ?,
+                   BAS_CNT = ?,
+                   COST_AMT = ?,
+                   REMARK = ?,
+                   DESC_AMT = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD = SYSDATE
+            WHERE  ORD_NO = ?
+            AND    GBN_CD = ?
+            AND    SQN_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 여비계산서 삭제 -->
+    <sql name="BUTA021_DEL">
+        <description>여비계산서 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+            WHERE  ORD_NO = ?
+            AND    GBN_CD = ?
+            AND    SQN_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 여비계산서 삭제 -->
+    <sql name="BUTA021_DEL_01">
+        <description>여비계산서 전체 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA025
+* @description : 출장품의서
+***********************************************************************
+* 2014/07/07      이동훈        최초작성
+***********************************************************************
+-->
+
+	<!-- 출장품의서 작성 내용 조회 -->
+    <sql name="BUTA025_SHR_03">
+        <description>출장품의서 작성 내용 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO, ENO_NO, NAM_KOR, DPT_CD, ASNHR.SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+                   JOB_CD, ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM,
+                   TO_CHAR(TO_DATE(BUT_FR_YMD),'YYYY-MM-DD') AS BUT_FR_YMD, BUT_FR_GBN,
+                   TO_CHAR(TO_DATE(BUT_TO_YMD),'YYYY-MM-DD') AS BUT_TO_YMD, BUT_TO_GBN,
+                   OFFER_GBN,START_GBN,
+                   SLEEP_DAY, BUT_DAY, BUT_CITY, CITY_DPT1, CITY_ARV1, CITY_GBN1, CITY_DPT2,
+                   CITY_ARV2, CITY_GBN2, CITY_DPT3, CITY_ARV3, CITY_GBN3, CITY_DPT4, CITY_ARV4,
+                   CITY_GBN4, CITY_DPT5, CITY_ARV5, CITY_GBN5, CITY_DPT6, CITY_ARV6, CITY_GBN6,
+                   CITY_DPT7, CITY_ARV7, CITY_GBN7, CITY_DPT8, CITY_ARV8, CITY_GBN8, BUT_OBJ,
+                   BUT_AFF,BUT_GBN,
+                   BUT_ADDR, BUT_NAME, BUT_PHONE, REMARK, COM_YN, COM_CNT, COM_CD1, COM_NM1,
+                   COM_NO1, COM_NAM1, COM_CD2, COM_NM2, COM_NO2, COM_NAM2, COM_CD3, COM_NM3,
+                   COM_NO3, COM_NAM3, COM_CD4, COM_NM4, COM_NO4, COM_NAM4, COM_CD5, COM_NM5,
+                   COM_NO5, COM_NAM5, '' AS BASIS_YN, PC_CCTRCD, PC_CCTRNM, PC_GBN
+            FROM   ASNHR.T_DI_BUSINESSTRIP
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTA025_SHR_04">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+        SELECT * FROM     
+           (SELECT ENO_NO
+		    	  , ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+		   		  , REQ_NO
+				  , GUN_DPT
+				  , ASNHR.SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+				  , JOB_CD
+				  , CASE WHEN JOB_CD = '700' THEN '사원' 
+					WHEN JOB_CD = '890' THEN '사원'    
+					ELSE ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) END AS JOB_NM	
+				  , SEQ_NO
+				  , '' SEQ_NM,'99991231' GUN_YMD, GUN_DPT as DPT_CD
+				  , APP_YN
+                  , (CASE WHEN APP_YN = 'R' THEN  '상신  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'N' THEN  '부결  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'E' THEN  '반송  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'Y' THEN  '승인  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                    	       ELSE '미결'
+                      END ) APP_STATUS
+                   ,REMARK
+                   ,NVL2(REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+			AND    GUN_GBN = ?
+			AND    SEQ_NO < '90'
+            ORDER BY SEQ_NO)    
+            
+     UNION ALL         
+     
+       SELECT * FROM 
+           (SELECT ENO_NO
+		    	  , ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+		   		  , REQ_NO
+				  , GUN_DPT
+				  , ASNHR.SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+				  , JOB_CD
+				  , CASE WHEN JOB_CD = '700' THEN '사원' 
+					WHEN JOB_CD = '890' THEN '사원'    
+					ELSE ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) END AS JOB_NM	
+				  , SEQ_NO
+				  , '' SEQ_NM,'99991231' GUN_YMD, GUN_DPT as DPT_CD
+				  , APP_YN
+                  , (CASE WHEN APP_YN = 'R' THEN  '상신  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'N' THEN  '부결  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'E' THEN  '반송  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'Y' THEN  '승인  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                    	       ELSE '미결'
+                      END ) APP_STATUS
+                   ,REMARK
+                   ,NVL2(REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+			AND    GUN_GBN = ?
+			AND    SEQ_NO > '90'			
+            ORDER BY SEQ_NO DESC)                         
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 출장비 내역 조회 -->
+    <sql name="BUTA025_SHR_05">
+        <description>출장비 내역 조회</description>
+        <query>
+            <![CDATA[
+			SELECT 
+				ASNHR.SF_GET_COMMNAME('01','A2', B.JOB_CD) AS JOB_NM, B.JOB_CD, B.ENO_NM AS NAM_KOR,  
+				(TO_CHAR(TO_DATE(BUT_FR_YMD),'YYYY.MM.DD')|| '-' || TO_CHAR(TO_DATE(BUT_TO_YMD),'YYYY.MM.DD')|| ' ('|| DECODE(SLEEP_DAY,NULL,'0',SLEEP_DAY) || '박' ||DECODE(BUT_DAY,NULL,'0',BUT_DAY) ||'일)' ) AS BUT_FROM_TO,
+				X.C_COST,X.G1_COST,X.G2_COST,X.G3_COST,(X.C_COST + X.G1_COST + X.G2_COST + X.G3_COST) AS X_SUM 
+				FROM ASNHR.T_DI_BUSINESSTRIP A, ASNHR.T_CM_PERSON B,
+			          (SELECT ORD_NO, ENO_NO, SUM(C_COST) AS C_COST, SUM(G1_COST) AS G1_COST, SUM(G2_COST) AS G2_COST, SUM(G3_COST) AS G3_COST
+			           FROM
+									(SELECT ORD_NO, 
+						            DECODE(SQN_NO,'1',ENO_NO,
+						            '2',DECODE(COM_NO1,'',ENO_NO, COM_NO1),
+						            '3',DECODE(COM_NO2,'',ENO_NO, COM_NO2),
+						            '4',DECODE(COM_NO3,'',ENO_NO, COM_NO3),
+						            '5',DECODE(COM_NO4,'',ENO_NO, COM_NO4),
+						            '6',DECODE(COM_NO5,'',ENO_NO, COM_NO5)) ENO_NO,            
+				            
+				            	   SUM(C_COST) AS C_COST, SUM(G1_COST) AS G1_COST, SUM(G2_COST) AS G2_COST, SUM(G3_COST) AS G3_COST
+										FROM 
+										(SELECT  
+										A.ORD_NO,A.ENO_NO, A.SQN_NO, B.COM_CD1, B.COM_NO1, B.COM_CD2, B.COM_NO2, B.COM_CD3, B.COM_NO3, B.COM_CD4, B.COM_NO4, B.COM_CD5, B.COM_NO5,
+										(CASE WHEN A.GBN_CD IN ('C1','C2','C3','C4','C5','C6')  THEN  SUM(A.COST_AMT)
+										      ELSE 0 END ) C_COST,
+										(CASE WHEN A.GBN_CD IN ('G1') THEN  SUM(A.COST_AMT)
+										      ELSE 0 END ) G1_COST,
+										(CASE WHEN A.GBN_CD IN ('G2') THEN  SUM(A.COST_AMT)
+										      ELSE 0 END ) G2_COST,
+										(CASE WHEN A.GBN_CD IN ('G3') THEN  SUM(A.COST_AMT)
+										      ELSE 0 END ) G3_COST                   
+														FROM ASNHR.T_DI_BUSINESSTRIP_ACCOUNT A, ASNHR.T_DI_BUSINESSTRIP B
+														       WHERE A.ORD_NO = B.ORD_NO
+				                           AND A.ORD_NO =  ?
+						               GROUP BY A.GBN_CD, A.ORD_NO, A.ENO_NO, A.SQN_NO, B.COM_CD1, B.COM_NO1, B.COM_CD2, B.COM_NO2, B.COM_CD3, B.COM_NO3, B.COM_CD4, B.COM_NO4, B.COM_CD5, B.COM_NO5) K
+						GROUP BY ORD_NO, ENO_NO, SQN_NO, COM_CD1, COM_NO1, COM_CD2, COM_NO2, COM_CD3, COM_NO3, COM_CD4, COM_NO4, COM_CD5, COM_NO5 ) Z
+		        GROUP BY ORD_NO, ENO_NO) X				
+			WHERE A.ORD_NO = X.ORD_NO AND X.ENO_NO = B.ENO_NO
+      ORDER BY B.JOB_CD
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 결재정보 조회 -->
+    <sql name="BUTA025_SHR_06">
+        <description>결재정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.APP_COMP, B.BUT_FR_YMD, B.BUT_TO_YMD, B.DPT_CD, B.ENO_NO,A.APP_STATUS, B.COM_YN, B.COM_CNT, B.COM_NO1, B.COM_NO2, B.COM_NO3, B.COM_NO4, B.COM_NO5
+            FROM   ASNHR.T_DI_BUSINESSTRIP_STATE A, ASNHR.T_DI_BUSINESSTRIP B
+            WHERE  A.ORD_NO = ?
+            AND    A.ENO_NO = ?
+			AND    A.ORD_NO = B.ORD_NO
+			AND    A.ENO_NO = B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장품의서 작성 내용 조회 -->
+    <sql name="BUTA025_SHR_PRINT">
+        <description>출장품의서 작성 내용 조회</description>
+        <query>
+            <![CDATA[
+      		SELECT ORD_NO, ENO_NO, NAM_KOR, DPT_CD,
+                   JOB_CD, 
+                   ASNHR.SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+				   CASE WHEN JOB_CD = '700' THEN '사원' 
+					WHEN JOB_CD = '890' THEN '사원'    
+					ELSE ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) END AS JOB_NM,	
+                   (TO_CHAR(TO_DATE(BUT_FR_YMD),'YYYY.MM.DD') || DECODE( BUT_FR_GBN,'A','(오전)','(오후)')|| ' - ' ||
+				   TO_CHAR(TO_DATE(BUT_TO_YMD),'YYYY.MM.DD') || DECODE( BUT_TO_GBN,'A','(오전)','(오후)') ||
+				    '   (' || DECODE(SLEEP_DAY,NULL,'0',SLEEP_DAY) || '박' ||DECODE(BUT_DAY,NULL,'0',BUT_DAY) ||'일)' ) AS BUT_FROM_TO,
+                   SLEEP_DAY, BUT_DAY, BUT_CITY,
+				   (DECODE(CITY_DPT1,NULL,'',('1.'||CITY_DPT1||'-'||CITY_ARV1)) || ' ' ||
+				   DECODE(CITY_DPT2,NULL,'',('2.'||CITY_DPT2||'-'||CITY_ARV2)) || ' ' ||
+				   DECODE(CITY_DPT3,NULL,'',('3.'||CITY_DPT3||'-'||CITY_ARV3)) || ' ' ||
+				   DECODE(CITY_DPT4,NULL,'',('4.'||CITY_DPT4||'-'||CITY_ARV4)) || ' ' ||
+				   DECODE(CITY_DPT5,NULL,'',('5.'||CITY_DPT5||'-'||CITY_ARV5)) || ' ' ||
+				   DECODE(CITY_DPT6,NULL,'',('6.'||CITY_DPT6||'-'||CITY_ARV6)) || ' ' ||
+				   DECODE(CITY_DPT7,NULL,'',('7.'||CITY_DPT7||'-'||CITY_ARV7)) || ' ' ||
+				   DECODE(CITY_DPT8,NULL,'',('8.'||CITY_DPT8||'-'||CITY_ARV8))) AS CITY_TOTAL,    
+				   (DECODE(CITY_GBN1,NULL,'',('1.'||ASNHR.SF_GET_COMMNAME('01','T2',CITY_GBN1))) || ' ' ||
+				   DECODE(CITY_GBN2,NULL,'',('2.'||ASNHR.SF_GET_COMMNAME('01','T2',CITY_GBN2))) || ' ' ||
+				   DECODE(CITY_GBN3,NULL,'',('3.'||ASNHR.SF_GET_COMMNAME('01','T2',CITY_GBN3))) || ' ' ||
+				   DECODE(CITY_GBN4,NULL,'',('4.'||ASNHR.SF_GET_COMMNAME('01','T2',CITY_GBN4))) || ' ' ||
+				   DECODE(CITY_GBN5,NULL,'',('5.'||ASNHR.SF_GET_COMMNAME('01','T2',CITY_GBN5))) || ' ' ||
+				   DECODE(CITY_GBN6,NULL,'',('6.'||ASNHR.SF_GET_COMMNAME('01','T2',CITY_GBN6))) || ' ' ||
+				   DECODE(CITY_GBN7,NULL,'',('7.'||ASNHR.SF_GET_COMMNAME('01','T2',CITY_GBN7))) || ' ' ||
+				   DECODE(CITY_GBN8,NULL,'',('8.'||ASNHR.SF_GET_COMMNAME('01','T2',CITY_GBN8)))) AS TRANS,   				                  
+				   REPLACE(BUT_OBJ,'\r','') AS BUT_OBJ, 
+				   BUT_ADDR, BUT_NAME || ' (Tel:' || BUT_PHONE || ')' as BUT_NAME,BUT_PHONE, 
+				   SUBSTR(REMARK,(INSTR(REMARK,'동행',1,1))+3) AS REMARK, 
+				   COM_YN
+            FROM   ASNHR.T_DI_BUSINESSTRIP
+            WHERE  ORD_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장품의서 작성 내용 조회 -->
+    <sql name="BUTA025_SHR_PRINT2">
+        <description>출장품의서 작성 내용 조회</description>
+        <query>
+            <![CDATA[
+				SELECT 
+				   CASE WHEN B.JOB_CD = '700' THEN '사원' 
+					WHEN B.JOB_CD = '890' THEN '사원'    
+					ELSE ASNHR.SF_GET_COMMNAME('01','A2',B.JOB_CD) END AS JOB_NM,	
+					B.JOB_CD, B.ENO_NM AS NAM_KOR,  
+					(TO_CHAR(TO_DATE(BUT_FR_YMD),'YYYY.MM.DD')|| '-' || TO_CHAR(TO_DATE(BUT_TO_YMD),'YYYY.MM.DD')|| ' ('|| DECODE(SLEEP_DAY,NULL,'0',SLEEP_DAY) || '박' ||DECODE(BUT_DAY,NULL,'0',BUT_DAY) ||'일)' ) AS BUT_FROM_TO,
+					X.C_COST,X.G1_COST,X.G2_COST,X.G3_COST,(X.C_COST + X.G1_COST + X.G2_COST + X.G3_COST) AS X_SUM 
+					FROM ASNHR.T_DI_BUSINESSTRIP A, ASNHR.T_CM_PERSON B,
+				          (SELECT ORD_NO, ENO_NO, SUM(C_COST) AS C_COST, SUM(G1_COST) AS G1_COST, SUM(G2_COST) AS G2_COST, SUM(G3_COST) AS G3_COST
+				           FROM
+										(SELECT ORD_NO, 
+							            DECODE(SQN_NO,'1',ENO_NO,
+							            '2',DECODE(COM_NO1,'',ENO_NO, COM_NO1),
+							            '3',DECODE(COM_NO2,'',ENO_NO, COM_NO2),
+							            '4',DECODE(COM_NO3,'',ENO_NO, COM_NO3),
+							            '5',DECODE(COM_NO4,'',ENO_NO, COM_NO4),
+							            '6',DECODE(COM_NO5,'',ENO_NO, COM_NO5)) ENO_NO,            
+					            
+					            	   SUM(C_COST) AS C_COST, SUM(G1_COST) AS G1_COST, SUM(G2_COST) AS G2_COST, SUM(G3_COST) AS G3_COST
+											FROM 
+											(SELECT  
+											A.ORD_NO,A.ENO_NO, A.SQN_NO, B.COM_CD1, B.COM_NO1, B.COM_CD2, B.COM_NO2, B.COM_CD3, B.COM_NO3, B.COM_CD4, B.COM_NO4, B.COM_CD5, B.COM_NO5,
+											(CASE WHEN A.GBN_CD IN ('C1','C2','C3','C4','C5','C6')  THEN  SUM(A.COST_AMT)
+											      ELSE 0 END ) C_COST,
+											(CASE WHEN A.GBN_CD IN ('G1') THEN  SUM(A.COST_AMT)
+											      ELSE 0 END ) G1_COST,
+											(CASE WHEN A.GBN_CD IN ('G2') THEN  SUM(A.COST_AMT)
+											      ELSE 0 END ) G2_COST,
+											(CASE WHEN A.GBN_CD IN ('G3') THEN  SUM(A.COST_AMT)
+											      ELSE 0 END ) G3_COST                   
+															FROM ASNHR.T_DI_BUSINESSTRIP_ACCOUNT A, ASNHR.T_DI_BUSINESSTRIP B
+															       WHERE A.ORD_NO = B.ORD_NO
+					                           AND A.ORD_NO =  ?
+							               GROUP BY A.GBN_CD, A.ORD_NO, A.ENO_NO, A.SQN_NO, B.COM_CD1, B.COM_NO1, B.COM_CD2, B.COM_NO2, B.COM_CD3, B.COM_NO3, B.COM_CD4, B.COM_NO4, B.COM_CD5, B.COM_NO5) K
+							GROUP BY ORD_NO, ENO_NO, SQN_NO, COM_CD1, COM_NO1, COM_CD2, COM_NO2, COM_CD3, COM_NO3, COM_CD4, COM_NO4, COM_CD5, COM_NO5 ) Z
+			        GROUP BY ORD_NO, ENO_NO) X				
+				WHERE A.ORD_NO = X.ORD_NO AND X.ENO_NO = B.ENO_NO
+	      ORDER BY B.JOB_CD
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTA025_SHR_PRINT3">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+        SELECT * FROM     
+           (SELECT ENO_NO
+		    	  ,ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+				  ,ASNHR.SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+				  ,CASE WHEN JOB_CD = '700' THEN '사원' 
+					WHEN JOB_CD = '890' THEN '사원'    
+					ELSE ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) END AS JOB_NM	
+				  ,APP_YN
+                  ,(CASE WHEN APP_YN = 'R' THEN  '상신  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'N' THEN  '부결  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'E' THEN  '반송  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'Y' THEN  '승인  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                    	       ELSE '미결'
+                      END ) APP_STATUS
+            FROM   ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?  AND SEQ_NO < '90'
+            ORDER BY SEQ_NO)
+            
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTA025_SHR_PRINT4">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+        SELECT * FROM     
+           (SELECT ENO_NO
+		    	  ,ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+				  ,ASNHR.SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+				  ,CASE WHEN JOB_CD = '700' THEN '사원' 
+					WHEN JOB_CD = '890' THEN '사원'    
+					ELSE ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) END AS JOB_NM	
+				  ,APP_YN
+                  ,(CASE WHEN APP_YN = 'R' THEN  '상신  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'N' THEN  '부결  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'E' THEN  '반송  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'Y' THEN  '승인  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                    	       ELSE '미결'
+                      END ) APP_STATUS
+            FROM   ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?  AND SEQ_NO > '90'
+            ORDER BY SEQ_NO DESC)
+            
+            ]]>
+        </query>
+    </sql>
+
+
+
+	<!-- 출장품의서 정보 수정 -->
+    <sql name="BUTA025_UPT_03">
+        <description>출장품의서 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_BUSINESSTRIP
+            SET    BUT_FR_YMD = ?,		--출장시작일
+                   BUT_FR_GBN = ?,		--출장시작일구분
+                   BUT_TO_YMD = ?,		--출장종료일
+                   BUT_TO_GBN = ?,		--출장종료일구분
+                   OFFER_GBN = ?,		--숙식제공교육 구분
+                   START_GBN = ?,		--숙식제공교육 출발구분
+                   SLEEP_DAY = ?,		--숙박일수
+                   BUT_DAY = ?,			--출장일수
+                   BUT_CITY = ?,		--출장지
+                   CITY_DPT1 = ?,		--출장구간1출발지
+                   CITY_ARV1 = ?,		--출장구간1도착지
+                   CITY_GBN1 = ?,		--출장구간1교통수단
+                   CITY_DPT2 = ?,		--출장구간2출발지
+                   CITY_ARV2 = ?,		--출장구간2도착지
+                   CITY_GBN2 = ?,		--출장구간2교통수단
+                   CITY_DPT3 = ?,		--출장구간3출발지
+                   CITY_ARV3 = ?,		--출장구간3도착지
+                   CITY_GBN3 = ?,		--출장구간3교통수단
+                   CITY_DPT4 = ?,		--출장구간4출발지
+                   CITY_ARV4 = ?,		--출장구간4도착지
+                   CITY_GBN4 = ?,		--출장구간4교통수단
+                   CITY_DPT5 = ?,		--출장구간5출발지
+                   CITY_ARV5 = ?,		--출장구간5도착지
+                   CITY_GBN5 = ?,		--출장구간5교통수단
+                   CITY_DPT6 = ?,		--출장구간6출발지
+                   CITY_ARV6 = ?,		--출장구간6도착지
+                   CITY_GBN6 = ?,		--출장구간6교통수단
+                   CITY_DPT7 = ?,		--출장구간7출발지
+                   CITY_ARV7 = ?,		--출장구간7도착지
+                   CITY_GBN7 = ?,		--출장구간7교통수단
+                   CITY_DPT8 = ?,		--출장구간8출발지
+                   CITY_ARV8 = ?,		--출장구간8도착지
+                   CITY_GBN8 = ?,		--출장구간8교통수단
+                   BUT_OBJ = ?,			--출장목적
+                   BUT_ADDR = ?,		--긴급연락주소
+                   BUT_NAME = ?,		--긴급연락성명
+                   BUT_PHONE = ?,		--긴급연락전화번호
+                   REMARK = ?,			--비고
+                   COM_YN = ?,			--동행인여부
+                   COM_CNT = ?,			--동행인수
+                   COM_CD1 = ?,			--동행인직위코드1
+                   COM_NM1 = ?,			--동행인직위1
+                   COM_NO1 = ?,			--동행인사번1
+                   COM_NAM1 = ?,		--동행인이름1
+                   COM_CD2 = ?,			--동행인직위코드2
+                   COM_NM2 = ?,			--동행인직위2
+                   COM_NO2 = ?,			--동행인사번2
+                   COM_NAM2 = ?,		--동행인이름2
+                   COM_CD3 = ?,			--동행인직위코드3
+                   COM_NM3 = ?,			--동행인직위3
+                   COM_NO3 = ?,			--동행인사번3
+                   COM_NAM3 = ?,		--동행인이름3
+                   COM_CD4 = ?,			--동행인직위코드4
+                   COM_NM4 = ?,			--동행인직위4
+                   COM_NO4 = ?,			--동행인사번4
+                   COM_NAM4 =?,			--동행인이름4
+                   COM_CD5 = ?,			--동행인직위코드5
+                   COM_NM5 = ?,			--동행인직위5
+                   COM_NO5 = ?,			--동행인사번5
+                   COM_NAM5 = ?,		--동행인이름5
+                   UPT_MAN = ?,
+                   UPT_YMD = SYSDATE,
+                   BUT_AFF = ?,			-- 출장효과
+                   BUT_GBN = ?,			-- 출장유형
+                   PC_GBN = ?,			-- 전표구분
+                   PC_CCTRCD = ?,			-- 전표코드
+                   PC_CCTRNM = ?			-- 전표명
+            WHERE ORD_NO = ?
+            AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA040
+* @description : 근태대비출장현황
+***********************************************************************
+* 2007/03/20     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 근태대비출장현황 조회 -->
+    <sql name="BUTA040_SHR">
+        <description>근태대비출장현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO, A.ENO_NM, A.DPT_NM, A.JOB_NM,
+                   [1]
+                   A.APP_COMP, A.FLAG, A.BUT_FR_YMD, A.BUT_TO_YMD
+            FROM   (SELECT A.ENO_NO, A.ENO_NM, A.DPT_NM, A.JOB_NM, B.APP_COMP, FLAG, A.BUT_FR_YMD, A.BUT_TO_YMD,
+                           A.HEAD_SEQ, A.DPT_SEQ, A.JOB_SEQ, A.HIR_YMD
+                   FROM    (SELECT AA.ORD_NO, AA.ENO_NO, AA.NAM_KOR AS ENO_NM, BB.HIR_YMD, AA.ENO_NO AS PENO_NO,
+                                   CASE WHEN TO_DATE(AA.BUT_FR_YMD) <= TO_DATE(?) THEN ?
+                                        WHEN TO_DATE(AA.BUT_FR_YMD) >= TO_DATE(?) THEN AA.BUT_FR_YMD
+                                        END  BUT_FR_YMD,
+                                   CASE WHEN TO_DATE(AA.BUT_TO_YMD) <= TO_DATE(?) THEN AA.BUT_TO_YMD
+                                        WHEN TO_DATE(AA.BUT_TO_YMD) >= TO_DATE(?) THEN ?
+                                        END  BUT_TO_YMD,
+                                   SF_GET_DPTNAME('01', 'A4', AA.DPT_CD) AS DPT_NM,
+                                   SF_GET_COMMNAME('01', 'A2', AA.JOB_CD) AS JOB_NM,
+                                   SF_GET_DPTSEQ('01', 'B2', BB.HEAD_CD) AS HEAD_SEQ,
+                                   SF_GET_DPTSEQ('01', 'A4', BB.DPT_CD) AS DPT_SEQ,
+                                   SF_GET_COMMSEQ('01', 'A2', BB.JOB_CD) AS JOB_SEQ,
+                                   'I' as FLAG
+                            FROM   ASNHR.T_DI_BUSINESSTRIP AA,
+                                   T_CM_EMPLIST BB
+                            WHERE  AA.BUT_TO_YMD >= ?
+                            AND    AA.BUT_FR_YMD <= ?
+                            AND    AA.DPT_CD LIKE '%'||?||'%'
+                            AND    AA.ENO_NO LIKE '%'||?||'%'
+                            AND    AA.ENO_NO = BB.ENO_NO
+
+                            UNION ALL
+
+                            SELECT AA.ORD_NO, AA.COM_NO1, AA.COM_NAM1 AS ENO_NM, BB.HIR_YMD, AA.ENO_NO AS PENO_NO,
+                                   CASE WHEN TO_DATE(AA.BUT_FR_YMD) <= TO_DATE(?) THEN ?
+                                        WHEN TO_DATE(AA.BUT_FR_YMD) >= TO_DATE(?) THEN AA.BUT_FR_YMD
+                                        END  BUT_FR_YMD,
+                                   CASE WHEN TO_DATE(AA.BUT_TO_YMD) <= TO_DATE(?) THEN AA.BUT_TO_YMD
+                                        WHEN TO_DATE(AA.BUT_TO_YMD) >= TO_DATE(?) THEN ?
+                                        END  BUT_TO_YMD,
+                                   SF_GET_DPTNAME('01', 'A4', AA.DPT_CD) AS DPT_NM,
+                                   SF_GET_COMMNAME('01', 'A2', AA.JOB_CD) AS JOB_NM,
+                                   SF_GET_DPTSEQ('01', 'B2', BB.HEAD_CD) AS HEAD_SEQ,
+                                   SF_GET_DPTSEQ('01', 'A4', BB.DPT_CD) AS DPT_SEQ,
+                                   SF_GET_COMMSEQ('01', 'A2', BB.JOB_CD) AS JOB_SEQ,
+                                   'I' as FLAG
+                            FROM   ASNHR.T_DI_BUSINESSTRIP AA,
+                                   T_CM_EMPLIST BB
+                            WHERE  AA.BUT_TO_YMD >= ?
+                            AND    AA.BUT_FR_YMD <= ?
+                            AND    AA.DPT_CD LIKE '%'||?||'%'
+                            AND    AA.COM_NO1 LIKE '%'||?||'%'
+                            AND    AA.ENO_NO = BB.ENO_NO
+
+                            UNION ALL
+
+                            SELECT AA.ORD_NO, AA.COM_NO2, AA.COM_NAM2 AS ENO_NM, BB.HIR_YMD, AA.ENO_NO AS PENO_NO,
+                                   CASE WHEN TO_DATE(AA.BUT_FR_YMD) <= TO_DATE(?) THEN ?
+                                        WHEN TO_DATE(AA.BUT_FR_YMD) >= TO_DATE(?) THEN AA.BUT_FR_YMD
+                                        END  BUT_FR_YMD,
+                                   CASE WHEN TO_DATE(AA.BUT_TO_YMD) <= TO_DATE(?) THEN AA.BUT_TO_YMD
+                                        WHEN TO_DATE(AA.BUT_TO_YMD) >= TO_DATE(?) THEN ?
+                                        END  BUT_TO_YMD,
+                                   SF_GET_DPTNAME('01', 'A4', AA.DPT_CD) AS DPT_NM,
+                                   SF_GET_COMMNAME('01', 'A2', AA.JOB_CD) AS JOB_NM,
+                                   SF_GET_DPTSEQ('01', 'B2', BB.HEAD_CD) AS HEAD_SEQ,
+                                   SF_GET_DPTSEQ('01', 'A4', BB.DPT_CD) AS DPT_SEQ,
+                                   SF_GET_COMMSEQ('01', 'A2', BB.JOB_CD) AS JOB_SEQ,
+                                   'I' as FLAG
+                            FROM   ASNHR.T_DI_BUSINESSTRIP AA,
+                                   T_CM_EMPLIST BB
+                            WHERE  AA.BUT_TO_YMD >= ?
+                            AND    AA.BUT_FR_YMD <= ?
+                            AND    AA.DPT_CD LIKE '%'||?||'%'
+                            AND    AA.COM_NO2 LIKE '%'||?||'%'
+                            AND    AA.ENO_NO = BB.ENO_NO
+
+                            UNION ALL
+
+                            SELECT AA.ORD_NO, AA.COM_NO3, AA.COM_NAM3 AS ENO_NM, BB.HIR_YMD, AA.ENO_NO AS PENO_NO,
+                                   CASE WHEN TO_DATE(AA.BUT_FR_YMD) <= TO_DATE(?) THEN ?
+                                        WHEN TO_DATE(AA.BUT_FR_YMD) >= TO_DATE(?) THEN AA.BUT_FR_YMD
+                                        END  BUT_FR_YMD,
+                                   CASE WHEN TO_DATE(AA.BUT_TO_YMD) <= TO_DATE(?) THEN AA.BUT_TO_YMD
+                                        WHEN TO_DATE(AA.BUT_TO_YMD) >= TO_DATE(?) THEN ?
+                                        END  BUT_TO_YMD,
+                                   SF_GET_DPTNAME('01', 'A4', AA.DPT_CD) AS DPT_NM,
+                                   SF_GET_COMMNAME('01', 'A2', AA.JOB_CD) AS JOB_NM,
+                                   SF_GET_DPTSEQ('01', 'B2', BB.HEAD_CD) AS HEAD_SEQ,
+                                   SF_GET_DPTSEQ('01', 'A4', BB.DPT_CD) AS DPT_SEQ,
+                                   SF_GET_COMMSEQ('01', 'A2', BB.JOB_CD) AS JOB_SEQ,
+                                   'I' as FLAG
+                            FROM   ASNHR.T_DI_BUSINESSTRIP AA,
+                                   T_CM_EMPLIST BB
+                            WHERE  AA.BUT_TO_YMD >= ?
+                            AND    AA.BUT_FR_YMD <= ?
+                            AND    AA.DPT_CD LIKE '%'||?||'%'
+                            AND    AA.COM_NO3 LIKE '%'||?||'%'
+                            AND    AA.ENO_NO = BB.ENO_NO
+
+                            UNION ALL
+
+                            SELECT AA.ORD_NO, AA.COM_NO4, AA.COM_NAM4 AS ENO_NM, BB.HIR_YMD, AA.ENO_NO AS PENO_NO,
+                                   CASE WHEN TO_DATE(AA.BUT_FR_YMD) <= TO_DATE(?) THEN ?
+                                        WHEN TO_DATE(AA.BUT_FR_YMD) >= TO_DATE(?) THEN AA.BUT_FR_YMD
+                                        END  BUT_FR_YMD,
+                                   CASE WHEN TO_DATE(AA.BUT_TO_YMD) <= TO_DATE(?) THEN AA.BUT_TO_YMD
+                                        WHEN TO_DATE(AA.BUT_TO_YMD) >= TO_DATE(?) THEN ?
+                                        END  BUT_TO_YMD,
+                                   SF_GET_DPTNAME('01', 'A4', AA.DPT_CD) AS DPT_NM,
+                                   SF_GET_COMMNAME('01', 'A2', AA.JOB_CD) AS JOB_NM,
+                                   SF_GET_DPTSEQ('01', 'B2', BB.HEAD_CD) AS HEAD_SEQ,
+                                   SF_GET_DPTSEQ('01', 'A4', BB.DPT_CD) AS DPT_SEQ,
+                                   SF_GET_COMMSEQ('01', 'A2', BB.JOB_CD) AS JOB_SEQ,
+                                   'I' as FLAG
+                            FROM   ASNHR.T_DI_BUSINESSTRIP AA,
+                                   T_CM_EMPLIST BB
+                            WHERE  AA.BUT_TO_YMD >= ?
+                            AND    AA.BUT_FR_YMD <= ?
+                            AND    AA.DPT_CD LIKE '%'||?||'%'
+                            AND    AA.COM_NO4 LIKE '%'||?||'%'
+                            AND    AA.ENO_NO = BB.ENO_NO
+
+                            UNION ALL
+
+                            SELECT AA.ORD_NO, AA.COM_NO5, AA.COM_NAM5 AS ENO_NM, BB.HIR_YMD, AA.ENO_NO AS PENO_NO,
+                                   CASE WHEN TO_DATE(AA.BUT_FR_YMD) <= TO_DATE(?) THEN ?
+                                        WHEN TO_DATE(AA.BUT_FR_YMD) >= TO_DATE(?) THEN AA.BUT_FR_YMD
+                                        END  BUT_FR_YMD,
+                                   CASE WHEN TO_DATE(AA.BUT_TO_YMD) <= TO_DATE(?) THEN AA.BUT_TO_YMD
+                                        WHEN TO_DATE(AA.BUT_TO_YMD) >= TO_DATE(?) THEN ?
+                                        END  BUT_TO_YMD,
+                                   SF_GET_DPTNAME('01', 'A4', AA.DPT_CD) AS DPT_NM,
+                                   SF_GET_COMMNAME('01', 'A2', AA.JOB_CD) AS JOB_NM,
+                                   SF_GET_DPTSEQ('01', 'B2', BB.HEAD_CD) AS HEAD_SEQ,
+                                   SF_GET_DPTSEQ('01', 'A4', BB.DPT_CD) AS DPT_SEQ,
+                                   SF_GET_COMMSEQ('01', 'A2', BB.JOB_CD) AS JOB_SEQ,
+                                   'I' as FLAG
+                            FROM   ASNHR.T_DI_BUSINESSTRIP AA,
+                                   T_CM_EMPLIST BB
+                            WHERE  AA.BUT_TO_YMD >= ?
+                            AND    AA.BUT_FR_YMD <= ?
+                            AND    AA.DPT_CD LIKE '%'||?||'%'
+                            AND    AA.COM_NO5 LIKE '%'||?||'%'
+                            AND    AA.ENO_NO = BB.ENO_NO
+                          ) A,
+                          ASNHR.T_DI_BUSINESSTRIP_STATE B
+                   WHERE  A.ORD_NO = B.ORD_NO
+                   AND    A.PENO_NO = B.ENO_NO
+                   AND    B.APP_COMP = 'Y'
+
+                   UNION
+
+                   SELECT BB.ENO_NO, CC.ENO_NM, CC.DPT_NM, CC.JOB_NM, 'Y' AS APP_COMP, 'O' AS FLAG,
+                          CASE WHEN TO_DATE(AA.BUT_FR_YMD) <= TO_DATE(?) THEN ?
+                               WHEN TO_DATE(AA.BUT_FR_YMD) >= TO_DATE(?) THEN AA.BUT_FR_YMD
+                               END  BUT_FR_YMD,
+                          CASE WHEN TO_DATE(AA.BUT_TO_YMD) <= TO_DATE(?) THEN AA.BUT_TO_YMD
+                               WHEN TO_DATE(AA.BUT_TO_YMD) >= TO_DATE(?) THEN ?
+                               END  BUT_TO_YMD,
+                          CC.HEAD_SEQ, CC.DPT_SEQ, CC.JOB_SEQ, TO_CHAR(CC.HIR_YMD,'YYYYMMDD') AS HIR_YMD
+                   FROM   ASNHR.T_DI_OVERSEASBT AA,
+                          ASNHR.T_DI_OVERSEASBT_DTL BB,
+                          VI_T_CM_EMPLIST CC
+                   WHERE  AA.ORD_NO = BB.ORD_NO(+)
+                   AND    BB.ENO_NO = CC.ENO_NO
+                   AND    AA.BUT_TO_YMD >= ?
+                   AND    AA.BUT_FR_YMD <= ?
+                   AND    CC.DPT_CD LIKE '%'||?||'%'
+                   AND    BB.ENO_NO LIKE '%'||?||'%'
+                   ) A,
+                   ASNHR.T_DI_DILIGENCE C
+            WHERE  C.PIS_YY = ?
+            AND    C.PIS_MM = ?
+            AND    A.ENO_NO = C.ENO_NO
+            ORDER BY A.HEAD_SEQ, A.DPT_SEQ, A.JOB_SEQ, A.HIR_YMD, A.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA050
+* @description : 출장비신청내역
+***********************************************************************
+* 2007/03/14     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 출장비신청내역 조회 직위별-->
+    <sql name="BUTA050_SHR_01">
+        <description>출장비신청내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT D.COMM_NM, COUNT(A.ORD_NO) AS APP_CNT,
+                   SUM(C.COST_TOT) AS AMOUNT, ? AS CD_GBN, '' AS REMARK
+            FROM   ASNHR.T_DI_BUSINESSTRIP A,
+                   ASNHR.T_DI_BUSINESSTRIP_STATE B,
+                   ( SELECT ORD_NO, SUM(COST_AMT) COST_TOT
+                     FROM   ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+                     GROUP BY ORD_NO ) C,
+                   T_CM_COMMON D
+            WHERE  A.BUT_FR_YMD >= ?
+            AND    A.BUT_FR_YMD <= ?
+            AND    B.APP_COMP = ?
+            AND    A.ORD_NO = B.ORD_NO
+            AND    A.ORD_NO = C.ORD_NO(+)
+            AND    D.CD_GBN = ?
+            AND    D.COMM_CD = [1]
+            AND    (D.END_YMD IS NULL OR D.END_YMD >= SYSDATE)
+            GROUP BY D.SORT_NO, D.COMM_NM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 출장비신청내역 조회 소속별-->
+    <sql name="BUTA050_SHR_02">
+        <description>출장비신청내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT D.DPT_NM AS COMM_NM, COUNT(A.ORD_NO) AS APP_CNT,
+                   SUM(C.COST_TOT) AS AMOUNT, ? AS CD_GBN, '' AS REMARK
+            FROM   ASNHR.T_DI_BUSINESSTRIP A,
+                   ASNHR.T_DI_BUSINESSTRIP_STATE B,
+                   ( SELECT ORD_NO, SUM(COST_AMT) COST_TOT
+                     FROM   ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+                     GROUP BY ORD_NO ) C,
+                   T_CM_DEPT D
+            WHERE  A.BUT_FR_YMD >= ?
+            AND    A.BUT_FR_YMD <= ?
+            AND    B.APP_COMP = ?
+            AND    A.ORD_NO = B.ORD_NO
+            AND    A.ORD_NO = C.ORD_NO(+)
+            AND    D.CD_GBN = ?
+            AND    D.DPT_CD = [1]
+            AND    (D.END_YMD IS NULL OR D.END_YMD >= SYSDATE)
+            GROUP BY D.DPT_NM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 출장비신청내역 조회 개인별-->
+    <sql name="BUTA050_SHR_03">
+        <description>출장비신청내역 조회</description>
+        <query>
+            <![CDATA[
+         SELECT D.ENO_NM  || '(' || D.ENO_NO || ')' AS COMM_NM
+		 		,D.ENO_NO
+		 		,COUNT(A.ORD_NO) AS APP_CNT
+                ,SUM(C.COST_TOT) AS AMOUNT
+				,? AS CD_GBN
+				,'' AS REMARK
+         FROM   ASNHR.T_DI_BUSINESSTRIP A,
+                ASNHR.T_DI_BUSINESSTRIP_STATE B,
+                ( SELECT ORD_NO, SUM(COST_AMT) COST_TOT
+                  FROM   ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+                  GROUP BY ORD_NO ) C,
+                VI_T_CM_PERSON D
+         WHERE  A.BUT_FR_YMD >= ?
+         AND    A.BUT_FR_YMD <= ?
+         AND    B.APP_COMP = ?
+         AND    '1' = ?
+         AND    A.ORD_NO = B.ORD_NO
+         AND    A.ORD_NO = C.ORD_NO(+)
+         AND    D.ENO_NO = A.ENO_NO
+         AND    (D.RET_YMD IS NULL OR D.RET_YMD >= SYSDATE)
+         GROUP BY D.ENO_NO, D.ENO_NM
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA060
+* @description : 출장품의 삭제처리
+***********************************************************************
+* 2007/03/14     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 출장비신청내역 조회 -->
+    <sql name="BUTA060_SHR">
+        <description>출장비신청내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO, ENO_NO, NAM_KOR,
+                   SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+                   SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM,
+                   APP_CMT, TRANS_NO
+            FROM   ASNHR.T_DI_BUSINESSTRIP_STATE
+            WHERE ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 회계전표 이관여부 조회 -->
+    <sql name="BUTA060_SHR_01">
+        <description>회계전표 이관여부 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DECODE(TRIM(REV_YMD),'','N','Y') AS FLAG
+            FROM   TACTSLP
+            WHERE  WRK_NO1 = ?
+            ]]>
+        </query>
+    </sql>
+
+		<!-- 출장품의서 삭제 -->
+    <sql name="BUTA060_DEL_01">
+        <description>출장품의서 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_BUSINESSTRIP
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장품의서 결재현황 삭제 -->
+    <sql name="BUTA060_DEL_02">
+        <description>출장품의서결재현황 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_BUSINESSTRIP_STATE
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 여비계산서 삭제 -->
+    <sql name="BUTA060_DEL_03">
+        <description>여비계산서 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 출장결재자정보 삭제 -->
+    <sql name="BUTA060_DEL_04">
+        <description>출장결재자정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_AD_DECISION
+            WHERE  ORD_NO = ?
+            AND    CK_TAG = 'C'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 회계전표 삭제 -->
+    <sql name="BUTA060_DEL_05">
+        <description>출장결재자정보 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM TACTSLP
+            WHERE  WRK_NO1 = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA080
+* @description : 철도이용계약 할인신청
+***********************************************************************
+* 2007/02/21     김학수        최초작성.
+***********************************************************************
+-->
+    <!-- 철도이용계약 할인신청 테이블의  품의번호 및 일련번호의 최대값을 조회한다.. -->
+    <sql name="BUTA080_SHR">
+        <description>기본데이타 존재여부 조회</description>
+        <query>
+            <![CDATA[
+select ('771-3105-' || NVL(lpad(substr(MAX(ord_no), 10)+1, 3, '0'), '018')) ORD_NO, '1' AS SEQ
+from ASNHR.T_DI_BUSINESSTRIP_KORAIL
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 철도이용계약 할인신청 테이블 입력. -->
+    <sql name="BUTA080_INS">
+        <description>기본데이타 존재여부 조회</description>
+        <query>
+            <![CDATA[
+             INSERT INTO ASNHR.T_DI_BUSINESSTRIP_KORAIL
+             VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,SYSDATE,?,SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+<!-- 출장관리 -->
+<!--
+***********************************************************************
+* @UseCase     : BUTA070
+* @description : 여비지급기준
+***********************************************************************
+* 2007/02/21     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 여비지급기준 조회 -->
+    <sql name="BUTA070_SHR">
+        <description>여비지급기준 조회</description>
+        <query>
+            <![CDATA[
+            SELECT   GBN_CD, GBN_NAME, EXP_AMT1, EXP_AMT2, EXP_AMT3, EXP_AMT4, EXP_AMT5, EXP_AMT6
+            FROM     ASNHR.T_DI_BUSINESSTRIP_BASIS
+            ORDER BY GBN_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 여비지급기준 신규 저장. -->
+    <sql name="BUTA070_INS">
+        <description>여비지급기준 신규 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_DI_BUSINESSTRIP_BASIS
+                 ( GBN_CD,
+                   GBN_NAME, EXP_AMT1, EXP_AMT2, EXP_AMT3, EXP_AMT4, EXP_AMT5, EXP_AMT6,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 (  ?,
+                    ?, ?, ?, ?, ?, ?, ?,
+                    ?, SYSDATE,?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 여비지급기준 수정. -->
+    <sql name="BUTA070_UPT">
+        <description>여비지급기준 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_BUSINESSTRIP_BASIS
+            SET    GBN_NAME = ?, --코드명
+                   EXP_AMT1 = ?, --임원급금액
+                   EXP_AMT2 = ?, --부장급금액
+                   EXP_AMT3 = ?, --차장급금액
+                   EXP_AMT4 = ?, --과장급금액
+                   EXP_AMT5 = ?, --대리급금액
+                   EXP_AMT6 = ?, --사원급금액
+                   UPT_MAN = ?,  --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  GBN_CD = ?    --코드
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 여비지급기준 삭제 -->
+    <sql name="BUTA070_DEL">
+        <description>여비지급기준 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_BUSINESSTRIP_BASIS
+            WHERE  GBN_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+   <!--
+***********************************************************************
+* @UseCase     : BUTA030
+* @description : 출장품의신청현황
+***********************************************************************
+* 2007/03/06     김학수        최초작성.
+***********************************************************************
+-->
+    <!-- 출장품의신청현황 조회 -->
+    <sql name="BUTA030_SHR">
+        <description>출장품의신청현황 조회</description>
+        <query>
+            <![CDATA[
+				SELECT  DPT_NM
+					   ,ORD_NO
+					   ,DECODE(ORD_NO, '소계', '소계', JOB_NM) AS JOB_NM
+					   ,DECODE(ORD_NO, '소계', CNT || '명', NAM_KOR) AS NAM_KOR
+					   ,DECODE(ORD_NO, '소계', '', SUBSTR(BUT_FR_YMD,1,4)||'-'||SUBSTR(BUT_FR_YMD,5,2)||'-'||SUBSTR(BUT_FR_YMD,7,2)) AS BUT_FR_YMD
+					   ,DECODE(ORD_NO, '소계', '', SUBSTR(BUT_TO_YMD,1,4)||'-'||SUBSTR(BUT_TO_YMD,5,2)||'-'||SUBSTR(BUT_TO_YMD,7,2)) AS BUT_TO_YMD
+					   ,COST_TOT
+					   ,DECODE(ORD_NO, '소계', '', BUT_CITY) AS  BUT_CITY
+					   ,DECODE(ORD_NO, '소계', '', BUT_OBJ) AS  BUT_OBJ
+				FROM
+					(
+                             SELECT 		DECODE(GROUPING(V1.DPT_NM), 1, '총계', V1.DPT_NM) AS DPT_NM
+							 			   ,DECODE(GROUPING(A.ORD_NO), 1, '소계', A.ORD_NO) AS ORD_NO
+                                           ,MAX(V2.COMM_CD)             JOB_CD
+                                           ,MAX(SUBSTR(V2.COMM_NM,1,3)) JOB_NM
+                                           ,MAX(A.NAM_KOR)              NAM_KOR
+                                           ,MAX(A.BUT_FR_YMD)           BUT_FR_YMD
+                                           ,MAX(A.BUT_TO_YMD)           BUT_TO_YMD
+                                           ,SUM(C.COST_TOT)             COST_TOT
+                                           ,MAX(A.BUT_CITY)             BUT_CITY
+                                           ,MAX(A.BUT_OBJ || nvl2(A.COM_CNT,' / 동행: ' || NVL(COM_NAM1 ,'') || NVL2(COM_NAM2,','||COM_NAM2,'') || NVL2(COM_NAM3,','||COM_NAM3,'') || NVL2(COM_NAM4,','||COM_NAM4,'') || NVL2(COM_NAM5,','||COM_NAM5,'')  ,''))              BUT_OBJ
+                                         ,TO_CHAR(sum(nvl2(A.COM_CNT,A.COM_CNT+1,1)),999)            CNT
+                                   FROM ASNHR.T_DI_BUSINESSTRIP A, ASNHR.T_DI_BUSINESSTRIP_STATE B,
+                                             (SELECT ORD_NO, SUM(NVL(COST_AMT,0)) COST_TOT
+                                                    FROM ASNHR.T_DI_BUSINESSTRIP_ACCOUNT
+                                                   GROUP BY ORD_NO)     C,
+                                             T_CM_DEPT V1,
+                                             (SELECT COMM_CD, COMM_NM, SORT_NO
+                                                    FROM T_CM_COMMON
+                                                   WHERE CD_GBN = 'A2') V2
+                              WHERE     1 = 1
+                              		AND A.BUT_FR_YMD >= ?
+                                    AND A.BUT_FR_YMD <= ?
+                                    AND A.DPT_CD   LIKE ?||'%'
+                                    AND A.BUT_CITY LIKE '%' || ?||'%'
+                                    AND A.ORD_NO   = B.ORD_NO
+                                    AND B.APP_COMP = 'Y'
+                                    AND A.ORD_NO   = C.ORD_NO(+)
+                                    AND A.DPT_CD   = V1.dpt_CD(+)
+                                    AND A.JOB_CD   = V2.COMM_CD(+)
+                                    GROUP BY ROLLUP(v1.DPT_NM, A.ORD_NO)
+						)
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA090
+* @description : 해외출장 품의서 작성
+***********************************************************************
+* 2007/03/15     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 해외출장 품의서 조회 -->
+    <sql name="BUTA090_SHR_01">
+        <description>해외출장 품의서 조회</description>
+        <query>
+            <![CDATA[
+     SELECT ORD_NO
+          , MAX(BUT_FR_YMD)   AS BUT_FR_YMD
+          , MAX(BUT_TO_YMD)   AS BUT_TO_YMD
+          , MAX(BUT_CITY_CD)  AS BUT_CITY_CD
+          , MAX(BUT_CITY_DTL) AS BUT_CITY_DTL
+          , MAX(BUT_OBJ)      AS BUT_OBJ
+          , MAX(TRANS_NO)     AS TRANS_NO
+          , MAX(EXT_RATE)     AS EXT_RATE
+          , MAX(CURRENCY_NM)  AS CURRENCY_NM
+     FROM  (SELECT A.ORD_NO
+                 , TO_CHAR(TO_DATE(A.BUT_FR_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS BUT_FR_YMD
+                 , TO_CHAR(TO_DATE(A.BUT_TO_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS BUT_TO_YMD
+                 , A.BUT_CITY_CD
+                 , A.BUT_CITY_DTL
+                 , A.BUT_OBJ
+                 , A.TRANS_NO
+                 , A.EXT_RATE
+                 , (SELECT D.COMM_NM
+                      FROM (SELECT ROW_NUMBER() OVER(PARTITION BY BAS_CD ORDER BY BASIC_YMD) AS NUM
+                                 , BASIC_YMD
+                                 , BAS_CD       AS BAS_CITY_CD
+                                 , BAS_CD2      AS CURRENCY_CD
+                              FROM T_CM_BASIS
+                             WHERE BAS_GBN = 'LT'
+                          GROUP BY BASIC_YMD
+                                 , BAS_CD
+                                 , BAS_CD2) C
+                         , T_CM_COMMON D
+                     WHERE C.NUM            = 1
+                       AND D.CD_GBN         = 'EX'
+                       AND C.CURRENCY_CD    = D.COMM_CD
+                       AND C.BAS_CITY_CD    = B.GBN2_TAG
+                    )   AS CURRENCY_NM      -- 단위 가져오기
+                 , C.ENO_NO
+                 , C.SEQ
+              FROM ASNHR.T_DI_OVERSEASBT A
+                 , T_CM_COMMON B
+                 , ASNHR.T_DI_OVERSEASBT_DTL C
+             WHERE A.BUT_CITY_CD    LIKE '%'||?||'%'
+               AND B.CD_GBN         = 'L2'
+               AND A.BUT_CITY_CD    = B.COMM_CD
+               AND A.BUT_CITY_CD    = B.COMM_CD
+               AND A.ORD_NO         = C.ORD_NO(+)
+               [1]
+           ) AA
+     WHERE NVL(AA.ENO_NO,' ') LIKE ?
+       --AND NVL(AA.SEQ,' ') LIKE DECODE('','%',(SELECT SEQ FROM ASNHR.T_DI_OVERSEASBT_DTL D WHERE D.ORD_NO = AA.ORD_NO AND ROWNUM = 1),'%')
+     GROUP BY ORD_NO
+     ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 품의서 상세 조회 -->
+    <sql name="BUTA090_SHR_02">
+        <description>해외출장 품의서 상세 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DECODE( (SELECT COUNT(*)
+                              FROM T_CM_PERSON
+                             WHERE ENO_NO = A.ENO_NO
+                            )
+                         , 1, 'P'           --정직원
+                         ,    'E'           --기타
+                           ) AS ENO_GBN     --정직원인지 아닌지를 구분
+                 , A.ENO_NO
+                 , A.ENO_NM
+                 , A.DPT_CD
+                 , A.JOB_CD
+
+                 , SF_GET_DPTNAME( '01', 'A4', DPT_CD) AS DPT_NM
+                 , SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+
+                 , A.ORD_NO
+                 , A.SEQ
+                 , A.BUT_NIGHT
+                 , A.BUT_DAY
+
+                 , B.BUT_CITY_CD
+                 , B.BUT_FR_YMD
+                 , B.BUT_TO_YMD
+
+                 , A.BUT_OFFER
+                 , A.BUT_AIRFARE
+                 , A.BUT_ISSUE
+                 , A.BUT_EXPENSE
+                 , A.BUT_LODGING
+                 , A.BUT_CNT
+
+                 , A.BUT_EXPENSE_FOR
+                 , A.BUT_LODGING_FOR
+                 , A.BUT_CNT_FOR
+
+                 , A.BAS_EXPENSE        --일당
+                 , A.BAS_LODGING        --숙박비
+                 , A.BAS_EXPENSE_OFFER  --일당(숙식제공시)
+
+                 , '' AS POPUP
+              FROM ASNHR.T_DI_OVERSEASBT_DTL A
+                 , ASNHR.T_DI_OVERSEASBT B
+             WHERE A.ORD_NO = B.ORD_NO
+               AND A.ORD_NO = ?
+          ORDER BY SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해외출장 품의서 전표 처리 -->
+    <sql name="BUTA090_CHIT">
+        <description>해외출장 품의서 상세 조회</description>
+        <query>
+            <![CDATA[
+            DECLARE
+                l_acc_unit      VARCHAR2(2) ;       /*회계단위*/
+                l_wrk_no1       NUMBER      ;       /*관리번호1*/
+                l_wrk_no2       NUMBER      ;       /*관리번호2*/
+                l_acc_yy        VARCHAR2(5) ;       /*등록년*/
+                l_acc_mm        VARCHAR2(3) ;       /*등록월*/
+                l_acc_cd        VARCHAR2(6) ;       /*계정과목*/
+                l_itm_cd        VARCHAR2(3) ;       /*항목*/
+                l_det_cd        VARCHAR2(3) ;       /*세목*/
+                l_dpt_cd        VARCHAR2(5) ;       /*부서코드*/
+                l_cd_tag        VARCHAR2(2) ;       /*대차코드*/
+                l_desc1         VARCHAR2(61);       /*적요*/
+                l_for_amt       NUMBER      ;       /*외화금액*/
+                l_won_amt       NUMBER      ;       /*원화금액*/
+                l_remark        VARCHAR2(5) ;       /*회계부서코드*/
+                l_adv_tag       VARCHAR2(2) ;       /*선급금(1),미지급금(2)구분*/
+                l_ipt_man       VARCHAR2(9) ;       /*입력자*/
+                l_ipt_ymd       VARCHAR2(9) ;       /*입력일자*/
+
+
+                l_cur_unit      VARCHAR2(3) ;       /*외화단위*/
+                l_cur_rate      NUMBER      ;       /*환률*/
+
+                l_err_msg       VARCHAR2(100);
+                l_cnt           NUMBER      ;
+                l_city_nm       VARCHAR2(30);
+                l_eno_nm1       VARCHAR2(10);
+                l_job_nm1       VARCHAR2(30);
+                l_eno_nm2       VARCHAR2(10);
+                l_job_nm2       VARCHAR2(30);
+
+
+                in_ord_no       VARCHAR2(10);
+                in_eno_no       VARCHAR2(9) ;       /*입력자*/
+            BEGIN
+                in_ord_no   := ?;
+                in_eno_no   := ?;
+
+
+                BEGIN
+
+                    /**
+                     * 1.전표 발생에 필요한 변수값을 가져옴
+                     */
+
+                    l_acc_unit  := 'A';
+                    l_wrk_no2   := 1;
+                    l_acc_cd    := '60005';
+                    l_itm_cd    := '02';      -- 항목
+                    l_det_cd    := '00';      -- 세목
+                    l_acc_yy    := TO_CHAR(SYSDATE,'YYYY');
+                    l_acc_mm    := TO_CHAR(SYSDATE,'MM');
+                    l_adv_tag   := '2';
+                    l_cd_tag    := 'D';           --대차코드
+                    l_ipt_man   := in_eno_no;     --입력자
+                    l_ipt_ymd   := TO_CHAR(SYSDATE, 'YYYYMMDD');
+
+
+
+                    /* 1-1. 지급금액을 조회해 옵시다.*/
+                    SELECT COUNT(*)         AS CNT
+                         , SUM(BUT_CNT)     AS BUT_CNT_TOT      --원화
+                         , SUM(BUT_CNT_FOR) AS BUT_CNT_FOR_TOT  --외화
+                      INTO l_cnt
+                         , l_won_amt
+                         , l_for_amt
+                      FROM ASNHR.T_DI_OVERSEASBT_DTL
+                     WHERE ORD_NO = in_ord_no;
+
+
+                    /* 1-2. 소속부서 코드 조회해 오기*/
+                    SELECT (SELECT REMARK
+                              FROM T_CM_DEPT
+                             WHERE CD_GBN = 'A4'
+                               AND DPT_CD = A.DPT_CD
+                            )   AS DPT_CD
+                      INTO l_dpt_cd
+                      FROM ASNHR.T_DI_OVERSEASBT_DTL A
+                     WHERE ORD_NO = in_ord_no
+                       AND SEQ = '1';
+
+
+                    /* 1-3. 출장지명 조회해오기 */
+                    SELECT SF_GET_COMMNAME('01', 'L2', A.BUT_CITY_CD) AS BUT_CITY_NM
+                         , A.EXT_RATE
+                         , (SELECT D.COMM_NM
+                              FROM (SELECT ROW_NUMBER() OVER(PARTITION BY BAS_CD ORDER BY BASIC_YMD) AS NUM
+                                         , BASIC_YMD
+                                         , BAS_CD       AS BAS_CITY_CD
+                                         , BAS_CD2      AS CURRENCY_CD
+                                      FROM T_CM_BASIS
+                                     WHERE BAS_GBN = 'LT'
+                                  GROUP BY BASIC_YMD
+                                         , BAS_CD
+                                         , BAS_CD2) C
+                                 , T_CM_COMMON D
+                             WHERE C.NUM            = 1
+                               AND D.CD_GBN         = 'EX'
+                               AND C.CURRENCY_CD    = D.COMM_CD
+                               AND C.BAS_CITY_CD    = B.GBN2_TAG
+                            )   AS CURRENCY_NM      -- 단위 가져오기
+                      INTO l_city_nm
+                         , l_cur_rate
+                         , l_cur_unit
+                      FROM ASNHR.T_DI_OVERSEASBT A
+                         , T_CM_COMMON B
+                     WHERE A.ORD_NO         = in_ord_no
+                       AND B.CD_GBN         = 'L2'
+                       AND A.BUT_CITY_CD    = B.COMM_CD;
+
+
+
+                    /* 1-4. desc1 항목 설정 */
+                    IF l_cnt > 2 THEN
+                        --첫번째 사람 조회
+                        SELECT ENO_NM
+                             , SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                          INTO l_eno_nm1
+                             , l_job_nm1
+                          FROM ASNHR.T_DI_OVERSEASBT_DTL
+                         WHERE ORD_NO = in_ord_no
+                           AND SEQ = '1';
+
+                        l_desc1 := l_city_nm||'출장('||l_job_nm1||' '||l_eno_nm1||' 외'||(l_cnt-1)||'명'||')';
+
+                    ELSIF l_cnt = 2 THEN
+                        --첫번째 사람 조회
+                        SELECT ENO_NM
+                             , SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                          INTO l_eno_nm1
+                             , l_job_nm1
+                          FROM ASNHR.T_DI_OVERSEASBT_DTL
+                         WHERE ORD_NO = in_ord_no
+                           AND SEQ = '1';
+
+                        --두번째 사람 조회
+                        SELECT ENO_NM
+                             , SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                          INTO l_eno_nm2
+                             , l_job_nm2
+                          FROM ASNHR.T_DI_OVERSEASBT_DTL
+                         WHERE ORD_NO = in_ord_no
+                           AND SEQ = '2';
+
+                        l_desc1 := l_city_nm||'출장('||l_job_nm1||' '||l_eno_nm1||', '||l_job_nm2||' '||l_eno_nm2||')';
+
+                    ELSE
+                        --첫번째 사람 조회
+                        SELECT ENO_NM
+                             , SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                          INTO l_eno_nm1
+                             , l_job_nm1
+                          FROM ASNHR.T_DI_OVERSEASBT_DTL
+                         WHERE ORD_NO = in_ord_no
+                           AND SEQ = '1';
+
+                        l_desc1 := l_city_nm||'출장('||l_job_nm1||' '||l_eno_nm1||')';
+                    END IF;
+
+                    /* 1-5. 전표 발생을 위해 시퀀스 번호 가져오기 */
+                    SELECT S_TACTSLP_WRK_NO1.NEXTVAL
+                      INTO l_wrk_no1
+                      FROM DUAL;
+
+
+
+
+                    /*2. 가전표Table(회계)에 Insert*/
+                    INSERT
+                      INTO tactslp
+                         ( ACC_UNIT
+                         , WRK_NO1
+                         , WRK_NO2
+                         , ACC_YY
+                         , ACC_MM
+                         , ACC_CD
+                         , ITM_CD
+                         , DET_CD
+                         , DPT_CD
+                         , CD_TAG
+                         , CUR_UNIT
+                         , CUR_RATE
+                         , FOR_AMT
+                         , WON_AMT
+                         , DESC1
+                         , TAX_YMD
+                         , SLP_TAG
+                         , ADV_TAG
+                         , IPT_MAN
+                         , IPT_YMD )
+                  VALUES ( l_acc_unit
+                         , l_wrk_no1
+                         , l_wrk_no2
+                         , l_acc_yy
+                         , l_acc_mm
+                         , l_acc_cd
+                         , l_itm_cd
+                         , l_det_cd
+                         , l_dpt_cd
+                         , l_cd_tag
+                         , l_cur_unit
+                         , l_cur_rate
+                         , l_for_amt
+                         , l_won_amt
+                         , l_desc1
+                         , l_ipt_ymd
+                         , 'BB'
+                         , l_adv_tag
+                         , l_ipt_man
+                         , l_ipt_ymd );
+
+
+                    /*3. 출장품의현황Table에 출장전표정보 Update*/
+                    UPDATE ASNHR.T_DI_OVERSEASBT
+                       SET TRANS_NO   = l_wrk_no1     /*관리번호1*/
+                     WHERE ORD_NO     = in_ord_no;
+
+
+                EXCEPTION
+                    WHEN NO_DATA_FOUND
+                    THEN l_err_msg := '';
+                END;
+            END;
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 품의서 상세 조회 -->
+    <sql name="BUTA091_PRT">
+        <description>해외출장 품의서 상세 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO, A.SEQ, A.DPT_NM, A.JOB_NM, A.JOB_CD, A.ENO_NO, A.ENO_NM, A.BUT_NIGHT,
+                   A.BUT_DAY, A.BUT_OFFER, A.BUT_AIRFARE, A.BUT_ISSUE,A.BUT_CITY_CD,
+                   --A.BUT_EXPENSE, A.BUT_LODGING,
+                   --A.BUT_CNT, B.BUT_EXPENSE AS BASIS_EXPENSE, B.BUT_LODGING AS BASIS_LODGING,
+                   --A.BUT_EXPENSE_OFFER AS BASIS_EXPENSE_OFFER,
+                   A.BUT_EXPENSE_FOR,		--일비(외화)
+                   A.BUT_LODGING_FOR,		--숙박비(외화)
+                   A.BUT_CNT_FOR,		--합계(외화)
+                   DECODE(A.BUT_OFFER,'T',A.BAS_EXPENSE_OFFER,A.BAS_EXPENSE) BAS_EXPENSE,		--일당기준
+                   DECODE(A.BUT_OFFER,'T',0,A.BAS_LODGING) BAS_LODGING,		--숙박비
+                   A.BAS_EXPENSE_OFFER,		--일당기준(숙식제공시)
+                   A.BUT_FR_YMD, A.BUT_TO_YMD,
+                   TO_DATE(A.BUT_TO_YMD,'YYYYMMDD') - TO_DATE(A.BUT_FR_YMD,'YYYYMMDD') BUT_PERIOD,
+                   ('서울 -> ' || SF_GET_COMMNAME('01','L2',A.BUT_CITY_CD) || '-> 서울') AS BUT_CITY_GUGAN,
+                   ( SF_GET_COMMNAME('01','L2',A.BUT_CITY_CD) || '  ' || A.BUT_CITY_DTL) AS BUT_CITY_NM,
+                   A.BUT_OBJ,
+                   C.J_NAME,
+                   SF_GET_ENONAME2('01', A.UPT_MAN) AS UPT_NM,
+                   (SELECT Sum(BUT_CNT_FOR) FROM ASNHR.T_DI_OVERSEASBT_DTL WHERE ORD_NO = ?) AS CNT_FORSUM
+            FROM   ( SELECT BB.ORD_NO, BB.SEQ, BB.ENO_NO, BB.BUT_NIGHT, BB.BUT_DAY,
+                            DECODE(BB.BUT_OFFER,'T','T','F') AS BUT_OFFER,
+                            BB.BUT_AIRFARE, BB.BUT_ISSUE, BB.BUT_EXPENSE, BB.BUT_LODGING,
+                            BB.BUT_CNT,
+                            BB.BUT_EXPENSE_FOR,		--일비(외화)
+                            BB.BUT_LODGING_FOR,		--숙박비(외화)
+                            BB.BUT_CNT_FOR,		--합계(외화)
+                            BB.BAS_EXPENSE,		--일당기준
+                            BB.BAS_LODGING,		--숙박비
+                            BB.BAS_EXPENSE_OFFER,		--일당기준(숙식제공시)
+                            BB.UPT_MAN,
+                            AA.BUT_CITY_CD, AA.BUT_FR_YMD, AA.BUT_TO_YMD, AA.BUT_CITY_DTL,AA.BUT_OBJ,
+                            CC.DPT_NM, CC.JOB_CD, SF_GET_COMMNAME('01','A2',BB.JOB_CD) JOB_NM,
+                            BB.ENO_NM, ( SELECT MAX(BASIC_YMD)
+                                         FROM   ASNHR.T_DI_OVERSEASBT_BASIS
+                                         WHERE  BASIC_YMD <= '20071025'
+                                         AND    BUT_CITY_CD = AA.BUT_CITY_CD
+                                         AND    JOB_CD = CC.JOB_CD ) AS BASIC_YMD
+                     FROM   ( SELECT ORD_NO, BUT_CITY_CD, BUT_FR_YMD, BUT_TO_YMD, BUT_CITY_DTL,BUT_OBJ
+                              FROM   ASNHR.T_DI_OVERSEASBT
+                              WHERE  ORD_NO = ?) AA,
+                            ASNHR.T_DI_OVERSEASBT_DTL BB,
+                            VI_T_CM_PERSON CC
+                     WHERE  AA.ORD_NO = BB.ORD_NO
+                     AND    BB.ENO_NO = CC.ENO_NO(+) ) A,
+                   (SELECT	SUBSTR (MAX (SYS_CONNECT_BY_PATH (ename, ', ')), 2) J_NAME
+					　　　FROM (SELECT (SF_GET_COMMNAME('01','A2',JOB_CD)|| ' ' || ENO_NM) AS ENAME, ROWNUM AS  RNUM, SF_GET_COMMSEQ('01','A2',JOB_CD) JOB_SEQ
+		                		  FROM ASNHR.T_DI_OVERSEASBT_DTL
+		                		WHERE ORD_NO = ?
+				             ORDER BY SF_GET_COMMSEQ('01','A2',JOB_CD))
+					START WITH rnum = 1
+					CONNECT BY PRIOR rnum = rnum - 1 ) C
+--            WHERE  A.BASIC_YMD = B.BASIC_YMD(+)
+--            AND    A.BUT_CITY_CD = B.BUT_CITY_CD(+)
+--            AND    A.JOB_CD = B.JOB_CD(+)
+            ORDER BY A.SEQ
+
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장비 지급 기준 조회 -->
+    <sql name="BUTA090_SHR_03">
+        <description>해외출장비 지급 기준 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_CHAR(TO_DATE(BASIC_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS BASIC_YMD
+                 , BAS_CD           AS BAS_CITY_CD
+                 , BAS_CD2          AS CURRENCY_CD
+                 , JOB_CD_FROM
+                 , JOB_CD_TO
+                 , BAS_AMT          AS BAS_EXPENSE
+                 , BAS_AMT2         AS BAS_LODGING
+                 , BAS_AMT3         AS BAS_EXPENSE_OFFER
+              FROM T_CM_BASIS A
+             WHERE BASIC_YMD = (SELECT MAX(BASIC_YMD)
+                                  FROM T_CM_BASIS
+                                 WHERE BASIC_YMD    <= ?
+                                   AND BAS_GBN      = 'LT'
+                                )
+               AND BAS_CD    = (SELECT NVL(TRIM(GBN2_TAG), 'SE') AS BAS_CD
+                                  FROM T_CM_COMMON
+                                 WHERE CD_GBN       = 'L2'
+                                   AND COMM_CD      = ?
+                                   AND (END_YMD     IS NULL
+                                    OR  END_YMD     >= SYSDATE)
+                                )
+               AND (SELECT SF_GET_COMMSEQ('01', 'A2', B.GBN2_TAG) AS JOB_SEQ
+                      FROM T_CM_COMMON B
+                     WHERE B.COMM_CD         = ?
+                       AND B.CD_GBN          = 'A2'
+                       AND TRIM(B.GBN2_TAG)  IS NOT NULL
+                       AND (B.END_YMD        IS NULL
+                        OR  B.END_YMD        >= SYSDATE)
+                    )
+           BETWEEN SF_GET_COMMSEQ('01', 'A2', JOB_CD_FROM)
+               AND SF_GET_COMMSEQ('01', 'A2', JOB_CD_TO)
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 화폐단위 조회 -->
+    <sql name="BUTA090_SHR_04">
+        <description>해외출장비 지급 기준 조회</description>
+        <query>
+            <![CDATA[
+            SELECT (SELECT D.COMM_NM
+                      FROM (SELECT ROW_NUMBER() OVER(PARTITION BY BAS_CD ORDER BY BASIC_YMD) AS NUM
+                                 , BASIC_YMD
+                                 , BAS_CD       AS BAS_CITY_CD
+                                 , BAS_CD2      AS CURRENCY_CD
+                              FROM T_CM_BASIS
+                             WHERE BAS_GBN = 'LT'
+                          GROUP BY BASIC_YMD
+                                 , BAS_CD
+                                 , BAS_CD2) C
+                         , T_CM_COMMON D
+                     WHERE C.NUM            = 1
+                       AND D.CD_GBN         = 'EX'
+                       AND C.CURRENCY_CD    = D.COMM_CD
+                       AND C.BAS_CITY_CD    = A.GBN2_TAG
+                    )   AS CURRENCY_NM      -- 단위 가져오기
+              FROM T_CM_COMMON A
+             WHERE A.CD_GBN     = 'L2'
+               AND A.COMM_CD    = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 품의서 저장 -->
+    <sql name="BUTA090_INS_01">
+        <description>해외출장 품의서 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_DI_OVERSEASBT
+                 ( ORD_NO
+                 , BUT_FR_YMD
+                 , BUT_TO_YMD
+                 , BUT_CITY_CD
+                 , BUT_CITY_DTL
+                 , BUT_OBJ
+                 , EXT_RATE
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( (SELECT TO_CHAR(SYSDATE,'YYYY')
+                            ||?
+                            ||LPAD( DECODE( MAX(ORD_NO)
+                                          , NULL, 1
+                                          , TO_NUMBER(MAX(SUBSTR(ORD_NO,7,4)))+1)
+                                  , 4, '0')
+                      FROM ASNHR.T_DI_OVERSEASBT
+                     WHERE ORD_NO LIKE TO_CHAR(SYSDATE,'YYYY')||?||'%'
+                    )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 품의서 상세 저장 -->
+    <sql name="BUTA090_INS_02">
+        <description>해외출장 품의서 상세 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_DI_OVERSEASBT_DTL
+                 ( ORD_NO
+                 , SEQ
+                 , ENO_NO
+                 , ENO_NM
+                 , DPT_CD
+                 , JOB_CD
+                 , BUT_NIGHT
+                 , BUT_DAY
+                 , BUT_OFFER
+                 , BUT_AIRFARE
+                 , BUT_ISSUE
+                 , BUT_EXPENSE
+                 , BUT_LODGING
+                 , BUT_CNT
+                 , BUT_EXPENSE_FOR
+                 , BUT_LODGING_FOR
+                 , BUT_CNT_FOR
+                 , BAS_EXPENSE
+                 , BAS_LODGING
+                 , BAS_EXPENSE_OFFER
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( ?
+                 , (SELECT NVL(MAX(SEQ), 0)+1
+                      FROM ASNHR.T_DI_OVERSEASBT_DTL
+                     WHERE ORD_NO = ?
+                    )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 품의서 수정 -->
+    <sql name="BUTA090_UPT_01">
+        <description>해외출장 품의서 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_OVERSEASBT
+            SET    BUT_FR_YMD = ?,
+                   BUT_TO_YMD = ?,
+                   BUT_CITY_CD = ?,
+                   BUT_CITY_DTL = ?,
+                   BUT_OBJ = ?,
+                   EXT_RATE = ?,
+                   TRANS_NO = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD  = SYSDATE
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 품의서 상세 수정 -->
+    <sql name="BUTA090_UPT_02">
+        <description>해외출장 품의서 상세 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_OVERSEASBT_DTL
+               SET ENO_NO       = ?
+                 , ENO_NM       = ?
+                 , DPT_CD       = ?
+                 , JOB_CD       = ?
+                 , BUT_NIGHT    = ?
+                 , BUT_DAY      = ?
+                 , BUT_OFFER    = ?
+                 , BUT_AIRFARE  = ?
+                 , BUT_ISSUE    = ?
+                 , BUT_EXPENSE  = ?
+                 , BUT_LODGING  = ?
+                 , BUT_CNT      = ?
+
+                 , BUT_EXPENSE_FOR   = ?
+                 , BUT_LODGING_FOR   = ?
+                 , BUT_CNT_FOR       = ?
+                 , BAS_EXPENSE       = ?
+                 , BAS_LODGING       = ?
+                 , BAS_EXPENSE_OFFER = ?
+
+                 , UPT_MAN      = ?
+                 , UPT_YMD      = SYSDATE
+             WHERE ORD_NO       = ?
+               AND SEQ          = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 품의서 삭제 -->
+    <sql name="BUTA090_DEL_01">
+        <description>해외출장 품의서 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_OVERSEASBT
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 품의서 상세 삭제 -->
+    <sql name="BUTA090_DEL_02">
+        <description>해외출장 품의서 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_OVERSEASBT_DTL
+            WHERE  ORD_NO = ?
+            AND    SEQ = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 품의서 상세 삭제 -->
+    <sql name="BUTA090_DEL_03">
+        <description>해외출장 품의서 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_OVERSEASBT_DTL
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA100
+* @description : 해외출장신청현황
+***********************************************************************
+* 2007/03/16     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 해외출장신청현황 조회 -->
+    <sql name="BUTA100_SHR">
+        <description>해외출장신청현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO, A.BUT_FR_YMD, A.BUT_TO_YMD, A.BUT_CITY_CD, A.BUT_OBJ,
+                   A.TRANS_NO, B.ENO_NO, B.BUT_NIGHT, B.BUT_DAY, B.BUT_CNT,
+                   B.ENO_NM, SF_GET_DPTNAME('01','A4',B.DPT_CD) DPT_NM, SF_GET_COMMNAME('01','A2',B.JOB_CD) JOB_NM
+            FROM   ASNHR.T_DI_OVERSEASBT A,
+                   ASNHR.T_DI_OVERSEASBT_DTL B
+            WHERE  A.BUT_FR_YMD >= ?
+            AND    A.BUT_FR_YMD <= ?
+            AND    A.BUT_CITY_CD LIKE '%'||?||'%'
+            AND    A.ORD_NO = B.ORD_NO
+            AND    B.DPT_CD LIKE '%'||?||'%'
+            ORDER BY A.ORD_NO
+            ]]>
+        </query>
+    </sql>
+
+   <!-- 해외출장신청현황 조회 -->
+    <sql name="BUTA100_PRT">
+        <description>해외출장신청현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO, A.BUT_FR_YMD, A.BUT_TO_YMD, A.BUT_CITY_CD, A.BUT_OBJ,
+                   A.TRANS_NO, B.ENO_NO, B.BUT_NIGHT, B.BUT_DAY, B.BUT_CNT,
+                   B.ENO_NM, SF_GET_DPTNAME('01','A4',B.DPT_CD) DPT_NM, SF_GET_COMMNAME('01','A2',B.JOB_CD) JOB_NM,
+				   SF_GET_COMMNAME('01','L2',A.BUT_CITY_CD)AS BUT_NM,
+				   B.BUT_AIRFARE,B.BUT_ISSUE,B.BUT_EXPENSE,B.BUT_LODGING
+            FROM   ASNHR.T_DI_OVERSEASBT A,
+                   ASNHR.T_DI_OVERSEASBT_DTL B
+            WHERE  A.BUT_FR_YMD >= ?
+            AND    A.BUT_FR_YMD <= ?
+            AND    A.BUT_CITY_CD LIKE '%'||?||'%'
+            AND    A.ORD_NO = B.ORD_NO
+            AND    B.DPT_CD LIKE '%'||?||'%'
+            ORDER BY A.ORD_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTA110
+* @description : 해외출장비 지급기준
+***********************************************************************
+* 2007/03/15     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 해외출장비 지급기준 조회 -->
+    <sql name="BUTA110_SHR">
+        <description>해외출장비 지급기준 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_CHAR(TO_DATE(BASIC_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS BASIC_YMD
+                 , BAS_CD       AS BUT_CITY_CD
+                 , BAS_CD2      AS CURRENCY_CD
+                 , JOB_CD_FROM
+                 , JOB_CD_TO
+                 , BAS_AMT      AS BUT_EXPENSE
+                 , BAS_AMT2     AS BUT_LODGING
+                 , BAS_AMT3     AS BUT_EXPENSE_OFFER
+              FROM T_CM_BASIS A
+             WHERE BASIC_YMD = (SELECT MAX(BASIC_YMD)
+                                  FROM T_CM_BASIS
+                                 WHERE BASIC_YMD   <= ?
+                                   AND BAS_GBN      = 'LT'
+                                )
+               AND BAS_GBN  = 'LT'
+               AND BAS_CD   = NVL(?, BAS_CD)
+          ORDER BY SF_GET_COMMSEQ('01', 'LT', BAS_CD)
+                 , SF_GET_COMMSEQ('01', 'A2', JOB_CD_FROM)
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장비 지급기준 저장 -->
+    <sql name="BUTA110_INS">
+        <description>해외출장비 지급기준 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_CM_BASIS
+                 ( BAS_GBN
+                 , BASIC_YMD
+                 , BAS_CD
+                 , BAS_CD2
+                 , JOB_CD_FROM
+                 , JOB_CD_TO
+                 , BAS_AMT
+                 , BAS_AMT2
+                 , BAS_AMT3
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( 'LT'
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장비 지급기준 수정 -->
+    <sql name="BUTA110_UPT">
+        <description>해외출장비 지급기준 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_BASIS
+               SET BAS_CD2      = ?
+                 , JOB_CD_TO    = ?
+                 , BAS_AMT      = ?
+                 , BAS_AMT2     = ?
+                 , BAS_AMT3     = ?
+                 , UPT_MAN      = ?
+                 , UPT_YMD      = SYSDATE
+             WHERE BASIC_YMD    = ?
+               AND BAS_CD       = ?
+               AND JOB_CD_FROM  = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장비 지급기준 삭제 -->
+    <sql name="BUTA110_DEL">
+        <description>해외출장비 지급기준 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_CM_BASIS
+             WHERE BASIC_YMD    = ?
+               AND BAS_CD       = ?
+               AND JOB_CD_FROM  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTB010
+* @description : 해외출장비 작성
+***********************************************************************
+* 2010/03/11     임종태        최초작성.
+***********************************************************************
+-->
+    <!-- 파견품의 현황 조회 -->
+    <sql name="BUTB010_SHR">
+        <description>해외출장 현황</description>
+        <query>
+            <![CDATA[
+			SELECT
+                     B.ORD_NO                                                       -- 품의번호
+                   , B.ENO_NO                                           	AS PENO_NO
+                   , SF_GET_ENONAME('01', MIN(B.ENO_NO)) 					AS PENO_NM
+                   , SF_GET_COMMNAME('01','A2',MIN(B.JOB_CD)) 				AS PJOB_NM
+                   , TO_CHAR(MIN(B.IPT_YMD),'YYYY-MM-DD HH24:MI') 			AS ORD_DATE-- 상신일
+                   , SF_GET_ENONAME('01', MIN(B.APP_ENO_NO)) 				AS APP_ENO_NM-- 현결재완료자
+   				   , SF_GET_COMMNAME('01', 'A2', MIN(B.APP_JOB_CD)) 		AS APP_JOB_NM-- 현결재완료자직위
+                   , TO_CHAR(MIN(APP_DATE),'YYYY-MM-DD HH24:MI') 			AS APP_DATE -- 결재일시간
+                   , MIN(APP_CMT) 											AS APP_CMT-- 결재의견
+                   , MIN(APP_STATUS) 										AS APP_STATUS-- 결재상태
+                   , MIN(BUT_FR_YMD) 										AS BUT_FR_YMD
+                   , MIN(BUT_TO_YMD) 										AS BUT_TO_YMD
+              FROM ASNHR.T_DI_APPROVAL A, ASNHR.T_DI_OVERSEASTRIP B
+              WHERE B.ORD_NO = A.REQ_NO
+			AND   ( (BUT_FR_YMD >= ? AND   BUT_FR_YMD <= ?) OR  (BUT_TO_YMD >= ? AND   BUT_TO_YMD <= ?) )
+			AND   GUN_GBN = 'E'         -- 근태구분(E: 해외출장관리)
+			AND   PENO_NO LIKE ? || '%' -- 상신자
+			AND   A.ENO_NO  LIKE ? || '%' -- 결재자
+			[1]
+			[2]
+			AND   B.APP_STATUS LIKE ? || '%' -- 진행상태
+			GROUP BY B.ORD_NO, B.ENO_NO
+			ORDER BY B.ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견품의 삭제 -->
+    <sql name="BUTC010_DEL_01">
+        <description>파견품의 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM ASNHR.T_DI_DISPATCH
+			WHERE ORD_NO = ?
+			AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견여비계산서 삭제 -->
+    <sql name="BUTC010_DEL_02">
+        <description>파견비용 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM ASNHR.T_DI_DISPATCH_ACCOUNT
+			WHERE ORD_NO = ?
+			AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견 결재사항 삭제 -->
+    <sql name="BUTC010_DEL_03">
+        <description>파견결재사항 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM ASNHR.T_DI_APPROVAL
+			WHERE REQ_NO = ?
+			AND   PENO_NO = ?
+			AND	  GUN_GBN = 'D'
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : BUTB020
+* @description : 해외출장품의서 작성
+***********************************************************************
+* 2010/03/11     임종태        최초작성.
+***********************************************************************
+-->
+
+	<!-- 해외출장품의서 작성 내용 조회 -->
+    <sql name="BUTB020_SHR_03">
+        <description>출장품의서 작성 내용 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO
+            		, ENO_NO
+            		, SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+            		, DPT_CD
+            		, SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM
+            		, JOB_CD
+            		, SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM
+            		, TO_CHAR(TO_DATE(BUT_FR_YMD),'YYYY-MM-DD') AS BUT_FR_YMD
+            		, TO_CHAR(TO_DATE(BUT_TO_YMD),'YYYY-MM-DD') AS BUT_TO_YMD
+            		, SLEEP_DAY
+            		, BUT_GBN
+            		, VISA_YN
+            		, PASS_YN
+            		, CURRENCY_NM
+            		, EXT_RATE
+            		, BUT_EXPENSE
+            		, BUT_LODGING
+            		, BUT_SUM
+            		, BUT_AMT
+            		, BUT_DAY
+            		, BUT_NAT
+            		, BUT_CITY
+            		, BUT_OBJ
+            		, BUT_AFF
+            		, PC_CCTRCD
+            		, PC_CCTRNM
+            		, PC_GBN
+            		, APP_CMT
+            		, APP_STATUS
+            		, APP_ENO_NO
+            		, APP_JOB_CD
+            FROM   ASNHR.T_DI_OVERSEASTRIP
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTB020_SHR_04">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+           SELECT ENO_NO
+		    	  , SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+		   		  , REQ_NO
+				  , GUN_DPT
+				  , SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+				  , JOB_CD
+				  , SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM
+				  , SEQ_NO
+				  , '' SEQ_NM
+				  , APP_YN
+                  , (CASE WHEN APP_YN = 'R' THEN '상신 ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD')
+                          WHEN APP_YN = 'N' THEN '부결 ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD')
+                          WHEN APP_YN = 'E' THEN '반송 ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD')
+						  WHEN APP_YN = 'Y' THEN '결재 ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD')
+                    ELSE ''
+                   END ) APP_STATUS
+            FROM   ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+			AND    GUN_GBN = 'E'
+            ORDER BY SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 상세 조회 -->
+    <sql name="BUTB020_SHR_05">
+        <description>상세 조회</description>
+        <query>
+            <![CDATA[
+			SELECT ORD_NO
+				   ,ENO_NO
+				   ,SEQ_NO
+			   	   ,(CASE WHEN SEQ_NO = '1' THEN '출발일'
+			          WHEN SEQ_NO = '2' THEN '도착일'
+			          ELSE '경유일'
+					END) SEQ_NM
+				   ,BUT_YMDHM
+				   ,BUT_FR_NAT
+				   ,B.NAT_NM AS BUT_FR_NAT_NM
+				   ,BUT_FR_CITY
+				   ,(SELECT CITY_NM FROM T_CM_WORLD_CITY WHERE NAT_CD = BUT_FR_NAT AND CITY_CD = BUT_FR_CITY) AS BUT_FR_CITY_NM
+				   ,BUT_TO_NAT
+				   ,C.NAT_NM AS BUT_TO_NAT_NM
+				   ,BUT_TO_CITY
+				   ,(SELECT CITY_NM FROM T_CM_WORLD_CITY WHERE NAT_CD = BUT_TO_NAT AND CITY_CD = BUT_TO_CITY) AS BUT_TO_CITY_NM
+				   ,BUT_TRA
+				   ,(CASE WHEN BUT_TRA = '1' THEN '항공'
+				          WHEN BUT_TRA = '2' THEN '배'
+				          ELSE ''
+					END) BUT_TRA_NM
+			FROM ASNHR.T_DI_OVERSEASTRIP_DTL A,
+				 (SELECT DISTINCT NAT_CD, NAT_NM FROM T_CM_WORLD_CITY) B,
+				 (SELECT DISTINCT NAT_CD, NAT_NM FROM T_CM_WORLD_CITY) C
+			WHERE ORD_NO = ?
+			AND   A.BUT_FR_NAT = B.NAT_CD
+			AND   A.BUT_FR_NAT = C.NAT_CD
+			ORDER BY SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장 여비지급계산서 기본 조회 -->
+    <sql name="BUTB020_SHR_06">
+        <description>해외출장 여비지급계산서 기본 조회</description>
+        <query>
+            <![CDATA[
+			SELECT A.*
+			FROM
+				 (
+					SELECT A.*
+						 ,ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD_FROM) AS FROM_SEQ
+						 ,ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD_TO) AS TO_SEQ
+				    FROM T_CM_BASIS A
+			            , (SELECT BAS_CD
+			                    , MAX(BASIC_YMD) AS BASIC_YMD
+			               FROM T_CM_BASIS
+						   WHERE BAS_GBN = 'LT'   --추가
+			               GROUP BY BAS_CD
+			              ) B
+				     WHERE A.BAS_GBN = 'LT'
+				       AND A.BASIC_YMD = B.BASIC_YMD
+				       AND A.BAS_CD  = B.BAS_CD
+				) A,
+				VI_T_CM_PERSON B
+			WHERE 1 = 1
+			AND   B.JOB_SEQ BETWEEN FROM_SEQ AND TO_SEQ
+			AND   BAS_CD = ?
+			AND   B.ENO_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTB020_SHR_07">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT *
+			FROM ASNHR.T_DI_APPROVAL
+			WHERE GUN_GBN = 'E'
+			AND   REQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 해외출장  저장 -->
+    <sql name="BUTB020_INS_01">
+        <description>파견품의서 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_DI_OVERSEASTRIP
+                 (
+				   ORD_NO
+				  ,ENO_NO
+				  ,DPT_CD
+				  ,JOB_CD
+				  ,BUT_FR_YMD
+				  ,BUT_TO_YMD
+				  ,BUT_DAY
+				  ,SLEEP_DAY
+				  ,BUT_GBN
+				  ,VISA_YN
+				  ,PASS_YN
+				  ,BUT_NAT
+				  ,BUT_CITY
+				  ,CURRENCY_NM
+				  ,EXT_RATE
+				  ,PC_CCTRCD
+				  ,PC_CCTRNM
+				  ,PC_GBN
+				  ,BUT_AFF
+				  ,BUT_OBJ
+				  ,BUT_EXPENSE
+				  ,BUT_LODGING
+				  ,BUT_SUM
+				  ,BUT_AMT
+				  ,APP_STATUS
+				  ,APP_CMT
+				  ,IPT_MAN
+				  ,IPT_YMD
+				  ,UPT_MAN
+				  ,UPT_YMD
+                 )
+          VALUES (
+				   ?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,'1'
+				  ,'저장'
+				  ,?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장관리상세  저장 -->
+    <sql name="BUTB020_INS_02">
+        <description>해외출장상세 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_DI_OVERSEASTRIP_DTL
+                 (
+				   ORD_NO
+				  ,ENO_NO
+				  ,SEQ_NO
+				  ,BUT_YMDHM
+				  ,BUT_FR_NAT
+				  ,BUT_FR_CITY
+				  ,BUT_TO_NAT
+				  ,BUT_TO_CITY
+				  ,BUT_TRA
+				  ,IPT_MAN
+				  ,IPT_YMD
+				  ,UPT_MAN
+				  ,UPT_YMD
+                 )
+          VALUES (
+				   ?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해외출장 결재자정보 저장 -->
+    <sql name="BUTB020_INS_03">
+        <description>해외출장 결재자정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO ASNHR.T_DI_APPROVAL
+                    (GUN_YMD, GUN_GBN, GUN_DPT, SEQ_NO, ENO_NO, JOB_CD, PENO_NO, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD, REQ_NO)
+             VALUES (      ?,       ?,       ?,      ?,      ?,      ?,       ?,       ?, sysdate,       ?, sysdate, ?)
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 결재처리(해외출장 결재현황) -->
+    <sql name="BUTB020_UPT_01">
+        <description>결재정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_OVERSEASTRIP     SET
+            		APP_CMT =    NVL(?, APP_CMT)
+            	   ,APP_ENO_NO = NVL(?, APP_ENO_NO)
+            	   ,APP_JOB_CD = NVL(?, APP_JOB_CD)
+	               ,APP_DATE = (CASE WHEN APP_STATUS = '1' THEN NULL
+	                     ELSE  SYSDATE
+	                END)
+            	   ,APP_STATUS = NVL(?, APP_STATUS)
+                   ,UPT_MAN = ?
+                   ,UPT_YMD = SYSDATE
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재처리(파견품의 결재현황) -->
+    <sql name="BUTB020_UPT_02">
+        <description>결재정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_APPROVAL SET
+            		APP_YN   = ?
+            	   ,APP_TIME = TO_CHAR(SYSDATE, 'HH24:MI')
+                   ,UPT_MAN  = ?
+                   ,UPT_YMD = SYSDATE
+            WHERE  REQ_NO = ?
+            AND    ENO_NO = ?
+            AND    GUN_GBN = 'E'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 해외출장  저장 -->
+    <sql name="BUTB020_UPT_03">
+        <description>해외출장 저장</description>
+        <query>
+            <![CDATA[
+
+            UPDATE ASNHR.T_DI_OVERSEASTRIP
+            SET
+            	   BUT_FR_YMD 	= ?,		--출장시작일
+                   BUT_TO_YMD 	= ?,		--출장종료일
+                   BUT_DAY 		= ?,		--출장기간
+                   SLEEP_DAY 	= ?,		--출장숙박일수
+                   BUT_GBN 	    = ?,		--지급여부
+                   VISA_YN 	    = ?,		--비자필요여부
+                   PASS_YN 		= ?,		--여권필요여부
+                   BUT_NAT 		= ?,		--출장국가
+                   BUT_CITY 	= ?,		--출장도시
+                   CURRENCY_NM  = ?,        --단
+                   EXT_RATE 	= ?,		--환율
+                   PC_CCTRCD 	= ?,		--전표코드
+                   PC_CCTRNM 	= ?,		--전표명
+                   PC_GBN 		= ?,		--전표구분
+                   BUT_AFF 		= ?,		--파견효과
+                   BUT_OBJ 		= ?,		--파견목적
+                   BUT_EXPENSE 	= ?,		--일당
+				   BUT_LODGING 	= ?,		--숙박지
+				   BUT_SUM 	    = ?,		--일당계
+				   BUT_AMT 	    = ?,		--일비
+                   UPT_MAN 		= ?,		--수정자
+                   UPT_YMD 		= sysdate			--수정
+            WHERE ORD_NO = ?
+            AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재처리(해외출장 결재현황 : 상신일경우) -->
+    <sql name="BUTB020_UPT_04">
+        <description>결재정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_APPROVAL SET
+            		APP_YN   = 'R'
+                   ,UPT_MAN  = ?
+                   ,UPT_YMD = SYSDATE
+            WHERE  REQ_NO = ?
+            AND    GUN_GBN = 'E'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해외출장상세 수정 -->
+    <sql name="BUTB020_UPT_05">
+        <description>해외출장결재자정보 삭제</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_OVERSEASTRIP_DTL
+            SET
+            	   BUT_YMDHM 	= ?,		--출장시작일
+                   BUT_FR_NAT 	= ?,		--출발국가
+                   BUT_FR_CITY 	= ?,		--출발도시
+                   BUT_TO_NAT 	= ?,		--도착국가
+                   BUT_TO_CITY  = ?,		--도착도시
+                   BUT_TRA 	    = ?,		--교통수단
+                   UPT_MAN 		= ?,		--수정자
+                   UPT_YMD 		= sysdate			--수정
+            WHERE ORD_NO = ?
+            AND   ENO_NO = ?
+            AND   SEQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 해외출장결재자정보 삭제 -->
+    <sql name="BUTB020_DEL_01">
+        <description>파견결재자정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+            AND    GUN_GBN = 'E'
+            ]]>
+        </query>
+    </sql>
+
+           <!-- 지급기준비 조회 -->
+    <sql name="BUTB020_CM_BASIS_SHR">
+        <description>지급기준비 조회</description>
+        <query>
+            <![CDATA[
+		SELECT *
+		FROM T_CM_BASIS
+		WHERE BAS_GBN = 'LT'
+		AND   ? BETWEEN JOB_CD_FROM AND JOB_CD_TO
+		AND   BAS_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+
+  <!--  전표 발생에 필요한 변수값을 가져옴 조회 -->
+    <sql name="BUTB020_PRC_SHR_01">
+        <description>전표 발생에 필요한 변수값을 가져옴 조회</description>
+        <query>
+            <![CDATA[
+
+            SELECT  A.ORD_NO
+            		, A.ENO_NO
+            		, SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+            		, A.DPT_CD
+            		, SF_GET_DPTNAME('01','A4',A.DPT_CD) AS DPT_NM
+            		, A.JOB_CD
+            		, SF_GET_COMMNAME('01','A2',A.JOB_CD) AS JOB_NM
+            		, BUT_FR_YMD
+            		, BUT_TO_YMD
+            		, SLEEP_DAY
+            		, BUT_DAY
+            		, VISA_YN
+            		, PASS_YN
+            		, CURRENCY_NM
+            		, EXT_RATE
+            		, BUT_EXPENSE
+            		, BUT_LODGING
+            		, BUT_SUM
+            		, BUT_AMT
+            		, BUT_GBN
+				  ,(CASE WHEN BUT_GBN = '1' THEN '당사출장'
+			          WHEN BUT_GBN = '2' THEN '고객사출장'
+			          ELSE ''
+					END) BUT_GBN_NM
+            		, BUT_NAT
+            		, COMM_NM AS BUT_NAT_NM
+            		, BUT_CITY
+            		, BUT_OBJ
+            		, BUT_AFF
+            		, PC_CCTRCD
+            		, PC_CCTRNM
+            		, PC_GBN
+            		, APP_CMT
+            		, APP_STATUS
+            		, APP_ENO_NO
+            		, APP_JOB_CD
+			       , SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),1,4)            AS ACC_YYYY
+			       , SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),5,2)            AS ACC_MM
+			       , (TO_CHAR(SYSDATE,'YYYYMMDD'))                      AS IPT_YMD
+				   , TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF4') FILE_NAME
+				   , SUBSTR(D.ACC_CD, 1, 1) AS ACC_CD
+		           , TAX_DPT
+            FROM   ASNHR.T_DI_OVERSEASTRIP A,
+				   T_CM_PERSON C,
+				   T_CP_ACCOUNT_DEPT D,
+				   T_CM_COMMON E
+            WHERE  A.ORD_NO = ?
+			AND    A.ENO_NO = C.ENO_NO
+			AND    PC_CCTRCD = LPAD(D.DPT_CD(+), 10, '0')
+			AND    E.CD_GBN = 'L2'
+			AND    A.BUT_NAT = E.COMM_CD
+            ]]>
+        </query>
+    </sql>
+
+
+   <!-- 여비지급명세서 에 전표여부 수정 -->
+    <sql name="BUTB020_PRC_UPT_02">
+        <description>여비지급명세서 에 전표여부 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_OVERSEASTRIP SET
+            	 TRANS_GBN = 'Y'
+            	,APP_CMT   = '전표완료'
+            	,APP_STATUS = '7'
+            	,UPT_MAN   = ?
+            	,UPT_YMD   = SYSDATE
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTB030
+* @description :  해외출장품의신청현황
+***********************************************************************
+* 2010/03/11     임종태        최초작성.
+***********************************************************************
+-->
+    <!-- 출장품의신청현황 조회 -->
+    <sql name="BUTB030_SHR">
+        <description>해외출장품의신청현황 조회</description>
+        <query>
+            <![CDATA[
+				SELECT  DPT_NM
+					   ,ORD_NO
+					   ,DECODE(ORD_NO, '소계', '소계', JOB_NM) AS JOB_NM
+					   ,DECODE(ORD_NO, '소계', CNT || '명', NAM_KOR) AS NAM_KOR
+					   ,DECODE(ORD_NO, '소계', '', SUBSTR(BUT_FR_YMD,1,4)||'-'||SUBSTR(BUT_FR_YMD,5,2)||'-'||SUBSTR(BUT_FR_YMD,7,2)) AS BUT_FR_YMD
+					   ,DECODE(ORD_NO, '소계', '', SUBSTR(BUT_TO_YMD,1,4)||'-'||SUBSTR(BUT_TO_YMD,5,2)||'-'||SUBSTR(BUT_TO_YMD,7,2)) AS BUT_TO_YMD
+					   ,COST_TOT
+					    ,DECODE(ORD_NO, '소계', '',  SF_GET_COMMNAME('01','L2',BUT_CITY)) AS  BUT_CITY
+					   ,DECODE(ORD_NO, '소계', '', BUT_OBJ) AS  BUT_OBJ
+				FROM
+					(
+                             SELECT 		DECODE(GROUPING(V1.DPT_NM), 1, '총계', V1.DPT_NM) AS DPT_NM
+							 			   ,DECODE(GROUPING(A.ORD_NO), 1, '소계', A.ORD_NO) AS ORD_NO
+                                           ,MAX(V2.COMM_CD)             JOB_CD
+                                           ,MAX(V2.COMM_NM) JOB_NM
+                                           ,MAX(SF_GET_ENONAME('01', ENO_NO))              NAM_KOR
+                                           ,MAX(A.BUT_FR_YMD)           BUT_FR_YMD
+                                           ,MAX(A.BUT_TO_YMD)           BUT_TO_YMD
+                                           ,SUM(A.BUT_AMT)              COST_TOT
+                                           ,MAX(A.BUT_CITY)             BUT_CITY
+                                           ,MAX(A.BUT_OBJ)              BUT_OBJ
+                                           ,TO_CHAR(COUNT(A.ENO_NO),999)            CNT
+                                   FROM ASNHR.T_DI_OVERSEASTRIP A,
+                                             T_CM_DEPT V1,
+                                             (SELECT COMM_CD, COMM_NM, SORT_NO
+                                                    FROM T_CM_COMMON
+                                                   WHERE CD_GBN = 'A2') V2
+                              WHERE     1 = 1
+                              		AND A.BUT_FR_YMD >= ?
+                                    AND A.BUT_FR_YMD <= ?
+                                    AND A.DPT_CD   LIKE ?||'%'
+                                    AND V2.COMM_CD   LIKE ?||'%'
+                                    AND A.APP_STATUS IN ('4', '7')
+                                    AND A.DPT_CD   = V1.DPT_CD(+)
+                                    AND A.JOB_CD   = V2.COMM_CD(+)
+                                    GROUP BY ROLLUP(v1.DPT_NM, A.ORD_NO)
+						)
+
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTB050
+* @description : 해외출장비신청내역
+***********************************************************************
+* 2010/03/11     임종태        최초작성.
+***********************************************************************
+-->
+    <!-- 해외출장비신청내역 조회 직위별-->
+    <sql name="BUTB050_SHR_01">
+        <description>해외출장비신청내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT D.COMM_NM, COUNT(A.ORD_NO) AS APP_CNT,
+                   SUM(A.BUT_AMT) AS AMOUNT, ? AS CD_GBN, '' AS REMARK
+            FROM   ASNHR.T_DI_OVERSEASTRIP A,
+                   ( SELECT ORD_NO, SUM(COST_AMT) COST_TOT
+                     FROM   ASNHR.T_DI_DISPATCH_ACCOUNT
+                     GROUP BY ORD_NO ) C,
+                   T_CM_COMMON D
+            WHERE  A.BUT_FR_YMD >= ?
+            AND    A.BUT_FR_YMD <= ?
+            AND    A.APP_STATUS IN ('4', '7')
+            AND    D.CD_GBN = ?
+            AND    D.COMM_CD = [1]
+            AND    (D.END_YMD IS NULL )
+            GROUP BY D.SORT_NO, D.COMM_NM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해외출장비신청내역 조회 소속별-->
+    <sql name="BUTB050_SHR_02">
+        <description>해외출장비신청내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT D.DPT_NM AS COMM_NM, COUNT(A.ORD_NO) AS APP_CNT,
+                   SUM(A.BUT_AMT) AS AMOUNT, ? AS CD_GBN, '' AS REMARK
+            FROM   ASNHR.T_DI_OVERSEASTRIP A,
+                   T_CM_DEPT D
+            WHERE  A.BUT_FR_YMD >= ?
+            AND    A.BUT_FR_YMD <= ?
+            AND    A.APP_STATUS IN ('4', '7')
+            AND    D.CD_GBN = ?
+            AND    D.DPT_CD = [1]
+            AND    (D.END_YMD IS NULL )
+            GROUP BY D.DPT_NM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해외출장비신청내역 조회 개인별-->
+    <sql name="BUTB050_SHR_03">
+        <description>해외출장비신청내역 조회</description>
+        <query>
+            <![CDATA[
+         SELECT D.ENO_NM  || '(' || D.ENO_NO || ')' AS COMM_NM
+		 		,D.ENO_NO
+		 		,COUNT(A.ORD_NO) AS APP_CNT
+                ,SUM(A.BUT_AMT) AS AMOUNT
+				,? AS CD_GBN
+				,'' AS REMARK
+         FROM   ASNHR.T_DI_OVERSEASTRIP A,
+                T_CM_PERSON D
+         WHERE  A.BUT_FR_YMD >= ?
+         AND    A.BUT_FR_YMD <= ?
+         AND    A.APP_STATUS IN ('4', '7')
+         AND    '1' = ?
+         AND    D.ENO_NO = A.ENO_NO
+         AND    (D.RET_YMD IS NULL OR D.RET_YMD >= SYSDATE)
+         GROUP BY D.ENO_NO, D.ENO_NM
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTC010
+* @description : 파견품의서 작성
+***********************************************************************
+* 2010/02/11     임종태        최초작성.
+***********************************************************************
+-->
+    <!-- 파견품의 현황 조회 -->
+    <sql name="BUTC010_SHR">
+        <description>파견품의 현황</description>
+        <query>
+            <![CDATA[
+			SELECT
+                     B.ORD_NO                                                       -- 품의번호
+                   , B.ENO_NO                                           AS PENO_NO
+                   , SF_GET_ENONAME('01', MIN(B.ENO_NO)) AS PENO_NM
+                   , SF_GET_COMMNAME('01','A2',MIN(B.JOB_CD)) AS PJOB_NM
+                   , TO_CHAR(MIN(B.IPT_YMD),'YYYY-MM-DD HH24:MI') ORD_DATE-- 상신일
+                   , SF_GET_ENONAME('01', MIN(B.APP_ENO_NO)) AS APP_ENO_NM-- 현결재완료자
+   				   , SF_GET_COMMNAME('01', 'A2', MIN(B.APP_JOB_CD)) AS APP_JOB_NM-- 현결재완료자직위
+                   , TO_CHAR(MIN(APP_DATE),'YYYY-MM-DD HH24:MI') APP_DATE -- 결재일시간
+                   , MIN(APP_CMT) AS APP_CMT-- 결재의견
+                   , MIN(APP_STATUS) AS APP_STATUS-- 결재상태
+                   , MIN(DIS_FR_YMD) AS DIS_FR_YMD
+                   , MIN(DIS_TO_YMD) AS DIS_TO_YMD
+                   , SUBSTR((MIN(YYYY||MM)), 5) AS MM
+              FROM ASNHR.T_DI_APPROVAL A, ASNHR.T_DI_DISPATCH B, ASNHR.T_DI_DISPATCH_ACCOUNT C
+              WHERE B.ORD_NO = A.REQ_NO
+                AND   B.ORD_NO = C.ORD_NO(+)
+				AND   C.TRANS_GBN(+) = 'N'
+			AND   ( (DIS_FR_YMD >= ? AND   DIS_FR_YMD <= ?) OR  (DIS_TO_YMD >= ? AND   DIS_TO_YMD <= ?) ) -- 상신기간==>파견기간
+			AND   GUN_GBN = 'D'         -- 근태구분(D: 파견관리)
+			AND   PENO_NO LIKE ? || '%' -- 상신자
+			AND   A.ENO_NO  LIKE ? || '%' -- 결재자
+			[1]
+			[2]
+			AND   B.APP_STATUS LIKE ? || '%' -- 진행상태
+			GROUP BY B.ORD_NO, B.ENO_NO
+			ORDER BY B.ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견품의 삭제 -->
+    <sql name="BUTC010_DEL_01">
+        <description>파견품의 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM ASNHR.T_DI_DISPATCH
+			WHERE ORD_NO = ?
+			AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견여비계산서 삭제 -->
+    <sql name="BUTC010_DEL_02">
+        <description>파견비용 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM ASNHR.T_DI_DISPATCH_ACCOUNT
+			WHERE ORD_NO = ?
+			AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견 결재사항 삭제 -->
+    <sql name="BUTC010_DEL_03">
+        <description>파견결재사항 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM ASNHR.T_DI_APPROVAL
+			WHERE REQ_NO = ?
+			AND   PENO_NO = ?
+			AND	  GUN_GBN = 'D'
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : BUTC020
+* @description : 파견품의서 작성
+***********************************************************************
+* 2010/02/05     임종태        최초작성.
+***********************************************************************
+-->
+    <!-- 품의번호 조회 -->
+    <sql name="BUTC020_SHR_01">
+        <description>품의번호 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  TO_CHAR(SYSDATE,'YYYYMMDD')|| TRIM(TO_CHAR( DECODE( MAX(SUBSTR(REQ_NO, 9, 3)), NULL, '001', MAX(SUBSTR(REQ_NO, 9,3))+1 ), '000')) ORD_NO
+			FROM    ASNHR.T_DI_APPROVAL
+			WHERE   SUBSTR(REQ_NO,0,8) = TO_CHAR(SYSDATE,'YYYYMMDD')
+			AND     SUBSTR(REQ_NO, 9, 1) NOT IN ('H','R','Z')
+            ]]>
+        </query>
+    </sql>
+	<!-- 파견품의서 작성 내용 조회 -->
+    <sql name="BUTC020_SHR_03">
+        <description>출장품의서 작성 내용 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO
+            		, ENO_NO
+            		, SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+            		, DPT_CD
+            		, SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM
+            		, JOB_CD
+            		, SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM
+            		, TO_CHAR(TO_DATE(DIS_FR_YMD),'YYYY-MM-DD') AS DIS_FR_YMD
+            		, TO_CHAR(TO_DATE(DIS_TO_YMD),'YYYY-MM-DD') AS DIS_TO_YMD
+            		, SLEEP_DAY
+            		, DIS_DAY
+            		, DIS_CITY
+            		, DIS_GUN
+            		, DIS_OBJ
+            		, DIS_AFF
+            		, DIS_PAY_YN
+            		, PC_CCTRCD
+            		, PC_CCTRNM
+            		, PC_GBN
+            		, APP_CMT
+            		, APP_STATUS
+            		, APP_ENO_NO
+            		, APP_JOB_CD
+            FROM   ASNHR.T_DI_DISPATCH
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTC020_SHR_04">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+           SELECT ENO_NO
+		    	  , SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+		   		  , REQ_NO
+				  , GUN_DPT
+				  , SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+				  , JOB_CD
+				  , SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM
+				  , SEQ_NO,'' GUN_YMD, '' DPT_CD,PENO_NO
+				  , '' SEQ_NM
+				  , APP_YN
+                  , (CASE
+                          WHEN APP_YN = 'N' THEN '부결  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          WHEN APP_YN = 'E' THEN '반송  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          WHEN APP_YN = 'Y' THEN '승인  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          ELSE '미결 '
+                      END ) APP_STATUS
+                   ,REMARK
+                   ,NVL2(REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+			AND    GUN_GBN = 'D'
+            ORDER BY SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 직위를 통한 기본 조회 -->
+    <sql name="BUTC020_SHR_05">
+        <description>파견관리 여비지급계산서 기본 조회</description>
+        <query>
+            <![CDATA[
+		SELECT EXT_02
+		FROM T_CM_COMMON
+		WHERE CD_GBN = 'A2'
+		AND   COMM_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 파견관리 여비지급계산서 기본 조회 -->
+    <sql name="BUTC020_SHR_06">
+        <description>파견관리 여비지급계산서 기본 조회</description>
+        <query>
+            <![CDATA[
+			SELECT [1] AS AMT-- 식대, 일비
+			FROM ASNHR.T_DI_BUSINESSTRIP_BASIS
+			WHERE GBN_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BUTC020_SHR_07">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT *
+			FROM ASNHR.T_DI_APPROVAL
+			WHERE GUN_GBN = 'D'
+			AND   REQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 파견관리  저장 -->
+    <sql name="BUTC020_INS_01">
+        <description>파견품의서 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_DI_DISPATCH
+                 (
+				   ORD_NO
+				  ,ENO_NO
+				  ,DPT_CD
+				  ,JOB_CD
+				  ,DIS_FR_YMD
+				  ,DIS_TO_YMD
+				  ,DIS_DAY
+				  ,SLEEP_DAY
+				  ,DIS_PAY_YN
+				  ,DIS_CITY
+				  ,DIS_GUN
+				  ,DIS_AFF
+				  ,DIS_OBJ
+				  ,APP_STATUS
+				  ,APP_CMT
+				  ,IPT_MAN
+				  ,IPT_YMD
+				  ,UPT_MAN
+				  ,UPT_YMD
+                 )
+          VALUES (
+				   ?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,'1'
+				  ,'저장'
+				  ,?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 파견관리  저장 -->
+    <sql name="BUTC020_INS_02">
+        <description>파견품의 여비계산서 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_DI_DISPATCH_ACCOUNT
+                 (
+				   ORD_NO
+				  ,ENO_NO
+				  ,YYYY
+				  ,MM
+				  ,PAY_DAY
+				  ,EAT_AMT
+				  ,ETC_AMT
+				  ,COST_AMT
+				  ,TRANS_GBN
+				  ,SEQ_NO
+				  ,IPT_MAN
+				  ,IPT_YMD
+				  ,UPT_MAN
+				  ,UPT_YMD
+                 )
+          VALUES (
+				   ?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+				  ,?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견 결재자정보 저장 -->
+    <sql name="BUTC020_INS_03">
+        <description>파견 결재자정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO ASNHR.T_DI_APPROVAL
+                    (GUN_YMD, GUN_GBN, GUN_DPT, SEQ_NO, ENO_NO, JOB_CD, PENO_NO, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD, REQ_NO)
+             VALUES (      ?,       ?,       ?,      ?,      ?,      ?,       ?,       ?, sysdate,       ?, sysdate, ?)
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 결재처리(파견품의 결재현황) -->
+    <sql name="BUTC020_UPT_01">
+        <description>결재정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_DISPATCH     SET
+            		APP_CMT =    NVL(?, APP_CMT)
+            	   ,APP_ENO_NO = NVL(?, APP_ENO_NO)
+            	   ,APP_JOB_CD = NVL(?, APP_JOB_CD)
+	               ,APP_DATE = (CASE WHEN APP_STATUS = '1' THEN NULL
+	                     ELSE  SYSDATE
+	                END)
+            	   ,APP_STATUS = NVL(?, APP_STATUS)
+                   ,UPT_MAN = ?
+                   ,UPT_YMD = SYSDATE
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재처리(파견품의 결재현황) -->
+    <sql name="BUTC020_UPT_02">
+        <description>결재정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_APPROVAL SET
+            		APP_YN   = ?
+            	   ,APP_TIME = TO_CHAR(SYSDATE, 'HH24:MI')
+            	   ,REMARK = ?
+                   ,UPT_MAN  = ?
+                   ,UPT_YMD = SYSDATE
+            WHERE  REQ_NO = ?
+            AND    ENO_NO = ?
+            AND    GUN_GBN = 'D'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 파견관리  저장 -->
+    <sql name="BUTC020_UPT_03">
+        <description>파견품의서 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_DISPATCH
+            SET
+            	   DIS_FR_YMD 	= ?,		--파견시작일
+                   DIS_TO_YMD 	= ?,		--파견종료일
+                   DIS_DAY 		= ?,		--파견기간
+                   SLEEP_DAY 	= ?,		--파견숙박일수
+                   DIS_PAY_YN 	= ?,		--지급여부
+                   DIS_CITY 	= ?,		--파견지
+                   DIS_GUN 		= ?,		--파견근무지
+                   DIS_AFF 		= ?,		--파견효과
+                   DIS_OBJ 		= ?,		--파견목적
+                   APP_STATUS = '1',
+				   APP_CMT = '저장',
+                   UPT_MAN 		= ?,		--수정자
+                   UPT_YMD 		= sysdate			--수정
+            WHERE ORD_NO = ?
+            AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재처리(파견품의 결재현황 : 상신일경우) -->
+    <sql name="BUTC020_UPT_04">
+        <description>결재정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_APPROVAL SET
+            		APP_YN   = 'R'
+            	   ,REMARK  = ''
+                   ,UPT_MAN  = ?
+                   ,UPT_YMD = SYSDATE
+            WHERE  REQ_NO = ?
+            AND    GUN_GBN = 'D'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재자정보 삭제 -->
+    <sql name="BUTC020_DEL_01">
+        <description>파견결재자정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+            AND    GUN_GBN = ?
+            ]]>
+        </query>
+    </sql>
+        <!-- 여비지급명세서 삭제 -->
+    <sql name="BUTC020_DEL_02">
+        <description>여비지급명세서 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_DI_DISPATCH_ACCOUNT
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : BUTC021
+* @description : 여비지급신청현황
+***********************************************************************
+* 2010/02/10     임종태        최초작성.
+***********************************************************************
+-->
+
+   <!-- 여비지급명세서 조회 -->
+    <sql name="BUTC021_SHR_01">
+        <description>여비지급명세서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT *
+            FROM ASNHR.T_DI_DISPATCH_ACCOUNT
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+  <!--  예산안 Check에 필요한 변수값을 가져옴 조회 -->
+    <sql name="BUTC021_SHR_02">
+        <description>예산안 Check에 필요한 변수값을 가져옴 조회 </description>
+        <query>
+            <![CDATA[
+
+            SELECT
+            	    ? AS ORD_NO_SEQ
+            	   ,  ? PC_GBN
+            	   ,  ? PC_CCTRCD
+            	   ,  ? DIS_FR_YMD
+				   ,  0 AS COST_AMT
+				   ,  0 AS BUDGET_AMT
+				   , SUBSTR(ACC_CD, 1, 1) AS ACC_CD
+		           , TAX_DPT
+            FROM   T_CM_PERSON A,
+				   T_CP_ACCOUNT_DEPT B
+            WHERE  1 = 1
+			AND    ENO_NO = ?
+			AND    SUBSTR(A.TAX_DPT, 1, 4) = B.DPT_CD(+)
+            ]]>
+        </query>
+    </sql>
+
+
+  <!--  전표 발생에 필요한 변수값을 가져옴 조회 -->
+    <sql name="BUTC021_PRC_SHR_01">
+        <description>전표 발생에 필요한 변수값을 가져옴 조회</description>
+        <query>
+            <![CDATA[
+
+            SELECT  A.ORD_NO || SEQ_NO AS ORD_NO_SEQ
+            		,A.ORD_NO
+            		, A.ENO_NO
+            		, SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+            		, A.DPT_CD
+            		, SF_GET_DPTNAME('01','A4',A.DPT_CD) AS DPT_NM
+            		, A.JOB_CD
+            		, SF_GET_COMMNAME('01','A2',A.JOB_CD) AS JOB_NM
+            		, DIS_FR_YMD
+            		, DIS_TO_YMD
+            		, SLEEP_DAY
+            		, DIS_DAY
+            		, DIS_CITY
+            		, SF_GET_COMMNAME('01','Z4',A.DIS_CITY) AS DIS_CITY_NM
+            		, DIS_GUN
+            		, DIS_OBJ
+            		, DIS_AFF
+            		, DIS_PAY_YN
+            		,(CASE WHEN DIS_PAY_YN = 'Y' THEN '지급'
+            		       ELSE '미지급'
+            		       END)
+            		  AS DIS_PAY_YN_NM
+            		, PC_CCTRCD
+            		, PC_CCTRNM
+            		, PC_GBN
+            		, APP_CMT
+            		, APP_STATUS
+            		, APP_ENO_NO
+            		, APP_JOB_CD
+			       , SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),1,4)            AS ACC_YYYY
+			       , SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),5,2)            AS ACC_MM
+			       , (TO_CHAR(SYSDATE,'YYYYMMDD'))                      AS IPT_YMD
+				   , TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF4') FILE_NAME
+				   , COST_AMT
+				   , SUBSTR(ACC_CD, 1, 1) AS ACC_CD
+		           , TAX_DPT
+            FROM   ASNHR.T_DI_DISPATCH A,
+				   ASNHR.T_DI_DISPATCH_ACCOUNT B,
+				   T_CM_PERSON C,
+				   T_CP_ACCOUNT_DEPT D
+            WHERE  A.ORD_NO = ?
+			AND    A.ORD_NO = B.ORD_NO
+			AND    A.ENO_NO = B.ENO_NO
+			AND    B.YYYY   = ?
+			AND    B.MM     = ?
+			AND    A.ENO_NO = B.ENO_NO
+			AND    A.ENO_NO = C.ENO_NO
+			AND    PC_CCTRCD = LPAD(D.DPT_CD(+), 10, '0')--AND    SUBSTR(C.TAX_DPT, 1, 4) = D.DPT_CD(+)
+            ]]>
+        </query>
+    </sql>
+
+
+   <!-- 여비지급명세서 에 전표여부 수정 -->
+    <sql name="BUTC021_PRC_UPT_02">
+        <description>여비지급명세서 에 전표여부 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_DISPATCH_ACCOUNT SET
+            	 TRANS_GBN = 'Y'
+            	,UPT_MAN   = ?
+            	,UPT_YMD   = SYSDATE
+            WHERE  ORD_NO = ?
+            AND    ENO_NO = ?
+            AND    YYYY   = ?
+            AND    MM     = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : BUTC030
+* @description : 파견품의신청현황
+***********************************************************************
+* 2010/02/09     임종태        최초작성.
+***********************************************************************
+-->
+    <!-- 출장품의신청현황 조회 -->
+    <sql name="BUTC030_SHR">
+        <description>파견품의신청현황 조회</description>
+        <query>
+            <![CDATA[
+				SELECT  DPT_NM
+					   ,ORD_NO
+					   ,DECODE(ORD_NO, '소계', '소계', JOB_NM) AS JOB_NM
+					   ,DECODE(ORD_NO, '소계', CNT || '명', NAM_KOR) AS NAM_KOR
+					   ,DECODE(ORD_NO, '소계', '', SUBSTR(DIS_FR_YMD,1,4)||'-'||SUBSTR(DIS_FR_YMD,5,2)||'-'||SUBSTR(DIS_FR_YMD,7,2)) AS DIS_FR_YMD
+					   ,DECODE(ORD_NO, '소계', '', SUBSTR(DIS_TO_YMD,1,4)||'-'||SUBSTR(DIS_TO_YMD,5,2)||'-'||SUBSTR(DIS_TO_YMD,7,2)) AS DIS_TO_YMD
+					   ,COST_TOT
+					    ,DECODE(ORD_NO, '소계', '',  SF_GET_COMMNAME('01','Z4',DIS_CITY)) AS  DIS_CITY
+					   ,DECODE(ORD_NO, '소계', '', DIS_OBJ) AS  DIS_OBJ
+				FROM
+					(
+                             SELECT 		DECODE(GROUPING(V1.DPT_NM), 1, '총계', V1.DPT_NM) AS DPT_NM
+							 			   ,DECODE(GROUPING(A.ORD_NO), 1, '소계', A.ORD_NO) AS ORD_NO
+                                           ,MAX(V2.COMM_CD)             JOB_CD
+                                           ,MAX(V2.COMM_NM) JOB_NM
+                                           ,MAX(SF_GET_ENONAME('01', ENO_NO))              NAM_KOR
+                                           ,MAX(A.DIS_FR_YMD)           DIS_FR_YMD
+                                           ,MAX(A.DIS_TO_YMD)           DIS_TO_YMD
+                                           ,SUM(C.COST_TOT)             COST_TOT
+                                           ,MAX(A.DIS_CITY)             DIS_CITY
+                                           ,MAX(A.DIS_OBJ)              DIS_OBJ
+                                           ,TO_CHAR(COUNT(A.ENO_NO),999)            CNT
+                                   FROM ASNHR.T_DI_DISPATCH A,
+                                             (SELECT ORD_NO, SUM(NVL(COST_AMT,0)) COST_TOT
+                                              FROM ASNHR.T_DI_DISPATCH_ACCOUNT
+                                              GROUP BY ORD_NO)     C,
+                                             T_CM_DEPT V1,
+                                             (SELECT COMM_CD, COMM_NM, SORT_NO
+                                                    FROM T_CM_COMMON
+                                                   WHERE CD_GBN = 'A2') V2
+                              WHERE     1 = 1
+                              		AND A.DIS_FR_YMD >= ?
+                                    AND A.DIS_FR_YMD <= ?
+                                    AND A.DPT_CD   LIKE ?||'%'
+                                    AND V2.COMM_CD   LIKE ?||'%'
+                                    AND A.APP_STATUS IN ('4', '7', '8')
+                                    AND A.ORD_NO   = C.ORD_NO(+)
+                                    AND A.DPT_CD   = V1.DPT_CD(+)
+                                    AND A.JOB_CD   = V2.COMM_CD(+)
+                                    GROUP BY ROLLUP(v1.DPT_NM, A.ORD_NO)
+						)
+
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BUTC050
+* @description : 출장비신청내역
+***********************************************************************
+* 2010/02/09     임종태        최초작성.
+***********************************************************************
+-->
+    <!-- 파견비신청내역 조회 직위별-->
+    <sql name="BUTC050_SHR_01">
+        <description>파견비신청내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT D.COMM_NM, COUNT(A.ORD_NO) AS APP_CNT,
+                   SUM(C.COST_TOT) AS AMOUNT, ? AS CD_GBN, '' AS REMARK
+            FROM   ASNHR.T_DI_DISPATCH A,
+                   ( SELECT ORD_NO, SUM(COST_AMT) COST_TOT
+                     FROM   ASNHR.T_DI_DISPATCH_ACCOUNT
+                     GROUP BY ORD_NO ) C,
+                   T_CM_COMMON D
+            WHERE  A.DIS_FR_YMD >= ?
+            AND    A.DIS_FR_YMD <= ?
+            AND    A.APP_STATUS IN ('4', '7', '8')
+            AND    A.ORD_NO = C.ORD_NO(+)
+            AND    D.CD_GBN = ?
+            AND    D.COMM_CD = [1]
+            AND    (D.END_YMD IS NULL OR D.END_YMD >= SYSDATE)
+            GROUP BY D.SORT_NO, D.COMM_NM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견비신청내역 조회 소속별-->
+    <sql name="BUTC050_SHR_02">
+        <description>파견비신청내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT D.DPT_NM AS COMM_NM, COUNT(A.ORD_NO) AS APP_CNT,
+                   SUM(C.COST_TOT) AS AMOUNT, ? AS CD_GBN, '' AS REMARK
+            FROM   ASNHR.T_DI_DISPATCH A,
+                   ( SELECT ORD_NO, SUM(COST_AMT) COST_TOT
+                     FROM   ASNHR.T_DI_DISPATCH_ACCOUNT
+                     GROUP BY ORD_NO ) C,
+                   T_CM_DEPT D
+            WHERE  A.DIS_FR_YMD >= ?
+            AND    A.DIS_FR_YMD <= ?
+            AND    A.APP_STATUS IN ('4', '7', '8')
+            AND    A.ORD_NO = C.ORD_NO(+)
+            AND    D.CD_GBN = ?
+            AND    D.DPT_CD = [1]
+            AND    (D.END_YMD IS NULL OR D.END_YMD >= SYSDATE)
+            GROUP BY D.DPT_NM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견비신청내역 조회 개인별-->
+    <sql name="BUTC050_SHR_03">
+        <description>파견비신청내역 조회</description>
+        <query>
+            <![CDATA[
+         SELECT D.ENO_NM  || '(' || D.ENO_NO || ')' AS COMM_NM
+		 		,D.ENO_NO
+		 		,COUNT(A.ORD_NO) AS APP_CNT
+                ,SUM(C.COST_TOT) AS AMOUNT
+				,? AS CD_GBN
+				,'' AS REMARK
+         FROM   ASNHR.T_DI_DISPATCH A,
+                ( SELECT ORD_NO, SUM(COST_AMT) COST_TOT
+                  FROM   ASNHR.T_DI_DISPATCH_ACCOUNT
+                  GROUP BY ORD_NO ) C,
+                VI_T_CM_PERSON D
+         WHERE  A.DIS_FR_YMD >= ?
+         AND    A.DIS_FR_YMD <= ?
+         AND    A.APP_STATUS IN ('4', '7', '8')
+         AND    '1' = ?
+         AND    A.ORD_NO = C.ORD_NO(+)
+         AND    D.ENO_NO = A.ENO_NO
+         AND    (D.RET_YMD IS NULL OR D.RET_YMD >= SYSDATE)
+         GROUP BY D.ENO_NO, D.ENO_NM
+            ]]>
+        </query>
+    </sql>
+
+
+</sqls>

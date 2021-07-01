@@ -1,0 +1,492 @@
+<!---------------------------------------------------------------------------
++ 시 스 템 명	:  자산 UPLOAD		
++ 프로그램 ID	:  A090005.html
++ 기 능 정 의	:  조회및 업로드와 다운로드
++ 작   성  자 :  주성근
++ 작 성 일 자 : 2006.05.22
+-----------------------------------------------------------------------------
++ 수 정 내 용 :	   
++ 수   정  자 :
++ 수 정 일 자 :
+-----------------------------------------------------------------------------
++ 서 블 릿 명	:
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+
+
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+
+
+/******************************************************************************
+	Description : 선 조회
+******************************************************************************/
+
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+
+
+/******************************************************************************
+	Description : 체크
+******************************************************************************/
+
+
+/******************************************************************************
+	Description : 탭구분
+	prameter    : 0-일별코드, 1-월별항목
+******************************************************************************/
+function ln_DispChk(index){
+  var div_cm = new Array("div_1","div_2","div_3","div_4");
+	for(var i=0;i<=1;i++)	{
+		if(i==index) {
+			eval("document.all."+div_cm[i]+".style.display='block';");
+		}else{
+		  eval("document.all."+div_cm[i]+".style.display='none';");
+		}
+	}
+}
+
+</script>
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object id=gcds_code01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script>
+
+
+<comment id="__NSID__"><object id=gcds_code02 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script>
+
+<!-- 지점 -->
+<comment id="__NSID__"><object id=gcds_bfdivtcd classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script>
+
+<!-- 자산분류 -->
+<comment id="__NSID__"><object id="gcds_asdivcod" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" VIEWASTEXT> 
+	<PARAM NAME="SYNCLOAD" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script>
+
+<!-- 처분거래처 -->
+<comment id="__NSID__"><object id="gcds_vend_cd" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" VIEWASTEXT> 
+	<PARAM NAME="SYNCLOAD" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcte_disp" event="OnSelChanged(index)">
+	ln_DispChk((index-1)); 
+</script>
+
+
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object id=gctr_code01 classid=clsid:0a2233ad-e771-11d2-973d-00104b15e56f viewastext>
+	<param name="keyname"			value="toinb_dataid4">
+	<param name="keyvalue"    value="a090002_t1(I:USER=gcds_code01)"> 
+</object></comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__"><object id=gctr_code02 classid=clsid:0a2233ad-e771-11d2-973d-00104b15e56f viewastext>
+	<param name="keyname"			value="toinb_dataid4">
+	<param name="keyvalue"    value="a090002_t2(I:USER=gcds_code02)"> 
+</object></comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="" event="">
+	;
+</script>
+
+<script language="javascript" for="" event="">
+
+</script>
+
+
+
+
+
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="" event="">
+
+</script>
+
+<script language="javascript" for="" event="">
+
+</script>
+
+<script language="javascript" for="" event="">
+	
+
+</script>
+
+<script language="javascript" for="" event="">
+
+</script>
+
+</HEAD>
+
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0"  OnLoad="" >
+
+<table   width="876" cellpadding="0" cellspacing="0" border="0" style="position:relative;left:3px">
+  <tr> 
+    <td background="../../Common/img/com_t_bg.gif"><img src="../img/A090005_head.gif"></td>
+    <td background="../../Common/img/com_t_bg.gif"  align=right>
+			<img src="../../Common/img/btn/com_b_filedown.gif"  style="cursor:hand" onclick=""> 
+			<img src="../../Common/img/btn/com_b_query.gif"		style="cursor:hand" onclick="">
+	</td>
+  </tr>
+    <tr> 
+    <td colspan=2>
+	<!------------------------------upload ------------------------------>
+
+   <table width="0" cellpadding="0" cellspacing="0" border="0" >
+        <tr>
+					<td width="0" align=right>
+						<comment id="__NSID__"><comment id="__NSID__"><object  id=gcte_disp classid=clsid:ED382953-E907-11D3-B694-006097AD7252 VIEWASTEXT style="width:660px;height:20px;">
+							<PARAM NAME="BackColor"					VALUE="#cccccc">
+   					       <PARAM NAME="titleHeight"				VALUE="20px">
+						  <PARAM NAME="DisableBackColor"	VALUE="#eeeeee">
+						  <PARAM NAME="Format"						VALUE="
+								<T>divid=div_1		title=DowLoad</T>									
+							    <T>divid=div_2		title=UPLoad</T>
+						  ">
+						</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script> 
+					</td>
+				</tr>
+			</table>
+		</td>
+  </tr>
+  <tr><td height=4></td></tr>
+</table>
+    <!-- <fieldset id=field1 style="position:absolute;top:70px;left:4px;height:480px;width:875px;bacground-color:#708090"></fieldset>-->
+	<div id=div_2  style="display:none">
+			<table  cellpadding="0" cellspacing="0" border="0" style="width:870px;height:30px;font-size:9pt;background-color:#ffffff;border:1 solid #708090" >
+		    <tr> 	
+
+ 		           <td class="tab21" style="" bgcolor="#eeeeee" align="center"  width="100">지점</td>
+				    <td class="tab21" style="border:0 solid      #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:1px;text-align;height:30px;font-family:굴림;font-size:9pt; "   width="90px;" >&nbsp;<comment id="__NSID__"><comment id="__NSID__"><object id=gclx_sfdcode classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:145px;">
+											<param name=ComboDataID         value="gcds_sfdcode">
+											<param name=CBDataColumns	      value="FDCODE,FDNAME">
+											<param name=SearchColumn	      value="FDNAME">
+											<param name=Sort			          value=false>
+											<param name=ListExprFormat      value="FDNAME^0^150">								
+											<param name=BindColumn		      value="FDCODE">
+									</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script>				
+					    </td>
+				
+					 <td class="tab23" style="height:30px;width:70px;" bgcolor="#eeeeee" align="center"   style="border:0 solid #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:0px;">계정과목</td>
+				     <td  width="230px" colspan="3"  style="border:0 solid #708090;border-left-width:0px;border-right-width:0px;border-top-width:0px;border-bottom-width:1px;" ><nobr>
+					<input id=txt_atcodenm type="text" class="txt11" style="position:relative;top:-4px;left:5px;width:150px;">
+					<img name="btn_find" src="../../Common/img/btn/com_b_find.gif"	style="position:relative;top:1px;left:1px;cursor:hand"	 onclick="ln_Popup()">
+					<comment id="__NSID__"><comment id="__NSID__"><object  id=gcem_atcode classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F	style="position:relative;top:2px;left:7px;width:50px">
+						<param name=Text				value="">
+						<param name=Alignment		value=0>
+						<param name=Border			value=true>
+						<param name=Format			value="#######">
+						<param name=PromptChar	value="_">
+						<param name=Enable			value="false">
+					</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script> </nobr>
+				  </td>
+			</tr>
+					<tr>
+					 
+						 <td class="tab12_left" bgcolor="#eeeeee" align="center">&nbsp;&nbsp;&nbsp;자산중분류</td>
+						 <td style="border:0 solid      #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:1px;text-align;height:30px;font-family:굴림;font-size:9pt; "   width="90px;" >&nbsp;<comment id="__NSID__"><comment id="__NSID__"><object id=gclx_sfdcode classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:145px;">
+											<param name=ComboDataID         value="gcds_sfdcode">
+											<param name=CBDataColumns	      value="FDCODE,FDNAME">
+											<param name=SearchColumn	      value="FDNAME">
+											<param name=Sort			          value=false>
+											<param name=ListExprFormat      value="FDNAME^0^150">								
+											<param name=BindColumn		      value="FDCODE">
+									</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script>				
+					    </td>
+						<td class="tab11_top" bgcolor="#eeeeee" align="center" >&nbsp;자산소분류</td>
+						<td class="tab11_top2" align='left'  colspan="3">
+							<comment id="__NSID__"><comment id="__NSID__"><object id=LINE_PART  style='border:0;position:relative;left:8px;top:2px;width:200px;height:200' classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69>
+								<param name=ComboDataID			value=gcDs_etc1>  
+								<param name=CBDataColumns		value="MINORCD,MINORNM">
+								<param name=SearchColumn		value=MINORNM>
+								<param name=SortColumn			value="MINORCD"> 
+								<param name=Sort						value=True>
+								<param name=ListExprFormat	value="MINORNM^0^150">
+								<param name=BindColumn			value="MINORCD">
+								<param name=Index						value=0>
+								<param name=InheritColor		value="true"> 
+								<param name=ComboStyle			value=2>
+							</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script>
+						</td>
+						
+					</tr>
+					<tr>
+						<td class="tab32" style="height:30px" bgcolor="#eeeeee" align="center"  style="border:0 solid #708090;border-left-width:0px;border-right-width:1px;border-top-width:1px;border-bottom-width:0px;">&nbsp;상태구분</td>
+					    <td style="border:0 solid      #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:0px;text-align;height:30px;font-family:굴림;font-size:9pt; "   width="90px;" >&nbsp;<comment id="__NSID__"><comment id="__NSID__"><object id=gclx_sfdcode classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:145px;">
+											<param name=ComboDataID         value="gcds_sfdcode">
+											<param name=CBDataColumns	      value="FDCODE,FDNAME">
+											<param name=SearchColumn	      value="FDNAME">
+											<param name=Sort			          value=false>
+											<param name=ListExprFormat      value="FDNAME^0^150">								
+											<param name=BindColumn		      value="FDCODE">
+									</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script>				
+					    </td>
+						<td width="80px"  style="" bgcolor="#eeeeee"  align=center    style="border:0 solid #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:0px;"   >&nbsp;취득일</td>
+					    <td   style="border:0 solid #708090;border-left-width:0px;border-right-width:0px;border-top-width:1px;border-bottom-width:0px;" style="width:250px;" >&nbsp;<comment id="__NSID__"><comment id="__NSID__"><object id=gcem_asq_fr classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F 	style="position:relative;top:2px;left:-1px;width:70px;height:20px;">
+										<param name=Alignment			value=0>
+										<param name=Border	            value=true>
+										<param name=Format	            value="YYYY/MM/DD">
+										<param name=PromptChar	   value="_">
+					       </object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script> &nbsp;
+					         <img src="../img/calender.gif" value="calender.gif" id=img_calendar1 OnClick="__GetCallCalendar('gcem_asq_fr', 'Text')"        style="position:relative;width:20px;left:-4px;top:1px;cursor:hand;">~	&nbsp;
+                             <comment id="__NSID__"><comment id="__NSID__"><object id=gcem_asq_to classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F
+						    style="position:relative;top:2px;left:0px;width:70px;height:20px;">
+									<param name=Alignment			value=0>
+									<param name=Border	            value=true>
+									<param name=Format	            value="YYYY/MM/DD">
+									<param name=PromptChar	    value="_">
+				       	</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script> 
+				      	<img src="../img/calender.gif" value="calender.gif" id=img_calendar1 OnClick="__GetCallCalendar('gcem_asq_to', 'Text')"    style="position:relative;width:20px;left:4px;top:1px;cursor:hand;">
+						    </td> 
+										
+						<td  width="80px"  style="" bgcolor="#eeeeee"  align=center    style="border:0 solid #708090;border-left-width:1px;border-right-width:1px;border-top-width:1px;border-bottom-width:0px;" >&nbsp;이동일</td>
+					      <td    style="border:0 solid #708090;border-left-width:0px;border-right-width:0px;border-top-width:1px;border-bottom-width:0px;" style="width:250px;" >&nbsp;<comment id="__NSID__"><comment id="__NSID__"><object id=gcem_asq_fr classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F 		style="position:relative;top:2px;left:-1px;width:70px;height:18px;">
+										<param name=Alignment			value=0>
+										<param name=Border	            value=true>
+										<param name=Format	            value="YYYY/MM/DD">
+										<param name=PromptChar	   value="_">
+					       </object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script> &nbsp;
+					          <img src="../img/calender.gif" value="calender.gif" id=img_calendar1 OnClick="__GetCallCalendar('gcem_asq_fr', 'Text')" style="position:relative;width:20px;left:-4px;top:1px;cursor:hand;">~	&nbsp;
+                     <comment id="__NSID__"><comment id="__NSID__"><object id=gcem_asq_to classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F
+						style="position:relative;top:2px;left:0px;width:70px;height:20px;">
+									<param name=Alignment			value=0>
+									<param name=Border	            value=true>
+									<param name=Format	            value="YYYY/MM/DD">
+									<param name=PromptChar	    value="_">
+				       	</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script> 
+				      	<img src="../img/calender.gif" value="calender.gif" id=img_calendar1 OnClick="__GetCallCalendar('gcem_asq_to', 'Text')" style="position:relative;width:20px;left:4px;top:1px;cursor:hand;">
+						    </td>
+										
+					</tr>
+			
+	<table    id="div_3"  cellpadding="0" cellspacing="0" border="0" style="position:relative;left:0px;top:3px;width:280px;border:0 solid #708090;">
+		<tr> 			
+			<td style="width:280" ALIGN=LEFT VALIGN=TOP>
+				<comment id="__NSID__"><object classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_disp01  
+					style="position:relative;left:3px;width:865px; height:450px; border:1 solid #708090;display:block;" viewastext>
+						<param name="DataID"		value="gcds_code01">
+						<param name="IndWidth"		value ='0'>
+						<param name="BorderStyle"	value="0">
+						<param name="Fillarea"		value="true">
+						<param name="Sortview"		value="left">
+						<param name="ViewSummary"	value="1">
+						<param name="ColSizing"		value="true">
+						<param name="Editable"		value="false"> 
+						<param name="Format"		value="  
+						<C> Name='자산번호'	      ID=ASTYM 	    HeadAlign=Center HeadBgColor=#B9D4DC Width=100	  align=center    </C> 
+						<C> Name='자산명칭'		      ID=ASTNAME   HeadAlign=Center HeadBgColor=#B9D4DC Width=170	  align=left	       </C> 
+						<C> Name='취득일'		  ID=QAMT        HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=right       </C> 
+					    <C> Name='관리부서 '	          ID=STY 	    HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=center    </C> 
+						<C> Name='사용부서'		  ID=STAM      HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=right	    </C> 
+						<C> Name='이동일'		  ID=STAMT      HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=right	    </C> 
+						<C> Name='설치장소'		  ID=STAMT      HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=right	    </C> 
+						">
+				</object></comment><script>__ws__(__NSID__);</script>
+
+      </td>
+	  </tr>
+	  </table>
+	
+</div>
+<!------------------------------Dowload ------------------------------>
+
+
+
+ 
+    <!--<fieldset id=field2 style="position:absolute;top:70px;left:4px;height:480px;width:875px;bacground-color:#708090"></fieldset>-->
+		<div id=div_1 ><table  cellpadding="0" cellspacing="0" border="0" style="width:876px;height:30px;font-size:9pt;background-color:#ffffff;border:1 solid #708090" >
+		<tr>
+				       <td class="tab21" style="" bgcolor="#eeeeee" align="center"  width="100">지점</td>
+				    <td class="tab21" style="border:0 solid  #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:1px;text-align;height:30px;font-family:굴림;font-size:9pt; "   width="90px;" >&nbsp;<comment id="__NSID__"><comment id="__NSID__"><object id=gclx_sfdcode classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:145px;">
+											<param name=ComboDataID         value="gcds_sfdcode">
+											<param name=CBDataColumns	      value="FDCODE,FDNAME">
+											<param name=SearchColumn	      value="FDNAME">
+											<param name=Sort			          value=false>
+											<param name=ListExprFormat      value="FDNAME^0^150">								
+											<param name=BindColumn		      value="FDCODE">
+									</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script>				
+					    </td>
+				 <td class="tab12" style="height:30px;width:70px;" bgcolor="#eeeeee" align="center">계정과목</td>
+				  <td  width="230px" colspan="3" style=" border:0 solid #708090;border-left-width:0px;border-right-width:0px;border-top-width:0px;border-bottom-width:0px;"><nobr>
+					          <input id=txt_atcodenm type="text" class="txt11" style="position:relative;top:-4px;left:5px;width:150px;">
+					           <img name="btn_find" src="../../Common/img/btn/com_b_find.gif"	style="position:relative;top:2px;left:3px;cursor:hand"	 onclick="ln_Popup()">
+					                       <comment id="__NSID__"><comment id="__NSID__"><object  id=gcem_atcode classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F	style="position:relative;top:2px;left:7px;width:50px">
+						                                            <param name=Text				value="">
+						                                             <param name=Alignment		value=0>
+						                                             <param name=Border			value=true>
+						                                             <param name=Format			value="#######">
+						                                             <param name=PromptChar	value="_">
+						                                             <param name=Enable			value="false">
+					                     </object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script> </nobr>
+				 </td>
+				
+			
+						
+		</tr>
+		<tr>
+					 
+		     <td class="tab21" style="" bgcolor="#eeeeee" align="center"  width="100">자산중분류</td>
+				    <td class="tab21" style="border:0 solid      #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:1px;text-align;height:30px;font-family:굴림;font-size:9pt; "   width="90px;" >&nbsp;<comment id="__NSID__"><comment id="__NSID__"><object id=gclx_sfdcode classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:145px;">
+											<param name=ComboDataID         value="gcds_sfdcode">
+											<param name=CBDataColumns	      value="FDCODE,FDNAME">
+											<param name=SearchColumn	      value="FDNAME">
+											<param name=Sort			          value=false>
+											<param name=ListExprFormat      value="FDNAME^0^150">								
+											<param name=BindColumn		      value="FDCODE">
+									</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script>				
+					    </td>
+		 <td class="tab11_top" bgcolor="#eeeeee"  align="center" >&nbsp;자산소분류</td>
+		 <td  align='left'  colspan="3" style="border:0 solid #708090;border-left-width:0px;border-right-width:0px;border-top-width:1px;border-bottom-width:1px;text-align:left;height:25px;">
+							              <comment id="__NSID__"><comment id="__NSID__"><object id=LINE_PART  style='border:0;position:relative;left:8px;top:2px;width:100px;height:200' classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69>
+								          <param name=ComboDataID			value=gcDs_etc1>  
+								          <param name=CBDataColumns		value="MINORCD,MINORNM">
+								           <param name=SearchColumn		value=MINORNM>
+								           <param name=SortColumn			value="MINORCD"> 
+								           <param name=Sort						value=True>
+								           <param name=ListExprFormat	value="MINORNM^0^150">
+								           <param name=BindColumn			value="MINORCD">
+								           <param name=Index						value=0>
+								           <param name=InheritColor		value="true"> 
+								           <param name=ComboStyle			value=2>
+							</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script>
+			</td>
+						
+	</tr>
+	<tr>
+		     <td class="tab23" style="" bgcolor="#eeeeee" align="center"  width="100">관리부서</td>
+				    <td  style="border:0 solid #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:0px;text-align;height:30px;font-family:굴림;font-size:9pt; "   width="90px;" >&nbsp;<comment id="__NSID__"><comment id="__NSID__"><object id=gclx_sfdcode classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:145px;">
+											<param name=ComboDataID         value="gcds_sfdcode">
+											<param name=CBDataColumns	      value="FDCODE,FDNAME">
+											<param name=SearchColumn	      value="FDNAME">
+											<param name=Sort			          value=false>
+											<param name=ListExprFormat      value="FDNAME^0^150">								
+											<param name=BindColumn		      value="FDCODE">
+									</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script>				
+					    </td>
+					
+										
+		  <td width="80px"  style="" bgcolor="#eeeeee" class="tab23" align=center >&nbsp;&nbsp;취득일</td>
+		  <td  style="width:250px;" style="border:0 solid #708090;border-left-width:0px;border-right-width:0px;border-top-width:0px;border-bottom-width:0px;" >&nbsp;<comment id="__NSID__"><comment id="__NSID__"><object id=gcem_asq_fr classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F 		style="position:relative;top:2px;left:-1px;width:70px;height:20px;">
+										<param name=Alignment			value=0>
+										<param name=Border	            value=true>
+										<param name=Format	            value="YYYY/MM/DD">
+										<param name=PromptChar	   value="_">
+					       </object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script> &nbsp;
+					         <img src="../img/calender.gif" value="calender.gif" id=img_calendar1 OnClick="__GetCallCalendar('gcem_asq_fr', 'Text')" style="position:relative;width:20px;left:-4px;top:1px;cursor:hand;">~	&nbsp;
+                 <comment id="__NSID__"><comment id="__NSID__"><object id=gcem_asq_to classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F
+						style="position:relative;top:2px;left:0px;width:70px;height:20px;">
+									<param name=Alignment			value=0>
+									<param name=Border	            value=true>
+									<param name=Format	            value="YYYY/MM/DD">
+									<param name=PromptChar	    value="_">
+				       	</object></comment><script>__ws__(__NSID__);</script></comment><script>__ws__(__NSID__);</script> 
+				      	<img src="../img/calender.gif" value="calender.gif" id=img_calendar1 OnClick="__GetCallCalendar('gcem_asq_to', 'Text')" style="position:relative;width:20px;left:4px;top:1px;cursor:hand;">
+		  </td>
+		 			  		
+  </tr>
+				
+		<td colspan=6>	
+
+
+ <tr>
+								
+	<table    id="div_4"  cellpadding="0" cellspacing="0" border="0" style="position:relative;left:0px;top:3px;width:280px;border:0 solid #708090;">
+		<tr> 			
+			<td style="width:280" ALIGN=LEFT VALIGN=TOP>
+				<comment id="__NSID__"><object classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_disp01  
+					style="position:relative;left:3px;width:870px; height:400px; border:1 solid #708090;display:block;" viewastext>
+						<param name="DataID"		value="gcds_code01">
+						<param name="IndWidth"		value ='0'>
+						<param name="BorderStyle"	value="0">
+						<param name="Fillarea"		value="true">
+						<param name="Sortview"		value="left">
+						<param name="ViewSummary"	value="1">
+						<param name="ColSizing"		value="true">
+						<param name="Editable"		value="false"> 
+						<param name="Format"		value="  
+						<C> Name='자산번호'	      ID=ASTYM 	    HeadAlign=Center HeadBgColor=#B9D4DC Width=100	  align=center    </C> 
+						<C> Name='자산분류'		  ID=ASETNO	    HeadAlign=Center HeadBgColor=#B9D4DC Width=80	  align=center	   </C> 
+						<C> Name='자산명칭'		      ID=ASTNAME   HeadAlign=Center HeadBgColor=#B9D4DC Width=170	  align=left	       </C> 
+						<C> Name='취득일'		  ID=QAMT        HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=right       </C> 
+						<C> Name='단위'	      ID=YUSE         HeadAlign=Center HeadBgColor=#B9D4DC Width=80	  align=rigth	   </C> 
+						<C> Name='수량 '	          ID=STYMD 	    HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=center    </C> 
+						<C> Name='금액'		  ID=STAMT      HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=right	    </C> 
+					   <C> Name='관리부서 '	          ID=STY 	    HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=center    </C> 
+						<C> Name='사용부서'		  ID=STAM      HeadAlign=Center HeadBgColor=#B9D4DC Width=120	  align=right	    </C> 
+						">
+				</object></comment><script>__ws__(__NSID__);</script>
+
+      </td>
+	  </tr>
+	  </table>
+	  </td>
+	  </tr>
+	  </table>
+		</div>
+
+<!-- ==================================================================================================================
+						L O A D I N G  B A R   D E F I N I T I O N
+========================================================================================================================-->
+<iframe id="LowerFrame" name="work" style="visibility:hidden;position:absolute;left:280px;top:220px;" FrameBorder="0" src="../../Common/img/flash/loading.swf" width="320px" height="42px"></iframe> 
+
+
+</body>
+</html>

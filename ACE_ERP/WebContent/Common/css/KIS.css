@@ -1,0 +1,1232 @@
+
+BODY {
+  background-color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+//  font-size: 80%; /* Localized Font-Size */
+	scrollbar-face-color: #ffffff;
+	scrollbar-highlight-color: #999999;
+	scrollbar-3dlight-color: #ffffff;
+	scrollbar-shadow-color: #999999;
+	scrollbar-darkshadow-color: #ffffff;
+	scrollbar-track-color: #ffffff;
+	scrollbar-arrow-color: #999999
+}
+
+.paragraph {  font-size: 12px; font-family: dotum, verdana; line-height:20px}
+.rsvbox {behavior:url(rsvfocus.htc);font:dotum,Arial;font-size:12px;text-decoration:none;border-width:1;border-style:solid;border-color:#e5e5e5;background:#e5e5e5}
+.rsvTable {  font-size: 11px; font-family: dotum, verdana;}
+
+
+
+.box {behavior:url(../focus.htc);font:dotum,Arial;font-size:9pt;text-decoration:none;border-width:1;border-style:solid;border-color:#000000}
+
+.justBox {font:dotum,Arial;font-size:9pt;text-decoration:none;border-width:1;border-style:solid;border-color:#000000}
+
+.button {padding-top:1;color:#663333;background:#ffff99;border-style:outset;border-width:1;border-bottom-color:#daa520;border-right-color:#daa520;border-top-color:#fafad2;border-left-color:#fafad2;height:20}
+.butGreen {padding-top:2;color:#003300;background:#99FFCC;border-bottom-color:#009966;border-right-color:#009966;border-top-color:#CCFFCC;border-left-color:#CCFFCC;border-style:outset;border-width:1;height:20}
+
+.formJustRequired {font:dotum,Arial;font-size:9pt;text-decoration:none;border-width:1;border-style:solid;border-color:#000000;background-image :  url(IMAGES/required.gif); background-position:top right; background-repeat:no-repeat;}
+.formRequired {behavior:url(../focus.htc);font:dotum,Arial;font-size:9pt;text-decoration:none;border:0px;border-bottom:1 solid #000000;background-image :  url(IMAGES/required.gif); background-position:top right; background-repeat:no-repeat;}
+.formRequired_right {behavior:url(../focus.htc);font:dotum,Arial;font-size:9pt;text-decoration:none;border-width:1;border-style:solid;border-color:#000000;background-image :  url(IMAGES/required.gif); background-position:top right; background-repeat:no-repeat;text-align : right;}
+
+  .justRequired {font:dotum,Arial;font-size:9pt;text-decoration:none;border-width:1;border-style:solid;border-color:#000000;background-image :  url(IMAGES/required.gif); background-position:top right; background-repeat:no-repeat;}
+  .required {behavior:url(../focus.htc);font:dotum,Arial;font-size:9pt;text-decoration:none;border-width:1;border-style:solid;border-color:#000000;background-image :  url(IMAGES/required.gif); background-position:top right; background-repeat:no-repeat;}
+  .required_right {behavior:url(../focus.htc);font:dotum,Arial;font-size:9pt;text-decoration:none;border-width:1;border-style:solid;border-color:#000000;background-image :  url(IMAGES/required.gif); background-position:top right; background-repeat:no-repeat;text-align : right;}
+
+
+.BodyDefault {
+  font-size: 80%; /* Localized Font-Size */
+}
+
+TABLE {
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+A.PrjTreeControlFolder {
+  background-color: #CCCCCC;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+A.PrjTreeControlFolderHover {
+  background-color: #CCCCCC;
+  color: #F35050;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+A.rootLink {
+  color: #003399;
+  text-decoration: none;
+}
+
+A.rootLink:Hover {
+  text-decoration: underline;
+}
+
+A.rootLinkAction {
+  color: #003399;
+  text-decoration: none;
+}
+
+A.rootLinkAction:Hover {
+  color: #798073;
+  text-decoration: underline;
+}
+
+A.rootLinkActionSelected {
+  color: #003399;
+  text-decoration: none;
+}
+
+BUTTON {
+  font-size: 95%;
+}
+
+DIV.NoticeText {
+  background-color: silver;
+  border: 1px solid black;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+DIV.PrjTreeControlFolder {
+  background-color: #CCCCCC;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  height: 1.5em;
+  text-decoration: NONE;
+}
+
+INPUT {
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+SELECT {
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+TABLE.ms-form TD {
+  vertical-align: top;
+  width: 100%;
+}
+
+TABLE.ms-form TH {
+  color: #003399;
+  font-family: Gulim;
+  font-weight: normal;
+  text-align: left;
+  vertical-align: top;
+}
+
+TEXTAREA {
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+.ActionsPane {
+  background-color: #CCCCCC;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.ActionsPaneContent {
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.ActionsPaneTitleBar {
+  background-color: #666666;
+  color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  height: 1.5em;
+}
+
+.ActionsPaneTitleBarText {
+  background-color: #7B7671;
+  color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  height: 1.85em;
+  padding-top: 0.4em;
+}
+
+.AlertText {
+  color: red;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.BoldText {
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+}
+
+.clsAdmin1 {
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  margin: 5;
+  overflow: auto;
+}
+
+.clsDetails1 {
+  border-bottom: 1px solid silver;
+  border-right: 1px solid silver;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.clsLinkXMP {
+  behavior: url('../Styles/BEHAVE.HTC');
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  text-decoration: none;
+}
+
+.clsLogonSubTitle {
+  font-size: 170%;
+}
+
+.clsLogonText {
+  font-size: 120%;
+}
+
+.clsLogonTitle {
+  font-size: 240%;
+}
+
+.clsModelToolbox {
+  background-color: silver;
+  border: 0;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.clsSubweb {
+  color: red;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-align: center;
+}
+
+.clsSubwebSync {
+  color: #003063;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+}
+
+.clsXMLGridToDoCellHeight {
+  height: 1.9em;
+}
+
+.ColumnHeader {
+  background-color: silver;
+  border-bottom: 1px solid gray;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  height: 1.7em;
+  line-height: 1.7em;
+  padding-left: 4;
+  padding-right: 4;
+}
+
+.Dialog {
+  background-color: buttonface;
+  color: buttontext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.Dialog2 {
+  background-color: buttonface;
+  color: buttontext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  margin: 8;
+  overflow: auto;
+}
+
+.Dialog3 {
+  background-color: buttonface;
+  color: buttontext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  margin: 5;
+  overflow: auto;
+}
+
+.DisplayTable {
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+.DividerLower {
+  background-color: white;
+  width: 1;
+}
+
+.DividerPane {
+  width: 2;
+}
+
+.DividerUpper {
+  background-color: white;
+}
+
+.FilterTable {
+  border-left: 1px solid #D7D7D7;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  line-height: 1.6em;
+  margin-left: 12;
+  margin-right: 12;
+  margin-top: 8;
+}
+
+.FilterTableCell {
+  border-bottom: 1px solid #D7D7D7;
+  border-right: 1 solid #D7D7D7;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  padding-left: 2;
+  padding-right: 2;
+}
+
+.HelpDividerLower {
+  background-color: #7B7671;
+  left: -1;
+  position: relative;
+  width: 1;
+}
+
+.HelpDividerPane {
+  width: 1;
+}
+
+.HelpDividerUpper {
+  background-color: white;
+}
+
+.HelpPane {
+  background-color: white;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  width: 120;
+}
+
+.HelpPaneTitleBar {
+  background-color: #000066;
+  color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.HelpPaneTitleBarText {
+  color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.HelpPaneTitleBarTextHover {
+  color: red;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.HomePageWebPartHeader
+{
+  background-color: #E7EFFF;
+  /*filter: progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr=#EFF7FF, endColorstr=#B9D1F4);*/
+  filter: expression(SetGradientFilter("#EFF7FF", "#B9D1F4"));
+  margin-right: 10px;
+  padding-bottom: 2px;
+  padding-left: 3px;
+  padding-right: 3px;
+  padding-top: 2px;
+  width: 100%;
+}
+
+.HomePageWebPartLink
+{
+  color: #003399;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.HomePageWebPartLink:hover
+{
+  color: red;
+  text-decoration: underline;
+}
+
+.HyperLink {
+  background-color: white;
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.HyperLink:hover {
+  background-color: white;
+  color: #F35050;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.HyperLinkButton {
+  background-color: white;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+  text-decoration: none;
+}
+
+.HyperLinkButtonBar {
+  background-color: #FFFFFF;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+.HyperLinkButtonImage {
+  border: 0;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.HyperLinkButtonSection {
+  background-color: white;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  text-decoration: none;
+}
+
+.HyperLinkPlain {
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  text-decoration: underline;
+}
+
+.HyperLinkPlain:Hover {
+  color: #F35050;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  text-decoration: underline;
+}
+
+.HyperLinkPlainBold {
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.HyperLinkPlainBold:Hover {
+  color: #F35050;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.HyperText {
+  background-color: #F3F2EF;
+  color: green;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  text-decoration: none;
+}
+
+.InputButton {
+  background-color: buttonface;
+  border: 1px solid #4D4A46;
+  color: buttontext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+.InputButton2 {
+  background-color: buttonface;
+  border: 1px solid #4D4A46;
+  color: buttontext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+.InputButtonTab {
+  /* background-color: pink; */
+  background-color: transparent;
+  border: 0;
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+  text-decoration: none;
+}
+
+.InputButtonTabHighlight {
+  /* background-color: yellow; */
+  background-color: #FEE197;
+  border: 1px solid #2254B1;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+  text-decoration: none;
+}
+
+.InputButtonTabHighlightCollapsed {
+  /* background-color: pink; */
+  background-color: #FEE197;
+  border: 1px solid #2254B1;
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+  text-decoration: none;
+}
+
+.InputCheckbox {
+  border: none;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.InputLabel {
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.InputPrompt {
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.InputRadioButton {
+  border: none;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.InputSelect {
+  background-color: white;
+  border: 1px solid #4D4A46;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.InputSelect2 {
+  background-color: white;
+  border: 1px solid #4D4A46;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.InputText {
+  background-color: white;
+  border: 1px solid #4D4A46;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.InputTextArea {
+  background-color: white;
+  border: 1px solid #CDCAC6;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.InputTextCombobox {
+  background-color: white;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  width: 20em;
+}
+
+.Listbox {
+  border-bottom-color: silver;
+  border-bottom-style: double;
+  border-bottom-width: 3;
+  border-left-color: silver;
+  border-left-style: outset;
+  border-left-width: 3;
+  border-right-color: silver;
+  border-right-style: double;
+  border-right-width: 3;
+  border-top-color: silver;
+  border-top-style: solid;
+  border-top-width: 3;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  overflow: auto;
+}
+
+.LogonBannerFrame {
+  border-bottom: 3px solid #FFD275;
+}
+
+.LogonName {
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-style: normal;
+  font-weight: bold;
+}
+
+.MessageBody {
+  background-color: white;
+  border: 1px solid gray;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.ms-authoringcontrols {
+  background-color: #f2f2f2;
+  font-family: Gulim;
+}
+
+.ms-banner {
+  color: white;
+  font-family: Gulim;
+  font-size: 9pt;
+}
+
+.ms-banner A:link {
+  color: white;
+  font-family: Gulim;
+  font-size: 9pt;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.ms-banner A:visited {
+  color: white;
+  font-family: Gulim;
+  font-size: 9pt;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.ms-currentnav A {
+  color: red;
+  font-family: Gulim;
+  text-decoration: none;
+}
+
+.ms-currentnav A:link {
+}
+
+.ms-currentnav A:visited {
+  color: red;
+}
+
+.ms-currentnav A:hover {
+  color: red;
+  text-decoration: underline;
+}
+
+.ms-descriptiontext {
+  color: black;
+  font-family: Gulim;
+}
+
+.ms-formdescription {
+  color: #808080;
+  font-family: Gulim;
+}
+
+.ms-formdescription A {
+  color: #3366cc;
+  text-decoration: none;
+}
+
+.ms-itemheader A {
+  color: #3366cc;
+  font-family: ±¼¸²;
+  font-size: 11pt;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.ms-nav A {
+  color: #3366cc;
+  font-family: Gulim;
+  text-decoration: none;
+}
+
+.ms-nav A:link {
+}
+
+.ms-nav A:visited {
+  color: #3366cc;
+}
+
+.ms-nav A:hover {
+  color: #3366cc;
+  text-decoration: underline;
+}
+
+.ms-nav TD {
+  font-family: Gulim;
+  font-weight: normal;
+}
+
+.ms-nav TH {
+  color: black;
+  font-family: Gulim;
+  font-weight: normal;
+  text-align: left;
+}
+
+.ms-sectionheader {
+  color: #3366cc;
+  font-family: ±¼¸²;
+  font-size: 140%;
+  font-weight: bold;
+}
+
+.ms-smallsectionline
+{
+   padding-left: 0; padding-right: 0; padding-top: 2; padding-bottom: 0;
+   border-bottom:1px solid #c2c2c2;
+}
+
+.ms-toolbar {
+  color: #3366cc;
+  font-family: Gulim;
+  text-decoration: none;
+}
+
+.ms-underline
+{
+   vertical-align: top;
+   border-bottom:1px solid #c2c2c2; 
+   padding-left: 4; padding-right: 4; padding-top: 2; padding-bottom: 4;  
+}
+
+.ms-underlineback
+{
+   vertical-align: top;
+   border-bottom: 1px solid #c2c2c2;
+   padding-left: 4; padding-right: 4; padding-top: 2; padding-bottom: 4;  
+   background-color: #F8F8F8;
+}
+
+.ms-vb {
+  font-family: Gulim;
+  height: 18px;
+  vertical-align: top;
+}
+
+.ms-vb A {
+  color: #3366cc;
+  text-decoration: none;
+}
+
+.ms-vb A:visited {
+  color: #000066;
+  text-decoration: none;
+}
+
+.ms-vb A:hover {
+  color: #ff3300;
+  text-decoration: underline;
+}
+
+.ms-vb A:hover {
+  color: #ff3300;
+  text-decoration: underline;
+}
+
+.ms-vb P {
+}
+
+.ms-verticaldots {
+  background-image: url(../BLUEDOT.gif);
+  background-position: left 50%;
+  background-repeat: repeat-y;
+}
+
+.PageTitle {
+  background-color: white;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  line-height: 2em;
+  padding-bottom: 0.2em;
+  padding-left: 12;
+}
+
+.PrjMenuBar {
+  background-color: #000066;
+  color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  height: 1.2em;
+  text-decoration: none;
+}
+
+.PrjMenuBarDivider {
+  background-color: white;
+}
+
+.PrjMenuBarHighlight {
+  background-color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.PrjMenuBarItem {
+  background-color: #000066;
+  color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.PrjMenuBarItemHighlight {
+  background-color: white;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.PrjMenuBarItemHover {
+  background-color: #000066;
+  color: #F35050;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.PrjTreeControlFolderItem {
+  background-color: #CCCCCC;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.PrjTreeControlFolderItem:hover {
+  background-color: #CCCCCC;
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.PrjTreeControlFolderItemHighlight {
+  background-color: #CCCCCC;
+  color: red;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.PrjTreeControlItem {
+  background-color: #CCCCCC;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.PrjTreeControlItem:hover {
+  background-color: #CCCCCC;
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.PrjTreeControlItemDesc {
+  background-color: #CCCCCC;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-style: italic;
+  font-weight: normal;
+  left: 3;
+  position: relative;
+  text-decoration: none;
+}
+
+.PrjTreeControlItemDisabled {
+  background-color: #CCCCCC;
+  color: gray;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.PrjTreeControlItemHighlight {
+  background-color: #CCCCCC;
+  color: red;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.PrjTreeControlNestedItem {
+  background-color: #CCCCCC;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: normal;
+  position: relative;
+  text-decoration: none;
+}
+
+.PrjTreeControlNestedItemForViewFavs {
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-weight: normal;
+  position: relative;
+  text-decoration: none;
+}
+
+.ProjectBanner {
+  background-color: #000099;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  width: 100%;
+}
+
+.ProjectBannerLogonMessage {
+  color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.PropertyList {
+  background-color: white;
+  border: 1px solid black;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  margin-top: 4;
+  overflow-y: auto;
+}
+
+.RedBox {
+  border: 1px solid red;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  width: 100%;
+}
+
+.ResourceSubhead {
+  font-size: 120%;
+}
+
+.Section {
+  background-color: white;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.SectionButtonBar {
+  background-color: #FFFFFF;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.SectionButtonBarSubHead {
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 110%;
+  padding-left: 14px;
+  vertical-align: bottom;
+}
+
+.SectionButtonBarTable {
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.SectionContents {
+  background-color: white;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  margin-top: 6;
+}
+
+.SectionHeader {
+  background-color: #D7D7D7;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  padding-left: 12;
+}
+
+.SectionHeaderBlank {
+  background-color: #D7D7D7;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  line-height: 1.5em;
+  padding-bottom: 0.1em;
+  padding-left: 12;
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+.SectionHeaderInfo {
+  background-color: #CCCC99;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  line-height: 1.5em;
+  padding-bottom: 0.1em;
+  padding-left: 12;
+  vertical-align: middle;
+}
+
+.SectionHighlight {
+  background-color: #FFFFCC;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.SectionTabTopBorder {
+  /*background-color: #2955BD; // hi-color*/
+  /*background-color: #336699; // low color*/
+  background-color: expression(GetCustomCSSValue("SectionTabTopBorder", "background-color"));
+  color: white; 
+  font-size: 1px;
+  font-weight: bold; 
+  height: 4px; 
+  margin-top: 3px; 
+  padding-bottom: 1px; 
+  padding-left: 8px; 
+  padding-right: 8px; 
+  padding-top: 1px; 
+  width: 100%; 
+}
+
+.SectionTabBackground {
+  /* background-color: purple; */
+  /*background-color: #CBDEFB; // hi-color*/  
+  /*background-color: #D4D0C8; // low color*/
+  background-color: expression(GetCustomCSSValue("SectionTabBackground", "background-color"));
+  /*filter: progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr=#F7FAFF, endColorstr=#9EBFF6);*/
+  filter: expression(SetGradientFilter("#F7FAFF", "#9EBFF6"));
+  /*border: 1px solid #9CBAF7; // hi-color*/  
+  /*border: 1px solid #B2B2B2; // low color*/
+  border: expression(GetCustomCSSValue("SectionTabBackground", "border"));
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  width: 100%;
+}
+
+.SectionTable {
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  padding-bottom: 3px;
+  padding-top: 2px;
+}
+
+.SectionTableHeader {
+  background-color: #D7D7D7;
+  border: thin solid #D7D7D7;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  text-decoration: none;
+}
+
+.SectionTableRow {
+  background-color: #FF0033;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  text-decoration: none;
+}
+
+.SectionTableRow:hover {
+  background-color: white;
+  color: #F35050;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.SectionTableRowCell {
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  padding-left: 4;
+  padding-right: 12;
+}
+
+.SectionTableRowHyperlink {
+  background-color: white;
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  text-decoration: underline;
+}
+
+.SectionTableRowHyperlink:hover {
+  background-color: white;
+  color: red;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  text-decoration: underline;
+}
+
+.ShellActivityDivider {
+  border-bottom: 1px solid #ADAEAD;
+  width: 100%;
+}
+
+.ShellBannerFrame {
+  /*background-color: #2752B1; // hi-color*/
+  /*background-color: #336699; // low color*/
+  background-color: expression(GetCustomCSSValue("ShellBannerFrame", "background-color"));
+  /*filter: progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr=#5987D6, endColorstr=#002D96);*/
+  filter: expression(SetGradientFilter("#5987D6", "#002D96"));
+  border-bottom: 3px solid #FFD275;
+}
+
+.ShellHelpPane {
+  border-right: 1px solid #D4DCE6;
+}
+
+.ShellMenuRow {
+  font-size: 1.5em;
+  height: 0.4em; 
+}
+
+.ShellSidePane {
+  background-color: #E1ECFC;
+  border-right: 1px solid #D4DCE6;
+}
+
+.ShellSidePaneLinks {
+  margin-left: 4px;
+  margin-right: 4px;
+  margin-top: 0.5em;
+}
+
+.ShellTitleRow {
+  border-bottom: 1px solid #FFD275;
+  height: 3em;
+  width: 100%;
+}
+
+.StatusReportBody {
+  background-color: white;
+  border-left: 1px solid silver;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  padding-left: 12;
+  padding-top: 8;
+}
+
+.TabCell {
+  /* background-color: pink; */
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.TabCellHighlight {
+  /* background-color: yellow; */
+  background-color: transparent;
+  border: 0;
+  cursor: hand;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  line-height: 1.6em;
+  text-align: center;
+}
+
+.TabCellHighlightCollapsed {
+  /* background-color: pink; */
+  background-color: transparent;
+  border: 0;
+  cursor: hand;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  line-height: 1.6em;
+  text-align: center;
+}
+
+.TabSpacer
+{
+  width: 0.15em;
+}
+
+.TabSelected {
+  background-color: #FEE197;
+  border: 1px solid #2254B1;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+.TabUnselected {
+  border: 0;
+  /*border: 1px solid gray;*/
+  padding: 1px;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+.TaskTab {
+  /* background-color: yellow; */
+  background-color: #E7EFFF;
+  border-bottom: 1px solid #C6CFE7;
+  border-left: 1px solid #C6CFE7;
+  border-right: 1px solid #C6CFE7;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.tdSizingCell {
+  font-size: ;
+  height: 0px;
+}
+
+.Text {
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.Toolbar {
+  background-color: #D7D7D7;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}
+
+.ToolbarBackground {
+  /*background-color: #CBDEFB; // hi-color*/
+  /*background-color: #F1F1F1; // low color*/
+  background-color: expression(GetCustomCSSValue("ToolbarBackground", "background-color"));
+  /*border: 1px solid #95B7F3; // hi-color*/
+  /*border: 1px solid #D7D7D7; // low color*/
+  border: expression(GetCustomCSSValue("ToolbarBackground", "border"));
+  color: windowtext;
+  /*filter: progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr=#F7FAFF, endColorstr=#9EBFF6);*/
+  filter: expression(SetGradientFilter("#F7FAFF", "#9EBFF6"));
+  margin-bottom: 4px;
+  margin-top: expression(GetCustomCSSValue("ToolbarBackground", "margin-top"));
+  padding-bottom: 2px;
+  padding-left: 0px;
+  padding-right: 3px;
+  padding-top: 3px;
+  width: 100%;
+}
+
+.ToolbarImageButton {
+  background-color: transparent;
+  border: 0;
+  cursor: hand;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+  width: 26px;
+}
+
+.ToolbarTable{
+  color: #003399;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+}
+
+.ToolbarTextImageButton {
+  background-color: transparent;
+  border: 0;
+  cursor: hand;
+  font-family: Elephant, "Times New Roman", Verdana, Arial;
+  font-size: 9.25pt;
+  width: 26px;
+}
+
+.UserCell  {
+  color: #000000;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+  padding: 2px 5px 3px 5px;
+}
+
+.UserCellSelected  {
+  background-color: #FEE197;
+  border: solid 1px #2254B1;
+  color: #000000;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  font-size: 100%;
+  padding: 1px 4px 2px 4px;
+}
+
+.Workspace {
+  background-color: white;
+  color: windowtext;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+  overflow: auto;
+}
+
+.WorkspacePane {
+  background-color: white;
+  font-family: Gulim, Verdana, Arial, Helvetica;
+}

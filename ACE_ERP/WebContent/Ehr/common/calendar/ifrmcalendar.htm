@@ -1,0 +1,444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+
+<html>
+	<head>
+		<title>Calendar</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">		
+		<link rel="stylesheet" type="text/css" href="calendar.css">
+			<style>
+#boardid {
+		BACKGROUND-COLOR: #ffffff;
+		border-top: 0 inset;
+		border-left: 1 outset;
+		border-right: 0 outset;
+		border-bottom: 0 outset;
+		PADDING-BOTTOM: 0px;
+		PADDING-LEFT: 0px;
+		PADDING-RIGHT: 0px;
+		PADDING-TOP: 0px;
+		WIDTH: 100%;
+	}
+#calendardiv, {
+		BACKGROUND-COLOR: #BDEBFF;
+		border-top: 0 solid threedhighlight;
+		border-left: 0 solid threedhighlight;
+		border-right: 0 solid threedshadow;
+		border-bottom: 0 solid threedshadow;
+		PADDING-BOTTOM: 0px;
+		PADDING-LEFT: 0px;
+		PADDING-RIGHT: 0px;
+		PADDING-TOP: 0px;
+		WIDTH: 10px;
+		height: 148px;
+		z-index:1;
+	}
+</style>
+<script language="JavaScript">
+
+    /**
+     * 넘어온 문자열을 숫자만 뽑아서 반환
+     * 소수점 처리 하지못함
+     * @param str - 검사할 값
+     */
+    function fnc_covNumber(str){ 
+        str = new String(str);
+        
+        var covStr = "";
+        var mark = "";
+        var strIdx = 0;
+        
+        if(str == undefined || str == null || str == "" || str.length < 1) { 
+            return 0;
+        }
+        
+        if(str.charAt(idx) == '-') {
+            mark = '-';
+            strIdx = 1;
+        }
+         
+        for(var idx=strIdx; idx < str.length; idx++){
+            if(str.charAt(idx) >= '0' && str.charAt(idx) <= '9'){
+                if(covStr.length == 0 && str.charAt(idx) == '0')
+                    continue;
+                covStr += str.charAt(idx);
+            }
+        }
+        
+        if(covStr.length < 1) { 
+            return 0;
+        } else {
+            return parseInt(mark+covStr);
+        }
+    }
+
+    
+    function mouseOn() {
+    
+    	this.style.background='#ffffce';
+    
+    }
+    
+    var calndardoc='';
+    var mbtnmenu='';
+    var mbtname='';
+    var mbtname2='';
+    var mhostname='';
+    var returntype=1;
+    
+    
+    
+    function day_title(day_name)
+    {
+    	if (day_name=="Sun")
+    		calendardoc +="<TD ALIGN=center valign=bottom height=18 valign=middle style='padding-top : 2;'><font color=red>"+day_name+"</font></TD>";
+    	else
+    	{
+    		if (day_name=="Sat")
+    			calendardoc +="<TD ALIGN=center valign=bottom height=18 valign=middle style='padding-top : 2;'><font color=#336699>"+day_name+"</font></TD>";
+    		else
+    			calendardoc +="<TD ALIGN=center valign=bottom height=18 valign=middle style='padding-top : 2;'><font color=black>"+day_name+"</font></TD>";
+    	}
+    }
+    
+    
+    
+    
+    function fill_table(Y,M,D)
+    {
+    
+    	opendiv = true;
+    	selectday= new Date(Y,M-1,1);
+    	today=new Date();
+    	todayMonth=today.getMonth()+1;
+    	todayYear=today.getYear();
+    	todayDay=today.getDate();
+    
+    	cMonth=selectday.getMonth()+1;
+    	cYear=selectday.getYear();
+    	if(cYear==100)cYear=2000;
+    	if(cYear<100)cYear=cYear + 1900;
+    	selectdate=D;
+    
+    	start_day = selectday.getDay()+1;
+    	month_length=valDate(M, selectdate, cYear);
+    
+    	todayselect="True";
+    
+    	if(M==1){
+    		preYear=cYear-1;
+    		preMonth=12;
+    	}
+    	else{
+    		preYear=Y;
+    		preMonth=M-1;
+    	}
+        
+        //이전날짜는 오늘을 기준으로 가져온다.
+        predate = D;
+        if(fnc_covNumber(todayDay) > fnc_covNumber(valDate(preMonth, selectdate, cYear)))
+        	predate=valDate(preMonth, selectdate, cYear);
+    
+    	if(M==12){
+    		nextYear=parseFloat(Y)+1;
+    		if(nextYear==100)nextYear=2000;
+    		if(nextYear<100)nextYear=nextYear + 1900;
+    		nextMonth=1;
+    	}
+    	else{
+			nextYear=Y;
+			nextMonth=parseFloat(M)+1;
+    	}
+        
+        //이후날짜는 오늘을 기준으로 가져온다.
+        nextdate = D;
+        if(fnc_covNumber(todayDay) > fnc_covNumber(valDate(nextMonth, selectdate, cYear)))
+    	   nextdate = valDate(nextMonth, selectdate, cYear);
+    
+    	calendardoc='<fieldset style="margin-bottom: 0; background: #ffffff; padding: 3; height: 154px;">';
+    	day=1;
+    	calendardoc +="<TABLE BORDER=0 style='color:#003399;background-color:White;border-color:#3366CC;border-width:1px;border-style:solid;font-family:Verdana;font-size:8pt;height:144px;width:173px;border-collapse:collapse;'><TR height=20>";
+    	calendardoc +="<td colspan=7 align=center valign=middle style='background-color:#31659C;border-color:#3366CC;border-width:1px;border-style:Solid;height:25px;padding-left:21px'><div class=webd>";
+    	calendardoc +="<A HREF=JavaScript:calendarbtn("+(Y-1)+","+M+","+predate+")><font color=ffffff>7</font></a>";
+    	calendardoc +="<A HREF=JavaScript:calendarbtn("+preYear+","+preMonth+","+predate+")><font color=ffffff>3</font></a>";
+    	calendardoc +='<font style="color : black; font-family : Verdana;font-size : 12px;line-height : 13px;">';
+    	calendardoc +="<A HREF=JavaScript:calendarbtn("+todayYear+","+todayMonth+","+todayDay+")>";
+    	calendardoc +="<font color=ffffff><b>"+cYear+"/"+cMonth+"</b></font>";
+    	calendardoc +="</a>";
+    	calendardoc +="</font>";
+    	calendardoc +="<A HREF=JavaScript:calendarbtn("+nextYear+","+nextMonth+","+nextdate+")><font color=ffffff>4</font></a>";
+    	calendardoc +="<A HREF=JavaScript:calendarbtn("+(parseFloat(Y)+1)+","+M+","+nextdate+")><font color=ffffff>8</font></a>";
+    	//calendardoc +="&nbsp;&nbsp;";
+    	calendardoc +="<A HREF=JavaScript:parent.MM_showHideLayers('ifrmcal','','hide');><font color=ffffff>   r</font></a>";
+    	calendardoc +="</div></td></TR>";
+    	calendardoc +="<TR height=30 style='color:DarkBlue;background-color:LightSkyBlue;'>";
+    	day_title("Sun");
+    	day_title("Mon");
+    	day_title("Tue");
+    	day_title("Wed");
+    	day_title("Thu");
+    	day_title("Fri");
+    	day_title("Sat");
+    	calendardoc += "</TR><TR>";
+    	for (var i=1;i<start_day;i++)
+    	{
+    		calendardoc +="<TD><div class=num></div></TD>";
+    	}
+    	for (var i=start_day;i<8;i++)
+    	{
+    		if ((day==selectdate)&&(todayselect=="True"))
+    			calendardoc +="<td align=center style='width:14%;cursor:hand' onclick='javascript:dayteselect("+cYear+","+cMonth+","+day+","+i+")'><div class=today><font color=#333366><b>"+day+"</b></font></div></td>";
+    		else
+    		{
+    			if (i==1)
+    				calendardoc +="<TD ALIGN=center onmouseover=\"this.style.background='#cccccc'\" onmouseout=\"this.style.background='white'\" style='cursor:hand' onclick='javascript:dayteselect("+cYear+","+cMonth+","+day+","+i+")'><div class=num><font color=red>"+day+"</font></div></TD>";
+    			else
+    			{
+    				if (i==7)
+    					calendardoc +="<TD ALIGN=center onmouseover=\"this.style.background='#cccccc'\" onmouseout=\"this.style.background='white'\" style='cursor:hand' onclick='javascript:dayteselect("+cYear+","+cMonth+","+day+","+i+")'><div class=num><font color=#336699>"+day+"</font></div></TD>";
+    				else
+    					calendardoc +="<TD ALIGN=center onmouseover=\"this.style.background='#cccccc'\" onmouseout=\"this.style.background='white'\" style='cursor:hand' onclick='javascript:dayteselect("+cYear+","+cMonth+","+day+","+i+")'><div class=num><font color=black>"+day+"</font></div></TD>";
+    			}
+    		}
+    		day++;
+    	}
+    	calendardoc +="</TR>";
+    	while (day <= month_length)
+    	{
+    		calendardoc +="<TR>";
+    
+    		for (var i=1;i<=7 && day<=month_length;i++)
+    		{
+    			if ((day==selectdate)&&(todayselect=="True"))
+    				calendardoc +="<td style='width:14%;cursor:hand' onclick='javascript:dayteselect("+cYear+","+cMonth+","+day+","+i+")'' align=center><div class=today><font color=#333366><b>"+day+"</b></font></div></td>";
+    			else
+    			{
+    				if (i==1)
+    					calendardoc +="<TD ALIGN=center onmouseover=\"this.style.background='#cccccc'\" onmouseout=\"this.style.background='white'\" style='cursor:hand' onclick='javascript:dayteselect("+cYear+","+cMonth+","+day+","+i+")'><div class=num><font color=red>"+day+"</font></div></TD>";
+    				else
+    				{
+    					if (i==7)
+    						calendardoc +="<TD ALIGN=center onmouseover=\"this.style.background='#cccccc'\" onmouseout=\"this.style.background='white'\" style='cursor:hand' onclick='javascript:dayteselect("+cYear+","+cMonth+","+day+","+i+")'><div class=num><font color=#336699>"+day+"</font></div></TD>";
+    					else
+    						calendardoc +="<TD ALIGN=center onmouseover=\"this.style.background='#cccccc'\" onmouseout=\"this.style.background='white'\" style='cursor:hand' onclick='javascript:dayteselect("+cYear+","+cMonth+","+day+","+i+")'><div class=num><font color=black>"+day+"</font></div></TD>";
+    				}
+    			}
+    			day++;
+    		}
+    		calendardoc +="</TR>";
+    		start_day=i;
+    	}
+    	calendardoc +="</TABLE></fieldset>";
+
+    	return calendardoc;
+    }
+    
+    
+    
+    
+    function valDate(M, D, Y)
+    {
+    	Months= new Array(31,28,31,30,31,30,31,31,30,31,30,31);
+    	Leap  = false;
+    	if((Y % 4 == 0) && ((Y % 100 != 0) || (Y %400 == 0)))
+    	{
+    		Leap = true;
+    		if(M==2) return(29);
+    		else
+    			return(Months[M-1]);
+    	}
+    	else
+    		return(Months[M-1]);
+    }
+    
+    
+    
+    
+    function calendarbtn(cYear,cMonth,cDay)
+    {
+    	if(cYear=="0"){
+    		today= new Date();
+    		cMonth=today.getMonth()+1;
+    		cYear=today.getYear();
+    		cDay=today.getDate();
+    	}
+    	calendardiv.innerHTML = fill_table(cYear,cMonth,cDay);
+    }
+    
+    
+    
+    function calendarbtn2(cYear,cMonth,cDay)
+    {
+    	if(cYear=="0"){
+    		today= new Date();
+    		cMonth=today.getMonth()+1;
+    		cYear=today.getYear();
+    		cDay=today.getDate();
+    	}
+    	calendardiv.innerHTML = fill_table(cYear,cMonth,cDay);
+    }    
+    
+    
+    
+    
+    
+    function dayteselect(nyear,nmonth,nday,nweek)
+    {
+    
+    	var targetpath1 = eval('parent.document.form1.'+mbtname);
+
+    	if (mbtname2 != '') {
+    		var targetpath2 = eval("parent.document.form1."+mbtname2);
+    		returntype = 2;
+    	}
+    
+    	if(mbtnmenu=='junpyo')	{
+    		
+    		targetpath1.value = add_zero(nyear.toString())+add_zero(nmonth.toString())+add_zero(nday.toString())+"-";
+    		
+    	} else if (mbtnmenu=='datetype1') {
+
+    		if (returntype == 1) {
+
+    					targetpath1 = add_zero(nyear.toString())+"-"+add_zero(nmonth.toString())+"-"+add_zero(nday.toString());
+
+    		} else if (returntype == 2) {
+    			
+    			targetpath1.value = add_zero(nyear.toString())+"-"+add_zero(nmonth.toString())+"-"+add_zero(nday.toString());
+    			targetpath2.value = add_zero(nyear.toString())+"-"+add_zero(nmonth.toString())+"-"+add_zero(nday.toString());
+    			
+    		}
+
+    	} else if (mbtnmenu=='datetype2') {
+    		
+    		targetpath1 = add_zero(nyear.toString())+"-"+add_zero(nmonth.toString());
+		
+    	} else if (mbtnmenu=='datetype3') {
+    		
+    		targetpath1.value = add_zero(nyear.toString());
+    		
+    	} else if (mbtnmenu=='datetype4') {
+    
+    		if (returntype == 1) {
+    			
+    			targetpath1.value = add_zero(nyear.toString())+""+add_zero(nmonth.toString())+""+add_zero(nday.toString());
+    			
+    		} else if (returntype == 2) {
+    			
+    			targetpath1.value = add_zero(nyear.toString())+""+add_zero(nmonth.toString())+""+add_zero(nday.toString());
+    			targetpath2.value = add_zero(nyear.toString())+""+add_zero(nmonth.toString())+""+add_zero(nday.toString());
+    			
+    		}
+    
+    	}
+
+    	parent.MM_showHideLayers('ifrmcal','','hide');
+    	
+    	eval("var date = parent.document.form1."+ mbtname);
+    	
+    	date.value = targetpath1;
+
+    	return;
+    	
+    }
+    
+
+    function buttonmenu(Dtype,Dname,Dname2)
+    {
+
+
+    	mbtnmenu=Dtype;
+    	mbtname=Dname;
+    	mbtname2=Dname2;
+
+    	var tday= new Date();
+    	var ccMonth=tday.getMonth()+1;
+    	var ccYear=tday.getYear();
+    	var ccDay=tday.getDate();
+
+        eval("var txtobj = parent.document.form1."+ mbtname);
+
+    	if (mbtnmenu == "junpyo")
+    	{
+    		if (txtobj.value.length >= 8)
+    		{	calendardiv.innerHTML = fill_table(txtobj.value.substring(0,4),txtobj.value.substring(4,6),txtobj.value.substring(6,8));	}
+    		else
+    		{	calendardiv.innerHTML = fill_table(ccYear,ccMonth,ccDay);	}
+    	}
+    	else if(mbtnmenu == "datetype4")
+    	{
+    		if(txtobj.value.length >= 4)
+    		{ 
+    			var n = txtobj.value;
+                
+                
+                calendardiv.innerHTML = fill_table(n.substring(0,4),n.substring(4,6),ccDay);
+    		}
+    		else {	
+    			calendardiv.innerHTML = fill_table(ccYear,ccMonth,ccDay);	
+    		}
+    	}    		
+    	else
+    	{
+
+    		if(txtobj.value.length >= 4)
+    		{
+    			var n = txtobj.value.split('-');
+
+    			switch(txtobj.value.length)
+    			{
+    				case  10:	calendardiv.innerHTML = fill_table(n[0],n[1],n[2]);
+    				//				break;
+    				case   8:	calendardiv.innerHTML = fill_table(n[0],n[1],ccDay);
+    				//				break;
+    				case   7:	calendardiv.innerHTML = fill_table(n[0],n[1],ccDay);
+    				//				break;
+    				case   5:	calendardiv.innerHTML = fill_table(n[0],ccMonth,ccDay);
+    				//				break;
+    				case   4:	calendardiv.innerHTML = fill_table(n[0],ccMonth,ccDay);
+    				//				break;
+    			}
+				
+    		} else {	
+
+    			calendardiv.innerHTML = fill_table(ccYear,ccMonth,ccDay);	
+				
+    		}
+
+    	}
+    
+    }
+    
+
+    function init() {
+    	today=new Date();
+    	todayMonth=today.getMonth()+1;
+    	todayYear=today.getYear();
+    	todayDay=today.getDate();
+    	stday = today.getDay()+1;
+    	calendarbtn(todayYear,todayMonth,todayDay) ;
+    }
+    
+    function add_zero(str) {
+
+    	if (str.length == 1) {
+    		str = '0'+ str;
+    	}
+
+    	return str;
+    }
+
+</script>
+</head>
+<body bottommargin="0" leftmargin="0" topmargin="0" onload="init()" id="boardid">
+	<form name="cform">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0">
+			<tr>
+				<td valign="middle" align="center">
+					<div id="calendardiv"></div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>

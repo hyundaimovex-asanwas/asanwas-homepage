@@ -1,0 +1,124 @@
+<link rel="stylesheet" type="text/css" href="myEditor.css">
+
+<script language="JScript" src="myEditor.js"></script>
+
+<script FOR="window" EVENT="onload" LANGUAGE="javascript">
+ready_edit();
+</script>
+
+<table border="0"  cellpadding="0" cellspacing="0" class="table_form">
+  <tr>
+    <td width="100%">
+
+    <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" height="26" class="table_form">
+      <tr>
+        <td width="10" align="center"><img border="0" src="./img/icon_bar.gif" width="2" height="26"></td>
+        <td><select class="808080_input" onchange="cmdExec('fontname',this[this.selectedIndex].value);" name="font">
+				<option value="굴림체" class="heading">굴림체
+				<option value="돋움체">돋움체
+				<option value="바탕체">바탕체
+				<option value="궁서체">궁서체
+				<option value="휴먼매직체">휴먼매직체
+				<option value="휴먼옛체">휴먼옛체
+				<option value="HY엽서L">HY엽서L
+				<option value="HY얕은샘물M">HY얕은샘물M
+				<option value="HY헤드라인M">HY헤드라인M
+				<option value="geneva,arial,sans-serif">Arial
+				<option value="times,serif">Times
+				<option value="courier, monospace">Courier
+				<option value="Comic Sans MS">Comic Sans MS
+				<option value="Haettenschweiler">Haettenschweiler
+				<option value="Monotype Corsiva">Monotype Corsiva
+			</select></td>
+        <td>&nbsp;<select class="808080_input" onchange="cmdExec('fontsize',this[this.selectedIndex].value);" name="size">
+				<option selected>Size</option>
+				<option value="1">1(8pt)</option>
+				<option value="2">2(10pt)</option>
+				<option value="3">3(12pt)</option>
+				<option value="4">4(14pt)</option>
+				<option value="5">5(18pt)</option>
+				<option value="6">6(24pt)</option>
+				<option value="7">7(36pt)</option>
+			</select></td>
+        <td width="10" align="center"><img border="0" src="./img/icon_bar.gif" width="2" height="26"></td>
+        <td align="center" width="25" class="hand">
+        <img border="0" src="./img/icon_numberlist.gif" id="InsertOrderedList" onClick="cmdExec('InsertOrderedList')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="번호매기기" width="23" height="22"></td>
+        <td align="center" width="25" class="hand">
+        <img border="0" src="./img/icon_balllist.gif" id="InsertUnOrderedList" onClick="cmdExec('InsertUnOrderedList')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="글머리기호" width="23" height="22"></td>
+        <td align="center" width="25" class="hand">
+        <img border="0" src="./img/icon_outdent.gif" id="Outdent" onClick="cmdExec('Outdent')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="내어쓰기" width="23" height="22"></td>
+        <td align="center" width="25" class="hand">
+        <img border="0" src="./img/icon_indent.gif" id="Indent" onClick="cmdExec('Indent')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="들여쓰기" width="23" height="22"></td>
+        <td width="10" align="center"><img border="0" src="./img/icon_bar.gif" width="2" height="26"></td>
+        <td width="25" align="center" class="hand">
+        <img border="0" src="./img/icon_left.gif" id="JustifyLeft" onClick="cmdExec('JustifyLeft')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="굵게" width="23" height="22"></td>
+        <td width="25" align="center" class="hand">
+        <img border="0" src="./img/icon_center.gif" id="JustifyCenter" onClick="cmdExec('JustifyCenter')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="굵게" width="23" height="22"></td>
+        <td width="25" align="center" class="hand">
+        <img border="0" src="./img/icon_right.gif" id="JustifyRight" onClick="cmdExec('JustifyRight')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="굵게" width="23" height="22"></td>
+        <td width="10" align="center"><img border="0" src="./img/icon_bar.gif" width="2" height="26"></td>
+        <td width="25" align="center" class="hand">
+        <img border="0" src="./img/icon_hr.gif" id="hr" onClick="cmdHrInput()" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="수평선 넣기" width="23" height="22"></td>
+      </tr>
+    </table>
+
+    <table  height="26" cellspacing="0" cellpadding="0" border="0" class="table_form">
+      <tr>
+        <td width="10" align="center"><img border="0" src="./img/icon_bar.gif" width="2" height="26"></td>
+        <td align="center" width="25" class="hand">
+        <img border="0" src="./img/icon_cut.gif" id="Cut" onClick="cmdExec('Cut')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="잘라내기(Ctrl + x)" width="23" height="22"></td>
+        <td align="center" width="25" class="hand">
+        <img border="0" src="./img/icon_copy.gif" id="Copy" onClick="cmdExec('Copy')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="복사(Ctrl + c)" width="23" height="22"></td>
+        <td align="center" width="25" class="hand">
+        <img border="0" src="./img/icon_paste.gif" id="Paste" onClick="cmdExec('Paste')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="붙여넣기(Ctrl + v)" width="23" height="22"></td>
+        <td class="hand" width="10" align="center">
+        <img border="0" src="./img/icon_bar.gif" width="2" height="26"></td>
+        <td class="hand" width="25" align="center">
+        <img border="0" src="./img/icon_fontcolor.gif" id="FontColor" onClick="ShowColorBox(event.clientX, event.clientY, 'ForeColor')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="글자색" width="23" height="22"></td>
+        <td width="25" align="center">
+        <img border="0" src="./img/icon_backcolor.gif" id="FontColor0" onClick="ShowColorBox(event.clientX, event.clientY, 'BackColor')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="글자배경색" width="23" height="22"></td>
+        <td class="hand" width="25" align="center">
+        <img border="0" src="./img/icon_b.gif" id="bold" onClick="cmdExec('bold')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="굵게" width="23" height="22"></td>
+        <td class="hand" width="25" align="center">
+        <img border="0" src="./img/icon_i.gif" id="italic" onClick="cmdExec('italic')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="기울임꼴" width="23" height="22"></td>
+        <td class="hand" width="25" align="center">
+        <img border="0" src="./img/icon_u.gif" id="underline" onClick="cmdExec('underline')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" class="img_act" alt="밑줄" width="23" height="22"></td>
+        <td width="10" align="center"><img border="0" src="./img/icon_bar.gif" width="2" height="26"></td>
+        <td width="25" align="center" class="hand">
+        <img border="0" src="./img/icon_link.gif" id="Link" onClick="ShowLinkBox(event.clientX, event.clientY)" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="하이퍼링크 삽입" width="23" height="22"></td>
+        <td width="25" align="center" class="hand">
+        <img border="0" src="./img/icon_image.gif" id="Image" onClick="ShowImgLinkBox(event.clientX, event.clientY)" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="그림 삽입" width="23" height="22"></td>
+        <td width="25" align="center" class="hand">
+        <img border="0" src="./img/icon_help.gif" id="help" onClick="alert('도움말 준비중')" chk="0" OnMouseOver="button_over(this)" OnMouseOut="button_out(this)" onmousedown="button_down(this);" alt="도움말" width="23" height="22"></td>
+        <td width="10" align="center"><img border="0" src="./img/icon_bar.gif" width="2" height="26"></td>
+        <td width="25" align="center" class="hand">　</td>
+      </tr>
+    </table>
+    
+    </td>
+  </tr>
+  <tr id="sector_1" style="display:block" chk="0">
+    <td width="100%">
+    <iframe name="editBox" id="editBox" OnFocus="divLayerOFF();" OnBlur="NowSpace.SaveSelection();" height="300" width="740" marginwidth="5" marginheight="5" border="1" frameborder="1" chk="0"></iframe>
+    </td>
+  </tr>
+  <tr id="sector_2" style="display:none" chk="0">
+    <td width="100%">
+    <iframe name="preview" id="preview" height="300" width="740" marginwidth="5" marginheight="5" border="1" frameborder="1" chk="0"></iframe>
+    </td>
+  </tr> 
+  <tr>
+    <td width="100%">
+    <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" height="19">
+      <tr>
+        <td width="42" align="center"><div id="edit_default" class="bt_btn_click" OnClick="select_btn(this,'click', 1)" OnMouseOver="select_btn(this,'over', 1)" OnMouseOut="select_btn(this,'out', 1)" chk="1">
+          <img border="0" src="./img/icon_edit.gif" width="40" height="17"></div></td>
+        <td width="42" align="center"><div id="edit_html" class="bt_btn_out" OnClick="select_btn(this,'click', 2)" OnMouseOver="select_btn(this,'over', 2)" OnMouseOut="select_btn(this,'out', 2)" chk="0">
+          <img border="0" src="./img/icon_html.gif" width="50" height="17"></div></td>
+        <td width="70" align="center"><div id="edit_preview" class="bt_btn_out" OnClick="select_btn(this,'click', 3)" OnMouseOver="select_btn(this,'over', 3)" OnMouseOut="select_btn(this,'out', 3)" chk="0">
+          <img border="0" src="./img/icon_preview.gif" width="68" height="17"></div></td>
+      </tr>
+    </table>
+    </td>
+  </tr>
+</table>

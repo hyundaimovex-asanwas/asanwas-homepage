@@ -1,0 +1,755 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	인사
++ 프로그램 ID	: H020002.HTML
++ 기 능 정 의	: 입사지원서접수
++ 변 경 이 력	: 
++ 서 블 릿 명	: 
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title>입사지원서접수</title>
+<meta http-equiv="Content-Type" content="text/html; charset=ks_c_5601">
+
+<!-----------------------------------------------------------------------------
+  StyleSheet 정의 [.css]
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+<!-----------------------------------------------------------------------------
+  Global Function 정의 [.js]
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+<script language=JavaScript src="../../common/include/kctc.js"></script>
+<script language=javascript src="../../common/include/calendar.js"></script>
+
+<style type="text/css">
+.itemdisp {BACKGROUND-COLOR:#FFFFEE; FONT-FAMILY:san-serif; FONT-SIZE:8.7pt; FONT-WEIGHT:normal; BORDER-STYLE:solid; BORDER-TOP-WIDTH:1px; BORDER-LEFT-WIDTH:0px; BORDER-RIGHT-WIDTH:1px; BORDER-BOTTOM-WIDTH:1px; BORDER-COLOR:black; WIDTH:80; HEIGHT:20;}
+</style>
+
+<script language="javascript">
+  function ln_start(){
+  	var THeader ="";
+		for (var k=1; k<7; k++){
+		if(k==1)THeader +="param"+k+":String(8)";
+		if(k>=2 && k<=6 && k!=3)THeader +="param"+k+":String(30)";
+		if(k==3)THeader +="param"+k+":String(10)";
+		if (k<6) THeader +=",";
+	}
+
+	gcds_hak.ClearAll();
+	gcds_hak.DataID = "";
+	var hak= new Array("초등학교","중학교","고등학교","전문대학","대학교","대학원");
+	gcds_hak.SetDataHeader(THeader);
+
+			for(i=1;i<7;i++)
+			{
+				gcds_hak.addrow();
+				gcds_hak.NameValue(i,"param2")= '';
+				gcds_hak.NameValue(i,"param3")= hak[i-1];
+			}
+
+	gcds_hak.RowPosition = 1;
+
+          THeader="";
+		for (var k=1; k<6; k++){
+		if(k==1 || k==2)THeader +="param"+k+":String(8)";
+		if(k>=3 && k<=5 )THeader +="param"+k+":String(30)";
+		if (k<5) THeader +=",";
+	}
+		gcds_gyung.ClearAll();
+	gcds_gyung.DataID = "";
+	gcds_gyung.SetDataHeader(THeader);
+
+			for(i=1;i<7;i++)
+			{
+				gcds_gyung.addrow();
+			}
+	gcds_gyung.RowPosition = 1;
+
+
+          THeader="";
+		for (var k=1; k<6; k++){
+		if(k==1 || k==2)THeader +="param"+k+":String(30)";
+		if(k==3 )THeader +="param"+k+":String(13)";
+		if(k>=4 && k<=5 )THeader +="param"+k+":String(30)";
+		if (k<5) THeader +=",";
+	}
+		gcds_ga.ClearAll();
+	gcds_ga.DataID = "";
+	gcds_ga.SetDataHeader(THeader);
+
+			for(var i=1;i<7;i++)
+			{
+				gcds_ga.addrow();
+			}
+	gcds_ga.RowPosition = 1;
+
+
+          THeader="";
+		for (var k=1; k<5; k++){
+		if(k==1 )THeader +="param"+k+":String(30)";
+		if(k==2 || k==3 )THeader +="param"+k+":String(8)";
+		if(k==4 )THeader +="param"+k+":String(60)";
+		if (k<4) THeader +=",";
+	}
+		gcds_ja.ClearAll();
+	gcds_ja.DataID = "";
+	gcds_ja.SetDataHeader(THeader);
+
+			for(var i=1;i<7;i++)
+			{
+				gcds_ja.addrow();
+			}
+	gcds_ja.RowPosition = 1;
+
+
+
+//gcds_hak.Reset();
+
+}
+
+function ln_save(){
+	/*var vjumin1,vjumin2;
+	vjumin1 = form1.nwjumn1.value;
+	vjumin2 = form1.nwjumn2.value;
+       return;
+	
+	if(form1.nwpoin1.value == "") form1.nwpoin1.value = 0;
+	if(form1.nwpoin2.value == "") form1.nwpoin2.value = 0;
+	if(form1.nwjmsu.value == "") form1.nwjmsu.value = 0;
+  form1.nwinfom.value = trim(form1.nwinfom.value);
+  
+ 
+  
+
+	if(vjumin1 == "" || vjumin2 == ""){
+		alert("주민등록번호를 입력해주십시요");
+		return 0;
+	}
+	if(vjumin1.length != 6 || vjumin2.length != 7){
+		alert("주민등록번호를 정확히 입력해 주십시요.");
+		return ;
+	}
+	if(form1.nwnamk.value == ""){ 
+		alert("성함을 입력해 주십시요.");
+		return ;
+	}
+	form1.nwnamk.value = trimnull(form1.nwnamk.value);
+	if(form1.nwrlgn.value == ""){ 
+		alert("영문명을 입력해 주십시요.");
+		return ;
+	}
+	
+	if(form1.nwzip.value == ""){
+		alert("우편번호를 입력해 주십시요.");
+		return ;
+	}
+	if(form1.nwadd2.value == ""){
+		 alert("상세주소를 입력해 주십시요.");
+		return ;
+	}
+	if(form1.nwhmpn.value == ""){
+	 alert("전화번호를 입력해 주십시요.");
+	 return ;
+	}
+	if(form1.nwemel.value == ""){
+	 alert("E-MAIL 을 입력해 주십시요.");
+	 return ;
+	}
+	if(form1.nwhigh.value == ""){
+	 alert("고등학교명을 입력해 주십시요.");
+	 return ;
+	}
+	if(form1.nwinfom.value.length == 10000){
+	 alert("자기소개서 용량 초과입니다.\n 자기소개서를(A4용지3장)정도분량으로 줄여주십시요.");
+		return ;
+	}	
+	if(form1.nwhgpl.value == ""){
+	 alert("소재지를 입력해 주십시요.");
+	 return ;
+	}
+	if(form1.nwhgey.value == ""){
+	 alert("입학년도를 입력해 주십시요.");
+	 return ;
+	}
+	if(form1.nwhgem.value == ""){
+	 alert("입학월을 입력해 주십시요.");
+	 return ;
+	}
+	if(form1.nwhgty.value == ""){
+	 alert("졸업년도를 입력해 주십시요.");
+   return ;
+  }	
+	if(form1.nwhgtm.value == ""){
+	 alert("졸업월을 입력해 주십시요.");
+	 return ;
+	}
+	if(form1.nwhigt.value == ""){ 
+		form1.nwhigt.value = 0;
+	}
+	if(form1.nwwegt.value == ""){
+	 form1.nwwegt.value = 0 ;
+	} 
+//**************************************	
+	if(fCheckNum(form1.nwpoin1.value)){
+		form1.nwpoin1.focus();
+		return;
+	}
+	if(fCheckNum(form1.nwpoin2.value)){
+		form1.nwpoin2.focus();
+		return;
+	}
+	if(fCheckNum(form1.nwhigt.value)){
+		form1.nwhigt.focus();
+		return;
+	}
+	if(fCheckNum(form1.nwwegt.value)){
+		form1.nwwegt.focus();
+		return;
+	}
+
+	if(fCheckNum1(form1.nwjmsu.value)){
+		form1.nwjmsu.focus();
+		return;
+	}
+
+//**********************
+	
+	
+	
+	
+	
+	if(form_check() == true){
+  	document.form1.action="/servlet/insa.pre_career";
+    document.form1.submit();
+  }*/
+}
+function trim (strSource) {
+	re = /'/g;
+
+	return strSource.replace(re, '');
+}
+function trimnull (strSource) {
+	re = /^\s+|\s+$/g;
+
+	return strSource.replace(re, '');
+}
+function lfn_cancle(){
+	window.close();
+   document.form1.reset();
+}
+function form_check(){
+   return true;
+ }
+function lfn_popup(){
+	var arrParam	= new Array();
+	var arrResult	= new Array();
+	var strURL;	
+	var strPos;
+
+	strURL = "./hrzip.html";
+	strPos = "dialogWidth:440px;dialogHeight:410px;status:no";
+	arrResult = showModalDialog(strURL,arrParam,strPos);
+	
+ 	if (arrResult != null) {
+		form1.nwzip.value = arrResult[0];
+		form1.nwadd1.value = arrResult[1];
+		
+	}
+}
+
+function lfn_popup2(){
+	var arrParam	= new Array();
+	var arrResult	= new Array();
+	var strURL;	
+	var strPos;
+	arrParam[0]	= "";
+
+	strURL = "./H020002_popup.html";
+	strPos = "dialogWidth:380px;dialogHeight:385px;status:no;scroll:no;resizable:no";
+	arrResult = showModalDialog(strURL,arrParam,strPos);
+	
+ 	if (arrResult != null) {
+		form1.nwzip.value = arrResult[0];
+		form1.nwadd1.value = arrResult[1];
+		
+	}
+	
+
+}
+function lfn_image(){
+
+alert("ddd");
+
+}
+function ln_visible_hidden(Obj){
+if(Obj.style.display=="none")
+	Obj.style.display="block";
+else
+	Obj.style.display="none";
+}
+
+function ln_add(Obj){
+ tmpObj=eval("document.all.gcgd"+Obj.id.toString().substring(4,Obj.id.toString().length));
+//alert(Obj.id.toString().substring(0,4)+Obj.id.toString().substring(4,Obj.id.toString().length));
+if(tmpObj.style.display=='none') ln_visible_hidden(tmpObj);
+else Obj.AddRow();
+
+}
+function ln_del(Obj){
+ tmpObj=eval("document.all.gcgd"+Obj.id.toString().substring(4,Obj.id.toString().length));
+	if(tmpObj.style.display=="none") ln_visible_hidden(tmpObj);
+	else
+	{
+		if(Obj==gcds_hak && (parseInt(Obj.RowPosition) < 7))
+		{ alert("기본 리스트 된 학력은 삭제할수없습니다.\n기본리스트가 없을시 등록버튼을 눌러 입력하세요!"); return false;
+		}else{
+		if(confirm("선택한 데이타를 삭제하시겠습니까?"))
+		Obj.DeleteRow(Obj.RowPosition);
+		}
+	}
+}
+</script> 
+<!-----------------------------------------------------------------------
+	Component 정의
+------------------------------------------------------------------------>
+
+<SCRIPT ID=clientEventHandlersJS LANGUAGE=javascript>
+<!--
+
+function up_file_onchange() {
+	var vphoto;
+	vphoto = form1.up_file.value;
+	form1.photo.src ="file:///" + vphoto;
+
+}
+
+//-->
+</SCRIPT>
+<!--*****************************************************************************
+//'  데이타셋 선언
+//'****************************************************************************-->
+<comment id="__NSID__"><object id="gcds_hak" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49"  VIEWASTEXT> 
+	<PARAM NAME="SYNCLOAD" VALUE="TRUE">
+</object></comment><script>__ws__(__NSID__);</script>
+<comment id="__NSID__"><object id="gcds_gyung" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49"  VIEWASTEXT> 
+	<PARAM NAME="SYNCLOAD" VALUE="TRUE">
+</object></comment><script>__ws__(__NSID__);</script>
+<comment id="__NSID__"><object id="gcds_ga" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49"  VIEWASTEXT> 
+	<PARAM NAME="SYNCLOAD" VALUE="TRUE">
+</object></comment><script>__ws__(__NSID__);</script>
+<comment id="__NSID__"><object id="gcds_ja" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49"  VIEWASTEXT> 
+	<PARAM NAME="SYNCLOAD" VALUE="TRUE">
+</object></comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__"><OBJECT id=gctr_user classid=clsid:0A2233AD-E771-11D2-973D-00104B15E56F VIEWASTEXT>
+	<PARAM NAME="KeyName"  VALUE="toinb_dataid4">
+	<PARAM NAME="KeyValue" VALUE="hdasan_user_tr(I:USER=gcds_user)">
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+</head>
+<body style="font-size:9pt;"  onload="ln_start()">
+<script language="JavaScript">
+function right(e) {
+if (navigator.appName == 'Netscape' &&
+(e.which == 3 || e.which == 2))
+return false;
+else if (navigator.appName == 'Microsoft Internet Explorer' &&
+(event.button == 2 || event.button == 3)) {
+//alert("마우스 오른쪽을 사용하실수 없습니다.");
+//return false;
+}
+return true;
+}
+if (document.layers) window.captureEvents(Event.MOUSEDOWN);
+window.onmousedown=right;
+document.onmousedown=right;
+</script>
+<form name=form1 method=post enctype="multipart/form-data">
+<input type="hidden" id="sabun" name="sabun">
+<input type="hidden" id="nwdate" name="nwdate" >
+<input type="hidden" id="nwboan" name="nwboan">
+<div id=disp style="position:absolute;top:0;left:3" ><table border= "0"  cellpadding=0 cellspacing=0  style="width:876px;font-size:9pt;BORDER-LEFT-WIDTH:1px;">
+		<tr height="30"valign=bottom>
+	<!--table width="876" cellpadding="0" cellspacing="0" border="0" >
+	  <tr> 
+		<td width="215" background="../../common/img/com_t_bg.gif"><IMG height=47 src="../img/p010001_head.gif" width=197></td>
+	  </tr>
+     </table-->
+			<td>
+<table width="876" cellpadding="0" cellspacing="0" border="0" >
+  <tr> 
+    <td ><img src="../img/h020002_head.gif"></td>
+    <td width="685" align="right" background="../../common/img/com_t_bg.gif" style="padding-top:4px;">
+			<img src="../../common/img/btn/com_b_save.gif" style="cursor:hand" onclick="ln_save()">&nbsp;</td>
+  </tr></table>
+         </td>
+		</tr>
+		<tr>
+			<td align="left" colspan=3 height=30px>
+				<!--table border= "0" class=itemdisp cellpadding=0 cellspacing=0  border=0  style='width:876px;height:30px;font-size:9pt;background-color:#ffffff;BORDER-LEFT-WIDTH:1px;border:1 solid #708090'>
+					<tr>
+						<td width="70" align=left style="border:0 solid #708090;border-right-width:1px;" bgcolor="#eeeeee">&nbsp;&nbsp;지원구분</td>
+						<td style="border:0 solid #708090;border-right-width:1px;">&nbsp;<SELECT id="nwgubn" name="nwgubn">
+			  				<OPTION  Value="1">신입</OPTION>
+							  <OPTION  Value="2">경력</OPTION>
+							</SELECT></td>
+						<td width="70" align=left bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;&nbsp;지원분야</td>
+						<td style="border:0 solid #708090;border-right-width:1px;">&nbsp;<SELECT id="nwpart" name="nwpart">
+			  				<OPTION  Value="AH00">E.C.P&RM팀</OPTION>
+							  <OPTION  Value="AE00">경영기획팀</OPTION>
+							  <OPTION  Value="AG00">인사팀</OPTION>
+							  <OPTION  Value="AR00">계약서비스팀</OPTION>
+							  <OPTION  Value="AI00">자산운용팀</OPTION>
+							  <OPTION  Value="AD00">영업지원팀</OPTION>
+							  <OPTION  Value="AK00">외무기획팀</OPTION>
+							  <OPTION  Value="AS00">마케팅팀</OPTION>
+							  <OPTION  Value="AV00">정보지원팀</OPTION>
+							  <OPTION  Value="AC00">감사팀</OPTION>
+							  <OPTION  Value="AT00">교육팀</OPTION>
+							  <OPTION  Value="AO00">T.M.팀</OPTION>
+							  <OPTION  Value="2098">본사사무직</OPTION>
+							  <OPTION  Value="2099">지점관리</OPTION>
+							  
+							</SELECT></td>
+						<td width="100" align=right bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;&nbsp;희망근무지&nbsp;</td>
+						<td>&nbsp;<SELECT id="nwhope" name="nwhope">
+							  <OPTION  Value="BB01" selected>서&nbsp; 울</OPTION>
+							  <OPTION  Value="BB99">전지역</OPTION>
+							</SELECT></td>
+					</tr>
+				</table-->
+
+
+<table  cellpadding="1" cellspacing="0" border="0"  style='width:876px;height:30px;font-size:9pt;background-color:#ffffff;BORDER-LEFT-WIDTH:1px;border:1 solid #708090'>
+        <tr> 
+						<td width="10" align=RIGHT  style="border:0 solid #708090;border-right-width:1px;" bgcolor="#eeeeee"><nobr>&nbsp;주민번호&nbsp;&nbsp;</nobr></td>
+                        <td align=center style="border:0 solid #708090;border-right-width:0px;">&nbsp;</td>
+
+						<td width="10" ><nobr><comment id="__NSID__"><object id=ADE_EMEdit_ec04af classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  tabindex="1"
+				style="position:relative; left:1px;top:1px; width:47px; height:20px; font-family:굴림; font-size:9pt;z-index:2; " class=objclsEme1
+				validFeatures="ignoreStatus=yes" validExp="">
+				<param name=Text          value="">
+				<param name=Alignment	  value=0>
+				<param name=Border	      value=true>
+				<param name=ClipMode	  value=true>
+				<param name=Numeric	      value=false>
+				<param name=Format	      value="000000">
+				<param name=MaxLength     value=6>
+				<param name=PromptChar	  value="_">
+				<param name=IsComma	      value=false>
+				<param name=BackColor     value="#CCCCCC">
+				<param name=InheritColor  value=false>
+			    </object></comment><script>__ws__(__NSID__);</script></nobr></td>
+						<td valign=middle align=center><nobr>~</nobr></td>
+						<td style="height:30px;border:0 solid #708090;border-right-width:0px;"><nobr><comment id="__NSID__"><object id=ADE_EMEdit_ec05af classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  tabindex="1"
+				style="position:relative; left:1px;top:1px; width:53px; height:20px; font-family:굴림; font-size:9pt;z-index:2; " class=objclsEme1
+				validFeatures="ignoreStatus=yes" validExp="">
+				<param name=Text          value="">
+				<param name=Alignment	  value=0>
+				<param name=Border	      value=true>
+				<param name=ClipMode	  value=true>
+				<param name=Numeric	      value=false>
+				<param name=Format	      value="0000000">
+				<param name=MaxLength     value=6>
+				<param name=PromptChar	  value="_">
+				<param name=IsComma	      value=false>
+				<param name=BackColor     value="#CCCCCC">
+				<param name=InheritColor  value=false>
+			    </object></comment><script>__ws__(__NSID__);</script></nobr>
+                </td>
+            <td width="80" style="border:0 solid #708090;border-left-width:0px;border-right-width:1px;">&nbsp;</td>
+						<td width="10" align=RIGHT  style="border:0 solid #708090;border-left-width:0px;border-right-width:1px;"><nobr>&nbsp;응시분야&nbsp;</nobr></td>
+						<td style="border:0 solid #708090;border-right-width:0px;"><nobr>&nbsp;<select style="width:270px;"><option></option>
+                        </select></nobr></td>
+            <td width="80" style="border:0 solid #708090;border-left-width:0px;border-right-width:1px;">&nbsp;</td>
+						<td width="10" align=RIGHT  style="border:0 solid #708090;border-right-width:1px;"><nobr>&nbsp;채용구분&nbsp;&nbsp;</nobr></td>
+						<td >&nbsp;<INPUT TYPE=TEXT STYLE="width:100px;" readonly>&nbsp;&nbsp;</nobr></td>
+            <td width="180" style="border:0 solid #708090;border-left-width:0px;border-right-width:0px;">&nbsp;</td>
+                        <td width=140 align=right><img src="../../common/img/btn/com_b_information.gif" style="cursor:hand" onclick="lfn_popup2();" ></td>
+					</tr>
+				</table>
+
+			</td>
+		</tr>
+		<tr height="10">
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<td><table width=100% border=0 cellspacing=0 cellpadding=0 ><tr><td height=31  background="../../common/img/com_cont_subtxt_bg.gif"><b>기본인적사항</b></td></tr></table>
+				<table border= "0" class=itemdisp cellpadding=0 cellspacing=0  border=0 style='width:876px;height:80px;font-size:9pt;background-color:#ffffff;BORDER-LEFT-WIDTH:1px;border-color:#708090;'>
+					<tr>
+						<td rowspan =5 valign=top  align=left style="height:113px;WIDTH: 85px;border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;"><IMG  id="photo" 	style="height:113px;WIDTH: 85px" align = center src="photo/00000.gif" ></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;성명</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwnamk" name="nwnamk" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;" width=70>&nbsp;한자명</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwrlgn" name="nwrlgn" type="text" style= "width:120px; height:20px;" maxlength=16></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;" width=70>&nbsp;영문명</td>
+						<td style="border:0 solid #708090;border-bottom-width:1px;">&nbsp;<input id="nwrlgn" name="nwrlgn" type="text" style= "width:120px; height:20px;" maxlength=16></td>
+
+					</tr>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;"><nobr>&nbsp;주민등록번호</nobr></td>
+						
+						<td  style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwjumn1" name="nwjumn1" type="text" style= "width:60px; height:20px;" maxlength="6">-<input id="nwjumn2" name="nwjumn2" type="text" style= "width:70px; height:20px;" maxlength="7"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;생년월일</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwyyyy" name="nwyyyy" type="text" style= "width:35px; height:20px;" maxlength=4>년<input id="nwmm" name="nwmm" type="text" style= "width:20px; height:20px;" maxlength=2>월<input id="nwdd" name="nwdd" type="text" style= "width:20px; height:20px;" maxlength=2>일</td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;출신도</td>
+						
+						<td style="border:0 solid #708090;border-bottom-width:1px;" >&nbsp;<input id="nwrlgn" name="nwrlgn" type="text" style= "width:120px; height:20px;" maxlength=16></td>
+					</tr>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;취미</td>
+						
+						<td  style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwrlgn" name="nwrlgn" type="text" style= "width:120px; height:20px;" maxlength=16></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;종교</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwrlgn" name="nwrlgn" type="text" style= "width:120px; height:20px;" maxlength=16></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;특기</td>
+						
+						<td  style="border:0 solid #708090;border-bottom-width:1px;">&nbsp;<input id="nwrlgn" name="nwrlgn" type="text" style= "width:120px; height:20px;" maxlength=16></td>
+					</tr>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;집전화</td>
+						
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;" >&nbsp;<input id="nwrlgn" name="nwrlgn" type="text" style= "width:120px; height:20px;" maxlength=16></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;휴대폰</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwrlgn" name="nwrlgn" type="text" style= "width:120px; height:20px;" maxlength=16></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;이메일</td>
+						
+						<td style="border:0 solid #708090;border-bottom-width:1px;" >&nbsp;<input id="nwrlgn" name="nwrlgn" type="text" style= "width:120px; height:20px;" maxlength=16></td>
+					</tr>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;본적 주소</td>
+						<td colspan=5 style="border:0 solid #708090;border-bottom-width:1px;"><table cellspacing=0 cellpadding=0 border=0><tr><td>&nbsp;<input id="nwzip" name="nwzip" type="text" style= "width:60px; height:20px;" maxlength=6 readonly></td><td><IMG alt=우편번호조회  id='img_search1' 	name='img_search1' 	src='../../common/img/btn/com_b_search.gif'  onclick='lfn_popup()'></td><td >&nbsp;<input id="nwadd1" name="nwadd1" type="text" style= "width:200px; height:20px;" readonly>&nbsp;<input id="nwadd2" name="nwadd2" type="text" style= "width:330px; height:20px;"></td></tr></table></td>
+					</tr>
+					<tr><td align=center style="border:0 solid #708090;BORDER-right-WIDTH:1px;">사진 올리기</td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;현재 주소</td>
+						<td colspan=5 ><table cellspacing=0 cellpadding=0 border=0><tr><td>&nbsp;<input id="nwzip" name="nwzip" type="text" style= "width:60px; height:20px;" maxlength=6 readonly></td><td><IMG alt=우편번호조회  id='img_search1' 	name='img_search1' 	src='../../common/img/btn/com_b_search.gif'  onclick='lfn_popup()'></td><td >&nbsp;<input id="nwadd1" name="nwadd1" type="text" style= "width:200px; height:20px;" readonly>&nbsp;<input id="nwadd2" name="nwadd2" type="text" style= "width:330px; height:20px;"></td></tr></table></td>
+					</tr>
+
+				</table>
+			</td>
+		</tr>
+		<!--tr height="10">
+			<td>
+			</td>
+		</tr-->
+		
+		<tr>
+			<td><table width=100% border=0 cellspacing=0 cellpadding=0   background="../../common/img/com_cont_subtxt_bg.gif"><tr><td  onclick="ln_visible_hidden(gcgd_hak);" style="cursor:hand;" height=31><b>학력사항(*)</b></td><td align=right><table  border=0 cellspacing=0 cellpadding=0   background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;" height=31><tr><td width=100% onclick="ln_visible_hidden(gcgd_hak);"></td><td align=right width=40><img src="../../common/img/btn/com_b_insert.gif" width=40 height=21  style="cursor:hand" onclick="ln_add(gcds_hak)"></td><td>&nbsp;</td><td width=0 align=right width=40><img src="../../common/img/btn/com_b_delete.gif" width=40 height=21 style="cursor:hand" onclick="ln_del(gcds_hak)"></td></tr></table></td></tr>
+						<tr><td colspan=2>
+			<comment id="__NSID__"><OBJECT classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_hak style="WIDTH: 875; HEIGHT: 160px;border:1 solid #777777;display:none" viewastext>
+              <PARAM NAME="DataID"			VALUE="gcds_hak">
+              <PARAM NAME="BorderStyle" VALUE="0">
+			  <!--param name="Fillarea"		VALUE="true"-->
+			          <PARAM NAME="Editable"		VALUE="true">
+
+			  <param name=AllShowEdit    value=True>
+			  <PARAM NAME="Format"			VALUE="  
+								<C> Name='졸업(예정)년도' ID=param1 EditLimit=8	HeadAlign=Center HeadBgColor=#B9D4DC Width=90 Mask='XXXX/XX/XX' align=center Edit=Numeric </C>
+								<G> Name='출신학교'  	HeadAlign=Center HeadBgColor=#B9D4DC Width=220  align=CENTER 
+								<C> Name='출신' ID=param2  	HeadAlign=Center HeadBgColor=#B9D4DC Width=150  align=right </C> 
+								<C> Name='학교' ID=param3  	HeadAlign=Center HeadBgColor=#B9D4DC Width=70  align=right edit=none</C> 
+								</G>
+
+								<C> Name='소재지' ID=param4 HeadAlign=Center HeadBgColor=#B9D4DC Width=150 align=left </C>
+								<C> Name='전공' ID=param5 HeadAlign=Center HeadBgColor=#B9D4DC Width=120	 align=center </C>
+								<C> Name='구분' ID=param6 HeadAlign=Center HeadBgColor=#B9D4DC Width=70  align=center </C> 
+							">
+            </OBJECT></comment><script>__ws__(__NSID__);</script>
+			</td>
+		</tr></table>
+			</td>
+		</tr>
+		<!--tr height="10">
+			<td>
+			</td>
+		</tr-->
+		<tr>
+			<td><table width=100% border=0 cellspacing=0 cellpadding=0    background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;" height=31><tr><td  onclick="ln_visible_hidden(gcgd_gyung);" style="cursor:hand;"><b>경력사항(*)</b></td><td align=right><table  border=0 cellspacing=0 cellpadding=0   background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;" height=31><tr><td width=100% onclick="ln_visible_hidden(gcgd_gyung);"></td><td align=right width=40><img src="../../common/img/btn/com_b_insert.gif" width=40 height=21  style="cursor:hand" onclick="ln_add(gcds_gyung)"></td><td>&nbsp;</td><td width=0 align=right width=40><img src="../../common/img/btn/com_b_delete.gif" width=40 height=21 style="cursor:hand" onclick="ln_del(gcds_gyung)"></td></tr></table></td></tr>
+						<tr><td colspan=2>
+			<comment id="__NSID__"><OBJECT classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_gyung style="WIDTH: 875; HEIGHT: 160px;border:1 solid #777777;display:none" viewastext>
+              <PARAM NAME="DataID"			VALUE="gcds_gyung">
+              <PARAM NAME="BorderStyle" VALUE="0">
+			  <PARAM NAME="Editable"		VALUE="true">
+			  <param name=AllShowEdit    value=True>
+			  <PARAM NAME="Format"			VALUE=" 
+								<G> Name='기간'  	HeadAlign=Center HeadBgColor=#B9D4DC Width=220  align=CENTER 
+								<C> Name='부터' ID=param1  		EditLimit=8	HeadAlign=Center HeadBgColor=#B9D4DC Width=65 Mask='XXXX/XX/XX' align=center Edit=Numeric </C> 
+								<C> Name='까지' ID=param2  		EditLimit=8	HeadAlign=Center HeadBgColor=#B9D4DC Width=65 Mask='XXXX/XX/XX' align=center Edit=Numeric</C> 
+								</G>
+								<C> Name='직장명' ID=param3 HeadAlign=Center HeadBgColor=#B9D4DC Width=220 align=left </C>
+								<C> Name='직위' ID=param4 HeadAlign=Center HeadBgColor=#B9D4DC Width=120	 align=center </C>
+								<C> Name='담당업무' ID=param5 HeadAlign=Center HeadBgColor=#B9D4DC Width=70  align=center </C> 
+							">
+            </OBJECT></comment><script>__ws__(__NSID__);</script>
+			</td>
+		</tr></table>
+			</td>
+		</tr>
+		<!--tr height="10">
+			<td>
+			</td>
+		</tr-->
+
+		<tr>
+			<td><table width=100% border=0 cellspacing=0 cellpadding=0  background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;background-color:#ffffff;" height=31><tr><td height=31 style="cursor:hand"onclick="ln_visible_hidden(tb_sinche);"><b>신체사항</b></td></tr><tr><td>
+			<div id=tb_sinche style="position:relative;display:none">
+				<table border= "0" class=itemdisp cellpadding=0 cellspacing=0  border=0 style='width:876px;height:30px;font-size:9pt;background-color:#ffffff;BORDER-LEFT-WIDTH:1px;border-color:#777777;'>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;시력</td>
+						<td style="border:0 solid #708090;border-right-width:1px;">&nbsp;좌:<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"> 우:<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;신장</td>
+						<td style="border:0 solid #708090;border-right-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;">Cm</td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;체중</td>
+						<td style="border:0 solid #708090;border-right-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;">Kg</td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;혈액형</td>
+						<td style="border:0 solid #708090;border-right-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;손잡이</td>
+						<td >&nbsp;<SELECT ><OPTION value="오른">오른</OPTION><OPTION value="외손">외손</OPTION></SELECT >손잡이</td>
+					</tr>
+				</table>
+				</div></td></tr></table>
+			</td>
+		</tr>
+		<!--tr height="10">
+			<td>
+			</td>
+		</tr-->
+
+
+		<tr>
+			<td><table width=100% border=0 cellspacing=0 cellpadding=0><tr><td  style="cursor:hand" onclick="ln_visible_hidden(tb_byung);"    background="../../common/img/com_cont_subtxt_bg.gif"  height=31><b>병역사항</b></td></tr><tr><td>
+<div id=tb_byung style="position:relative;display:none">
+                 <table border= "0" class=itemdisp cellpadding=0 cellspacing=0  border=0 style='width:876px;height:40px;font-size:9pt;background-color:#ffffff;BORDER-LEFT-WIDTH:1px;border-color:#777777;'>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;병역구분</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;군별</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;계급</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;군번</td>
+						<td style="border:0 solid #708090;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:100px; height:20px;"></td>
+					</tr>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;근무지</td>
+						<td style="border:0 solid #708090;border-right-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;병무기간</td>
+						<td style="border:0 solid #708090;border-right-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:30px; height:20px;">년<input id="nwtlnt" name="nwtlnt" type="text" style= "width:20px; height:20px;">월<input id="nwtlnt" name="nwtlnt" type="text" style= "width:20px; height:20px;">일~<input id="nwtlnt" name="nwtlnt" type="text" style= "width:30px; height:20px;">년<input id="nwtlnt" name="nwtlnt" type="text" style= "width:20px; height:20px;">월<input id="nwtlnt" name="nwtlnt" type="text" style= "width:20px; height:20px;">일</td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;면제사유</td>
+						<td COLSPAN=2>&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+					</tr>
+				</table>
+				</div></td></tr></table>
+			</td>
+		</tr>
+		<!--tr height="10">
+			<td>
+			</td>
+		</tr-->
+
+		<tr>
+			<td><table width=100% border=0 cellspacing=0 cellpadding=0   background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;" height=31><tr><td  onclick="ln_visible_hidden(gcgd_ga);" style="cursor:hand;"><b>가족사항</b></td><td align=right><table  border=0 cellspacing=0 cellpadding=0    background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;" height=31   style="cursor:hand;"><tr><td width=100% onclick="ln_visible_hidden(gcgd_ga);"></td><td align=right width=40><img src="../../common/img/btn/com_b_insert.gif" width=40 height=21  style="cursor:hand" onclick="ln_add(gcds_ga)"></td><td>&nbsp;</td><td width=0 align=right width=40><img src="../../common/img/btn/com_b_delete.gif" width=40 height=21 style="cursor:hand" onclick="ln_del(gcds_ga)"></td></tr></table></td></tr>
+						<tr><td colspan=2>
+			<comment id="__NSID__"><OBJECT classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_ga style="WIDTH: 875; HEIGHT: 140px;border:1 solid #777777;display:none" viewastext>
+              <PARAM NAME="DataID"			VALUE="gcds_ga">
+              <PARAM NAME="BorderStyle" VALUE="0">
+			          <PARAM NAME="Editable"		VALUE="true">
+
+			  <param name=AllShowEdit    value=True>
+			  <PARAM NAME="Format"			VALUE=" 
+								<C> Name='관계'  ID=param1	HeadAlign=Center HeadBgColor=#B9D4DC Width=30  align=CENTER </C> 
+								<C> Name='성명' ID=param2  		EditLimit=8	HeadAlign=Center HeadBgColor=#B9D4DC Width=90  align=center  </C> 
+								<C> Name='주민번호' ID=param3  		EditLimit=13	HeadAlign=Center HeadBgColor=#B9D4DC Width=150 Mask='XXXXXX-XXXXXXX' align=center Edit=Numeric</C> 
+								<C> Name='최종학교명' ID=param4 HeadAlign=Center HeadBgColor=#B9D4DC Width=220 align=left </C>
+								<C> Name='현직업' ID=param5 HeadAlign=Center HeadBgColor=#B9D4DC Width=120	 align=center </C>
+							">
+            </OBJECT></comment><script>__ws__(__NSID__);</script>
+			</td>
+		</tr></table>
+			</td>
+		</tr>
+		<!--tr height="10">
+			<td>
+			</td>
+		</tr-->
+		<tr>
+			<td><table width=100% border=0 cellspacing=0 cellpadding=0   background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;" height=31><tr><td  onclick="ln_visible_hidden(gcgd_ja);" style="cursor:hand;"><b>자격 및 면허</b></td><td align=right><table  border=0 cellspacing=0 cellpadding=0    background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;" height=31   style="cursor:hand;"><tr><td width=100% onclick="ln_visible_hidden(gcgd_ja);"></td><td align=right width=40><img src="../../common/img/btn/com_b_insert.gif" width=40 height=21  style="cursor:hand" onclick="ln_add(gcds_ja)"></td><td>&nbsp;</td><td width=0 align=right width=40><img src="../../common/img/btn/com_b_delete.gif" width=40 height=21 style="cursor:hand" onclick="ln_del(gcds_ja)"></td></tr></table></td></tr>
+						<tr><td colspan=2>
+			<comment id="__NSID__"><OBJECT classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_ja style="WIDTH: 875; HEIGHT: 140px;border:1 solid #777777;display:none" viewastext>
+              <PARAM NAME="DataID"			VALUE="gcds_ja">
+              <PARAM NAME="BorderStyle" VALUE="0">
+			          <PARAM NAME="Editable"		VALUE="true">
+
+			  <param name=AllShowEdit    value=True>
+			  <PARAM NAME="Format"			VALUE=" 
+								<C> Name='종류 및 등급' ID=param1 HeadAlign=Center HeadBgColor=#B9D4DC Width=220 align=left </C>
+								<C> Name='취득일' ID=param2  		EditLimit=8	HeadAlign=Center HeadBgColor=#B9D4DC Width=90 Mask='XXXX/XX/XX' align=center Edit=Numeric </C> 
+								<C> Name='변경일' ID=param3  		EditLimit=8	HeadAlign=Center HeadBgColor=#B9D4DC Width=90 Mask='XXXX/XX/XX' align=center Edit=Numeric</C> 
+								<C> Name='발행처' ID=param4 HeadAlign=Center HeadBgColor=#B9D4DC Width=220 align=left </C>
+							">
+            </OBJECT></comment><script>__ws__(__NSID__);</script></td></tr></table>
+			</td>
+		</tr>
+		<!--tr height="10">
+			<td>
+			</td>
+		</tr-->
+		<tr>
+			<td><table width=100% border=0 cellspacing=0 cellpadding=0><tr><td style="cursor:hand" onclick="ln_visible_hidden(tb_oi);" background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;" height=31><b>외국어</b></td></tr><tr><td>
+<div id=tb_oi style="position:relative;display:none">
+<table border= "0" class=itemdisp cellpadding=0 cellspacing=0  border=0 style='width:876px;height:40px;font-size:9pt;background-color:#ffffff;BORDER-LEFT-WIDTH:1px;border-color:#777777;'>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;영어</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<SELECT ><OPTION value="상">상</OPTION><OPTION value="중">중</OPTION><OPTION value="하">하</OPTION></SELECT ></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;토익</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;JPT</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;DELF</td>
+						<td style="border:0 solid #708090;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+					</tr>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;토플</td>
+						<td  style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;DALF</td>
+						<td style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;border-bottom-width:1px;">&nbsp;TEPS</td>
+						<td COLSPAN=3  style="border:0 solid #708090;border-bottom-width:1px;">&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:80px; height:20px;"></td>
+					</tr>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;기타 가능 외국어</td>
+						<td COLSPAN=7>&nbsp;<input id="nwtlnt" name="nwtlnt" type="text" style= "width:700px; height:20px;"></td>
+					</tr>
+				</table>
+				</div></td></tr></table>
+			</td>
+		</tr>
+		<!--tr height="10">
+			<td>
+			</td>
+		</tr-->
+		<tr>
+			<td><table width=100% border=0 cellspacing=0 cellpadding=0><tr><td style="cursor:hand" onclick="ln_visible_hidden(tb_jyun);"    background="../../common/img/com_cont_subtxt_bg.gif"   style="cursor:hand;" height=31><b>전산</b></td></tr><tr><td>
+<div id=tb_jyun style="position:relative;display:none">
+<table class=itemdisp cellpadding=0 cellspacing=0  border=0 width=876 style='width:876px;height:30px;font-size:9pt;background-color:#ffffff;BORDER-LEFT-WIDTH:1px;border-color:#777777;'>
+					<tr>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;한글</td>
+						<td width=160 style="border:0 solid #708090;border-right-width:1px;">&nbsp;<SELECT ><OPTION value="상">상</OPTION><OPTION value="중">중</OPTION><OPTION value="하">하</OPTION></SELECT ></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;엑셀</td>
+						<td width=160  style="border:0 solid #708090;border-right-width:1px;">&nbsp;<SELECT ><OPTION value="상">상</OPTION><OPTION value="중">중</OPTION><OPTION value="하">하</OPTION></SELECT ></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;파워포인트</td>
+						<td width=160  style="border:0 solid #708090;border-right-width:1px;">&nbsp;<SELECT ><OPTION value="상">상</OPTION><OPTION value="중">중</OPTION><OPTION value="하">하</OPTION></SELECT ></td>
+						<td bgcolor="#eeeeee" style="border:0 solid #708090;border-right-width:1px;">&nbsp;엑세스</td>
+						<td width=160 >&nbsp;<SELECT ><OPTION value="상">상</OPTION><OPTION value="중">중</OPTION><OPTION value="하">하</OPTION></SELECT ></td>
+					</tr>
+				</table>
+				</div></td></tr></table>
+			</td>
+		</tr>
+	</table>
+</div>
+</form>
+</body>
+</html>

@@ -1,0 +1,287 @@
+BODY { scrollbar-3dlight-color:#ffffff;
+scrollbar-3dlight-color:#ffffff;
+scrollbar-arrow-color:#000000;
+scrollbar-track-color:#EEEEEE;
+scrollbar-darkshadow-color:# EEEEEE;
+scrollbar-face-color:#ffffff;
+scrollbar-highlight-color:#B6B6B6;
+scrollbar-shadow-color:#B6B6B6
+}
+
+
+A { COLOR: #333333; TEXT-DECORATION: none }
+A:link { COLOR: #333333; TEXT-DECORATION: none }
+A:visited { COLOR: 4E4E4E; TEXT-DECORATION: none }
+A:active { COLOR: #F87B01; TEXT-DECORATION: none}
+A:hover { COLOR: #7EB2D6; TEXT-DECORATION: none; font-weight: bold;}
+
+BODY,TD,P { font-family: "±¼¸²", "±¼¸²Ã¼" "verdana"; font-size: 12px; color: #333333; line-height:16px; }
+
+TABLE { FONT-SIZE: 12px; FONT-FAMILY: "±¼¸²" ; color: #434343}
+TD { FONT-SIZE: 12px; FONT-FAMILY: "±¼¸²" ; color: #434343}
+
+.title {
+	FONT-SIZE: 11pt;
+	LINE-HEIGHT: 15pt;
+	FONT-FAMILY: "±¼¸²";
+	font-weight: bold;
+	color: #333333;
+}
+.root{
+	FONT-SIZE: 11px;
+	LINE-HEIGHT: 15pt;
+	FONT-FAMILY: "±¼¸²";
+	font-weight: normal;
+	color: #666666;
+
+}
+.must{
+	FONT-SIZE: 12pt;
+	LINE-HEIGHT: 15pt;
+	FONT-FAMILY: "±¼¸²";
+	font-weight: normal;
+	color: #FF1800;
+}
+.top_title {
+	FONT-SIZE: 12pt;
+	LINE-HEIGHT: 15pt;
+	FONT-FAMILY: "±¼¸²";
+	font-weight: bold;
+	color: #333333;
+	letter-spacing: -2px;
+
+}
+.input {
+	FONT-SIZE: 12px;
+	font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana" color;
+	color: #434343;
+    border-width:1;
+	border-color:#999999;
+	border-style:solid;
+    BACKGROUND-COLOR: #ffffff
+	 }
+
+
+FORM { margin-top:0 ; margin-bottom: 0 ; margin-left: 0 ;margin-right: 0 ;}
+
+SELECT{font-family:"±¼¸²"; height:15; font-size:12px; color:#434343; background-color:#ffffff }
+.selectA{
+    font-family:"±¼¸²";
+	height:14;
+	font-size:12px;
+	color:#5BCD16}
+
+
+.luxeCombo {
+	FONT-SIZE: 12px;
+	font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana";
+	padding-left-: 10;
+    }
+
+.inputA {
+	FONT-SIZE: 12px; font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana"; color:#3D3D3D;
+    border-width:1;
+	border-color:#5BCD16;
+	border-style:solid;
+    BACKGROUND-COLOR: #ffffff
+    }
+
+	.inputA_a {
+	FONT-SIZE: 12px;
+	font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana";
+	color:#3D3D3D;
+	border-width:1;
+	border-color:#999999;
+	border-style:solid;
+	BACKGROUND-COLOR: #FBFFE8;
+	padding-left-: 10;
+	margin-left: 5px;
+
+    }
+		.inputA_aa {
+	FONT-SIZE: 12px;
+	font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana";
+	color:#3D3D3D;
+	border-width:1;
+	border-color:#999999;
+	border-style:solid;
+	BACKGROUND-COLOR: #FBFFE8;
+	padding-left-: 10;
+
+
+    }
+
+	.inputB {
+	FONT-SIZE: 12px;
+	font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana";
+	color:#666666;
+	BACKGROUND-COLOR: #EEEEEE;
+	border: 1 solid #999999;
+	padding: 8px;
+
+}
+INPUT.NotActive {
+    FONT-SIZE: 12px;
+	font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana" color;
+    border-width:0;
+	border-color:#ffffff;
+    BACKGROUND-COLOR: #ffffff
+}
+
+
+
+.textareaA {
+    font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana";
+    font-size:12px;
+	background-color:white;
+	border:1px solid #BBD4D8;
+    BACKGROUND-COLOR: #ffffff;
+scrollbar-3dlight-color:#ffffff;
+scrollbar-arrow-color:#000000;
+scrollbar-track-color:#EEEEEE;
+scrollbar-darkshadow-color:# EEEEEE;
+scrollbar-face-color:#ffffff;
+scrollbar-highlight-color:#B6B6B6;
+scrollbar-shadow-color:#B6B6B6
+
+}
+
+
+.tit_sub{
+	COLOR: 00183F;
+	LETTER-SPACING: 0px;
+	background: #D3E2EF;
+	font-size: 12px;
+	font-weight: normal;
+	padding-right: 7;
+
+}
+.tit_search{
+	COLOR: FFFFFF;
+	LETTER-SPACING: 0px;
+	background: #5D96C7;
+	font-size: 12px;
+	font-weight: bold;
+	padding-right: 7;
+
+}
+
+.inputSrchNearEm {
+	FONT-SIZE: 12px;
+	font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana";
+	color:#3D3D3D;
+	border-width:1;
+	border-color:#999999;
+	border-style:solid;
+	BACKGROUND-COLOR: #FBFFE8;
+	padding-left-: 10;
+	margin-left: 5px;
+}
+
+.inputNearEm {
+	FONT-SIZE: 12px;
+	font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana" color;
+	color: #434343;
+    border-width:1;
+	border-color:#999999;
+	border-style:solid;
+    BACKGROUND-COLOR: #ffffff;
+	position:relative;
+	top:-2;
+}
+
+.inputEmTbl {
+	FONT-SIZE: 12px;
+	font-family:"±¼¸²", "±¼¸²Ã¼", "Arial", "Verdana" color;
+	color: #434343;
+    border-width:1;
+	border-color:#999999;
+	border-style:solid;
+    BACKGROUND-COLOR: #ffffff;
+	margin-left:2;
+	margin-right:2;
+}
+
+.normEmEdit {
+	padding:0px;
+	background-color:#FBFFE8;
+	width:13;
+	height:19px;
+	align:center;
+	position:relative;
+	top:2;
+	margin-left:2;
+}
+
+.srchEmEdit {
+	padding:0px;
+	background-color:#FBFFE8;
+	width:13;
+	height:19px;
+	align:center;
+	position:relative;
+	top:2px;
+	margin-left:5;
+}
+
+.em {
+	font-family: ±¼¸²Ã¼,arial,curier,seoul;
+	font-size:12px;
+	height:18px;
+	position:relative;
+	top:0;
+	border: #808080 0px solid;
+	background-color:#FFFFFF;
+}
+
+.tabbg {
+	padding-left:0;
+	padding-top:5;
+	padding-right:0;
+	padding-bottom:5;
+	background-color:#eeeeee;
+	font-size:9pt;
+	align:center;
+}
+
+.Noview
+{
+	font-size: 9pt;
+	text-transform: none;
+	color: #000000;
+	border-top-style: none;
+	font-family: ±¼¸², Arial;
+	border-right-style: none;
+	border-left-style: none;
+	text-decoration: none;
+	border-bottom-style: none;
+}
+
+.Noview_right
+{
+	font-size: 9pt;
+	text-transform: none;
+	color: #000000;
+	border-top-style: none;
+	font-family: ±¼¸², Arial;
+	border-right-style: none;
+	border-left-style: none;
+	text-decoration: none;
+	border-bottom-style: none;
+	text-align: right;
+	padding-right: 5px;
+}
+
+.Noview_center
+{
+	font-size: 9pt;
+	text-transform: none;
+	color: #000000;
+	border-top-style: none;
+	font-family: ±¼¸², Arial;
+	border-right-style: none;
+	border-left-style: none;
+	text-decoration: none;
+	border-bottom-style: none;
+	text-align: center;
+}

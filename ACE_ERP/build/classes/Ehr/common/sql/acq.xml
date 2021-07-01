@@ -1,0 +1,1024 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACQA001
+* @description : 조회
+***********************************************************************
+* 2019/03/14      이동훈       최초작성.
+***********************************************************************
+-->
+
+    <!-- 조회 -->
+    <sql name="ACQA001_SHR">
+        <description>조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.DOC_NO         AS DOC_NO
+                 , SUBSTR(A.DOC_KND,1,1) DOC_GB1
+                 , C.COMM_NM DOC_NM1
+                 , SUBSTR(A.DOC_KND,1,2) DOC_GB2
+                 , D.COMM_NM DOC_NM2                 
+                 , SUBSTR(A.DOC_KND,1,4) DOC_GB3  
+                 , E.COMM_NM DOC_NM3                 
+                 , A.DOC_TITLE      AS DOC_TITLE
+                 , A.DOC_REMARK     AS DOC_REMARK                 
+				 , A.REQ_NO         AS REQ_NO
+                 , A.APP_STATUS     AS APP_STATUS_CD
+                 , CASE WHEN A.APP_STATUS = 'S' THEN  '저장'
+                        WHEN A.APP_STATUS = 'G' THEN  '확인중'                 
+                        WHEN A.APP_STATUS = 'R' THEN  '반려'
+                        WHEN A.APP_STATUS = 'Y' THEN  '확인완료'
+                   ELSE A.APP_STATUS END APP_STATUS                 
+                 , A.DOC_SEQ     AS DOC_SEQ  
+                 , A.DOC_STATUS  AS DOC_STATUS     
+                 , A.FILE_KEY
+                 , B.ENO_NO         AS ENO_NO                 
+                 , B.ENO_NM         AS ENO_NM
+                 , B.DPT_CD         AS DPT_CD
+                 , B.DPT_NM         AS DPT_NM
+                 , B.JOB_CD			AS JOB_CD
+                 , B.JOB_NM         AS JOB_NM
+				 , TO_CHAR(A.IPT_YMD,'YYYYMMDD') AS IPT_YMD
+
+                                  
+              FROM ASNHR.T_ACT_PLAN A, ASNHR.VI_T_CM_PERSON B, ASNHR.T_ACT_COMMON C, ASNHR.T_ACT_COMMON D, ASNHR.T_ACT_COMMON E
+                 
+             WHERE 
+                       A.IPT_MAN = B.ENO_NO
+                  AND SUBSTR(A.DOC_KND,1,1) = C.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,2) = D.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,4) = E.COMM_CD
+                  AND A.APP_STATUS IN ('G','Y')
+                  AND SUBSTR(A.DOC_KND,1,1) LIKE '%'||?||'%'
+                  AND SUBSTR(A.DOC_KND,1,2) LIKE '%'||?||'%'
+                  AND SUBSTR(A.DOC_KND,1,4) LIKE '%'||?||'%'                        
+                  
+			ORDER BY A.DOC_KND
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACQA010
+* @description : 등록조회
+***********************************************************************
+* 2019/03/14      이동훈       최초작성.
+***********************************************************************
+-->
+
+    <!-- 등록 조회 -->
+    <sql name="ACQA010_SHR">
+        <description>조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.DOC_NO         AS DOC_NO
+                 , SUBSTR(A.DOC_KND,1,1) DOC_GB1
+                 , C.COMM_NM DOC_NM1
+                 , SUBSTR(A.DOC_KND,1,2) DOC_GB2
+                 , D.COMM_NM DOC_NM2                 
+                 , SUBSTR(A.DOC_KND,1,4) DOC_GB3  
+                 , E.COMM_NM DOC_NM3                 
+                 , A.DOC_TITLE      AS DOC_TITLE
+                 , A.DOC_REMARK     AS DOC_REMARK                 
+				 , A.REQ_NO         AS REQ_NO
+                 , A.APP_STATUS     AS APP_STATUS_CD
+                 , CASE WHEN A.APP_STATUS = 'S' THEN  '저장'
+                        WHEN A.APP_STATUS = 'G' THEN  '확인중'                 
+                        WHEN A.APP_STATUS = 'R' THEN  '반려'
+                        WHEN A.APP_STATUS = 'Y' THEN  '확인완료'
+                   ELSE A.APP_STATUS END APP_STATUS                 
+                 , A.DOC_SEQ     AS DOC_SEQ  
+                 , A.DOC_STATUS  AS DOC_STATUS     
+                 , A.FILE_KEY
+                 , B.ENO_NO         AS ENO_NO                 
+                 , B.ENO_NM         AS ENO_NM
+                 , B.DPT_CD         AS DPT_CD
+                 , B.DPT_NM         AS DPT_NM
+                 , B.JOB_CD			AS JOB_CD
+                 , B.JOB_NM         AS JOB_NM
+				 , TO_CHAR(A.IPT_YMD,'YYYYMMDD') AS IPT_YMD
+
+                                  
+              FROM ASNHR.T_ACT_PLAN A, ASNHR.VI_T_CM_PERSON B, ASNHR.T_ACT_COMMON C, ASNHR.T_ACT_COMMON D, ASNHR.T_ACT_COMMON E
+                 
+             WHERE 
+                       A.IPT_MAN = B.ENO_NO
+                  AND SUBSTR(A.DOC_KND,1,1) = C.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,2) = D.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,4) = E.COMM_CD
+                  AND A.IPT_MAN = ?
+                  
+			ORDER BY A.IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 확인 상황 조회 -->
+    <sql name="ACQA010_SHR_APP">
+        <description>확인 상황 조회</description>
+        <query>
+            <![CDATA[
+			SELECT DISTINCT A.REQ_NO
+			          , A.SEQ_NO			
+			          , A.ENO_NO
+			          , ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+			          , C.EM_PHN_NO
+					  , A.DPT_CD
+					  , ASNHR.SF_GET_DPTNAME('01','A4', A.DPT_CD) AS DPT_NM
+					  , A.JOB_CD
+					  , ASNHR.SF_GET_COMMNAME('01','A2', A.JOB_CD) AS JOB_NM
+					  , A.APP_YN
+                      , (CASE WHEN A.APP_YN = 'R' THEN  '반송  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN A.APP_YN = 'Y' THEN  '확인  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN B.APP_STATUS = 'S' THEN  '미상신'
+                   	       ELSE '미확인' END ) APP_STATUS
+	                   ,A.REMARK
+	                   ,NVL2(A.REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_ACT_APPROVAL A, ASNHR.T_ACT_PLAN B, ASNHR.T_CM_PERSON C
+            WHERE  A.REQ_NO = ?
+                  AND A.REQ_NO = B.REQ_NO
+                  AND A.ENO_NO = C.ENO_NO
+            ORDER BY A.SEQ_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+
+    <!--문서 등록 -->
+    <sql name="ACQA010_INS">
+        <description>문서 등록</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_ACT_PLAN
+                 ( DOC_NO
+                 , DOC_KND
+                 , DOC_TITLE
+                 , DOC_REMARK
+                 , REQ_NO
+                 , APP_STATUS
+                 , DOC_SEQ
+                 , DOC_STATUS
+                 , FILE_KEY
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( 
+                  (SELECT NVL(TO_NUMBER(MAX(DOC_NO)), 0)+1
+                      FROM ASNHR.T_ACT_PLAN
+                    )
+                 , ?
+                 , ?
+                 , ?
+                 , (SELECT NVL(TO_NUMBER(MAX(DOC_NO)), 0)+1
+                      FROM ASNHR.T_ACT_PLAN
+                    )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+    <!-- 확인자정보 저장 -->
+    <sql name="ACQA010_INS_APP">
+        <description>확인자정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO ASNHR.T_ACT_APPROVAL
+                    ( REQ_NO
+                    , SEQ_NO
+                    , REQ_GBN
+                    , RENO_NO
+                    , ENO_NO
+                    , DPT_CD                    
+                    , JOB_CD
+                    , IPT_MAN
+                    , IPT_YMD
+                    , UPT_MAN
+                    , UPT_YMD
+                    )
+             VALUES (    
+	            		 ?,       
+			             ?,       
+			             ?,      
+			             ?,      
+			             ?,      
+			             ?,       
+			             ?,       
+			             ?, 
+			             sysdate,       
+			             ?, 
+			             sysdate 
+			         )
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+    <!--등록 수정 -->
+    <sql name="ACQA010_UPT">
+        <description>등록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_ACT_PLAN
+            SET    DOC_KND = ?,					--문서종류
+                   DOC_TITLE = ?,				--문서제목
+                   DOC_REMARK = ?,				--문서내용
+                   REQ_NO = ?,					--확인번호
+                   APP_STATUS = ?,				--확인상태
+                   DOC_SEQ = ?,					--문서차수
+                   DOC_STATUS = ?,				--문서상태
+                   FILE_KEY = ?,				--FILE_KEY
+                   UPT_MAN = ?,					--최종수정자
+                   UPT_YMD = sysdate			--최종수정일시
+            WHERE  DOC_NO = ?					--문서번호
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 상신 -->
+    <sql name="ACQA010_SUB">
+        <description>상신</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_ACT_PLAN
+            SET    
+                   APP_STATUS = 'G',			--확인상태
+                   UPT_MAN = ?,					--최종수정자
+                   UPT_YMD = sysdate			--최종수정일시
+            WHERE  DOC_NO = ?					--문서번호
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상신2 -->
+    <sql name="ACQA010_SUB2">
+        <description>상신</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_ACT_APPROVAL
+            SET    
+                   REQ_GBN = 'G',				--확인상태
+                   UPT_MAN = ?,					--최종수정자
+                   UPT_YMD = sysdate			--최종수정일시
+            WHERE  REQ_NO = ?					--번호
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 확인자정보 삭제 -->
+    <sql name="ACQA010_DEL_APP">
+        <description>확인자정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_ACT_APPROVAL
+            WHERE  REQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACQA030
+* @description : 금강산 관광 조회
+***********************************************************************
+* 2019/03/15      이동훈       최초작성.
+***********************************************************************
+-->
+
+    <!-- 금강산 관광 조회 -->
+    <sql name="ACQA030_SHR">
+        <description>금강산 관광 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.DOC_NO         AS DOC_NO
+                 , SUBSTR(A.DOC_KND,1,1) DOC_GB1
+                 , C.COMM_NM DOC_NM1
+                 , SUBSTR(A.DOC_KND,1,2) DOC_GB2
+                 , D.COMM_NM DOC_NM2                 
+                 , SUBSTR(A.DOC_KND,1,4) DOC_GB3  
+                 , E.COMM_NM DOC_NM3                 
+                 , A.DOC_TITLE      AS DOC_TITLE
+                 , A.DOC_REMARK     AS DOC_REMARK                 
+				 , A.REQ_NO         AS REQ_NO
+                 , A.APP_STATUS     AS APP_STATUS_CD
+                 , CASE WHEN A.APP_STATUS = 'S' THEN  '저장'
+                        WHEN A.APP_STATUS = 'G' THEN  '확인중'                 
+                        WHEN A.APP_STATUS = 'R' THEN  '반려'
+                        WHEN A.APP_STATUS = 'Y' THEN  '확인완료'
+                   ELSE A.APP_STATUS END APP_STATUS                 
+                 , A.DOC_SEQ     AS DOC_SEQ  
+                 , A.DOC_STATUS  AS DOC_STATUS     
+                 , A.FILE_KEY
+                 , B.ENO_NO         AS ENO_NO                 
+                 , B.ENO_NM         AS ENO_NM
+                 , B.DPT_CD         AS DPT_CD
+                 , B.DPT_NM         AS DPT_NM
+                 , B.JOB_CD			AS JOB_CD
+                 , B.JOB_NM         AS JOB_NM
+				 , TO_CHAR(A.IPT_YMD,'YYYYMMDD') AS IPT_YMD
+     
+              FROM ASNHR.T_ACT_PLAN A, ASNHR.VI_T_CM_PERSON B, ASNHR.T_ACT_COMMON C, ASNHR.T_ACT_COMMON D, ASNHR.T_ACT_COMMON E
+                 
+             WHERE 
+                       A.IPT_MAN = B.ENO_NO
+                  AND SUBSTR(A.DOC_KND,1,1) = C.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,2) = D.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,4) = E.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,1) = 'A'
+                  AND SUBSTR(A.DOC_KND,1,2) LIKE '%'||?||'%'
+                  AND SUBSTR(A.DOC_KND,1,4) LIKE '%'||?||'%'                  
+                  
+                  AND A.APP_STATUS IN ('G','Y')
+			ORDER BY A.IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 확인 상황 조회 -->
+    <sql name="ACQA030_SHR_APP">
+        <description>확인 상황 조회</description>
+        <query>
+            <![CDATA[
+			SELECT DISTINCT A.REQ_NO
+			          , A.SEQ_NO			
+			          , A.ENO_NO
+			          , ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+					  , A.DPT_CD
+					  , ASNHR.SF_GET_DPTNAME('01','A4', A.DPT_CD) AS DPT_NM
+					  , A.JOB_CD
+					  , ASNHR.SF_GET_COMMNAME('01','A2', A.JOB_CD) AS JOB_NM
+					  , A.APP_YN
+                      , (CASE WHEN A.APP_YN = 'R' THEN  '반송  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN A.APP_YN = 'Y' THEN  '확인  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN B.APP_STATUS = 'S' THEN  '미상신'
+                   	       ELSE '미확인' END ) APP_STATUS
+	                   ,A.REMARK
+	                   ,NVL2(A.REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_ACT_APPROVAL A, ASNHR.T_ACT_PLAN B
+            WHERE  A.REQ_NO = ?
+                  AND A.REQ_NO = B.REQ_NO
+            ORDER BY A.SEQ_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACQA040
+* @description : 개성 관광 조회
+***********************************************************************
+* 2019/03/15      이동훈       최초작성.
+***********************************************************************
+-->
+
+    <!-- 개성 관광 조회 -->
+    <sql name="ACQA040_SHR">
+        <description>개성 관광 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.DOC_NO         AS DOC_NO
+                 , SUBSTR(A.DOC_KND,1,1) DOC_GB1
+                 , C.COMM_NM DOC_NM1
+                 , SUBSTR(A.DOC_KND,1,2) DOC_GB2
+                 , D.COMM_NM DOC_NM2                 
+                 , SUBSTR(A.DOC_KND,1,4) DOC_GB3  
+                 , E.COMM_NM DOC_NM3                 
+                 , A.DOC_TITLE      AS DOC_TITLE
+                 , A.DOC_REMARK     AS DOC_REMARK                 
+				 , A.REQ_NO         AS REQ_NO
+                 , A.APP_STATUS     AS APP_STATUS_CD
+                 , CASE WHEN A.APP_STATUS = 'S' THEN  '저장'
+                        WHEN A.APP_STATUS = 'G' THEN  '확인중'                 
+                        WHEN A.APP_STATUS = 'R' THEN  '반려'
+                        WHEN A.APP_STATUS = 'Y' THEN  '확인완료'
+                   ELSE A.APP_STATUS END APP_STATUS                 
+                 , A.DOC_SEQ     AS DOC_SEQ  
+                 , A.DOC_STATUS  AS DOC_STATUS     
+                 , A.FILE_KEY
+                 , B.ENO_NO         AS ENO_NO                 
+                 , B.ENO_NM         AS ENO_NM
+                 , B.DPT_CD         AS DPT_CD
+                 , B.DPT_NM         AS DPT_NM
+                 , B.JOB_CD			AS JOB_CD
+                 , B.JOB_NM         AS JOB_NM
+				 , TO_CHAR(A.IPT_YMD,'YYYYMMDD') AS IPT_YMD
+     
+              FROM ASNHR.T_ACT_PLAN A, ASNHR.VI_T_CM_PERSON B, ASNHR.T_ACT_COMMON C, ASNHR.T_ACT_COMMON D, ASNHR.T_ACT_COMMON E
+                 
+             WHERE 
+                       A.IPT_MAN = B.ENO_NO
+                  AND SUBSTR(A.DOC_KND,1,1) = C.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,2) = D.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,4) = E.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,1) = 'B'
+                  AND SUBSTR(A.DOC_KND,1,2) LIKE '%'||?||'%'
+                  AND SUBSTR(A.DOC_KND,1,4) LIKE '%'||?||'%'                  
+                  
+                  AND A.APP_STATUS IN ('G','Y')
+			ORDER BY A.IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 확인 상황 조회 -->
+    <sql name="ACQA040_SHR_APP">
+        <description>확인 상황 조회</description>
+        <query>
+            <![CDATA[
+			SELECT DISTINCT A.REQ_NO
+			          , A.SEQ_NO			
+			          , A.ENO_NO
+			          , ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+					  , A.DPT_CD
+					  , ASNHR.SF_GET_DPTNAME('01','A4', A.DPT_CD) AS DPT_NM
+					  , A.JOB_CD
+					  , ASNHR.SF_GET_COMMNAME('01','A2', A.JOB_CD) AS JOB_NM
+					  , A.APP_YN
+                      , (CASE WHEN A.APP_YN = 'R' THEN  '반송  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN A.APP_YN = 'Y' THEN  '확인  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN B.APP_STATUS = 'S' THEN  '미상신'
+                   	       ELSE '미확인' END ) APP_STATUS
+	                   ,A.REMARK
+	                   ,NVL2(A.REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_ACT_APPROVAL A, ASNHR.T_ACT_PLAN B
+            WHERE  A.REQ_NO = ?
+                  AND A.REQ_NO = B.REQ_NO
+            ORDER BY A.SEQ_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACQA050
+* @description : 개성 공단 조회
+***********************************************************************
+* 2019/03/15      이동훈       최초작성.
+***********************************************************************
+-->
+
+    <!-- 개성 공단 조회 -->
+    <sql name="ACQA050_SHR">
+        <description>개성 공단 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.DOC_NO         AS DOC_NO
+                 , SUBSTR(A.DOC_KND,1,1) DOC_GB1
+                 , C.COMM_NM DOC_NM1
+                 , SUBSTR(A.DOC_KND,1,2) DOC_GB2
+                 , D.COMM_NM DOC_NM2                 
+                 , SUBSTR(A.DOC_KND,1,4) DOC_GB3  
+                 , E.COMM_NM DOC_NM3                 
+                 , A.DOC_TITLE      AS DOC_TITLE
+                 , A.DOC_REMARK     AS DOC_REMARK                 
+				 , A.REQ_NO         AS REQ_NO
+                 , A.APP_STATUS     AS APP_STATUS_CD
+                 , CASE WHEN A.APP_STATUS = 'S' THEN  '저장'
+                        WHEN A.APP_STATUS = 'G' THEN  '확인중'                 
+                        WHEN A.APP_STATUS = 'R' THEN  '반려'
+                        WHEN A.APP_STATUS = 'Y' THEN  '확인완료'
+                   ELSE A.APP_STATUS END APP_STATUS                 
+                 , A.DOC_SEQ     AS DOC_SEQ  
+                 , A.DOC_STATUS  AS DOC_STATUS     
+                 , A.FILE_KEY
+                 , B.ENO_NO         AS ENO_NO                 
+                 , B.ENO_NM         AS ENO_NM
+                 , B.DPT_CD         AS DPT_CD
+                 , B.DPT_NM         AS DPT_NM
+                 , B.JOB_CD			AS JOB_CD
+                 , B.JOB_NM         AS JOB_NM
+				 , TO_CHAR(A.IPT_YMD,'YYYYMMDD') AS IPT_YMD
+     
+              FROM ASNHR.T_ACT_PLAN A, ASNHR.VI_T_CM_PERSON B, ASNHR.T_ACT_COMMON C, ASNHR.T_ACT_COMMON D, ASNHR.T_ACT_COMMON E
+                 
+             WHERE 
+                       A.IPT_MAN = B.ENO_NO
+                  AND SUBSTR(A.DOC_KND,1,1) = C.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,2) = D.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,4) = E.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,1) = 'C'
+                  AND SUBSTR(A.DOC_KND,1,2) LIKE '%'||?||'%'
+                  AND SUBSTR(A.DOC_KND,1,4) LIKE '%'||?||'%'                  
+                  
+                  AND A.APP_STATUS IN ('G','Y')
+			ORDER BY A.IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 확인 상황 조회 -->
+    <sql name="ACQA050_SHR_APP">
+        <description>확인 상황 조회</description>
+        <query>
+            <![CDATA[
+			SELECT DISTINCT A.REQ_NO
+			          , A.SEQ_NO			
+			          , A.ENO_NO
+			          , ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+					  , A.DPT_CD
+					  , ASNHR.SF_GET_DPTNAME('01','A4', A.DPT_CD) AS DPT_NM
+					  , A.JOB_CD
+					  , ASNHR.SF_GET_COMMNAME('01','A2', A.JOB_CD) AS JOB_NM
+					  , A.APP_YN
+                      , (CASE WHEN A.APP_YN = 'R' THEN  '반송  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN A.APP_YN = 'Y' THEN  '확인  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN B.APP_STATUS = 'S' THEN  '미상신'
+                   	       ELSE '미확인' END ) APP_STATUS
+	                   ,A.REMARK
+	                   ,NVL2(A.REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_ACT_APPROVAL A, ASNHR.T_ACT_PLAN B
+            WHERE  A.REQ_NO = ?
+                  AND A.REQ_NO = B.REQ_NO
+            ORDER BY A.SEQ_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACQA060
+* @description : 조직 및 인력 조회
+***********************************************************************
+* 2019/03/15      이동훈       최초작성.
+***********************************************************************
+-->
+
+    <!-- 조직 및 인력 조회 -->
+    <sql name="ACQA060_SHR">
+        <description>조직 및 인력 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.DOC_NO         AS DOC_NO
+                 , SUBSTR(A.DOC_KND,1,1) DOC_GB1
+                 , C.COMM_NM DOC_NM1
+                 , SUBSTR(A.DOC_KND,1,2) DOC_GB2
+                 , D.COMM_NM DOC_NM2                 
+                 , SUBSTR(A.DOC_KND,1,4) DOC_GB3  
+                 , E.COMM_NM DOC_NM3                 
+                 , A.DOC_TITLE      AS DOC_TITLE
+                 , A.DOC_REMARK     AS DOC_REMARK                 
+				 , A.REQ_NO         AS REQ_NO
+                 , A.APP_STATUS     AS APP_STATUS_CD
+                 , CASE WHEN A.APP_STATUS = 'S' THEN  '저장'
+                        WHEN A.APP_STATUS = 'G' THEN  '확인중'                 
+                        WHEN A.APP_STATUS = 'R' THEN  '반려'
+                        WHEN A.APP_STATUS = 'Y' THEN  '확인완료'
+                   ELSE A.APP_STATUS END APP_STATUS                 
+                 , A.DOC_SEQ     AS DOC_SEQ  
+                 , A.DOC_STATUS  AS DOC_STATUS     
+                 , A.FILE_KEY
+                 , B.ENO_NO         AS ENO_NO                 
+                 , B.ENO_NM         AS ENO_NM
+                 , B.DPT_CD         AS DPT_CD
+                 , B.DPT_NM         AS DPT_NM
+                 , B.JOB_CD			AS JOB_CD
+                 , B.JOB_NM         AS JOB_NM
+				 , TO_CHAR(A.IPT_YMD,'YYYYMMDD') AS IPT_YMD
+     
+              FROM ASNHR.T_ACT_PLAN A, ASNHR.VI_T_CM_PERSON B, ASNHR.T_ACT_COMMON C, ASNHR.T_ACT_COMMON D, ASNHR.T_ACT_COMMON E
+                 
+             WHERE 
+                       A.IPT_MAN = B.ENO_NO
+                  AND SUBSTR(A.DOC_KND,1,1) = C.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,2) = D.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,4) = E.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,1) = 'D'
+                  AND SUBSTR(A.DOC_KND,1,2) LIKE '%'||?||'%'
+                  AND SUBSTR(A.DOC_KND,1,4) LIKE '%'||?||'%'                  
+                  
+                  AND A.APP_STATUS IN ('G','Y')
+			ORDER BY A.IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 확인 상황 조회 -->
+    <sql name="ACQA060_SHR_APP">
+        <description>확인 상황 조회</description>
+        <query>
+            <![CDATA[
+			SELECT DISTINCT A.REQ_NO
+			          , A.SEQ_NO			
+			          , A.ENO_NO
+			          , ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+					  , A.DPT_CD
+					  , ASNHR.SF_GET_DPTNAME('01','A4', A.DPT_CD) AS DPT_NM
+					  , A.JOB_CD
+					  , ASNHR.SF_GET_COMMNAME('01','A2', A.JOB_CD) AS JOB_NM
+					  , A.APP_YN
+                      , (CASE WHEN A.APP_YN = 'R' THEN  '반송  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN A.APP_YN = 'Y' THEN  '확인  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN B.APP_STATUS = 'S' THEN  '미상신'
+                   	       ELSE '미확인' END ) APP_STATUS
+	                   ,A.REMARK
+	                   ,NVL2(A.REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_ACT_APPROVAL A, ASNHR.T_ACT_PLAN B
+            WHERE  A.REQ_NO = ?
+                  AND A.REQ_NO = B.REQ_NO
+            ORDER BY A.SEQ_NO ASC
+            ]]>
+        </query>
+    </sql>
+    
+    
+    
+    
+<!--
+***********************************************************************
+* @UseCase     : ACQA080
+* @description : 소요자금 및 조달계획 조회
+***********************************************************************
+* 2019/03/15      이동훈       최초작성.
+***********************************************************************
+-->
+
+    <!--  소요자금 조회 -->
+    <sql name="ACQA080_SHR">
+        <description>소요자금 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.DOC_NO         AS DOC_NO
+                 , SUBSTR(A.DOC_KND,1,1) DOC_GB1
+                 , C.COMM_NM DOC_NM1
+                 , SUBSTR(A.DOC_KND,1,2) DOC_GB2
+                 , D.COMM_NM DOC_NM2                 
+                 , SUBSTR(A.DOC_KND,1,4) DOC_GB3  
+                 , E.COMM_NM DOC_NM3                 
+                 , A.DOC_TITLE      AS DOC_TITLE
+                 , A.DOC_REMARK     AS DOC_REMARK                 
+				 , A.REQ_NO         AS REQ_NO
+                 , A.APP_STATUS     AS APP_STATUS_CD
+                 , CASE WHEN A.APP_STATUS = 'S' THEN  '저장'
+                        WHEN A.APP_STATUS = 'G' THEN  '확인중'                 
+                        WHEN A.APP_STATUS = 'R' THEN  '반려'
+                        WHEN A.APP_STATUS = 'Y' THEN  '확인완료'
+                   ELSE A.APP_STATUS END APP_STATUS                 
+                 , A.DOC_SEQ     AS DOC_SEQ  
+                 , A.DOC_STATUS  AS DOC_STATUS     
+                 , A.FILE_KEY
+                 , B.ENO_NO         AS ENO_NO                 
+                 , B.ENO_NM         AS ENO_NM
+                 , B.DPT_CD         AS DPT_CD
+                 , B.DPT_NM         AS DPT_NM
+                 , B.JOB_CD			AS JOB_CD
+                 , B.JOB_NM         AS JOB_NM
+				 , TO_CHAR(A.IPT_YMD,'YYYYMMDD') AS IPT_YMD
+     
+              FROM ASNHR.T_ACT_PLAN A, ASNHR.VI_T_CM_PERSON B, ASNHR.T_ACT_COMMON C, ASNHR.T_ACT_COMMON D, ASNHR.T_ACT_COMMON E
+                 
+             WHERE 
+                       A.IPT_MAN = B.ENO_NO
+                  AND SUBSTR(A.DOC_KND,1,1) = C.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,2) = D.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,4) = E.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,1) = 'E'
+                  AND SUBSTR(A.DOC_KND,1,2) LIKE '%'||?||'%'
+                  AND SUBSTR(A.DOC_KND,1,4) LIKE '%'||?||'%'                  
+                  
+                  AND A.APP_STATUS IN ('G','Y')
+			ORDER BY A.IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 확인 상황 조회 -->
+    <sql name="ACQA080_SHR_APP">
+        <description>확인 상황 조회</description>
+        <query>
+            <![CDATA[
+			SELECT DISTINCT A.REQ_NO
+			          , A.SEQ_NO			
+			          , A.ENO_NO
+			          , ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+					  , A.DPT_CD
+					  , ASNHR.SF_GET_DPTNAME('01','A4', A.DPT_CD) AS DPT_NM
+					  , A.JOB_CD
+					  , ASNHR.SF_GET_COMMNAME('01','A2', A.JOB_CD) AS JOB_NM
+					  , A.APP_YN
+                      , (CASE WHEN A.APP_YN = 'R' THEN  '반송  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN A.APP_YN = 'Y' THEN  '확인  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN B.APP_STATUS = 'S' THEN  '미상신'
+                   	       ELSE '미확인' END ) APP_STATUS
+	                   ,A.REMARK
+	                   ,NVL2(A.REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_ACT_APPROVAL A, ASNHR.T_ACT_PLAN B
+            WHERE  A.REQ_NO = ?
+                  AND A.REQ_NO = B.REQ_NO
+            ORDER BY A.SEQ_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+    
+<!--
+***********************************************************************
+* @UseCase     : ACQA090
+* @description : 미확인 상황 조회
+***********************************************************************
+* 2019/03/15      이동훈       최초작성.
+***********************************************************************
+-->
+    
+    <!-- 미확인 상황 조회 -->
+    <sql name="ACQA090_SHR">
+        <description>미확인 상황 조회</description>
+        <query>
+            <![CDATA[
+					SELECT 
+            			'ACTION PLAN' AS APP_GBN_NM
+            			, 'ACTION PLAN' AS APP_GBN           			
+					  	, A.RENO_NO            			
+            			, ASNHR.SF_GET_ENONAME('01',A.RENO_NO) AS RENO_NM   --상신자
+					  	, TO_CHAR(A.IPT_YMD,'YYYY/MM/DD')||'   "'||C.COMM_NM||' > '||D.COMM_NM||' > '||E.COMM_NM||'"   제목 : '||B.DOC_TITLE AS APP_TITLE
+					  	, TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+					  	, A.REQ_NO
+					  	, A.ENO_NO
+					  	, A.REQ_GBN
+            			, A.APP_TIME
+					  	, '' AS APP_STATUS
+					  	, '' AS APP_CMT
+					  	, A.SEQ_NO
+					FROM ASNHR.T_ACT_APPROVAL A, ASNHR.T_ACT_PLAN B, ASNHR.T_ACT_COMMON C, ASNHR.T_ACT_COMMON D, ASNHR.T_ACT_COMMON E
+						WHERE 1=1
+						AND    A.REQ_NO = B.REQ_NO 
+
+						
+	                    AND SUBSTR(B.DOC_KND,1,1) = C.COMM_CD
+	                    AND SUBSTR(B.DOC_KND,1,2) = D.COMM_CD
+	                    AND SUBSTR(B.DOC_KND,1,4) = E.COMM_CD						
+						
+						AND    A.REQ_GBN = 'G'
+						AND    A.APP_YN IS NULL    
+						AND    A.ENO_NO = ?
+						AND    A.REQ_NO IS NOT NULL
+            ]]>
+        </query>
+    </sql>    
+
+    
+    
+    <!-- 조회 -->
+    <sql name="ACQA090_SHR_APP">
+        <description>조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.DOC_NO         AS DOC_NO
+                 , SUBSTR(A.DOC_KND,1,1) DOC_GB1
+                 , C.COMM_NM DOC_NM1
+                 , SUBSTR(A.DOC_KND,1,2) DOC_GB2
+                 , D.COMM_NM DOC_NM2                 
+                 , SUBSTR(A.DOC_KND,1,4) DOC_GB3  
+                 , E.COMM_NM DOC_NM3                 
+                 , A.DOC_TITLE      AS DOC_TITLE
+                 , A.DOC_REMARK     AS DOC_REMARK                 
+				 , A.REQ_NO         AS REQ_NO
+                 , A.APP_STATUS     AS APP_STATUS_CD
+                 , CASE WHEN A.APP_STATUS = 'S' THEN  '저장'
+                        WHEN A.APP_STATUS = 'G' THEN  '확인중'                 
+                        WHEN A.APP_STATUS = 'R' THEN  '반려'
+                        WHEN A.APP_STATUS = 'Y' THEN  '확인완료'
+                   ELSE A.APP_STATUS END APP_STATUS                 
+                 , A.DOC_SEQ     AS DOC_SEQ  
+                 , A.DOC_STATUS  AS DOC_STATUS     
+                 , A.FILE_KEY
+                 , B.ENO_NO         AS ENO_NO                 
+                 , B.ENO_NM         AS ENO_NM
+                 , B.DPT_CD         AS DPT_CD
+                 , B.DPT_NM         AS DPT_NM
+                 , B.JOB_CD			AS JOB_CD
+                 , B.JOB_NM         AS JOB_NM
+				 , TO_CHAR(A.IPT_YMD,'YYYYMMDD') AS IPT_YMD
+
+                                  
+              FROM ASNHR.T_ACT_PLAN A, ASNHR.VI_T_CM_PERSON B, ASNHR.T_ACT_COMMON C, ASNHR.T_ACT_COMMON D, ASNHR.T_ACT_COMMON E
+                 
+             WHERE 
+                       A.IPT_MAN = B.ENO_NO
+                  AND SUBSTR(A.DOC_KND,1,1) = C.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,2) = D.COMM_CD
+                  AND SUBSTR(A.DOC_KND,1,4) = E.COMM_CD
+                  AND A.REQ_NO = ?
+			ORDER BY A.IPT_YMD DESC
+
+
+            ]]>
+        </query>
+    </sql>     
+    
+
+    <!-- 조회 -->
+    <sql name="ACQA090_SHR_APP2">
+        <description>조회</description>
+        <query>
+            <![CDATA[
+			SELECT DISTINCT A.REQ_NO
+			          , A.SEQ_NO			
+			          , A.ENO_NO
+			          , ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+					  , A.DPT_CD
+					  , ASNHR.SF_GET_DPTNAME('01','A4', A.DPT_CD) AS DPT_NM
+					  , A.JOB_CD
+					  , ASNHR.SF_GET_COMMNAME('01','A2', A.JOB_CD) AS JOB_NM
+					  , A.APP_YN
+                      , (CASE WHEN A.APP_YN = 'R' THEN  '반송  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN A.APP_YN = 'Y' THEN  '확인  ' || TO_CHAR(A.UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                         	  WHEN B.APP_STATUS = 'S' THEN  '미상신'
+                   	       ELSE '미확인' END ) APP_STATUS
+	                   ,A.REMARK
+	                   ,NVL2(A.REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_ACT_APPROVAL A, ASNHR.T_ACT_PLAN B
+            WHERE  A.REQ_NO = ?
+                  AND A.REQ_NO = B.REQ_NO
+            ORDER BY A.SEQ_NO ASC
+            ]]>
+        </query>
+    </sql>   
+
+
+    <!-- 확인처리 -->
+    <sql name="ACQA090_APP_UPT">
+        <description>확인처리</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_ACT_APPROVAL
+            SET    
+                   APP_YN = 'Y',				--확인상태
+                   UPT_MAN = ?,					--최종수정자
+                   UPT_YMD = sysdate			--최종수정일시
+            WHERE  REQ_NO = ?					--문서번호
+              AND  ENO_NO = ?					--확인자            
+            ]]>
+        </query>
+    </sql>   
+
+    <!-- 결재한개수 세기 -->
+    <sql name="ACQA090_APP_CNT">
+        <description>결재정보개수세기</description>
+        <query>
+            <![CDATA[
+              SELECT TOTAL, APP, 
+             	 CASE
+                 	WHEN APP = TOTAL THEN 'Y'
+                 ELSE '-' END APP_YN
+            FROM
+                (SELECT COUNT(*) APP
+	                FROM ASNHR.T_ACT_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND APP_YN = 'Y') Y,
+                (SELECT COUNT(*) CNT
+	                FROM ASNHR.T_ACT_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND APP_YN IS NOT NULL) I,
+                (SELECT COUNT(*) TOTAL
+	                FROM ASNHR.T_ACT_APPROVAL
+	                WHERE  REQ_NO  = ? ) T
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 확인처리 -->
+    <sql name="ACQA090_APP_END">
+        <description>확인처리</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_ACT_PLAN
+            SET    
+                   APP_STATUS = 'Y',			--확인상태
+                   UPT_MAN = ?,					--최종수정자
+                   UPT_YMD = sysdate			--최종수정일시
+            WHERE  REQ_NO = ?					--문서번호            
+            ]]>
+        </query>
+    </sql>  
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACQA200
+* @description : 보안을 위해 사용 기록 조회
+***********************************************************************
+* 2019/04/15      이동훈       최초작성.
+***********************************************************************
+-->
+
+    <!-- 사용 기록 조회 -->
+    <sql name="ACQA200_SHR">
+        <description>사용 기록 조회</description>
+        <query>
+            <![CDATA[
+              SELECT  
+					A.ACCESS_GB, 
+					SUBSTR(A.ACCESS_TIME,'1','19') ACCESS_TIME,     
+					A.PROG_ID, 
+					A.ENO_NO,
+					E.DPT_NM AS DPT_NM,
+					D.COMM_NM AS JOB_NM,
+					B.ENO_NM AS ACCESS_NM,
+					A.IPADDRESS,         
+					A.ACT_GBN,
+					A.FILE_NM
+            FROM
+				ASNHR.T_ACT_ACCESS A, 
+				ASNHR.T_CM_PERSON B, 
+				ASNHR.T_CM_COMMON D, 
+				ASNHR.T_CM_DEPT E
+			WHERE
+				A.ENO_NO = B.ENO_NO 
+				AND B.JOB_CD = D.COMM_CD 
+				AND D.CD_GBN ='A2' 
+				AND B.DPT_CD = E.DPT_CD
+				AND TO_CHAR(TO_DATE(SUBSTR(A.ACCESS_TIME,'1','10'),'YYYY-MM-DD'),'YYYYMMDD') BETWEEN ? AND ? 
+			ORDER BY A.ACCESS_TIME DESC
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACCESSLOG
+* @description : 프로그램 사용 로그 정보 저장
+***********************************************************************
+* 2019/04/15      이동훈        최초작성.
+***********************************************************************
+-->
+    <!-- 프로그램 사용 로그 정보를 저장한다.  -->
+    <sql name="ACCESS_INS">
+        <description>프로그램 사용 로그 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_ACT_ACCESS
+            ( 
+			  ACCESS_GB,
+			  ACCESS_TIME,
+              PROG_ID,
+              ENO_NO,
+              IPADDRESS,
+              ACT_GBN,
+              FILE_NM )
+            VALUES
+            ( 
+			  ?,
+			  TO_CHAR(CURRENT_TIMESTAMP(7),'YYYY-MM-DD HH24:MI:SS.FF'),
+			  ?,
+			  ?,
+			  ?,
+			  ?,
+			  ? )
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

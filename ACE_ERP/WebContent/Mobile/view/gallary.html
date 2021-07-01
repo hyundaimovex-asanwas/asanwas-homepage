@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/mobile/lib/common.css" />
+    
+    <style type="text/css">
+        .container {
+	        /* defaults for resposive height container */
+	        position: relative;
+	        width: 100%;
+	        height: 0;
+        	
+	        /* 39% being the ratio we are maintaining 
+	         * calculated by looking at the image 
+	         * ratio: 400/1024 = ~0.39 */
+	        padding: 0 0 39% 0;
+	        overflow-y:hidden;
+        }
+
+        .iosSlider {
+	        width: 100%;
+        	
+	        /* this height ends up being your maximum height, 
+	         * if you want it to scale forever, set it to 
+	         * a very high number */
+	        height: 1500px;
+        }
+
+        .iosSlider .slider {
+	        width: 100%;
+	        height: 100%;
+        }
+
+        .iosSlider .slider .item {
+	        float: left;
+	        width: 100%;
+        }
+
+        .iosSlider .slider .item img {
+	        width: 100%;
+	        height: auto;
+        }
+
+		.iosSlider .prevButton {
+			position: absolute;
+			top: 50%;
+			left: 10px;
+			width: 20px;
+			height: 40px;
+			margin-top:-20px;
+			background: url(/mobile/images/slider-buttons.png) no-repeat 0 0;
+			z-index: 2;
+		}
+		
+		.iosSlider .nextButton {
+			position: absolute;
+			top: 50%;
+			right: 10px;
+			width: 20px;
+			height: 40px;
+			margin-top:-20px;
+			background: url(/mobile/images/slider-buttons.png) no-repeat 100% 0;
+			z-index: 2;
+		}
+
+        .container .selectorsBlock {
+	        position: absolute;
+	        bottom: 10px;
+	        width: 100%;
+	        height: 5%;
+        }
+
+        .container .selectorsBlock .selectors {
+	        position: relative;
+	        top: 0;
+	        left: 0;
+	        margin: 0 auto;
+	        width: 12%;
+	        height: 100%;
+        }
+
+        .container .selectorsBlock .selectors .item {
+	        position: relative;
+	        top: 0;
+	        left: 0;
+	        float: left;
+	        width: 16%;
+	        height: 100%;
+	        margin: 0 0 0 5%;
+	        background: #aaa;
+        }
+
+        .container .selectorsBlock .selectors .selected {
+	        background: #333;
+        }
+
+        .container .selectorsBlock .selectors .first {
+	        margin-left: 0;
+        }
+    </style>
+    
+    <script src="/mobile/controller/gallary.js"></script>
+    <script data-main="/mobile/lib/app" src="/mobile/lib/require.js"></script>
+
+</head>
+<body>
+    <div id="pageGallary" data-role="page">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div>
+        <!--//menu-->
+        <div data-role="header">
+            <a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content" style="margin:0;padding:0;">
+            
+            <div class='container'>
+                <div class='iosSlider'>
+                    <div class='slider'>
+                        <div class='item'>
+                            <img src="/mobile/images/landscape/01.jpg" />
+                        </div>
+                        <div class='item'>
+                            <img src="/mobile/images/landscape/02.jpg" />
+                        </div>
+                        <div class='item'>
+                            <img src="/mobile/images/landscape/03.jpg" />
+                        </div>
+                        <div class='item'>
+                            <img src="/mobile/images/landscape/04.jpg" />
+                        </div>
+                        <div class='item'>
+                            <img src="/mobile/images/landscape/05.jpg" />
+                        </div>
+                    </div>
+			        <div class = 'prevButton'></div>
+			        <div class = 'nextButton'></div>
+			        
+                    <div class='selectorsBlock'>
+                        <div class='selectors'>
+                            <div class='item first selected'>
+                            </div>
+                            <div class='item'>
+                            </div>
+                            <div class='item'>
+                            </div>
+                            <div class='item'>
+                            </div>
+                            <div class='item'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

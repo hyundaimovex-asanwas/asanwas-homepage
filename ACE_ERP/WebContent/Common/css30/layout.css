@@ -1,0 +1,125 @@
+@charset "euc-kr";
+/* 이미지 경로는 서버와 로컬이 달라요..
+   서버에는 /HDAsan/이 없어요..
+ */
+#wrap {position:relative;width:100%;background:url(/images/com/bg_wrap.gif) 0 0 repeat-x;}
+
+/* header */
+#header {position:relative;width:1080px;height:80px;margin:0 auto;padding:0 0 0 0;z-index:30; background-color:#ffffff;}
+	/* 헤더-탑 */
+	#haHeaderTop {  height:42px; }
+	#haHeaderMenu { height:32px;background:url(/HDAsan/images/Common/topMenu_back.gif);border-bottom:solid 3px #187DFF; }
+	.htImg { width:29px; height:29px; border:0; cursor:pointer; }
+
+
+/* container - 포털페이지 메인 컨텐츠*/
+#container {position:relative;width:1080px; height:700px; margin:0 auto;padding:10px 0 10px 0; *zoom:1}
+#container 
+	.mcLeftCol {float:left;width:390px; height:700px;}
+	.mcShortcut { float:left;width:58px; height:698px; background-color:#f8f8f8; border:1px solid #d6d6d6; } 
+		.mcSCicon {  float:left; width:58px; height:50px; text-align:center; padding:6px 0px 0px 0px;}
+		a.mcLMenu00{background:url(/HDAsan/images/icon/mico00.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu00{ background-position: 6px -46px;}
+			a.mcLMenu00 span{display:none;}
+		a.mcLMenu15{background:url(/HDAsan/images/icon/mico15.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu15{ background-position: 6px -46px;}
+			a.mcLMenu15 span{display:none;}
+		a.mcLMenu02{background:url(/HDAsan/images/icon/mico02.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu02{ background-position: 6px -46px;}
+			a.mcLMenu02 span{display:none;}
+		a.mcLMenu08{background:url(/HDAsan/images/icon/mico08.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu08{ background-position: 6px -46px;}
+			a.mcLMenu08 span{display:none;}
+		a.mcLMenu04{background:url(/HDAsan/images/icon/mico04.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu04{ background-position: 6px -46px;}
+			a.mcLMenu04 span{display:none;}
+		a.mcLMenu05{background:url(/HDAsan/images/icon/mico05.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu05{ background-position: 6px -46px;}
+			a.mcLMenu05 span{display:none;}
+		a.mcLMenu07{background:url(/HDAsan/images/icon/mico07.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu07{ background-position: 6px -46px;}
+			a.mcLMenu07 span{display:none;}
+		a.mcLMenu10{background:url(/HDAsan/images/icon/mico10.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu10{ background-position: 6px -46px;}
+			a.mcLMenu10 span{display:none;}
+		a.mcLMenu11{background:url(/HDAsan/images/icon/mico11.png) no-repeat 0 0px; display:block;width:55px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu11{ background-position: 6px -46px;}
+			a.mcLMenu11 span{display:none;}			
+		a.mcLMenu16{background:url(/HDAsan/images/icon/mico16.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu16{ background-position: 6px -46px;}
+			a.mcLMenu16 span{display:none;}
+		a.mcLMenu09{background:url(/HDAsan/images/icon/mico09.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu09{ background-position: 6px -46px;}
+			a.mcLMenu09 span{display:none;}
+		a.mcLMenu03{background:url(/HDAsan/images/icon/mico03.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu03{ background-position: 6px -46px;}
+			a.mcLMenu03 span{display:none;}
+		a.mcLMenu15_1{background:url(/HDAsan/images/icon/mico15.png) no-repeat 0 0px; display:block;width:52px;height:46px; background-position: 6px 0px;}
+			a:hover.mcLMenu15_1{ background-position: 6px -46px;}
+			a.mcLMenu15_1 span{display:none;}
+
+
+	.mcMenuTitle{width:319px; height:35px; background-color:#636870; font-size: 20px; color:#ffffff; padding: 5px 0px 0px 0px}
+	#mcMenu { float:left; width:318px; height:699px; background-color:#ffffff; border-right:1px solid #a6a6a6;border-bottom:1px solid #a6a6a6;border-left:1px solid #a6a6a6;}	
+
+	#mcCenterCol{float:left;width:468px; height:698px;background-color:#ebecee;  border:1px solid #bebfc0;}
+		.mcNotice{width:468px; height:38px; background-color:#ebecee; border-bottom:1px solid #bebfc0; text-align:center;}
+			.notiTit{width:80px; height:40px;position:relative; margin: -1px 0px 0px 0px ; cursof:pointer; }
+			.mcUpdateNote{float:left;width:428px; height:182px;padding:0px 20px 20px 20px ;background-color:#f3f4f3; border-bottom:1px solid #bfc1c4;}
+			
+		.mcVac{float:left;width:428px;  padding:20px;  border-bottom:1px solid #bfc1c4;}
+		.mcMemo{float:left;width:428px; padding:20px; border-bottom:1px solid #bfc1c4; display:;}
+	
+
+	
+	#mcRightCol{float:left;width:200px; height:700px; }
+		.mcProfile{float:left;width:198px; height:50px;background-color:#f3f4f3; border:1px solid #bfc1c4;}
+		.mcApproval{float:left;width:198px;background-color:#f8f8f8; border-right:1px solid #b5b7ba;border-bottom:1px solid #b5b7ba;border-left:1px solid #b5b7ba;}
+		.mcLinks{float:left;width:198px; height:179px;background-color:#f7f7f7; border:1px solid #d6d6d6;}
+		.mcRAM{float:left;width:198px; height:68px;background-color:#edeef0; border:1px solid #cccdcf;}	
+			
+	
+	#mcSpace { float:left;width:10px;}
+	.mcSpaceH{ float:left;width:198px;height:10px;}
+
+	#mcFavorite { float:left; width:304px; }
+
+	#mcMessage {float:left; width:310px; margin:0px 0px 0px 10px;}
+	#mcMessage_title {float:left;width:16px; font-size:12px;font-weight:bold; }
+
+	
+
+/* footer */
+#footer {position:relative;height:7px;width:1080px;margin:0 auto;padding:3px 0 7px 0;background-color:#fafafa;border-top:2px solid #bfc1c4;border-bottom:1px solid #d5d5d5;}
+
+
+
+
+
+/* FOOTER */
+/*#haFooter{ float:left; width:1000px; height:85%; margin:6px 0px 0px 0px;  }*/
+/*#haBodyMerge { width:980px; }*/
+
+
+/* f0f0f0 면.. 
+   a6a6a6 선
+   9a9a9a 면/글씨
+   636870 면
+   2e3036 진한 면
+
+  네이버 선 + 바탕
+   e7e7e7 + ffffff
+   cccdcf + edeef0
+   bebfc0 + ebecee (중앙 탑)
+
+   
+   d6d6d6 + f8f8f8 (버튼 온 아웃: 메뉴아이콘) 61676d
+   c4c4c4 + ebebeb (버튼 온 오버) 글씨 333333  
+   
+     
+   
+   bfc1c4 + f3f4f3	(로긴 창)
+   b5b7ba + f8f8f8	(로긴 창 아래)
+   
+   푸르딩딩이 아닌 보라 딩딩을 할까. 움;
+    */

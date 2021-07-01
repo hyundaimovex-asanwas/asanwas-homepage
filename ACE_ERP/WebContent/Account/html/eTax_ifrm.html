@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE> New Document </TITLE>
+<META NAME="Generator" CONTENT="EditPlus">
+<META NAME="Author" CONTENT="">
+<META NAME="Keywords" CONTENT="">
+<META NAME="Description" CONTENT="">
+</HEAD>
+
+<BODY>
+<html>
+<body>
+<head><title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script language="javascript">
+//var ParamMst = new Array();
+//var ParamDtl = new Array();
+</script>
+</head>
+
+<form name="appfrm" method="post" action="" target="_ifrm">
+<!-- <input type="hidden" name="typ" value="">	
+<input type="hidden" name="eno" value="">	
+<input type="hidden" name="xml" value=""> 
+<input type="hidden" name="company" value="hda">	 -->
+</form>
+<iframe id="_ifrm" name="_ifrm" style="width:0;height:0px;border:0 solid #708090;"   src="../../Account/html/_ifrm.html"></iframe>
+
+<script language="javascript">
+/******************************************************************************
+	Description : 인증서 등록
+******************************************************************************/
+function ln_Reg(strRegno,strComname){
+ document.appfrm.action = "http://203.242.32.193:10000/callSB/XXSB_DTI_CERT.asp?CERT_REGNO="+strRegno+"&CERT_COMNAME="+strComname;
+ document.appfrm.submit();
+}
+</script>
+
+</body>
+</html>
+</BODY>
+</HTML>

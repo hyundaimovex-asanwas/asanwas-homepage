@@ -1,0 +1,2385 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 경영정보 -->
+
+    <sql name="EISA000_SHR_MONTH">
+        <description>당월/전년월 조회</description>
+        <query>
+            <![CDATA[
+			SELECT TO_CHAR(SYSDATE, 'YYYYMMDD')                as CUR_DATE
+			     , TO_CHAR(SYSDATE, 'YYYYMM')                  as CUR_MONTH
+			     , TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYYMM')  as BF_MONTH
+			     , TO_CHAR(ADD_MONTHS(SYSDATE, -11), 'YYYYMM') as BFR_MONTH
+			  FROM DUAL
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : EISA010
+* @description : 년간월별근태현황 조회
+***********************************************************************
+* 2007/04/03     이승욱        최초작성.
+***********************************************************************
+-->
+
+    <sql name="EISA010_SHR">
+        <description>년간월별근태현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT	 MAIN.HEAD_CD, MAIN.HEAD_NM, MAIN.HEAD_SEQ
+				   , MAX(SUB.H_CNT) as H_CNT
+				   , SUM(ATT_A) as ATT_A, SUM(ATT_C) as ATT_C, SUM(ATT_E) as ATT_E, Round(SUM(ATT_H),0) as ATT_H
+				   , SUM(CASE WHEN PIS_MM = '01' THEN ATT_A END) as ATT_A01
+			       , SUM(CASE WHEN PIS_MM = '01' THEN ATT_C END) as ATT_C01
+			       , SUM(CASE WHEN PIS_MM = '01' THEN ATT_E END) as ATT_E01
+			       , Round(SUM(CASE WHEN PIS_MM = '01' THEN ATT_H END),0) as ATT_H01
+			       , SUM(CASE WHEN PIS_MM = '02' THEN ATT_A END) as ATT_A02
+			       , SUM(CASE WHEN PIS_MM = '02' THEN ATT_C END) as ATT_C02
+			       , SUM(CASE WHEN PIS_MM = '02' THEN ATT_E END) as ATT_E02
+			       , Round(SUM(CASE WHEN PIS_MM = '02' THEN ATT_H END),0) as ATT_H02
+			       , SUM(CASE WHEN PIS_MM = '03' THEN ATT_A END) as ATT_A03
+			       , SUM(CASE WHEN PIS_MM = '03' THEN ATT_C END) as ATT_C03
+			       , SUM(CASE WHEN PIS_MM = '03' THEN ATT_E END) as ATT_E03
+			       , Round(SUM(CASE WHEN PIS_MM = '03' THEN ATT_H END),0) as ATT_H03
+			       , SUM(CASE WHEN PIS_MM = '04' THEN ATT_A END) as ATT_A04
+			       , SUM(CASE WHEN PIS_MM = '04' THEN ATT_C END) as ATT_C04
+			       , SUM(CASE WHEN PIS_MM = '04' THEN ATT_E END) as ATT_E04
+			       , Round(SUM(CASE WHEN PIS_MM = '04' THEN ATT_H END),0) as ATT_H04
+			       , SUM(CASE WHEN PIS_MM = '05' THEN ATT_A END) as ATT_A05
+			       , SUM(CASE WHEN PIS_MM = '05' THEN ATT_C END) as ATT_C05
+			       , SUM(CASE WHEN PIS_MM = '05' THEN ATT_E END) as ATT_E05
+			       , Round(SUM(CASE WHEN PIS_MM = '05' THEN ATT_H END),0) as ATT_H05
+			       , SUM(CASE WHEN PIS_MM = '06' THEN ATT_A END) as ATT_A06
+			       , SUM(CASE WHEN PIS_MM = '06' THEN ATT_C END) as ATT_C06
+			       , SUM(CASE WHEN PIS_MM = '06' THEN ATT_E END) as ATT_E06
+			       , Round(SUM(CASE WHEN PIS_MM = '06' THEN ATT_H END),0) as ATT_H06
+			       , SUM(CASE WHEN PIS_MM = '07' THEN ATT_A END) as ATT_A07
+			       , SUM(CASE WHEN PIS_MM = '07' THEN ATT_C END) as ATT_C07
+			       , SUM(CASE WHEN PIS_MM = '07' THEN ATT_E END) as ATT_E07
+			       , Round(SUM(CASE WHEN PIS_MM = '07' THEN ATT_H END),0) as ATT_H07
+			       , SUM(CASE WHEN PIS_MM = '08' THEN ATT_A END) as ATT_A08
+			       , SUM(CASE WHEN PIS_MM = '08' THEN ATT_C END) as ATT_C08
+			       , SUM(CASE WHEN PIS_MM = '08' THEN ATT_E END) as ATT_E08
+			       , Round(SUM(CASE WHEN PIS_MM = '08' THEN ATT_H END),0) as ATT_H08
+			       , SUM(CASE WHEN PIS_MM = '09' THEN ATT_A END) as ATT_A09
+			       , SUM(CASE WHEN PIS_MM = '09' THEN ATT_C END) as ATT_C09
+			       , SUM(CASE WHEN PIS_MM = '09' THEN ATT_E END) as ATT_E09
+			       , Round(SUM(CASE WHEN PIS_MM = '09' THEN ATT_H END),0) as ATT_H09
+			       , SUM(CASE WHEN PIS_MM = '10' THEN ATT_A END) as ATT_A10
+			       , SUM(CASE WHEN PIS_MM = '10' THEN ATT_C END) as ATT_C10
+			       , SUM(CASE WHEN PIS_MM = '10' THEN ATT_E END) as ATT_E10
+			       , Round(SUM(CASE WHEN PIS_MM = '10' THEN ATT_H END),0) as ATT_H10
+			       , SUM(CASE WHEN PIS_MM = '11' THEN ATT_A END) as ATT_A11
+			       , SUM(CASE WHEN PIS_MM = '11' THEN ATT_C END) as ATT_C11
+			       , SUM(CASE WHEN PIS_MM = '11' THEN ATT_E END) as ATT_E11
+			       , Round(SUM(CASE WHEN PIS_MM = '11' THEN ATT_H END),0) as ATT_H11
+			       , SUM(CASE WHEN PIS_MM = '12' THEN ATT_A END) as ATT_A12
+			       , SUM(CASE WHEN PIS_MM = '12' THEN ATT_C END) as ATT_C12
+			       , SUM(CASE WHEN PIS_MM = '12' THEN ATT_E END) as ATT_E12
+			       , Round(SUM(CASE WHEN PIS_MM = '12' THEN ATT_H END),0) as ATT_H12
+			FROM
+				 (
+					 SELECT HEAD_CD , COUNT(*) as H_CNT
+				      FROM T_CM_PERSON
+				     WHERE TO_CHAR(HIR_YMD,'YYYYMMDD') <=  ? || '1231'
+				       AND ((RET_YMD IS NULL) OR  (TO_CHAR(RET_YMD, 'YYYYMMDD') > ? || '1231'))
+				     GROUP BY HEAD_CD
+				 ) SUB ,
+				 (
+					SELECT	 B.PIS_YY, B.PIS_MM, B.ENO_NO, A.HEAD_CD
+						   , SF_GET_DPTNAME(A.GUBUN, 'B2', A.HEAD_CD) AS HEAD_NM    -- 본부 명칭
+                           , SF_GET_DPTSEQ(A.GUBUN, 'B2', A.HEAD_CD)  AS HEAD_SEQ    -- 본부 순서
+						   , SUM(NVL(ATT_A,0) + NVL(ATT_B,0)               ) as ATT_A
+					       , SUM(NVL(ATT_C,0)                              ) as ATT_C
+					       , SUM(NVL(ATT_E,0)                              ) as ATT_E
+					       , SUM(NVL(ATT_H,0) + (NVL(ATT_P,0) + NVL(ATT_R,0) + NVL(ATT_V,0))/2 + NVL(ATT_J,0) + NVL(ATT_Z,0) + NVL(ATT_Q,0)) AS ATT_H
+					FROM T_CM_PERSON A, T_DI_DILIGENCE B
+					WHERE TO_CHAR(HIR_YMD,'YYYYMMDD') <=  ? || '1231'
+						  AND ((RET_YMD IS NULL) OR  (TO_CHAR(RET_YMD, 'YYYYMMDD') > ? || '1231'))
+						  AND B.PIS_YY = ?
+						  AND A.ENO_NO = B.ENO_NO
+					GROUP BY A.GUBUN,B.PIS_YY, B.PIS_MM, B.ENO_NO , A.HEAD_CD
+					--ORDER BY C.GUBUN,B.ENO_NO , B.PIS_YY, B.PIS_MM, C.UPDPT_CD
+				) MAIN
+			WHERE SUB.HEAD_CD = MAIN.HEAD_CD
+			AND   MAIN.HEAD_CD LIKE ?||'%'
+			GROUP BY MAIN.HEAD_CD, MAIN.HEAD_NM, MAIN.HEAD_SEQ
+			ORDER BY MAIN.HEAD_SEQ
+
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISA010_SHR_01">
+        <description>년간월별근태현황 조회상세</description>
+        <query>
+            <![CDATA[
+            SELECT *
+              FROM (SELECT A.ENO_NO                                                          -- 사번
+                         , MAX(A.HEAD_CD)                                   AS HEAD_CD  -- 본부 코드
+                         , MAX(  SF_GET_DPTNAME(A.GUBUN, 'B2', A.HEAD_CD)) AS HEAD_NM  -- 본부 명칭
+                         , MAX(  SF_GET_DPTSEQ(A.GUBUN, 'B2', A.HEAD_CD))  AS HEAD_SEQ -- 본부 순서
+                         , MAX(A.DPT_CD)                                    AS DPT_CD   -- 소속 코드
+                         , MAX(B.DPT_NM)                                    AS DPT_NM   -- 소속 명칭
+                         , MAX(B.SORT_NO)                                   AS DPT_SEQ  -- 소속 순서
+                         , MAX(A.JOB_CD)                                    AS JOB_CD   -- 직위 코드
+                         , MAX(  SF_GET_COMMNAME(A.GUBUN, 'A2', A.JOB_CD))  AS JOB_NM   -- 직위 명칭
+                         , MAX(  SF_GET_COMMSEQ(A.GUBUN, 'A2', A.JOB_CD))   AS JOB_SEQ  -- 직위 순서
+                         , MAX(A.HOB_CD)                                    AS HOB_CD   -- 직위 코드
+                         , MAX(  SF_GET_COMMNAME(A.GUBUN, 'A3', A.HOB_CD))  AS HOB_NM   -- 직위 명칭
+                         , MAX(  SF_GET_COMMSEQ(A.GUBUN, 'A3', A.HOB_CD))   AS HOB_SEQ  -- 직위 순서
+                         , MAX(A.ENO_NM)                                    AS ENO_NM   -- 성명(한글)
+                         , Round(SUM(C.H_CNT),0)                                     AS H_CNT
+                      FROM T_CM_PERSON A,
+                           (SELECT GUBUN
+                                 , DPT_CD
+                                 , DPT_NM
+                                 , SORT_NO
+                              FROM T_CM_DEPT
+                             WHERE CD_GBN='A4'
+                               AND SORT_NO BETWEEN 100 AND 750
+                            ) B,
+                           (SELECT ENO_NO
+                                 , [1] as H_CNT
+                              FROM T_DI_DILIGENCE
+                             WHERE PIS_YY = ?
+                               AND [2]  > 0
+                               [3]
+                            ) C
+                     WHERE A.ENO_NO  = C.ENO_NO
+                       AND A.GUBUN = B.GUBUN(+)
+                       AND A.DPT_CD = B.DPT_CD(+)
+                       AND TO_CHAR(A.HIR_YMD,'YYYYMMDD') <= ? || '1231'
+                       AND ((A.RET_YMD IS NULL) OR  (TO_CHAR(A.RET_YMD,'YYYYMMDD') > ? || '1231'))
+                       [4]
+                  GROUP BY A.ENO_NO
+                    )
+          ORDER BY DPT_SEQ
+                 , JOB_SEQ
+                 , HOB_SEQ DESC
+                 , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISA010_SHR_02">
+        <description>년간월별근태현황 조회년도</description>
+        <query>
+            <![CDATA[
+SELECT DISTINCT
+       PIS_YY , PIS_MM
+  FROM T_DI_DILIGENCE
+  WHERE PIS_YY >= '2007'
+ ORDER BY PIS_YY, PIS_MM -- DESC
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISA010_SHR_yyyy">
+        <description>년간월별근태현황 조회년도</description>
+        <query>
+            <![CDATA[
+SELECT DISTINCT
+       PIS_YY
+  FROM T_DI_DILIGENCE
+  WHERE PIS_YY >= '2007'
+ ORDER BY PIS_YY  DESC
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : EISA020
+* @description : 입퇴사자현황
+***********************************************************************
+* 2007/04/04     이승욱        최초작성.
+* 2007/05/29     이승욱        쿼리수정
+***********************************************************************
+-->
+
+    <sql name="EISA020_SHR_01">
+        <description>직위별 입퇴사자현황 조회</description>
+        <query>
+            <![CDATA[
+             SELECT JOB_CD, Nvl(JOB_NM,'계') JOB_NM, Sum(TOT_CNT) TOT_CNT, Sum(HIR_CNT) HIR_CNT, Sum(RET_CNT) RET_CNT, SORT_NO
+				FROM
+				    (         SELECT C.JOB_CDP                  as JOB_CD
+				                 , C.JOB_NM                   as JOB_NM
+				                 , NVL(SUM(T.TOT_CNT),0)      as TOT_CNT
+				                 , NVL(SUM(H.HIR_CNT),0)      as HIR_CNT
+				                 , NVL(SUM(R.RET_CNT),0)      as RET_CNT
+				                 , CASE WHEN MAX(C.SORT_NO) > 0 THEN TO_CHAR(MAX(C.SORT_NO)) ELSE '99'||C.JOB_CDP END as SORT_NO
+				             FROM (-- 직위별 퇴사자
+				                      SELECT JOB_CD, COUNT(*)   as RET_CNT
+				                        FROM T_CM_PERSON
+				                       WHERE TO_CHAR(RET_YMD, 'YYYY') = ?
+				                       AND   NVL(HEAD_CD,' ') LIKE '%'||?||'%'
+				                      GROUP BY JOB_CD
+				                    )      R,
+				                   (-- 직위별 입사자
+				                    SELECT P.JOB_CD
+				                         , COUNT(*)    as HIR_CNT
+				                      FROM T_CM_PERSON    P
+				                         , T_CM_AHISTORY  H
+				                     WHERE P.ENO_NO     = H.ENO_NO
+				                       AND TO_CHAR(P.HIR_YMD, 'YYYY') = ?
+				                       AND NVL(P.HEAD_CD,' ') LIKE '%'||?||'%'
+				                       AND H.APP_CD NOT IN ('LB1', 'LB2','LF1','SP1') -- 전보/승진 제외
+									             AND H.STR_YMD = ( SELECT MIN(STR_YMD) FROM T_CM_AHISTORY WHERE ENO_NO = P.ENO_NO AND SEQ_NO = '1')
+				                     GROUP BY P.JOB_CD
+				                    )      H,
+				                   (-- 직위별 총원
+				                      SELECT H.JOB_CD
+				                         , COUNT(DISTINCT H.ENO_NO) as TOT_CNT
+				                      FROM T_CM_PERSON  H
+				                      WHERE ( TO_CHAR(HIR_YMD,'YYYYMMDD') <= ? || '1231' AND ( RET_YMD IS NULL OR TO_CHAR(RET_YMD,'YYYYMMDD') > ? || '1231'))
+				                      	--	AND H.OCC_CD = 'A'
+				                      		AND NVL(H.HEAD_CD,' ') LIKE '%'||?||'%'
+				                      GROUP BY H.JOB_CD
+				                    )      T,
+				                   (
+				                     SELECT CASE WHEN GBN2_TAG not IN ('00','05','10','20','30','40','50') THEN 'etc'
+				                		            WHEN GBN2_TAG IN ('00')                     THEN '00'
+				                		            WHEN GBN2_TAG IN ('05')                     THEN '05'
+				                		            WHEN GBN2_TAG IN ('10')                     THEN '10'
+				                		            WHEN GBN2_TAG IN ('20')                     THEN '20'
+				                		            WHEN GBN2_TAG IN ('30')           			THEN '30'
+				                		            WHEN GBN2_TAG IN ('40')           			THEN '40'
+				              		                WHEN GBN2_TAG IN ('50')             		THEN '50'
+				            		              ELSE                                          'etc_m'
+				            		             END                as JOB_CDP
+				            		            , COMM_CD            as JOB_CD
+				            		            , CASE WHEN GBN2_TAG not IN ('00','05','10','20','30','40','50') THEN '기타'
+				                  		            WHEN GBN2_TAG IN ('00')                     THEN '부장'
+				                  		            WHEN GBN2_TAG IN ('05')                     THEN '부대'
+				                  		            WHEN GBN2_TAG IN ('10')                     THEN '차장'
+				                  		            WHEN GBN2_TAG IN ('20')                     THEN '과장'
+				                  		            WHEN GBN2_TAG IN ('30')                     THEN '대리'
+				                  		            WHEN GBN2_TAG IN ('40')                     THEN '사원'
+ 													WHEN GBN2_TAG IN ('50')                     THEN '계약'
+													ELSE                                        ''
+				            		             END                as JOB_NM
+				            		            , SORT_NO
+				              		  FROM T_CM_COMMON
+				              		 WHERE SORT_NO             > 0
+				              		   AND CD_GBN              = 'A2'
+				            		   ORDER BY SORT_NO
+				                    )      C
+				             WHERE C.JOB_CD  = T.JOB_CD(+)
+				               AND C.JOB_CD  = H.JOB_CD(+)
+				               AND C.JOB_CD  = R.JOB_CD(+)
+				             GROUP BY C.JOB_CDP, C.JOB_NM
+				             --ORDER BY SORT_NO
+				    ) MAIN
+				GROUP BY ROLLUP((MAIN.JOB_CD, MAIN.JOB_NM, MAIN.SORT_NO))
+				ORDER BY TO_NUMBER(MAIN.SORT_NO)
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISA020_SHR_02">
+        <description>본부별 입퇴사자현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT C.HEAD_CD              as HEAD_CD
+                 , DECODE(C.HEAD_CD,NULL,'계',Replace(Replace(Replace(Replace(Replace(MAX(C.HEAD_NM),
+                   '사업본부',' 사업본부'),'기획실',' 기획실'),'지원본부',' 지원본부'),'운영팀',' 운영팀'),'사업팀',' 사업팀'
+                   )                      ) as HEAD_NM
+                 , NVL(SUM(T.TOT_CNT),0)  as TOT_CNT
+                 , NVL(SUM(H.HIR_CNT),0)  as HIR_CNT
+                 , NVL(SUM(R.RET_CNT),0)  as RET_CNT
+                 , CASE WHEN C.SORT_NO = 0 THEN '99'|| C.HEAD_CD ELSE TO_CHAR(C.SORT_NO) END as SORT_NO
+              FROM (-- 본부별 퇴사자
+                    SELECT NVL(HEAD_CD,'QQQ') HEAD_CD, COUNT(*)   as RET_CNT
+                      FROM T_CM_PERSON
+                     WHERE TO_CHAR(RET_YMD, 'YYYY') = ? AND OCC_CD LIKE '%'||?||'%'
+                     GROUP BY NVL(HEAD_CD,'QQQ')
+                    )      R,
+                   (-- 본부별 입사자
+                   SELECT P.HEAD_CD     as HEAD_CD
+                     , COUNT(*)       as HIR_CNT
+                  FROM T_CM_PERSON       P
+                     , T_CM_AHISTORY     H
+                     , T_CM_DEPT         D
+                 WHERE P.DPT_CD        = D.DPT_CD AND P.OCC_CD LIKE '%'||?||'%'
+                   AND H.ENO_NO        = P.ENO_NO
+                   AND D.CD_GBN        = 'A4'
+                   AND TO_CHAR(HIR_YMD, 'YYYY') = ?
+                   AND H.APP_CD NOT IN ('LB1', 'LB2','LF1','SP1') -- 전보/승진 제외
+                   AND H.STR_YMD = ( SELECT MIN(STR_YMD) FROM T_CM_AHISTORY WHERE ENO_NO = P.ENO_NO AND SEQ_NO = '1')
+                 GROUP BY P.HEAD_CD
+                    )      H,
+                   (-- 본부별 총원
+                    SELECT HEAD_CD
+                         , COUNT(DISTINCT ENO_NO) as TOT_CNT
+                      FROM (SELECT D.UPDPT_CD as HEAD_CD
+                                 , H.ENO_NO
+                              FROM T_CM_PERSON  H
+                                 , T_CM_DEPT    D
+                             WHERE H.DPT_CD     = D.DPT_CD AND H.OCC_CD LIKE '%'||?||'%'
+							   AND D.GUBUN      = '01'
+                               AND D.CD_GBN     = 'A4'
+                               AND ( TO_CHAR(HIR_YMD,'YYYYMMDD') <= ? || '1231' AND ( RET_YMD IS NULL OR TO_CHAR(RET_YMD,'YYYYMMDD') > ? || '1231'))
+                            )
+                     GROUP BY HEAD_CD
+                    )      T,
+                   (SELECT DPT_CD         as HEAD_CD
+                         , DPT_NM         as HEAD_NM
+                         , SORT_NO
+                      FROM T_CM_DEPT
+                     WHERE CD_GBN          = 'B2'
+                    )      C
+             WHERE C.HEAD_CD  = T.HEAD_CD(+)
+               AND C.HEAD_CD  = H.HEAD_CD(+)
+               AND C.HEAD_CD  = R.HEAD_CD(+)
+               AND NVL(C.HEAD_CD,' ') LIKE '%'||?||'%'
+               AND (NVL(T.TOT_CNT,0) + NVL(H.HIR_CNT,0) + NVL(R.RET_CNT,0)) > 0
+             GROUP BY ROLLUP((C.HEAD_CD, C.SORT_NO))
+             ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISA020_SHR_11">
+        <description>직위별총원 조회상세</description>
+        <query>
+            <![CDATA[
+            --직위별총원 조회상세
+            SELECT H.ENO_NO
+                 , D.UPDPT_CD                               as HEAD_CD
+                 , SF_GET_DPTNAME('01', 'B2', D.UPDPT_CD)   as HEAD_NM  -- 본부 명칭
+                 , CASE WHEN SF_GET_DPTSEQ( '01', 'B2', D.UPDPT_CD) < 1
+                        THEN '999'||D.UPDPT_CD
+                        ELSE TO_CHAR(SF_GET_DPTSEQ( '01', 'B2', D.UPDPT_CD))
+                   END                                      as HEAD_SEQ -- 본부 순서
+                 , H.DPT_CD
+                 , SF_GET_DPTNAME('01', 'A4', H.DPT_CD)     as DPT_NM   -- 소속 명칭
+                 , CASE WHEN D.SORT_NO < 1
+                        THEN '999'||D.UPDPT_CD
+                        ELSE TO_CHAR(D.SORT_NO)
+                   END                                      as DPT_SEQ  -- 소속 순서
+                 , H.JOB_CD
+                 , SF_GET_COMMNAME('01', 'A2', H.JOB_CD)    as JOB_NM   -- 직위 명칭
+                 , SF_GET_COMMSEQ( '01', 'A2', H.JOB_CD)    as JOB_SEQ  -- 직위 순서
+                 , (SELECT ENO_NM FROM T_CM_PERSON WHERE ENO_NO = H.ENO_NO) as ENO_NM
+                 , To_Char(H.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+                 , To_Char(H.RET_YMD,'YYYY/MM/DD') AS RET_YMD
+              FROM T_CM_PERSON  H
+                 , T_CM_DEPT      D
+             WHERE H.DPT_CD     = D.DPT_CD
+               AND D.GUBUN      = '01'
+               AND D.CD_GBN     = 'A4'
+			   AND ( TO_CHAR(H.HIR_YMD,'YYYYMMDD') <= ?||'1231' AND ( RET_YMD IS NULL OR TO_CHAR(H.RET_YMD,'YYYYMMDD') > ?||'1231') )
+			   AND NVL(H.HEAD_CD,' ') LIKE '%'||?||'%'
+               AND H.JOB_CD in (SELECT COMM_CD FROM T_CM_COMMON WHERE SORT_NO > 0 AND CD_GBN = 'A2'  [1] )
+             ORDER BY HEAD_SEQ, DPT_SEQ, JOB_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISA020_SHR_12">
+        <description>직위별입사자 조회상세</description>
+        <query>
+            <![CDATA[
+            --직위별입사자 조회상세
+      SELECT H.ENO_NO
+           , P.HEAD_CD                               as HEAD_CD
+           , SF_GET_DPTNAME('01', 'B2', P.HEAD_CD)   as HEAD_NM  -- 본부 명칭
+           , CASE WHEN SF_GET_DPTSEQ( '01', 'B2', P.HEAD_CD) < 1
+                  THEN '999'||P.HEAD_CD
+                  ELSE TO_CHAR(SF_GET_DPTSEQ( '01', 'B2', P.HEAD_CD))
+             END                                      as HEAD_SEQ -- 본부 순서
+           , P.DPT_CD
+           , SF_GET_DPTNAME('01', 'A4', P.DPT_CD)     as DPT_NM   -- 소속 명칭
+           , P.HEAD_CD as DPT_SEQ  -- 소속 순서
+           , P.JOB_CD
+           , SF_GET_COMMNAME('01', 'A2', P.JOB_CD)    as JOB_NM   -- 직위 명칭
+           , SF_GET_COMMSEQ( '01',  'A2', P.JOB_CD)    as JOB_SEQ  -- 직위 순서
+           , (SELECT ENO_NM FROM T_CM_PERSON WHERE ENO_NO = H.ENO_NO) as ENO_NM
+           , To_Char(P.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+           , To_Char(P.RET_YMD,'YYYY/MM/DD') AS RET_YMD
+        FROM T_CM_PERSON    P
+           , T_CM_AHISTORY  H
+       WHERE H.ENO_NO     = P.ENO_NO
+               AND TO_CHAR(HIR_YMD, 'YYYY') = ?
+			   AND H.STR_YMD = ( SELECT MIN(STR_YMD) FROM T_CM_AHISTORY WHERE ENO_NO = P.ENO_NO AND SEQ_NO = '1')
+               AND H.APP_CD NOT IN ('LB1', 'LB2','LF1','SP1') -- 전보/승진 제외
+               AND NVL(P.HEAD_CD,' ') LIKE '%'||?||'%'
+               AND P.JOB_CD in (SELECT COMM_CD FROM T_CM_COMMON WHERE SORT_NO > 0 AND CD_GBN = 'A2' [1])
+
+             ORDER BY HEAD_SEQ, DPT_SEQ, JOB_SEQ
+            ]]>
+        </query>
+    </sql>
+
+
+    <sql name="EISA020_SHR_13">
+        <description>직위별퇴사자 조회상세</description>
+        <query>
+            <![CDATA[
+            --직위별퇴사자 조회상세
+            SELECT H.ENO_NO
+                 , (SELECT UPDPT_CD FROM T_CM_DEPT WHERE GUBUN = '01' AND CD_GBN = 'A4' AND DPT_CD = H.DPT_CD) as HEAD_CD
+                 , SF_GET_DPTNAME('01', 'B2', D.UPDPT_CD)   as HEAD_NM  -- 본부 명칭
+                 , CASE WHEN SF_GET_DPTSEQ( '01', 'B2', D.UPDPT_CD) < 1
+                        THEN '999'||D.UPDPT_CD
+                        ELSE TO_CHAR(SF_GET_DPTSEQ( '01', 'B2', D.UPDPT_CD))
+                   END                                      as HEAD_SEQ -- 본부 순서
+                 , H.DPT_CD
+                 , SF_GET_DPTNAME('01', 'A4', H.DPT_CD)     as DPT_NM   -- 소속 명칭
+                 , CASE WHEN D.SORT_NO < 1
+                        THEN '999'||D.UPDPT_CD
+                        ELSE TO_CHAR(D.SORT_NO)
+                   END                                      as DPT_SEQ  -- 소속 순서
+                 , H.JOB_CD
+                 , SF_GET_COMMNAME('01', 'A2', H.JOB_CD)    as JOB_NM   -- 직위 명칭
+                 , SF_GET_COMMSEQ( '01', 'A2', H.JOB_CD)    as JOB_SEQ  -- 직위 순서
+                 , (SELECT ENO_NM FROM T_CM_PERSON WHERE ENO_NO = H.ENO_NO) as ENO_NM
+                 , To_Char(H.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+                 , To_Char(H.RET_YMD,'YYYY/MM/DD') AS RET_YMD
+              FROM T_CM_PERSON    H
+                 , T_CM_DEPT      D
+             WHERE H.DPT_CD     = D.DPT_CD
+               AND D.GUBUN      = '01'
+               AND D.CD_GBN     = 'A4'
+               AND TO_CHAR(H.RET_YMD, 'YYYY') = ?
+               AND NVL(H.HEAD_CD,' ') LIKE '%'||?||'%'
+               AND H.JOB_CD in (SELECT COMM_CD FROM T_CM_COMMON WHERE SORT_NO > 0 AND CD_GBN = 'A2' [1])
+
+             ORDER BY HEAD_SEQ, DPT_SEQ, JOB_SEQ
+            ]]>
+        </query>
+    </sql>
+
+
+    <sql name="EISA020_SHR_21">
+        <description>본부별총원 조회상세</description>
+        <query>
+            <![CDATA[
+            SELECT H.ENO_NO
+                 , D.UPDPT_CD                               as HEAD_CD
+                 , SF_GET_DPTNAME('01', 'B2', D.UPDPT_CD)   as HEAD_NM  -- 본부 명칭
+                 , CASE WHEN SF_GET_DPTSEQ( '01', 'B2', D.UPDPT_CD) < 1
+                        THEN '999'||D.UPDPT_CD
+                        ELSE TO_CHAR(SF_GET_DPTSEQ( '01', 'B2', D.UPDPT_CD))
+                   END                                      as HEAD_SEQ -- 본부 순서
+                 , H.DPT_CD
+                 , SF_GET_DPTNAME('01', 'A4', H.DPT_CD)     as DPT_NM   -- 소속 명칭
+                 , CASE WHEN D.SORT_NO < 1
+                        THEN '999'||D.UPDPT_CD
+                        ELSE TO_CHAR(D.SORT_NO)
+                   END                                      as DPT_SEQ  -- 소속 순서
+                 , H.JOB_CD
+                 , SF_GET_COMMNAME('01', 'A2', H.JOB_CD)    as JOB_NM   -- 직위 명칭
+                 , SF_GET_COMMSEQ( '01', 'A2', H.JOB_CD)    as JOB_SEQ  -- 직위 순서
+                 , (SELECT ENO_NM FROM T_CM_PERSON WHERE ENO_NO = H.ENO_NO) as ENO_NM
+                 , To_Char(H.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+                 , To_Char(H.RET_YMD,'YYYY/MM/DD') AS RET_YMD
+              FROM T_CM_PERSON  H
+                 , T_CM_DEPT      D
+             WHERE H.DPT_CD     = D.DPT_CD AND H.OCC_CD LIKE '%'||?||'%'
+               AND D.GUBUN      = '01'
+               AND D.CD_GBN     = 'A4'
+               AND ( TO_CHAR(H.HIR_YMD,'YYYYMMDD') <= ?||'1231' AND ( RET_YMD IS NULL OR TO_CHAR(H.RET_YMD,'YYYYMMDD') > ?||'1231') )
+               [1]
+             ORDER BY HEAD_SEQ, DPT_SEQ, JOB_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISA020_SHR_22">
+        <description>본부별입사자 조회상세</description>
+        <query>
+            <![CDATA[
+           SELECT H.ENO_NO
+           , P.HEAD_CD                               as HEAD_CD
+           , SF_GET_DPTNAME('01', 'B2', P.HEAD_CD)   as HEAD_NM  -- 본부 명칭
+           , CASE WHEN SF_GET_DPTSEQ( '01', 'B2', P.HEAD_CD) < 1
+                  THEN '999'||P.HEAD_CD
+                  ELSE TO_CHAR(SF_GET_DPTSEQ( '01', 'B2', P.HEAD_CD))
+             END                                      as HEAD_SEQ -- 본부 순서
+           , H.DPT_CD
+           , SF_GET_DPTNAME('01', 'A4', P.DPT_CD)     as DPT_NM   -- 소속 명칭
+           , CASE WHEN D.SORT_NO < 1
+                  THEN '999'||D.SORT_NO
+                  ELSE TO_CHAR(D.SORT_NO)
+             END                                      as DPT_SEQ  -- 소속 순서
+           , H.JOB_CD
+           , SF_GET_COMMNAME('01', 'A2', H.JOB_CD)    as JOB_NM   -- 직위 명칭
+           , SF_GET_COMMSEQ( '01', 'A2', H.JOB_CD)    as JOB_SEQ  -- 직위 순서
+           , (SELECT ENO_NM FROM T_CM_PERSON WHERE ENO_NO = H.ENO_NO) as ENO_NM
+           , To_Char(P.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+           , To_Char(P.RET_YMD,'YYYY/MM/DD') AS RET_YMD
+        FROM T_CM_PERSON    P
+           , T_CM_AHISTORY  H
+           , T_CM_DEPT      D
+       WHERE P.DPT_CD     = D.DPT_CD AND P.OCC_CD LIKE '%'||?||'%'
+               AND H.ENO_NO     = P.ENO_NO
+               AND D.GUBUN      = '01'
+               AND D.CD_GBN     = 'A4'
+               AND TO_CHAR(P.HIR_YMD, 'YYYY') = ?
+               AND H.STR_YMD = ( SELECT MIN(STR_YMD) FROM T_CM_AHISTORY WHERE ENO_NO = P.ENO_NO AND SEQ_NO = '1')
+               AND H.APP_CD NOT IN ('LB1', 'LB2','LF1','SP1') -- 전보/승진 제외
+               [1]
+             ORDER BY HEAD_SEQ, DPT_SEQ, JOB_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISA020_SHR_23">
+        <description>본부별퇴사자 조회상세</description>
+        <query>
+            <![CDATA[
+            SELECT H.ENO_NO
+                 , H.HEAD_CD
+                 , SF_GET_DPTNAME('01', 'B2', H.HEAD_CD) as HEAD_NM  -- 본부 명칭
+                 , CASE WHEN SF_GET_DPTSEQ( '01', 'B2', H.HEAD_CD) < 1
+                        THEN '999'||H.HEAD_CD
+                        ELSE TO_CHAR(SF_GET_DPTSEQ( '01', 'B2', H.HEAD_CD))
+                   END                                   as HEAD_SEQ -- 본부 순서
+                 , H.DPT_CD
+                 , SF_GET_DPTNAME('01', 'A4', H.DPT_CD)  as DPT_NM   -- 소속 명칭
+                 , CASE WHEN SF_GET_DPTSEQ( '01', 'A4', H.DPT_CD) < 1
+                        THEN '999'||H.DPT_CD
+                        ELSE TO_CHAR(SF_GET_DPTSEQ( '01', 'A4', H.DPT_CD))
+                   END                                   as DPT_SEQ  -- 소속 순서
+                 , H.JOB_CD
+                 , SF_GET_COMMNAME('01', 'A2', H.JOB_CD) as JOB_NM   -- 직위 명칭
+                 , SF_GET_COMMSEQ( '01', 'A2', H.JOB_CD) as JOB_SEQ  -- 직위 순서
+                 , (SELECT ENO_NM FROM T_CM_PERSON WHERE ENO_NO = H.ENO_NO) as ENO_NM
+                 , To_Char(H.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+                 , To_Char(H.RET_YMD,'YYYY/MM/DD') AS RET_YMD
+              FROM T_CM_PERSON    H
+             WHERE H.HEAD_CD     IN (SELECT UPDPT_CD FROM T_CM_DEPT D WHERE GUBUN = '01' AND CD_GBN = 'A4' [1]) --= D.DPT_CD
+               AND TO_CHAR(H.RET_YMD, 'YYYY') = ?
+               and H.OCC_CD LIKE '%'||?||'%'
+             ORDER BY HEAD_SEQ, DPT_SEQ, JOB_SEQ
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : EISA030
+* @description : 이직율현황
+***********************************************************************
+* 2007/04/04     이승욱        최초작성.
+***********************************************************************
+-->
+
+    <sql name="EISA030_SHR_01">
+        <description>이직자 조회년도</description>
+        <query>
+            <![CDATA[
+SELECT DISTINCT
+       TO_CHAR(RET_YMD, 'YYYY') as RET_YY
+  FROM T_CM_PERSON
+ WHERE RET_YMD < SYSDATE
+ ORDER BY RET_YY DESC
+            ]]>
+        </query>
+    </sql>
+
+
+    <sql name="EISA030_SHR_02">
+        <description>년도별 이직율 조회</description>
+        <query>
+            <![CDATA[
+SELECT T.HIR_YY
+     , NVL(SUM(T.TOT_CNT),0)      as TOT_CNT
+     , NVL(SUM(R.RET_CNT),0)      as RET_CNT
+  FROM (-- 년도별 퇴사자
+        SELECT TO_CHAR(RET_YMD,'YYYY') as RET_YY
+             , COUNT(*)   as RET_CNT
+          FROM T_CM_PERSON
+         WHERE TO_CHAR(RET_YMD,'YYYYMMDD') BETWEEN ? ||'0101' and ? ||'1231'
+         AND   NVL(HEAD_CD,' ') LIKE '%'||?||'%'
+         GROUP BY TO_CHAR(RET_YMD,'YYYY')
+        )      R,
+      (-- 년도별 총원
+        SELECT ?          as HIR_YY
+             , COUNT(*)   as TOT_CNT
+          FROM T_CM_PERSON
+         WHERE TO_CHAR(HIR_YMD, 'YYYYMMDD') < ? ||'1231'
+           AND ((RET_YMD IS NULL) OR  (TO_CHAR(RET_YMD, 'YYYYMMDD') > ? ||'1231'))
+           AND   NVL(HEAD_CD,' ') LIKE '%'||?||'%'
+        UNION ALL
+        SELECT ?          as HIR_YY
+             , COUNT(*)   as TOT_CNT
+          FROM T_CM_PERSON
+         WHERE TO_CHAR(HIR_YMD, 'YYYYMMDD') < ? ||'1231'
+           AND ((RET_YMD IS NULL) OR  (TO_CHAR(RET_YMD, 'YYYYMMDD') > ? ||'1231'))
+           AND   NVL(HEAD_CD,' ') LIKE '%'||?||'%'
+        UNION ALL
+        SELECT ?          as HIR_YY
+             , COUNT(*)   as TOT_CNT
+          FROM T_CM_PERSON
+         WHERE TO_CHAR(HIR_YMD, 'YYYYMMDD') < ? ||'1231'
+           AND ((RET_YMD IS NULL) OR  (TO_CHAR(RET_YMD, 'YYYYMMDD') > ? ||'1231'))
+           AND   NVL(HEAD_CD,' ') LIKE '%'||?||'%'
+        UNION ALL
+        SELECT ?          as HIR_YY
+             , COUNT(*)   as TOT_CNT
+          FROM T_CM_PERSON
+         WHERE TO_CHAR(HIR_YMD, 'YYYYMMDD') < ? ||'1231'
+           AND ((RET_YMD IS NULL) OR  (TO_CHAR(RET_YMD, 'YYYYMMDD') > ? ||'1231'))
+           AND   NVL(HEAD_CD,' ') LIKE '%'||?||'%'
+        UNION ALL
+        SELECT ?          as HIR_YY
+             , COUNT(*)   as TOT_CNT
+          FROM T_CM_PERSON
+         WHERE TO_CHAR(HIR_YMD, 'YYYYMMDD') < ? ||'1231'
+           AND ((RET_YMD IS NULL) OR  (TO_CHAR(RET_YMD, 'YYYYMMDD') > ? ||'1231'))
+           AND   NVL(HEAD_CD,' ') LIKE '%'||?||'%'
+       )      T
+ WHERE T.HIR_YY = R.RET_YY(+)
+ GROUP BY T.HIR_YY
+ ORDER BY T.HIR_YY
+            ]]>
+        </query>
+    </sql>
+
+
+    <sql name="EISA030_SHR_03">
+        <description>부서별 이직율 조회</description>
+        <query>
+            <![CDATA[
+SELECT C.DPT_CD                   as DPT_CD
+     , MAX(C.DPT_NM)              as DPT_NM
+     , NVL(SUM(T.TOT_CNT),0)      as TOT_CNT
+     , NVL(SUM(H.HIR_CNT),0)      as HIR_CNT
+     , NVL(SUM(R.RET_CNT),0)      as RET_CNT
+     , MAX(C.SORT_NO)             as SORT_NO
+  FROM (-- 본부별 퇴사자
+        SELECT DPT_CD, COUNT(*)   as RET_CNT
+          FROM T_CM_PERSON
+         WHERE TO_CHAR(RET_YMD, 'YYYY') = ?
+           AND HEAD_CD = ?
+         GROUP BY DPT_CD
+        )      R,
+       (-- 본부별 입사자
+        SELECT H.DPT_CD
+             , COUNT(*)       as HIR_CNT
+          FROM T_CM_PERSON       P
+             , T_CM_AHISTORY     H
+         WHERE H.ENO_NO        = P.ENO_NO
+           AND H.STR_YMD       = TO_CHAR(HIR_YMD, 'YYYYMMDD')
+           AND H.APP_CD NOT IN ('LB1', 'LB2','LF1','SP1') -- 전보/승진 제외
+           AND TO_CHAR(P.HIR_YMD,'YYYY') = ?
+           AND P.HEAD_CD = ?
+         GROUP BY H.DPT_CD
+        )      H,
+       (-- 본부별 총원
+        SELECT DPT_CD, COUNT(*)   as TOT_CNT
+          FROM T_CM_PERSON
+         WHERE TO_CHAR(HIR_YMD,'YYYYMMDD') <=  ? || '1231'
+           AND ((RET_YMD IS NULL) OR  (TO_CHAR(RET_YMD, 'YYYYMMDD') > ? || '1231'))
+           AND HEAD_CD = ?
+         GROUP BY DPT_CD
+        )      T,
+       (SELECT DPT_CD
+             , DPT_NM
+             , SORT_NO
+          FROM T_CM_DEPT
+         WHERE UPDPT_CD = ?
+        )      C
+ WHERE C.DPT_CD  = T.DPT_CD
+   AND C.DPT_CD  = H.DPT_CD(+)
+   AND C.DPT_CD  = R.DPT_CD(+)
+ GROUP BY C.DPT_CD
+ ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : EISB010
+* @description : 연도별인건비현황
+***********************************************************************
+* 2007/04/06     이승욱        최초작성.
+***********************************************************************
+-->
+
+    <sql name="EISB000_SHR_YEAR">
+        <description>인건비년도</description>
+        <query>
+            <![CDATA[
+SELECT DISTINCT PIS_YY
+  FROM T_CP_PAYMASTER WHERE PIS_YY >= '2007'
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISB010_SHR">
+        <description>연도별인건비현황</description>
+        <query>
+            <![CDATA[
+		SELECT A.* , LAG(ENO_AVR,1,'1') OVER(ORDER BY PIS_YY) AS BEFOREAMT
+		FROM
+		(
+
+			  SELECT  MAIN.PIS_YY
+			       , SUM(CASE WHEN MAIN.SAL_GBN = '0'        THEN MAIN.SALT_AMT   END)/ 1000000 as TOG_SAL    -- 합계/급여
+			       , SUM(CASE WHEN MAIN.SAL_GBN IN ('1','4')        THEN MAIN.SALT_AMT   END)/ 1000000 as TOS_SAL    -- 합계/상여
+			       , SUM(CASE WHEN MAIN.SAL_GBN IN ('0','1','4') THEN MAIN.SALT_AMT   END)/ 1000000 as TOT_SAL    -- 합계/합계
+			       ,
+	           (((SUM(CASE WHEN OCC_CD  = 'A' AND MAIN.SAL_GBN IN ('0') THEN MAIN.M_AVRAMT  END)) / Max(MAIN.NUM) / 1000000) + (
+	           (SUM(CASE WHEN OCC_CD  = 'A' AND MAIN.SAL_GBN IN ('1','4') THEN MAIN.M_AVRAMT  END)) / Max(MAIN.NUM) / 1000000 ) + (
+	           (SUM(CASE WHEN OCC_CD  = 'M' AND MAIN.SAL_GBN IN ('0') THEN MAIN.M_AVRAMT  END)) / Max(MAIN.NUM) / 1000000 ) + (
+	           (SUM(CASE WHEN OCC_CD  = 'M' AND MAIN.SAL_GBN IN ('1','4') THEN MAIN.M_AVRAMT  END)) / Max(MAIN.NUM) / 1000000 ))/2 AS ENO_AVR
+
+
+			       , SUM(CASE WHEN OCC_CD  = 'A' AND  SAL_GBN = '0'   THEN MAIN.SALT_AMT END)/ 1000000 as SAG_SAL    -- 사무직/급여
+			       , SUM(CASE WHEN OCC_CD  = 'A' AND  SAL_GBN IN ('1','4')  THEN MAIN.SALT_AMT END)/ 1000000 as SAS_SAL    -- 사무직/상여
+			       , SUM(CASE WHEN OCC_CD  = 'A' AND  SAL_GBN IN ('0','1','4') THEN MAIN.SALT_AMT END)/ 1000000 as SAT_SAL    -- 사무직/합계
+			       , (SUM(CASE WHEN OCC_CD  = 'A' AND  SAL_GBN IN ('0','1','4') THEN MAIN.M_AVRAMT END)) / Max(MAIN.NUM) / 1000000 as SAT_AVR    -- 사무직/1인평균
+
+			       , SUM(CASE WHEN OCC_CD  = 'M' AND  SAL_GBN = '0'        THEN MAIN.SALT_AMT END)/ 1000000 as TAG_SAL    -- 택배직/급여
+			       , SUM(CASE WHEN OCC_CD  = 'M' AND  SAL_GBN IN ('1','4') THEN MAIN.SALT_AMT END)/ 1000000 as TAS_SAL    -- 택배직/상여
+			       , SUM(CASE WHEN OCC_CD  = 'M' AND  SAL_GBN IN ('0','1','4') THEN MAIN.SALT_AMT END)/ 1000000 as TAT_SAL    -- 택배직/합계
+			       , (SUM(CASE WHEN OCC_CD  = 'M' AND  SAL_GBN IN ('0','1','4') THEN MAIN.M_AVRAMT END)) / Max(MAIN.NUM) / 1000000 as TAT_AVR    -- 택배직/1인평균
+			  FROM
+			  (
+			      SELECT pis_yy ,
+	                  occ_cd ,
+	                  sal_gbn ,
+	                  pis_mm AS num,
+	                  seq,
+	                  Count(DISTINCT eno_no) cnt ,     -- 인원수
+	                  Sum(salt_amt) salt_amt , -- 총액
+	                  (Sum(salt_amt) / Count(DISTINCT eno_no) ) AS m_avramt
+		          FROM t_cp_paymaster
+		          WHERE PIS_YY between ? AND ?
+		              AND Nvl(salt_amt,0) > 0
+		              AND sal_gbn IN ('0','1','4')
+		          GROUP BY pis_yy ,occ_cd , sal_gbn , pis_mm , seq
+		          ORDER BY pis_yy ,occ_cd , sal_gbn         , pis_mm , seq
+		      ) MAIN
+		  GROUP BY MAIN.PIS_YY
+		) A
+
+
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : EISB020
+* @description : 연도별직위별인건비현황
+***********************************************************************
+* 2007/04/06     이승욱        최초작성.
+***********************************************************************
+-->
+    <sql name="EISB020_SHR">
+        <description>연도별직위별인건비현황</description>
+        <query>
+            <![CDATA[
+
+SELECT PIS_YY
+     , SUM(SALT_AMT)                                                                    / 1000000 as TOT_SAL    -- 합계/합계
+     , SUM(CASE WHEN JOBT_CD IN ('1A','A2','A3','A4','A5','AB','AC') AND OCC_CD = 'A' THEN SALT_AMT END) / 1000000 as AMT_A      -- 중역
+     , SUM(CASE WHEN JOBT_CD IN ('1C','1N','1D')                     AND OCC_CD = 'A' THEN SALT_AMT END) / 1000000 as AMT_B      -- 부장
+     , SUM(CASE WHEN JOBT_CD IN ('1E')                               AND OCC_CD = 'A' THEN SALT_AMT END) / 1000000 as AMT_C      -- 차장
+     , SUM(CASE WHEN JOBT_CD IN ('20','2A','2B')                     AND OCC_CD = 'A' THEN SALT_AMT END) / 1000000 as AMT_2      -- 과장
+     , SUM(CASE WHEN JOBT_CD IN ('30','3A','3B')                     AND OCC_CD = 'A' THEN SALT_AMT END) / 1000000 as AMT_3      -- 대리
+     , SUM(CASE WHEN JOBT_CD IN ('40','4A','4B')                     AND OCC_CD = 'A' THEN SALT_AMT END) / 1000000 as AMT_4      -- 4사
+     , SUM(CASE WHEN JOBT_CD IN ('50','5A','5B')                     AND OCC_CD = 'A' THEN SALT_AMT END) / 1000000 as AMT_5      -- 5사
+     , SUM(CASE WHEN JOBT_CD NOT IN ('1A','A2','A3','A4','A5','AB','AC','1C','1N','1D','1E','20','2A','2B','30','3A','3B',
+                                 '40','4A','4B','50','5A','5B') AND OCC_CD = 'A' THEN SALT_AMT END) / 1000000 as AMT_ETC  -- 기타
+     , Sum(CASE WHEN OCC_CD = 'M' THEN SALT_AMT END) / 1000000 AS AMT_M		-- 택배직
+  FROM T_CP_PAYMASTER
+ WHERE PIS_YY BETWEEN ? AND ?
+ 	AND SAL_GBN IN ('0','1','4')
+ GROUP BY PIS_YY
+
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : EISB030
+* @description : 사업부별직위별인건비현황
+***********************************************************************
+* 2007/04/09     이승욱        최초작성.
+***********************************************************************
+-->
+    <sql name="EISB030_SHR">
+        <description>사업부별직위별인건비현황</description>
+        <query>
+            <![CDATA[
+WITH JOB_COMM AS (
+    SELECT COMM_CD  as JOB_CD
+         , GBN2_TAG as JOBT_CD
+      FROM T_CM_COMMON
+     WHERE SORT_NO > 0
+       AND CD_GBN  = 'A2'
+       AND GBN2_TAG is not NULL
+)
+SELECT DPT.HDPT_CD, DPT.HDPT_NM, DPT.DPT_CD, DPT.DPT_NM
+     , PLN.ENO_TOT as PLAN_ET, PER.ENO_TOT as CNT_ET, PLN.SAL_TOT/1000000 as PLAN_ST, SAL.SAL_TOT/1000000 as SUM_ST, NVL((SAL.SAL_TOT / PLN.SAL_TOT ) * 100,0) as RATE_TOT
+     , PLN.ENO_A   as PLAN_EA, PER.ENO_A   as CNT_EA, PLN.SAL_A  /1000000 as PLAN_SA, SAL.SAL_A  /1000000 as SUM_SA, NVL((SAL.SAL_A   / PLN.SAL_A )   * 100,0) as RATE_A
+     , PLN.ENO_B   as PLAN_EB, PER.ENO_B   as CNT_EB, PLN.SAL_B  /1000000 as PLAN_SB, SAL.SAL_B  /1000000 as SUM_SB, NVL((SAL.SAL_B   / PLN.SAL_B )   * 100,0) as RATE_B
+     , PLN.ENO_C   as PLAN_EC, PER.ENO_C   as CNT_EC, PLN.SAL_C  /1000000 as PLAN_SC, SAL.SAL_C  /1000000 as SUM_SC, NVL((SAL.SAL_C   / PLN.SAL_C )   * 100,0) as RATE_C
+     , PLN.ENO_2   as PLAN_E2, PER.ENO_2   as CNT_E2, PLN.SAL_2  /1000000 as PLAN_S2, SAL.SAL_2  /1000000 as SUM_S2, NVL((SAL.SAL_2   / PLN.SAL_2 )   * 100,0) as RATE_2
+     , PLN.ENO_3   as PLAN_E3, PER.ENO_3   as CNT_E3, PLN.SAL_3  /1000000 as PLAN_S3, SAL.SAL_3  /1000000 as SUM_S3, NVL((SAL.SAL_3   / PLN.SAL_3 )   * 100,0) as RATE_3
+     , PLN.ENO_4   as PLAN_E4, PER.ENO_4   as CNT_E4, PLN.SAL_4  /1000000 as PLAN_S4, SAL.SAL_4  /1000000 as SUM_S4, NVL((SAL.SAL_4   / PLN.SAL_4 )   * 100,0) as RATE_4
+     , PLN.ENO_5   as PLAN_E5, PER.ENO_5   as CNT_E5, PLN.SAL_5  /1000000 as PLAN_S5, SAL.SAL_5  /1000000 as SUM_S5, NVL((SAL.SAL_5   / PLN.SAL_5 )   * 100,0) as RATE_5
+     , PLN.ENO_ETC as PLAN_EE, PER.ENO_ETC as CNT_EE, PLN.SAL_ETC/1000000 as PLAN_SE, SAL.SAL_ETC/1000000 as SUM_SE, NVL((SAL.SAL_ETC / PLN.SAL_ETC ) * 100,0) as RATE_ETC
+     , PLN.ENO_M   as PLAN_M,  PER.ENO_M   as CNT_M , PLN.SAL_M  /1000000 as PLAN_SM, SAL.SAL_M  /1000000 as SUM_SM , NVL((SAL.SAL_M   / PLN.SAL_M   ) * 100,0) as RATE_M
+  FROM
+       (-- 본부/부서
+        SELECT H.DPT_CD  as HDPT_CD
+             , H.DPT_NM  as HDPT_NM
+             , D.DPT_CD
+             , D.DPT_NM
+             , H.SORT_NO as HSORT_NO
+             , D.SORT_NO as DSORT_NO
+          FROM T_CM_DEPT D
+             , T_CM_DEPT H
+         WHERE D.UPDPT_CD  = H.DPT_CD
+           AND H.SORT_NO BETWEEN 100 AND 750
+           AND D.SORT_NO BETWEEN 100 AND 750
+           AND H.CD_GBN  = 'B2'
+           AND D.CD_GBN  = 'A4'
+        )      DPT
+     , (-- 인원.인건비 계획
+        SELECT DPT_CD
+             , SUM(SALT_AMT)                                                                   as SAL_TOT    -- 합계/합계
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('1A','A2','A3','A4','A5','AB','AC') THEN SALT_AMT END) as SAL_A      -- 중역
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('1C','1N','1D')                     THEN SALT_AMT END) as SAL_B      -- 부장
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('1E')                               THEN SALT_AMT END) as SAL_C      -- 차장
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('20','2A','2B')                     THEN SALT_AMT END) as SAL_2      -- 과장
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('30','3A','3B')                     THEN SALT_AMT END) as SAL_3      -- 대리
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('40','4A','4B')                     THEN SALT_AMT END) as SAL_4      -- 4사
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('50','5A','5B')                     THEN SALT_AMT END) as SAL_5      -- 5사
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOB_CD NOT IN ('1A','A2','A3','A4','A5','AB','AC','1C','1N','1D','1E','20','2A','2B','30','3A','3B',
+                                      '40','4A','4B','50','5A','5B') THEN 0 ELSE SALT_AMT END) as SAL_ETC  -- 기타
+             , Sum(CASE WHEN OCC_CD = 'M'                                                    THEN SALT_AMT END) AS SAL_M     --택배직
+             , COUNT(ENO_NO)                                                                   as ENO_TOT
+             , COUNT(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('1A','A2','A3','A4','A5','AB','AC') THEN ENO_NO END) as ENO_A      -- 중역
+             , COUNT(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('1C','1N','1D')                     THEN ENO_NO END) as ENO_B      -- 부장
+             , COUNT(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('1E')                               THEN ENO_NO END) as ENO_C      -- 차장
+             , COUNT(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('20','2A','2B')                     THEN ENO_NO END) as ENO_2      -- 과장
+             , COUNT(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('30','3A','3B')                     THEN ENO_NO END) as ENO_3      -- 대리
+             , COUNT(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('40','4A','4B')                     THEN ENO_NO END) as ENO_4      -- 4사
+             , COUNT(CASE WHEN OCC_CD = 'A' AND JOB_CD IN ('50','5A','5B')                     THEN ENO_NO END) as ENO_5      -- 5사
+             , COUNT(CASE WHEN OCC_CD = 'A' AND JOB_CD NOT IN ('1A','A2','A3','A4','A5','AB','AC','1C','1N','1D','1E','20','2A','2B'
+                               ,'30','3A','3B','40','4A','4B','50','5A','5B') THEN ENO_NO END) as ENO_ETC  -- 기타
+             , COUNT(CASE WHEN OCC_CD = 'M'                                                    THEN ENO_NO END) as ENO_M      -- 택배직
+          FROM (SELECT B.DPT_CD
+                     , J.JOBT_CD     as JOB_CD
+                     , COUNT(DISTINCT ENO_NO) as ENO_NO
+                     , SUM(SALT_AMT) as SALT_AMT    -- 지급총액
+                     , B.OCC_CD
+                  FROM T_MI_BUDGETMST   B
+                     , JOB_COMM         J
+                 WHERE B.JOB_CD   = J.JOB_CD
+                   AND B.PIS_YY   = ?
+                   AND B.HIR_YY   = ?
+                   AND B.HIR_MM   = ?
+                   AND B.JOB_CD  != 'ZZ'
+                 GROUP BY B.DPT_CD, J.JOBT_CD , B.OCC_CD
+                )
+         GROUP BY DPT_CD
+        )      PLN
+     , (-- 인건비 실적
+        SELECT DPT_CD
+             , SUM(SALT_AMT)                                                                    as SAL_TOT    -- 합계/합계
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOBT_CD IN ('1A','A2','A3','A4','A5','AB','AC') THEN SALT_AMT END) as SAL_A      -- 중역
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOBT_CD IN ('1C','1N','1D')                     THEN SALT_AMT END) as SAL_B      -- 부장
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOBT_CD IN ('1E')                               THEN SALT_AMT END) as SAL_C      -- 차장
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOBT_CD IN ('20','2A','2B')                     THEN SALT_AMT END) as SAL_2      -- 과장
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOBT_CD IN ('30','3A','3B')                     THEN SALT_AMT END) as SAL_3      -- 대리
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOBT_CD IN ('40','4A','4B')                     THEN SALT_AMT END) as SAL_4      -- 4사
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOBT_CD IN ('50','5A','5B')                     THEN SALT_AMT END) as SAL_5      -- 5사
+             , SUM(CASE WHEN OCC_CD = 'A' AND JOBT_CD NOT IN ('1A','A2','A3','A4','A5','AB','AC','1C','1N','1D','1E','20','2A','2B','30','3A','3B',
+                                       '40','4A','4B','50','5A','5B') THEN 0 ELSE SALT_AMT END) as SAL_ETC  -- 기타
+             , SUM(CASE WHEN OCC_CD = 'M'                                                     THEN SALT_AMT END) as SAL_M      -- 택배직
+          FROM T_CP_PAYMASTER
+         WHERE PIS_YY           = ?
+           AND PIS_MM           = ?
+         GROUP BY PIS_YY, PIS_MM, DPT_CD
+        )      SAL
+     , (-- 현재원
+        SELECT DPT_CD
+             , COUNT(ENO_NO)                                                                   as ENO_TOT
+             , COUNT(CASE WHEN OCC_CD = 'A' AND J.JOBT_CD IN ('1A','A2','A3','A4','A5','AB','AC') THEN ENO_NO END) as ENO_A      -- 중역
+             , COUNT(CASE WHEN OCC_CD = 'A' AND J.JOBT_CD IN ('1C','1N','1D')                     THEN ENO_NO END) as ENO_B      -- 부장
+             , COUNT(CASE WHEN OCC_CD = 'A' AND J.JOBT_CD IN ('1E')                               THEN ENO_NO END) as ENO_C      -- 차장
+             , COUNT(CASE WHEN OCC_CD = 'A' AND J.JOBT_CD IN ('20','2A','2B')                     THEN ENO_NO END) as ENO_2      -- 과장
+             , COUNT(CASE WHEN OCC_CD = 'A' AND J.JOBT_CD IN ('30','3A','3B')                     THEN ENO_NO END) as ENO_3      -- 대리
+             , COUNT(CASE WHEN OCC_CD = 'A' AND J.JOBT_CD IN ('40','4A','4B')                     THEN ENO_NO END) as ENO_4      -- 4사
+             , COUNT(CASE WHEN OCC_CD = 'A' AND J.JOBT_CD IN ('50','5A','5B')                     THEN ENO_NO END) as ENO_5      -- 5사
+             , COUNT(CASE WHEN OCC_CD = 'A' AND J.JOBT_CD NOT IN ('1A','A2','A3','A4','A5','AB','AC','1C','1N','1D','1E','20','2A','2B','30','3A','3B',
+                                              '40','4A','4B','50','5A','5B') THEN ENO_NO END)  as ENO_ETC  -- 기타
+             , COUNT(CASE WHEN OCC_CD = 'M'                                                       THEN ENO_NO END) as ENO_M      -- 5사
+          FROM T_CM_PERSON P
+             , JOB_COMM    J
+         WHERE P.JOB_CD  = J.JOB_CD
+           AND TO_CHAR(HIRG_YMD,'YYYYMM') <=  ?||?
+           AND ((RET_YMD IS NULL) OR  (TO_CHAR(RET_YMD, 'YYYYMM') > ?||?))
+         GROUP BY DPT_CD
+        )      PER
+ WHERE DPT.DPT_CD    = PLN.DPT_CD(+)
+   AND DPT.DPT_CD    = SAL.DPT_CD(+)
+   AND DPT.DPT_CD    = PER.DPT_CD(+)
+ORDER BY HSORT_NO, DSORT_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : EISC010
+* @description : 화상조직도
+***********************************************************************
+* 2007/05/03     조정호        최초작성.
+***********************************************************************
+-->
+    <sql name="EISC010_SHR_00">
+        <description>depth 1인 자료를 찾기 (회장)</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                  ,JOB_NM||' '||ENO_NM AS ENO_NM
+                  ,HEAD_CD
+                  ,HEAD_NM
+                  ,DPT_CD
+                  ,DPT_NM
+                  ,TEAM_CD
+                  ,TEAM_NM
+                  ,JOB_CD
+                  ,JOB_NM
+                  ,DUTY_CD
+                  ,DUTY_NM
+                  ,'' AS COUNT_REM
+              FROM VI_T_CM_PERSON
+             WHERE DUTY_CD = '01'
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISC010_SHR_01">
+        <description>depth 1인 자료를 찾기 (사장)</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                  ,JOB_NM||' '||ENO_NM AS ENO_NM
+                  ,HEAD_CD
+                  ,HEAD_NM
+                  ,DPT_CD
+                  ,DPT_NM
+                  ,TEAM_CD
+                  ,TEAM_NM
+                  ,JOB_CD
+                  ,JOB_NM
+                  ,DUTY_CD
+                  ,DUTY_NM
+                  ,'' AS COUNT_REM
+              FROM VI_T_CM_PERSON
+             WHERE DUTY_CD = '02'
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISC010_SHR_02">
+        <description>depth 2인 자료를 찾기 (본부장,실장)</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                  ,JOB_NM||' '||ENO_NM AS ENO_NM
+                  ,HEAD_CD
+                  ,HEAD_NM
+                  ,DPT_CD
+                  ,DPT_NM
+                  ,TEAM_CD
+                  ,TEAM_NM
+                  ,JOB_CD
+                  ,JOB_NM
+                  ,DUTY_CD
+                  ,DUTY_NM
+                  ,'' AS COUNT_REM
+              FROM VI_T_CM_PERSON
+             WHERE DUTY_CD IN  ('03','29','30')  -- 기획실,감사실 포함 2014.01.02 본부장대행 포함 2014.06.23
+             AND ENO_NO NOT IN ('1990017')
+             ORDER BY JOB_CD, DUTY_CD
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISC010_SHR_03">
+        <description>depth 3인 자료를 찾기 (담당중역,부서장)</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                  ,JOB_NM||' '||ENO_NM AS ENO_NM
+                  ,HEAD_CD
+                  ,HEAD_NM
+                  ,DPT_CD
+                  ,DPT_NM
+                  ,TEAM_CD
+                  ,TEAM_NM
+                  ,JOB_CD
+                  ,JOB_NM
+                  ,DUTY_CD
+                  ,DUTY_NM
+                  [1]
+              FROM VI_T_CM_PERSON
+             WHERE HEAD_CD = ?
+			 AND  ( DUTY_CD IN ('04','05','17','34','30') OR CHIEF_YN = '5')
+			 AND ENO_NO NOT IN ('2030009','6050006','1990037')
+			 [2]
+            ]]>
+        </query>
+    </sql>
+
+
+    <sql name="EISC010_SHR_04">
+        <description>depth 4인 자료를 찾기 (팀장)</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                  ,JOB_NM||' '||ENO_NM AS ENO_NM
+                  ,HEAD_CD
+                  ,HEAD_NM
+                  ,DPT_CD
+                  ,DPT_NM
+                  ,TEAM_CD
+                  ,TEAM_NM
+                  ,JOB_CD
+                  ,JOB_NM
+                  ,DUTY_CD
+                  ,DUTY_NM
+                  ,'' AS COUNT_REM
+              FROM VI_T_CM_PERSON
+             WHERE ( DPT_CD = ?)
+			 AND  ( NVL(DUTY_CD, ' ') = '20'  OR CHIEF_YN = '7' )
+			 [1]       		 
+			 ORDER BY GBN_CD, DPT_SEQ, TEAM_SEQ, JOB_SEQ,HOB_CD DESC
+            ]]>
+        </query>
+    </sql>
+    
+    
+    <sql name="EISC010_SHR_05">
+        <description>depth 5인 자료를 찾기 (팀원)</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                  ,JOB_NM||' '||ENO_NM AS ENO_NM
+                  ,HEAD_CD
+                  ,HEAD_NM
+                  ,DPT_CD
+                  ,DPT_NM
+                  ,TEAM_CD
+                  ,TEAM_NM
+                  ,JOB_CD
+                  ,JOB_NM
+                  ,DUTY_CD
+                  ,DUTY_NM
+                  ,'' AS COUNT_REM
+              FROM VI_T_CM_PERSON
+             WHERE DPT_CD = ?
+			 AND ENO_NO <> ?
+       		 AND ENO_NO NOT IN ('2030009','2130003','1990027','2140031')			
+			 AND FINJ_CD NOT IN ('L24','L92')
+       		 AND DPT_CD NOT IN ('C841')
+			 [1]       		 
+			ORDER BY JOB_SEQ, HOB_CD DESC, HIR_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISC010_SHR_06">
+        <description>depth 6인 자료를 찾기 (팀원)</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                  ,JOB_NM||' '||ENO_NM AS ENO_NM
+                  ,HEAD_CD
+                  ,HEAD_NM
+                  ,DPT_CD
+                  ,DPT_NM
+                  ,TEAM_CD
+                  ,TEAM_NM
+                  ,JOB_CD
+                  ,JOB_NM
+                  ,DUTY_CD
+                  ,DUTY_NM
+                  ,'' AS COUNT_REM
+              FROM VI_T_CM_PERSON
+             WHERE TEAM_CD = ?	
+            	AND ENO_NO <> ? 	 
+			ORDER BY JOB_SEQ, HOB_CD DESC, HIR_YMD
+            ]]>
+        </query>
+    </sql>    
+    
+    
+    
+    
+    <sql name="EISC010_SHR">
+        <description>해당 사원의 정보를 가져옴</description>
+        <query>
+            <![CDATA[
+            SELECT PERSON.ENO_NO
+                  ,SF_GET_COMMNAME('01','A2',PERSON.JOB_CD)||' '||PERSON.ENO_NM AS ENO_NM
+                  ,DEPT.DPT_CD
+                  ,DEPT.DPT_NM
+                  ,PERSON.TEAM_CD
+                  ,SF_GET_DPTNAME ('01','A6',PERSON.TEAM_CD) AS TEAM_NM
+                  ,PERSON.JOB_CD
+                  ,SF_GET_COMMNAME('01','A2',PERSON.JOB_CD) AS JOB_NM
+                  ,PERSON.DUTY_CD
+                  ,SF_GET_COMMNAME('01','A7',PERSON.DUTY_CD) AS DUTY_NM
+                  ,DEPT.COUNT_REM
+              FROM (SELECT ENO_NO
+                          ,ENO_NM
+                          ,HEAD_CD
+                          ,DPT_CD
+                          ,TEAM_CD
+                          ,JOB_CD
+                          ,DUTY_CD
+                          ,HOB_CD
+                    FROM T_CM_PERSON
+                   ) PERSON
+         LEFT JOIN (SELECT *
+                      FROM T_CM_DEPT
+                     WHERE DPT_LBL = ?
+                       AND COUNT_REM NOT LIKE '999%') DEPT
+                ON DECODE(?,'2',PERSON.HEAD_CD,PERSON.DPT_CD) = DEPT.DPT_CD
+             WHERE ENO_NO = ?
+          ORDER BY SF_GET_DPTSEQ('01','A4',PERSON.DPT_CD)
+                 , SF_GET_COMMSEQ('01','A2',PERSON.JOB_CD)
+                 , SF_GET_COMMSEQ('01','A3',PERSON.HOB_CD) DESC
+                 , PERSON.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : EISC020
+* @description : 해외지사현황
+***********************************************************************
+* 2007/04/11     이승욱        최초작성.
+***********************************************************************
+-->
+    <sql name="EISC020_SHR">
+        <description>해외지사현황</description>
+        <query>
+            <![CDATA[
+SELECT C.COMM_NM   as DPC_NM
+     , D.ENO_NO
+     , P.ENO_NM
+     , D.STR_YMD
+     , NVL(D.END_YMD, '-') as END_YMD
+     , '-'         as BIGO
+   FROM T_CM_DISPATCH  D
+     , T_CM_PERSON    P
+     , T_CM_COMMON    C
+ WHERE D.ENO_NO     = P.ENO_NO
+   AND D.DPC_DPT_CD = C.COMM_CD
+   AND C.CD_GBN     = 'AL'
+   AND D.DPC_GBN    = '3'
+   AND D.STR_YMD   <= ?||'1231'
+   AND [1]
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : EISC030
+* @description : 사업부직위별학력현황
+***********************************************************************
+* 2007/04/06     이승욱        최초작성.
+***********************************************************************
+-->
+    <sql name="EISC030_SHR_01">
+        <description>직위별학력현황</description>
+        <query>
+            <![CDATA[
+SELECT J.JOB_NM
+     , COUNT(*)  as TOT_CNT
+     , NVL(SUM(CASE WHEN EDGR_CD  = '6' AND GRD_CD IN ('12','14')  THEN 1 END),0) as A  -- 박사
+     , NVL(SUM(CASE WHEN EDGR_CD  = '6' AND GRD_CD IN ('7','11')      THEN 1 END),0) as B  -- 석사
+     , NVL(SUM(CASE WHEN EDGR_CD IN ('5')	      THEN 1 END),0) as C  -- 대졸
+     , NVL(SUM(CASE WHEN EDGR_CD  = '4'               THEN 1 END),0) as C_1  -- 전문대졸
+     , NVL(SUM(CASE WHEN EDGR_CD  = '3'               THEN 1 END),0) as D  -- 고졸
+     , NVL(SUM(CASE WHEN NVL(EDGR_CD,'9') IN ('2','1','0','9') THEN 1 END),0) as E  -- 중이하
+     , MAX(J.SORT_NO) as SORT_NO
+  from T_CM_PERSON  P
+     , (SELECT CASE WHEN GBN2_TAG IN ('B3','B1','A0','A1','A2','A3','A4','A5','A6','A7','3') THEN '중역'
+			        WHEN GBN2_TAG IN ('00')                     THEN '부장'
+			        WHEN GBN2_TAG IN ('05')                     THEN '부대'
+			        WHEN GBN2_TAG IN ('10')                     THEN '차장'
+			        WHEN GBN2_TAG IN ('20')                     THEN '과장'
+			        WHEN GBN2_TAG IN ('30')                     THEN '대리'
+			        WHEN GBN2_TAG IN ('40')                     THEN '4사'
+			        WHEN GBN2_TAG IN ('50')                     THEN '5사'
+			        ELSE                                        '기타'
+               END                as JOB_NM
+             , COMM_CD            as JOB_CD
+             , SORT_NO
+          FROM T_CM_COMMON
+         WHERE SORT_NO             > 0
+           AND CD_GBN              = 'A2'
+        )      J
+ WHERE P.JOB_CD  = J.JOB_CD
+   AND TO_CHAR(P.HIR_YMD,'YYYYMM') <=  ?
+   AND ((P.RET_YMD IS NULL) OR  (TO_CHAR(P.RET_YMD, 'YYYYMM') > ?))
+   AND NVL(P.HEAD_CD,' ') LIKE '%'||?||'%'
+ GROUP BY J.JOB_NM
+ ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="EISC030_SHR_02">
+        <description>사업부별학력현황</description>
+        <query>
+            <![CDATA[
+SELECT H.DPT_NM  as HEAD_NM
+     , P.HEAD_CD
+     , D.DPT_NM
+     , P.DPT_CD
+     , COUNT(*)  as TOT_CNT
+     , NVL(SUM(CASE WHEN EDGR_CD  = '6' AND GRD_CD IN ('12','14')  THEN 1 END),0) as A  -- 박사
+     , NVL(SUM(CASE WHEN EDGR_CD  = '6' AND GRD_CD IN ('7','11')      THEN 1 END),0) as B  -- 석사
+     , NVL(SUM(CASE WHEN EDGR_CD IN ('5')         THEN 1 END),0) as C  -- 대졸
+     , NVL(SUM(CASE WHEN EDGR_CD  = '4'               THEN 1 END),0) as C_1-- 전문대졸
+     , NVL(SUM(CASE WHEN EDGR_CD  = '3'               THEN 1 END),0) as D  -- 고졸
+     , NVL(SUM(CASE WHEN NVL(EDGR_CD,'9') IN ('2','1','0','9') THEN 1 END),0) as E  -- 중이하
+     , MAX(H.SORT_NO) as SORT_NO1
+     , MAX(D.SORT_NO) as SORT_NO2
+  from T_CM_PERSON  P
+     , T_CM_DEPT    H
+     , T_CM_DEPT    D
+ WHERE P.HEAD_CD       = H.DPT_CD
+   AND P.DPT_CD        = D.DPT_CD
+   AND H.SORT_NO BETWEEN 100 AND 750
+   AND H.CD_GBN        = 'B2'
+   AND D.SORT_NO BETWEEN 100 AND 750
+   AND D.CD_GBN        = 'A4'
+   AND TO_CHAR(P.HIR_YMD,'YYYYMM') <=  ?
+   AND ((P.RET_YMD IS NULL) OR  (TO_CHAR(P.RET_YMD, 'YYYYMM') > ?))
+   AND NVL(P.HEAD_CD,' ') LIKE '%'||?||'%'
+ GROUP BY P.HEAD_CD, H.DPT_NM, P.DPT_CD, D.DPT_NM
+ ORDER BY SORT_NO1, SORT_NO2
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : EISC040
+* @description : 직위/전공/지역/학력별 현황
+***********************************************************************
+* 2007/04/09     이승욱        최초작성.
+***********************************************************************
+-->
+
+    <sql name="EISC040_SHR_01">
+        <description>직위별현황</description>
+        <query>
+            <![CDATA[
+SELECT J.JOB_NM             as H_NAME
+     , COUNT(*)             as TOT_CNT
+     , MAX(J.SORT_NO)       as SORT_NO
+  from T_CM_PERSON  P
+     , (SELECT CASE WHEN GBN2_TAG IN ('1A','A2','A3','A4','A5','AB','AC') THEN '중역'
+                    WHEN GBN2_TAG IN ('1C','1N','1D')                     THEN '부장'
+                    WHEN GBN2_TAG IN ('1E')                               THEN '차장'
+                    WHEN GBN2_TAG IN ('20','2A','2B')                     THEN '과장'
+                    WHEN GBN2_TAG IN ('30','3A','3B')                     THEN '대리'
+                    WHEN GBN2_TAG IN ('40','4A','4B')                     THEN '4사'
+                    WHEN GBN2_TAG IN ('50','5A','5B')                     THEN '5사'
+                    ELSE                                                       '기타'
+               END                as JOB_NM
+             , COMM_CD            as JOB_CD
+             , SORT_NO
+          FROM T_CM_COMMON
+         WHERE SORT_NO             > 0
+           AND CD_GBN              = 'A2'
+        )      J
+ WHERE P.JOB_CD  = J.JOB_CD
+   AND TO_CHAR(P.HIR_YMD,'YYYYMM') <=  ?
+   AND ((P.RET_YMD IS NULL) OR  (TO_CHAR(P.RET_YMD, 'YYYYMM') > ?))
+ GROUP BY J.JOB_NM
+ ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+    <sql name="EISC040_SHR_02">
+        <description>전공별 현황</description>
+        <query>
+            <![CDATA[
+SELECT NVL(R.MAJ_NM,'기타') as H_NAME
+     , COUNT(*)             as TOT_CNT
+     , NVL(MAX(R.RANK_CNT), 99)      as SORT_NO
+--     , R.MAJ_CD
+  from T_CM_PERSON  P
+     , (SELECT *
+          FROM (SELECT P.MAJ_CD
+                     , C.COMM_NM as MAJ_NM
+                     , RANK() OVER(ORDER BY COUNT(*) DESC) as RANK_CNT
+                  from T_CM_PERSON  P,
+                       T_CM_COMMON  C
+                 WHERE P.MAJ_CD   = C.COMM_CD
+                   AND C.CD_GBN   = 'E6'
+                   AND TO_CHAR(P.HIR_YMD,'YYYYMM') <=  ?
+                   AND ((P.RET_YMD IS NULL) OR  (TO_CHAR(P.RET_YMD, 'YYYYMM') > ?))
+                   AND P.MAJ_CD is not NULL
+                 GROUP BY P.MAJ_CD, C.COMM_NM)
+         WHERE ROWNUM < 14 --RANK_CNT < 10
+        )           R
+ WHERE P.MAJ_CD = R.MAJ_CD(+)
+   AND TO_CHAR(P.HIR_YMD,'YYYYMM') <=  ?
+   AND ((P.RET_YMD IS NULL) OR  (TO_CHAR(P.RET_YMD, 'YYYYMM') > ?))
+ GROUP BY R.MAJ_CD, R.MAJ_NM
+ ORDER BY TOT_CNT DESC
+            ]]>
+        </query>
+    </sql>
+    <sql name="EISC040_SHR_03">
+        <description>지역별현황</description>
+        <query>
+            <![CDATA[
+SELECT MAX(C.COMM_NM)       as H_NAME
+     , COUNT(*)             as TOT_CNT
+     , NVL(P.REG_CD,9)      as SORT_NO
+  from T_CM_PERSON  P
+     , (SELECT COMM_CD
+             , COMM_NM
+          FROM T_CM_COMMON
+         WHERE CD_GBN   = 'B3'
+        )  C
+ WHERE P.REG_CD   = C.COMM_CD(+)
+   AND TO_CHAR(P.HIR_YMD,'YYYYMM') <=  ?
+   AND ((P.RET_YMD IS NULL) OR  (TO_CHAR(P.RET_YMD, 'YYYYMM') > ?))
+ GROUP BY NVL(P.REG_CD,9)
+ ORDER BY NVL(P.REG_CD,9)
+
+            ]]>
+        </query>
+    </sql>
+    <sql name="EISC040_SHR_04">
+        <description>학력별현황</description>
+        <query>
+            <![CDATA[
+SELECT MAX(C.COMM_NM) as H_NAME
+     , COUNT(*)       as TOT_CNT
+     , MAX(C.SORT_NO) as SORT_NO
+  from T_CM_PERSON  P,
+       T_CM_COMMON  C
+ WHERE P.EDGR_CD  = C.COMM_CD(+)
+   AND C.CD_GBN(+)   = 'E1'
+   AND C.SORT_NO(+)  > 0
+   AND TO_CHAR(P.HIR_YMD,'YYYYMM') <= ?
+   AND ((P.RET_YMD IS NULL) OR  (TO_CHAR(P.RET_YMD, 'YYYYMM') > ?))
+ GROUP BY EDGR_CD
+ ORDER BY SORT_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : EISD010
+* @description : 기념일 조회
+***********************************************************************
+* 2007/04/11     이승욱        최초작성.
+***********************************************************************
+-->
+
+    <sql name="EISD010_SHR">
+        <description>기념일조회</description>
+        <query>
+            <![CDATA[
+
+SELECT '생일'                          as GUBUN
+     , H.DPT_NM                        as HEAD_NM
+     , D.DPT_NM                        as DEPT_NM
+     ,SF_GET_DPTNAME ('01','A6',P.TEAM_CD) AS TEAM_NM
+     , P.ENO_NM                        as ENO_NM
+     , P.ENO_NO                        as ENO_NO
+     , CASE WHEN SUBSTR(CET_NO, 7,1) < '3'
+            THEN TO_CHAR(SYSDATE,'YYYY') - TO_NUMBER('19' || SUBSTR(CET_NO,1,2)) + 1
+            ELSE TO_CHAR(SYSDATE,'YYYY') - TO_NUMBER('20' || SUBSTR(CET_NO,1,2)) + 1
+       END                             as AGE
+     , TO_CHAR(BIR_YMD, 'YYYY/MM/DD')||BIR_TAG  as CONG_YMD
+     , TO_CHAR(HIR_YMD, 'YYYY/MM/DD') as HIR_YMD
+     , H.SORT_NO                       as HSORT_NO
+     , D.SORT_NO                       as DSORT_NO
+  FROM T_CM_PERSON P
+     , T_CM_DEPT   H
+     , T_CM_DEPT   D
+ WHERE P.HEAD_CD = H.DPT_CD
+   AND P.DPT_CD  = D.DPT_CD
+   AND H.SORT_NO BETWEEN 100 AND 750
+   AND D.SORT_NO BETWEEN 100 AND 750
+   AND H.CD_GBN  = 'B2'
+   AND D.CD_GBN  = 'A4'
+   AND P.HIR_YMD <= SYSDATE
+   AND ((P.RET_YMD IS NULL) OR P.RET_YMD > SYSDATE)
+   AND ((TO_CHAR(BIR_YMD,'MM') = ? AND BIR_TAG   = 'S')  OR (TO_CHAR(BIR_YMD,'MMDD') BETWEEN ? AND ? AND BIR_TAG   = 'M') OR (TO_CHAR(BIR_YMD,'MMDD') BETWEEN ? AND ? AND BIR_TAG   = 'M'))
+   AND NVL(P.HEAD_CD,' ') LIKE '%'||?||'%'
+UNION ALL
+SELECT '결혼'                          as GUBUN
+     , H.DPT_NM                        as HEAD_NM
+     , D.DPT_NM                        as DEPT_NM
+     ,SF_GET_DPTNAME ('01','A6',P.TEAM_CD) AS TEAM_NM
+     , P.ENO_NM                        as ENO_NM
+     , P.ENO_NO                        as ENO_NO
+     , CASE WHEN SUBSTR(CET_NO, 7,1) < '3'
+            THEN TO_CHAR(SYSDATE,'YYYY') - TO_NUMBER('19' || SUBSTR(CET_NO,1,2)) + 1
+            ELSE TO_CHAR(SYSDATE,'YYYY') - TO_NUMBER('20' || SUBSTR(CET_NO,1,2)) + 1
+       END                             as AGE
+     , TO_CHAR(WED_YMD, 'YYYY/MM/DD')  as CONG_YMD
+     , TO_CHAR(HIR_YMD, 'YYYY/MM/DD') as HIR_YMD
+     , H.SORT_NO                       as HSORT_NO
+     , D.SORT_NO                       as DSORT_NO
+  FROM T_CM_PERSON P
+     , T_CM_DEPT   H
+     , T_CM_DEPT   D
+ WHERE P.HEAD_CD = H.DPT_CD
+   AND P.DPT_CD  = D.DPT_CD
+   AND H.SORT_NO BETWEEN 100 AND 750
+   AND D.SORT_NO BETWEEN 100 AND 750
+   AND H.CD_GBN  = 'B2'
+   AND D.CD_GBN  = 'A4'
+   AND P.HIR_YMD <= SYSDATE
+   AND ((P.RET_YMD IS NULL) OR P.RET_YMD > SYSDATE)
+   AND TO_CHAR(WED_YMD, 'MM') = ?
+   AND NVL(P.HEAD_CD,' ') LIKE '%'||?||'%'
+UNION ALL
+SELECT '장기'                          as GUBUN
+     , H.DPT_NM                        as HEAD_NM
+     , D.DPT_NM                        as DEPT_NM
+     ,SF_GET_DPTNAME ('01','A6',P.TEAM_CD) AS TEAM_NM
+     , P.ENO_NM                        as ENO_NM
+     , P.ENO_NO                        as ENO_NO
+     , CASE WHEN SUBSTR(CET_NO, 7,1) < '3'
+            THEN TO_CHAR(SYSDATE,'YYYY') - TO_NUMBER('19' || SUBSTR(CET_NO,1,2)) + 1
+            ELSE TO_CHAR(SYSDATE,'YYYY') - TO_NUMBER('20' || SUBSTR(CET_NO,1,2)) + 1
+       END                             as AGE
+     , CASE WHEN TO_CHAR(HIR_YMD, 'YYYYMM') = ? THEN '5년'
+            WHEN TO_CHAR(HIR_YMD, 'YYYYMM') = ? THEN '10년'
+            WHEN TO_CHAR(HIR_YMD, 'YYYYMM') = ? THEN '15년'
+            WHEN TO_CHAR(HIR_YMD, 'YYYYMM') = ? THEN '20년'
+            WHEN TO_CHAR(HIR_YMD, 'YYYYMM') = ? THEN '25년'
+            WHEN TO_CHAR(HIR_YMD, 'YYYYMM') = ? THEN '30년'
+            WHEN TO_CHAR(HIR_YMD, 'YYYYMM') = ? THEN '35년'
+       END                             as CONG_YMD
+     , TO_CHAR(HIR_YMD, 'YYYY/MM/DD') as HIR_YMD
+     , H.SORT_NO                       as HSORT_NO
+     , D.SORT_NO                       as DSORT_NO
+  FROM T_CM_PERSON P
+     , T_CM_DEPT   H
+     , T_CM_DEPT   D
+ WHERE P.HEAD_CD = H.DPT_CD
+   AND P.DPT_CD  = D.DPT_CD
+   AND H.SORT_NO BETWEEN 100 AND 750
+   AND D.SORT_NO BETWEEN 100 AND 750
+   AND H.CD_GBN  = 'B2'
+   AND D.CD_GBN  = 'A4'
+   AND P.HIR_YMD <= SYSDATE
+   AND ((P.RET_YMD IS NULL) OR P.RET_YMD > SYSDATE)
+   AND TO_CHAR(HIR_YMD, 'YYYYMM') IN (?,?,?,?,?,?,?)
+   AND NVL(P.HEAD_CD,' ') LIKE '%'||?||'%'
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : eisd020
+* @description : 회의보고자료현황
+***********************************************************************
+* 2007/04/20      박인이        최초작성.
+***********************************************************************
+-->
+
+    <!-- 로그인사번의 경영정보권한 조회 -->
+    <sql name="EISD020_SHR_00">
+        <description>로그인사번의 경영정보권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT EIS_AUTHO,    -- 경영정보권한
+                   CET_NO        -- 주민번호
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN  = '01'
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 회의보고자료현황 데이터 조회 -->
+    <sql name="EISD020_SHR">
+        <description>회의보고자료현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT BBS_GBN,                                                            -- 게시판구분
+                   SEQ_NO,                                                             -- 게시판순번
+                   REF_NO,                                                             -- 참조글번호
+                   STEP_NO,                                                            -- 단계
+                   DEPT_NO,                                                            -- 깊이
+                   ENO_NO,                                                             -- 등록자사번
+                   ENO_NM,
+                   SUBJECT_TAG,
+                   SRCFILE_NM,
+                   TGTFILE_NM
+            FROM ( SELECT BBS_GBN,                                                            -- 게시판구분
+                          SEQ_NO,                                                             -- 게시판순번
+                          REF_NO,                                                             -- 참조글번호
+                          STEP_NO,                                                            -- 단계
+                          DEPT_NO,                                                            -- 깊이
+                          ENO_NO,                                                             -- 등록자사번
+                          SF_GET_ENONAME('01', ENO_NO)                        AS ENO_NM,      -- 등록자
+                          CASE WHEN BBS_GBN = '5' THEN
+                              SUBSTR(SUBJECT_TAG, 1, 4)||'년 ' || SUBSTR(SUBJECT_TAG, 6, 2)||'월 '||TO_CHAR(TO_DATE(SUBJECT_TAG, 'YYYY-MM-DD'),'W')||'주'
+                               WHEN BBS_GBN = '6' THEN
+                              SUBSTR(SUBJECT_TAG, 1, 4)||'년 ' || SUBSTR(SUBJECT_TAG, 6, 2)||'월'
+                               WHEN BBS_GBN = '7' THEN
+                              SUBJECT_TAG
+                          END                                                 AS SUBJECT_TAG, -- 제목
+                          CONTENT_TXT,                                                        -- 내용
+                          DECODE(NO, 1, SRCFILE1_NM, 2, SRCFILE2_NM, 3, SRCFILE3_NM, 4, SRCFILE4_NM, 5, SRCFILE5_NM)
+                                                                              AS SRCFILE_NM,  -- 원본파일명
+                          DECODE(NO, 1, TGTFILE1_NM, 2, TGTFILE2_NM, 3, TGTFILE3_NM, 4, TGTFILE4_NM, 5, TGTFILE5_NM)
+                                                                              AS TGTFILE_NM,  -- 경로
+                          TO_CHAR(UPT_YMD, 'YYYY-MM-DD')                      AS UPT_YMD      -- 등록일자
+                   FROM ( SELECT BBS_GBN,                                                     -- 게시판구분
+                                 SEQ_NO,                                                      -- 게시판순번
+                                 REF_NO,                                                      -- 참조글번호
+                                 STEP_NO,                                                     -- 단계
+                                 DEPT_NO,                                                     -- 깊이
+                                 ENO_NO,                                                      -- 등록자사번
+                                 SUBJECT_TAG,                                                 -- 제목
+                                 CONTENT_TXT,                                                 -- 내용
+                                 SRCFILE1_NM,                                                 -- 원본파일명1
+                                 SRCFILE2_NM,                                                 -- 원본파일명2
+                                 SRCFILE3_NM,                                                 -- 원본파일명3
+                                 SRCFILE4_NM,                                                 -- 원본파일명4
+                                 SRCFILE5_NM,                                                 -- 원본파일명5
+                                 TGTFILE1_NM,                                                 -- 원본파일명1
+                                 TGTFILE2_NM,                                                 -- 원본파일명2
+                                 TGTFILE3_NM,                                                 -- 원본파일명3
+                                 TGTFILE4_NM,                                                 -- 원본파일명4
+                                 TGTFILE5_NM,                                                 -- 원본파일명5
+                                 UPT_YMD                                                      -- 등록일자
+                          FROM   T_ED_BOARD
+                          WHERE  BBS_GBN = ?
+                          AND    SUBJECT_TAG LIKE ?||'%'
+                        ) A,
+                        ( SELECT ROWNUM NO
+                          FROM   T_CM_PERSON
+                          WHERE  ROWNUM <= 5
+                        ) B
+                 )
+            WHERE  SRCFILE_NM IS NOT NULL
+            ORDER BY SUBJECT_TAG DESC
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : eisd021
+* @description : 회의보고자료 등록/수정
+***********************************************************************
+* 2007/04/20      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 회의보고자료현황 데이터 조회 -->
+    <sql name="EISD021_SHR">
+        <description>회의보고자료현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT BBS_GBN,                                                                 -- 게시판구분
+                   SEQ_NO,                                                                  -- 순번
+                   REF_NO,                                                                  -- 참조글번호
+                   STEP_NO,                                                                 -- 단계
+                   DEPT_NO,                                                                 -- 깊이
+                   ENO_NO,                                                                  -- 등록자사번
+                   SF_GET_ENONAME('01', ENO_NO)                         AS ENO_NM,          -- 등록자
+                   SUBJECT_TAG,                                                             -- 제목
+                   CONTENT_TXT,                                                             -- 내용
+                   DECODE(SRCFILE1_NM, NULL, NULL, SRCFILE1_NM)         AS SRCFILE1_NM,     -- 원본파일명1
+                   TGTFILE1_NM,                                                             -- 등록파일명1
+                   DECODE(SRCFILE2_NM, NULL, NULL, SRCFILE2_NM)         AS SRCFILE2_NM,     -- 원본파일명2
+                   TGTFILE2_NM,                                                             -- 등록파일명2
+                   DECODE(SRCFILE3_NM, NULL, NULL, SRCFILE3_NM)         AS SRCFILE3_NM,     -- 원본파일명3
+                   TGTFILE3_NM,                                                             -- 등록파일명3
+                   DECODE(SRCFILE4_NM, NULL, NULL, SRCFILE4_NM)         AS SRCFILE4_NM,     -- 원본파일명4
+                   TGTFILE4_NM,                                                             -- 등록파일명4
+                   DECODE(SRCFILE5_NM, NULL, NULL, SRCFILE5_NM)         AS SRCFILE5_NM,     -- 원본파일명5
+                   TGTFILE5_NM,                                                             -- 등록파일명5
+                   TO_CHAR(UPT_YMD, 'YYYY-MM-DD HH24:MI:SS')            AS UPT_YMD,         -- 등록일시
+                   ''  CHK
+            FROM   T_ED_BOARD
+            WHERE  BBS_GBN = ?
+            AND    SEQ_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 회의보고자료 파일관련 데이터 조회 -->
+    <sql name="EISD021_SHR_01">
+        <description>회의보고자료 파일관련 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SEQ,
+                   FILE_NAME,
+                   FILE_URL
+            FROM ( SELECT 1                      AS  SEQ,
+                          SRCFILE1_NM            AS  FILE_NAME,                     -- 원본파일명1
+                          TGTFILE1_NM            AS  FILE_URL                       -- 등록파일명1
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                   UNION ALL
+                   SELECT 2                      AS  SEQ,
+                          SRCFILE2_NM            AS  FILE_NAME,                     -- 원본파일명2
+                          TGTFILE2_NM            AS  FILE_URL                       -- 등록파일명2
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                   UNION ALL
+                   SELECT 3                      AS  SEQ,
+                          SRCFILE3_NM            AS  FILE_NAME,                     -- 원본파일명3
+                          TGTFILE3_NM            AS  FILE_URL                       -- 등록파일명3
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                   UNION ALL
+                   SELECT 4                      AS  SEQ,
+                          SRCFILE4_NM            AS  FILE_NAME,                     -- 원본파일명4
+                          TGTFILE4_NM            AS  FILE_URL                       -- 등록파일명4
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                   UNION ALL
+                   SELECT 5                      AS  SEQ,
+                          SRCFILE5_NM            AS  FILE_NAME,                     -- 원본파일명5
+                          TGTFILE5_NM            AS  FILE_URL                       -- 등록파일명5
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                 )
+            WHERE  FILE_NAME IS NOT NULL
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 회의보고자료 데이터 생성 -->
+    <sql name="EISD021_INS">
+        <description>회의보고자료 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ED_BOARD
+                  (BBS_GBN,     SEQ_NO,      REF_NO,
+                   STEP_NO,     DEPT_NO,     ENO_NO,      SUBJECT_TAG, CONTENT_TXT, SRCFILE1_NM,
+                   TGTFILE1_NM, SRCFILE2_NM, TGTFILE2_NM, SRCFILE3_NM, TGTFILE3_NM, SRCFILE4_NM, TGTFILE4_NM,
+                   SRCFILE5_NM, TGTFILE5_NM, IPT_MAN,     IPT_YMD,     UPT_MAN,     UPT_YMD
+                  )
+            VALUES
+                  (?,
+                   NVL((SELECT /*+ INDEX_DESC(T_ED_BOARD T_ED_BOARD_IDX) */ SEQ_NO + 1 FROM   T_ED_BOARD WHERE  BBS_GBN = ? AND ROWNUM  = 1), 1),
+                   NVL((SELECT MAX(REF_NO) + 1 FROM  T_ED_BOARD WHERE  BBS_GBN = ?), 1),
+                   ?,           ?,           ?,           ?,           ?,           ?,
+                   ?,           ?,           ?,           ?,           ?,           ?,           ?,
+                   ?,           ?,           ?,           SYSDATE,     ?,           SYSDATE
+                  )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 회의보고자료 데이터 수정 -->
+    <sql name="EISD021_UPT">
+        <description>회의보고자료 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ED_BOARD
+            SET    REF_NO      = ?,
+                   STEP_NO     = ?,
+                   DEPT_NO     = ?,
+                   ENO_NO      = ?,
+                   SUBJECT_TAG = ?,
+                   CONTENT_TXT = ?,
+                   SRCFILE1_NM = ?,
+                   TGTFILE1_NM = ?,
+                   SRCFILE2_NM = ?,
+                   TGTFILE2_NM = ?,
+                   SRCFILE3_NM = ?,
+                   TGTFILE3_NM = ?,
+                   SRCFILE4_NM = ?,
+                   TGTFILE4_NM = ?,
+                   SRCFILE5_NM = ?,
+                   TGTFILE5_NM = ?,
+                   UPT_MAN     = ?,
+                   UPT_YMD     = SYSDATE
+            WHERE  BBS_GBN     = ?
+            AND    SEQ_NO      = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 회의보고자료 데이터 삭제 -->
+    <sql name="EISD021_DEL">
+        <description>회의보고자료 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ED_BOARD
+            WHERE  BBS_GBN     = ?
+            AND    SEQ_NO      = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 타임시트 조회  -->
+    <sql name="EIST010_SHR">
+        <description>타임시트 조회</description>
+        <query>
+            <![CDATA[
+              SELECT 
+                B.COST_CD AS PJT_CD,
+                B.PLJ_NM AS PJT_NM,
+                 0 AS DAY_01,   
+                 0 AS DAY_02,   
+                 0 AS DAY_03,
+                 0 AS DAY_04,   
+                 0 AS DAY_05,   
+                 0 AS DAY_06,
+                 0 AS DAY_07,   
+                 0 AS DAY_08,   
+                 0 AS DAY_09,
+                 0 AS DAY_10,   
+                 0 AS DAY_11,   
+                 0 AS DAY_12,  
+                 0 AS DAY_13,   
+                 0 AS DAY_14,   
+                 0 AS DAY_15,
+                 0 AS DAY_16,   
+                 0 AS DAY_17,   
+                 0 AS DAY_18,
+                 0 AS DAY_19,   
+                 0 AS DAY_20,   
+                 0 AS DAY_21,
+                 0 AS DAY_22,   
+                 0 AS DAY_23,   
+                 0 AS DAY_24,                 
+                 0 AS DAY_25,   
+                 0 AS DAY_26,   
+                 0 AS DAY_27,
+                 0 AS DAY_28,   
+                 0 AS DAY_29,   
+                 0 AS DAY_30,  
+                 0 AS DAY_31,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'01'),'9') AS YOIL_01,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'02'),'9') AS YOIL_02,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'03'),'9') AS YOIL_03,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'04'),'9') AS YOIL_04,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'05'),'9') AS YOIL_05,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'06'),'9') AS YOIL_06,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'07'),'9') AS YOIL_07,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'08'),'9') AS YOIL_08,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'09'),'9') AS YOIL_09,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'10'),'9') AS YOIL_10,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'11'),'9') AS YOIL_11,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'12'),'9') AS YOIL_12,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'13'),'9') AS YOIL_13,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'14'),'9') AS YOIL_14,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'15'),'9') AS YOIL_15,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'16'),'9') AS YOIL_16,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'17'),'9') AS YOIL_17,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'18'),'9') AS YOIL_18,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'19'),'9') AS YOIL_19,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'20'),'9') AS YOIL_20,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'21'),'9') AS YOIL_21,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'22'),'9') AS YOIL_22,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'23'),'9') AS YOIL_23,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'24'),'9') AS YOIL_24,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'25'),'9') AS YOIL_25,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'26'),'9') AS YOIL_26,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'27'),'9') AS YOIL_27,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'28'),'9') AS YOIL_28,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'29'),'9') AS YOIL_29,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'30'),'9') AS YOIL_30,
+ 				 NVL(( SELECT A.HOL_GBN FROM ASNHR.T_DI_HOLIDAY A WHERE A.REG_YMD = ?||'31'),'9') AS YOIL_31,				 
+ 				 '' AS STATUS,
+ 				 B.PL_DEPT_CD AS TEAM_CD
+              FROM ASNHR.T_DI_HOLIDAY A, PMS.TSY200 B, ASNHR.T_CM_PERSON C
+             WHERE A.REG_YMD LIKE ?||'01%' 
+				AND B.PL_DEPT_CD = C.NSO_CD
+             	AND C.ENO_NO = ?
+				AND B.SEQ = '0'
+			[1]	
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 프로젝트 조회  -->
+    <sql name="EIST010_PJT">
+        <description>프로젝트 조회</description>
+        <query>
+            <![CDATA[
+		SELECT DISTINCT T.PJT_CD, T.PJT_NM, T.SEQ
+			FROM            
+		   ( SELECT DISTINCT
+                A.COST_CD AS PJT_CD, 
+                A.PLJ_NM AS PJT_NM, 
+                A.SEQ AS SEQ
+              FROM PMS.TSY200 A, PMS.TTS010 B
+             WHERE 
+                A.PL_DEPT_CD = B.TEAM_CD
+                AND A.USE_YN = 'Y'             
+             	AND B.ENO_NO = ?
+                AND B.REG_YMD LIKE ?||'%'           
+          UNION ALL  
+              SELECT 
+                A.COST_CD AS PJT_CD, 
+                A.PLJ_NM AS PJT_NM, 
+                A.SEQ AS SEQ
+              FROM PMS.TSY200 A, ASNHR.T_CM_PERSON B
+             WHERE 
+				A.PL_DEPT_CD = B.DPT_CD
+                AND A.USE_YN = 'Y'             
+             	AND B.ENO_NO = ? ) T
+             ORDER BY T.SEQ 
+            ]]>
+        </query>
+    </sql>
+    
+    <!-- 프로젝트 조회  -->
+    <sql name="EIST010_PJT2">
+        <description>프로젝트 조회</description>
+        <query>
+            <![CDATA[
+				SELECT 
+	                A.COST_CD AS PJT_CD, 
+	                A.PLJ_NM AS PJT_NM, 
+	                B.SEQ AS SEQ
+              FROM PMS.TSY200 A, PMS.TTS020 B
+             WHERE 
+                A.COST_CD = B.PJT_CD
+             	AND B.ENO_NO = ?
+             	ORDER BY A.SEQ
+            ]]>
+        </query>
+    </sql>
+    
+    <!-- 타임시트 데이터 생성 -->
+    <sql name="EIST010_INS">
+        <description>타임시트 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO PMS.TTS010
+                  (REG_YMD,     PJT_CD,      TEAM_CD,	  ENO_NO,	  WTIME,	STATUS,    
+                   IPT_MAN,     IPT_YMD,     UPT_MAN,     UPT_YMD
+                  )
+            VALUES
+                  (
+                   ?,           ?,           ?,           ?,			?,         'S',         
+                   ?,           SYSDATE,     ?,           SYSDATE
+                  )
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 상신 상태로 변경한다. -->
+    <sql name="EIST010_UPT">
+        <description>타임시트 상신</description>
+        <query>
+            <![CDATA[
+             UPDATE  PMS.TTS010
+             SET     STATUS = 'R',
+             		 UPT_MAN = ?,
+                     UPT_YMD = SYSDATE
+             WHERE   ENO_NO = ?
+                 AND REG_YMD LIKE ?||'%'
+            ]]>
+        </query>
+    </sql>    
+
+
+    <!-- 타임시트 데이터 삭제 -->
+    <sql name="EIST010_DEL">
+        <description>타임시트 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM PMS.TTS010
+            WHERE  REG_YMD LIKE ?||'%'
+            AND ENO_NO = ?
+            AND PJT_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 타임시트 조회  -->
+    <sql name="EIST020_SHR">
+        <description>타임시트 조회</description>
+        <query>
+            <![CDATA[
+            SELECT 
+                A.REG_YMD, A.PJT_CD, 
+                B.PLJ_NM AS PJT_NM,  
+                A.ENO_NO, ASNHR.SF_GET_ENONAME('01', A.ENO_NO) ENO_NM, 
+                B.PL_DEPT_CD, ASNHR.SF_GET_DPTNAME('01', 'A4', B.PL_DEPT_CD) TEAM_NM,
+                A.WTIME, A.STATUS
+
+              FROM PMS.TTS010 A, PMS.TSY200 B
+             WHERE A.REG_YMD LIKE ?||'%' 
+             AND A.PJT_CD = B.COST_CD
+             AND B.PL_DEPT_CD LIKE '%'||?||'%'
+             AND A.ENO_NO LIKE '%'||?||'%'            
+             ORDER BY A.PJT_CD, A.REG_YMD
+             
+
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 타임시트 조회  -->
+    <sql name="EIST020_SHR_TEAM">
+        <description>타임시트 조회</description>
+        <query>
+            <![CDATA[
+            SELECT 
+                A.DPT_CD AS TEAM_CD, 
+                ASNHR.SF_GET_DPTNAME('01','A4',A.DPT_CD) AS TEAM_NM
+              FROM ASNHR.T_CM_PERSON A
+             WHERE A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 일자별 타임시트 조회  -->
+    <sql name="EIST020_SHR_DAY">
+        <description>일자별 타임시트 조회</description>
+        <query>
+            <![CDATA[
+            SELECT 
+                A.REG_YMD, A.PJT_CD, B.PLJ_NM AS PJT_NM,  
+                A.ENO_NO, C.JOB_CD, C.HOB_CD, NVL(C.DUTY_CD,'99') AS DUTY_CD,
+                ASNHR.SF_GET_ENONAME('01', A.ENO_NO)||' '||ASNHR.SF_GET_COMMNAME('01','A2',C.JOB_CD) AS ENO_NM,
+                B.PL_DEPT_CD, ASNHR.SF_GET_DPTNAME('01', 'A4', A.TEAM_CD) TEAM_NM,
+                A.WTIME, 
+                CASE WHEN A.STATUS = 'S' THEN '저장  ' 
+					 WHEN A.STATUS = 'R' THEN '상신  '
+					 WHEN A.STATUS = 'Y' THEN '완료  '
+					 ELSE '' END AS STATUS    
+
+              FROM PMS.TTS010 A, PMS.TSY200 B, ASNHR.T_CM_PERSON C
+             WHERE A.REG_YMD LIKE ?||'%' 
+	             AND A.PJT_CD = B.COST_CD
+	             --AND A.TEAM_CD = B.PL_DEPT_CD 
+	             AND A.ENO_NO = C.ENO_NO	              
+	             AND A.WTIME != '0'           
+	             AND B.PL_DEPT_CD LIKE '%'||?||'%'      
+                 AND A.ENO_NO LIKE '%'||?||'%'	  
+               	 AND A.STATUS LIKE '%'||?||'%'	 
+             ORDER BY A.REG_YMD, C.JOB_CD, C.HOB_CD DESC, C.DUTY_CD, A.ENO_NO, A.PJT_CD
+             
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 프로젝트별 타임시트 조회  -->
+    <sql name="EIST020_SHR_PJT">
+        <description>프로젝트별 타임시트 조회</description>
+        <query>
+            <![CDATA[
+            SELECT 
+                A.REG_YMD, A.PJT_CD, B.PLJ_NM AS PJT_NM,  
+                A.ENO_NO, C.JOB_CD, C.HOB_CD, NVL(C.DUTY_CD,'99') AS DUTY_CD,
+                ASNHR.SF_GET_ENONAME('01', A.ENO_NO)||' '||ASNHR.SF_GET_COMMNAME('01','A2',C.JOB_CD) AS ENO_NM,
+                B.PL_DEPT_CD, ASNHR.SF_GET_DPTNAME('01', 'A4', A.TEAM_CD) TEAM_NM,
+                A.WTIME, 
+                CASE WHEN A.STATUS = 'S' THEN '저장  ' 
+					 WHEN A.STATUS = 'R' THEN '상신  '
+					 WHEN A.STATUS = 'Y' THEN '완료  '
+					 ELSE '' END AS STATUS             
+
+              FROM PMS.TTS010 A, PMS.TSY200 B, ASNHR.T_CM_PERSON C
+             WHERE A.REG_YMD LIKE ?||'%' 
+	             AND A.PJT_CD = B.COST_CD
+	             --AND A.TEAM_CD = B.PL_DEPT_CD 
+	             AND A.ENO_NO = C.ENO_NO	              
+	             AND A.WTIME != '0'           
+	             AND B.PL_DEPT_CD LIKE '%'||?||'%'      
+                 AND A.ENO_NO LIKE '%'||?||'%'	  
+               	 AND A.STATUS LIKE '%'||?||'%'                                    
+             ORDER BY A.PJT_CD, A.REG_YMD, C.JOB_CD, C.HOB_CD DESC, C.DUTY_CD, A.ENO_NO
+             
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 직원별 타임시트 조회  -->
+    <sql name="EIST020_SHR_PER">
+        <description>직원별 타임시트 조회</description>
+        <query>
+            <![CDATA[
+            SELECT 
+                A.REG_YMD, A.PJT_CD, B.PLJ_NM AS PJT_NM,  
+                A.ENO_NO, C.JOB_CD, C.HOB_CD, NVL(C.DUTY_CD,'99') AS DUTY_CD,
+                ASNHR.SF_GET_ENONAME('01', A.ENO_NO)||' '||ASNHR.SF_GET_COMMNAME('01','A2',C.JOB_CD) AS ENO_NM,
+                B.PL_DEPT_CD, ASNHR.SF_GET_DPTNAME('01', 'A4', A.TEAM_CD) TEAM_NM,
+                A.WTIME, 
+                CASE WHEN A.STATUS = 'S' THEN '저장  ' 
+					 WHEN A.STATUS = 'R' THEN '상신  '
+					 WHEN A.STATUS = 'Y' THEN '완료  '
+					 ELSE '' END AS STATUS              
+
+              FROM PMS.TTS010 A, PMS.TSY200 B, ASNHR.T_CM_PERSON C
+             WHERE A.REG_YMD LIKE ?||'%' 
+	             AND A.PJT_CD = B.COST_CD
+	             --AND A.TEAM_CD = B.PL_DEPT_CD 
+	             AND A.ENO_NO = C.ENO_NO	              
+	             AND A.WTIME != '0'           
+	             AND B.PL_DEPT_CD LIKE '%'||?||'%'      
+                 AND A.ENO_NO LIKE '%'||?||'%'	  
+               	 AND A.STATUS LIKE '%'||?||'%'	                                 
+             ORDER BY C.JOB_CD, C.HOB_CD DESC, C.DUTY_CD, A.ENO_NO, A.REG_YMD, A.PJT_CD
+             
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 승인 상태로 변경한다. -->
+    <sql name="EIST020_UPT_DAY">
+        <description>타임시트 승인</description>
+        <query>
+            <![CDATA[
+             UPDATE  PMS.TTS010
+             SET     STATUS = ?,
+             		 UPT_MAN = ?,
+                     UPT_YMD = SYSDATE
+             WHERE   ENO_NO = ?
+                 AND REG_YMD = ?
+                 AND PJT_CD = ?
+            ]]>
+        </query>
+    </sql>    
+
+    <!-- 승인 상태로 변경한다. -->
+    <sql name="EIST020_UPT_DAY_01">
+        <description>타임시트 승인</description>
+        <query>
+            <![CDATA[
+             UPDATE  PMS.TTS010
+             SET     STATUS = ?,
+             		 UPT_MAN = ?,
+                     UPT_YMD = SYSDATE
+             WHERE   ENO_NO = ?
+                 AND REG_YMD LIKE ?||'%' 
+
+            ]]>
+        </query>
+    </sql>  
+
+    <!-- 승인 상태로 변경한다. -->
+    <sql name="EIST020_UPT_PJT_01">
+        <description>타임시트 승인</description>
+        <query>
+            <![CDATA[
+             UPDATE  PMS.TTS010
+             SET     STATUS = ?,
+             		 UPT_MAN = ?,
+                     UPT_YMD = SYSDATE
+             WHERE   ENO_NO = ?
+                 AND REG_YMD LIKE ?||'%' 
+
+            ]]>
+        </query>
+    </sql>  
+
+
+    <!-- 승인 상태로 변경한다. -->
+    <sql name="EIST020_UPT_PER_01">
+        <description>타임시트 승인</description>
+        <query>
+            <![CDATA[
+             UPDATE  PMS.TTS010
+             SET     STATUS = ?,
+             		 UPT_MAN = ?,
+                     UPT_YMD = SYSDATE
+             WHERE   ENO_NO = ?
+                 AND REG_YMD LIKE ?||'%' 
+
+            ]]>
+        </query>
+    </sql>  
+
+
+    <!-- 프로젝트 조회  -->
+    <sql name="EIST030_SHR">
+        <description>프로젝트 조회</description>
+        <query>
+            <![CDATA[
+              SELECT 
+                A.DPT_CD,
+                ASNHR.SF_GET_DPTNAME('01','A4',A.DPT_CD) AS DPT_NM,
+                A.PJT_CD, 
+                A.PJT_NM, 
+                A.SEQ,
+                TO_CHAR(A.FROM_YMD, 'YYYYMMDD') FROM_YMD,
+                TO_CHAR(A.TO_YMD, 'YYYYMMDD') TO_YMD,
+                A.USEYN
+              FROM ASNHR.T_TS_PROJECT A
+             WHERE NVL(A.DPT_CD,' ') LIKE '%'||?||'%'
+                AND TO_CHAR(A.FROM_YMD,'YYYYMM') <= ?
+                AND TO_CHAR(A.TO_YMD,'YYYYMM') >= ?              
+			 ORDER BY A.DPT_CD 
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 팀 조회  -->
+    <sql name="EIST030_SHR_TEAM">
+        <description>팀 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  
+            	ENO_NO,
+            	DPT_CD,
+                ASNHR.SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+            	JOB_CD,
+           	    ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM            
+            FROM   ASNHR.T_CM_PERSON
+            WHERE  ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+    
+    
+    <!-- 프로젝트정보 데이터 생성 -->
+    <sql name="EIST030_INS">
+        <description>프로젝트정보 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_TS_PROJECT
+                  (PJT_CD,      PJT_NM,	  	 DPT_CD,	  SEQ,    
+                   FROM_YMD,    TO_YMD,      USEYN
+                  )
+            VALUES
+                  (
+                   ?,           ?,           ?,           ?,                 
+                   ?,           ?,           ?
+                  )
+            ]]>
+        </query>
+    </sql>    
+    
+    <!-- 프로젝트정보 수정 한다. -->
+    <sql name="EIST030_UPT">
+        <description>프로젝트 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_TS_PROJECT
+             SET     FROM_YMD = ?,
+                     TO_YMD = ?,
+                     USEYN = ?
+             WHERE   PJT_CD  = ?
+             AND     DPT_CD  = ?
+
+            ]]>
+        </query>
+    </sql>    
+    
+
+
+<!--
+***********************************************************************
+* @UseCase     : eist050
+* @description : 인건비 배부 엑셀 Upload
+***********************************************************************
+* 2017/02/16      이동훈        최초작성.
+***********************************************************************
+-->
+    <!-- 인건비 배부 엑셀 Upload 데이터 조회 -->
+    <sql name="EIST050_SHR">
+        <description>인건비 배부 엑셀 Upload 조회</description>
+        <query>
+            <![CDATA[
+             SELECT 
+             	A.PIS_YY, A.PIS_MM,
+				A.ENO_NO, ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM,
+				A.TEAM_CD, ASNHR.SF_GET_DPTNAME('01','A4',A.TEAM_CD) AS TEAM_NM,
+				A.JOB_CD, ASNHR.SF_GET_COMMNAME('01','A2',A.JOB_CD) AS JOB_NM,   
+				A.SAL_AMT,
+				A.RET_AMT,
+				A.INS_AMT,
+				A.LUN_AMT,
+				A.WEL_AMT,
+				A.O7_AMT, 
+				A.BUS_AMT,
+				A.PARK_AMT,
+				A.OIL_AMT,
+				(A.SAL_AMT+A.RET_AMT+A.INS_AMT+A.LUN_AMT+A.WEL_AMT+A.O7_AMT+A.BUS_AMT+A.PARK_AMT+A.OIL_AMT) AS SUM_AMT				            
+
+             FROM PMS.TTX010 A
+             
+             WHERE 
+                 A.PIS_YY  = ?
+             AND A.PIS_MM = ?
+             ORDER BY A.TEAM_CD, A.JOB_CD, A.ENO_NO
+            ]]>
+        </query>
+    </sql>    
+    
+    
+    
+    
+    <!-- 등록된 인건비 정보를 저장 한다. -->
+    <sql name="EIST050_SAV">
+        <description>인건비 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO PMS.TTX010
+                 (
+					PIS_YY,
+					PIS_MM,
+					TEAM_CD,
+					JOB_CD,
+					ENO_NO,
+					
+					SAL_AMT,
+					RET_AMT,
+					INS_AMT,
+					LUN_AMT,
+					WEL_AMT,
+					O7_AMT,
+					BUS_AMT,
+					PARK_AMT,
+					OIL_AMT,
+					SUM_AMT,
+
+					IPT_MAN,
+					IPT_YMD,
+					UPT_MAN,
+					UPT_YMD
+                 )
+          VALUES ( 
+          		   ?
+                 , ?
+                 , (SELECT NSO_CD FROM ASNHR.T_CM_PERSON WHERE ENO_NO = ?)
+                 , (SELECT JOB_CD FROM ASNHR.T_CM_PERSON WHERE ENO_NO = ?)
+                 , ?
+
+                 , NVL(?,0)
+                 , NVL(?,0)
+                 , NVL(?,0)
+                 , NVL(?,0)
+                 , NVL(?,0)
+                 , NVL(?,0)
+                 , NVL(?,0)
+                 , NVL(?,0)
+                 , NVL(?,0)                 
+                 , NVL(?,0)+NVL(?,0)+NVL(?,0)+NVL(?,0)+NVL(?,0)+NVL(?,0)+NVL(?,0)+NVL(?,0)+NVL(?,0)
+                 
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+        
+        
+    <!-- 등록된 인건비 정보 삭제 -->
+    <sql name="EIST050_DEL">
+        <description>인건비 정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM PMS.TTX010
+            WHERE  PIS_YY     = ?
+            AND    PIS_MM     = ?
+            ]]>
+        </query>
+    </sql>        
+        
+    
+<!--
+***********************************************************************
+* @UseCase     : eist070
+* @description : 인건비 배부 관리
+***********************************************************************
+* 2017/02/16      이동훈        최초작성.
+***********************************************************************
+-->
+    <!-- 인건비 배부 관리 -->
+    <sql name="EIST070_SHR">
+        <description>인건비 배부 관리</description>
+        <query>
+            <![CDATA[
+             SELECT 
+				A.ENO_NO, ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM,
+				A.TEAM_CD, ASNHR.SF_GET_DPTNAME('01','A4',A.TEAM_CD) AS TEAM_NM,
+				A.JOB_CD, ASNHR.SF_GET_COMMNAME('01','A2',A.JOB_CD) AS JOB_NM,   
+				A.PJT_CD, B.PLJ_NM AS PJT_NM,
+				A.TOTAL_TM, A.PJT_TM,
+				A.TOTAL_AMT, A.PJT_AMT
+
+             FROM PMS.TTX100 A, PMS.TSY200 B
+             WHERE A.PJT_CD = B.COST_CD
+             AND A.PIS_YY  = ?
+             AND A.PIS_MM = ?
+             AND A.PJT_CD  LIKE '%'||?
+             AND A.TEAM_CD LIKE '%'||?             
+             AND A.ENO_NO LIKE '%'||?              
+             ORDER BY A.TEAM_CD, A.PJT_CD, A.JOB_CD, A.ENO_NO
+            ]]>
+        </query>
+    </sql>       
+    
+    
+    <!-- 프로젝트 조회 -->
+    <sql name="EIST070_SHR_PJT">
+        <description>프로젝트 조회</description>
+        <query>
+            <![CDATA[
+             SELECT 
+				A.COST_CD AS PJT_CD, 
+				A.PLJ_NM AS PJT_NM
+             FROM PMS.TSY200 A
+             WHERE (A.COST_CD  LIKE '%'||?||'%' OR A.PLJ_NM LIKE '%'||?||'%')
+             ORDER BY A.COST_CD
+            ]]>
+        </query>
+    </sql>       
+    
+</sqls>
+
+

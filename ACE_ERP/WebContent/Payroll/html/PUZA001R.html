@@ -1,0 +1,175 @@
+<!-----------------------------------------------------------------------------
+                          케이씨티시 웹 
+-------------------------------------------------------------------------------
+시 스 템 명 : 기본코드선택 인사관리
+프로그램 ID : HUZA001R.HTML
+유       형 : html
+사 용 언 어 : html
+기 능 정 의 :
+변 경 이 력 : 
+특 기 사 항 : 
+------------------------------------------------------------------------------>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>기본코드선택</TITLE>
+<META NAME="Generator" CONTENT="EditPlus">
+<META NAME="Author" CONTENT="">
+<META NAME="Keywords" CONTENT="">
+<META NAME="Description" CONTENT="">
+<!-----------------------------------------------------------------------------
+  문자형 정의 [charset]
+------------------------------------------------------------------------------>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ks_c_5601">
+<!-----------------------------------------------------------------------------
+  StyleSheet 정의 [.css]
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+<!-----------------------------------------------------------------------------
+  Global Function 정의 [.js]
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+<script language=JavaScript src="../../common/include/kctc.js"></script>
+<script language=javascript src="../../common/include/calendar.js"></script>
+<!---------------------------------------------------------------------------
+마우스 오른쪽 버튼 사용금지
+----------------------------------------------------------------------------->
+<script language="JavaScript1.2">
+if (document.all)
+//document.onmousedown= new Function("if (event.button==2||event.button==3) alert('<주> 케이씨티시 웹싸이트에 오신것을 환영합니다!')")
+</script>
+<!--****************************************************************************--> 
+
+<script language="JavaScript">
+
+function prompt_start()
+{
+ 	var code1,code2;
+    var Is_Param = window.dialogArguments;
+	code1 = Is_Param[0];
+ 	code2 = Is_Param[1];
+    document.all.LowerFrame.style.visibility="visible";
+	ADE_Data_1.DataId= "http://was.kctc.co.kr/services/servlet/CLSEMP.Jaza002r?gstr1=" + code1+ "&gstr2=" + code2;	
+	ADE_Data_1.Reset();
+}
+function exit()
+   {
+	window.close();
+   }
+</script>
+	
+<!--그리드를 더불클릭했을경우에 나타나는 이벤트  -->
+<script language="JavaScript" for="ADE_Grid_1" event="OnDblClick(row, colid)">
+	var endList = new Array()
+	var Row = ADE_Data_1.RowPosition;
+	endList[0] = ADE_Data_1.NameString(Row, "ZA01AC");
+	endList[1] = ADE_Data_1.NameString(Row, "ZA01AD");
+	endList[2] = ADE_Data_1.NameString(Row, "ZA01AE");
+	endList[3] = ADE_Data_1.NameString(Row, "ZA01AF");
+	endList[4] = ADE_Data_1.NameString(Row, "ZA01AG");
+	endList[5] = ADE_Data_1.NameString(Row, "ZA01AH");
+	window.returnValue = endList;
+	window.close();
+</SCRIPT>
+
+<!--컴포넌트 이벤트 구현 부분-->
+<SCRIPT language=JavaScript event=OnLoadCompleted(rowcount) FOR=ADE_Data_1 >
+  document.all.LowerFrame.style.visibility="hidden";
+  if(countrow == 0 )
+	{
+ 	alert("검색된 데이터가 없습니다.");
+	}else{
+	msg_id.value= "(" + ADE_Data_1.countrow + ")건의 데이타가 검색 되었습니다.";
+	}
+</SCRIPT>
+
+<comment id="__NSID__"><OBJECT id=ADE_Data_1 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="purple" alink="red" leftmargin="0" marginwidth="0" topmargin="0" marginheight="0"  onload ="prompt_start()">
+<table border="0" cellpadding="0" cellspacing="0" width="300" height="300" class=cond_table>
+<!--제목및 버튼부분-->
+<tr>
+ <td width=100% height="20px" colspan="2">
+  <table border="0" cellpadding="0" cellspacing="0" width=100% height="20px">
+   <tr>
+    <td width="20" height="20"  background='../img/page_topbg.jpg'><img src="../img/title_img.gif"></td>
+    <td width=100%  align="left" background='../img/title_line.jpg' class=title>기본코드선택</td>
+   </tr>
+  </table>
+ </td>
+</tr>
+<!--줄긋기-->
+<tr height="5"><td background="../img/title_line.gif" colspan="2"></td></tr>
+<!--조건정의-->
+<tr>
+ <td width="100%" align="center" valign="top">
+   <table border="0"  class=cond_table width="100%">
+    <tr height="25px">
+      <td height="25px" valign="top" >
+	    <table width=100% cellpadding=0 cellspacing=0  border="0" valign="top">
+          <tr>
+ 		   <td width=45%></td>
+          <td width=40%></td>
+		  <td width=15% align="right"><IMG SRC="../img/kctc_cancel.jpg"  BORDER="0" ALT="" onclick="exit()" align="top"></td>
+	    </tr>
+       </table>
+	  </td>
+     </tr>
+   </table>
+  </td>
+</tr>
+ <!--LIST-->
+   <tr>
+     <td width="288" >
+       <table>
+ 		 <tr>
+		   <td>	
+			 <comment id="__NSID__"><OBJECT id=ADE_Grid_1 width="300" height="300" classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+				<param name=dataid        value="ADE_Data_1"> 
+  				<param name=Fillarea      value="true"> 
+				<param name=Editable      value=false> 
+				<param name=IndWidth      value=12>
+				<param name=colsizing     value=true>
+				<param name=FontName      value='굴림'>
+				<param name=FontSize      value=9 >
+				<param Name=BorderStyle   value=2> 
+				<param Name=HeadBorder    value=4>
+				<param Name=HeadLineColor value="#DDDDDD">
+				<PARAM NAME="titleHeight" VALUE="30">
+				<param name="LineColor" value="#DDDDDD">
+				<PARAM NAME="RowHeight" VALUE="20">
+				<Param Name=SortView        value=Left>
+                <Param Name="ColSizing"     Value=True>
+                <param name="ColSelect"     value=False>
+				<PARAM NAME="Format" VALUE='
+					<F>ID="{currow}",HeadBgColor=#eaeaea bgcolor=#FFFFCC Name="No", width=20px, align=center</F>
+					<C> Name=구분  코드 ID=ZA01AC HeadAlign=Center WIDTH=60  sort=true</C> 
+					<C> Name=코드한글명 ID=ZA01AD HeadAlign=Center WIDTH=210 sort=true</C>'>
+			  </OBJECT></comment><script>__ws__(__NSID__);</script>
+            </td>
+          </tr>
+	    </table>
+	 </td>
+   </tr>
+ <!--메시지-->
+  <tr>
+   <td width=100%  align="center" valign="top" >
+      <TABLE width=100% >
+	   <TR>
+		<TD width=20% class=cond_msg align=center>메세지</TD>
+		<TD width=70% align=left><INPUT id=msg_id type="text" size=30 readOnly=true></TD>
+		<TD align="right" width=10%>PUZA001R</TD>
+	   </TR>
+	  </TABLE></td>
+  </tr>
+</table>
+<!------------------------------------------------------------------------
+wait  이미지
+-------------------------------------------------------------------------->
+
+<iframe id="LowerFrame" name="work" style="visibility:hidden;position:absolute;left:50px;top:200px;width:268px;height:22px" FrameBorder="0" src="./per_wait.html"></iframe>
+</body>
+</html>

@@ -1,0 +1,768 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+
+<!--
+***********************************************************************
+* @UseCase     : ADAY010
+* @description : 일용직 인사관리
+***********************************************************************
+* 2013/06/25      이동훈       최초작성
+***********************************************************************
+-->
+
+    <!-- 일용직 인사 정보를 조회 한다. -->
+    <sql name="ADAY010_SHR">
+        <description>일용직 인사 정보 조회</description>
+        <query>
+            <![CDATA[
+			    SELECT  A.SITE_CD AS SITE_CD,
+			        SF_GET_COMMNAME('01','AY',A.SITE_CD) AS  SITE_NM,
+			        A.USE_STS,
+			        A.ENO_NM AS ENO_NM,
+			        A.CET_NO AS CET_NO,
+			        A.BNK_CD AS BNK_CD,
+			        SF_GET_COMMNAME('01','BK',A.BNK_CD)  AS BNK_NM,
+			        A.ADDRESS  AS ADDRESS,
+			        A.PH_NO  AS PH_NO,
+			        A.ACC_NO  AS ACC_NO,
+			        A.WRK_AMT AS WRK_AMT,
+			        A.REMARK AS REMARK,
+			        A.FILE_KEY AS FILE_KEY,
+        		FROM T_CA_PERSON A
+            WHERE      SITE_CD LIKE '%'||?||'%'
+	            	AND USE_STS LIKE '%'||?||'%'
+	            	AND ENO_NM LIKE '%'||?||'%'
+            ORDER BY A.SITE_CD
+
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 일용직 인사 정보를 조회 한다. -->
+    <sql name="ADAY010_SHR_FILE">
+        <description>일용직 인사 정보 조회</description>
+        <query>
+            <![CDATA[
+				  SELECT KEY
+				       , SEQ_NO
+				       , FILE_NAME
+				       , FILE_URL
+				       , FILE_URL AS UPLOAD_URL
+				    FROM T_CM_FILEUPLOAD
+				   WHERE KEY      = ?
+				     AND SEQ_NO   = NVL('', SEQ_NO)
+				ORDER BY IPT_YMD ASC
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 인사 기본 정보를 저장 한다. -->
+    <sql name="ADAY010_INS">
+        <description>인사 기본 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT INTO T_CA_PERSON
+                  (
+             		SITE_CD,
+                     ENO_NM,
+                     CET_NO,
+                     USE_STS,
+                     ADDRESS,
+                     PH_NO,
+                     BNK_CD,
+                     ACC_NO,
+                     WRK_AMT,
+                     REMARK,
+                     FILE_KEY,
+                     I_EMPNO,
+                     I_DATE,
+                     U_EMPNO,
+                     U_DATE )
+            VALUES(
+            		?
+                  , ?
+                  , ?
+                  , ?
+                  , ?
+                  , ?
+                  , ?
+                  , ?
+                  , ?
+                  , ?
+                  , ?
+                  , ?
+                  , SYSDATE
+                  , ?
+                  , SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+
+     <!-- 인사 기본 정보를 수정 한다. -->
+    <sql name="ADAY010_UPT">
+        <description>인사 기본 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_CA_PERSON
+             SET   SITE_CD     = ?,
+                     ENO_NM     = ?,
+                     CET_NO     = ?,
+                     USE_STS    = ?,
+                     ADDRESS    = ?,
+                     PH_NO       = ?,
+                     BNK_CD      = ?,
+                     ACC_NO     = ?,
+                     WRK_AMT   = ?,
+                     REMARK      = ?,
+                     FILE_KEY    = ?,
+                     U_EMPNO    = ?,
+                     U_DATE      = sysdate
+             WHERE   CET_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : ADAY020
+* @description : 일용직 근태관리
+***********************************************************************
+* 2013/06/25      이동훈       최초작성
+***********************************************************************
+-->
+
+    <!-- 일용직 인사 정보를 조회 한다. -->
+    <sql name="ADAY020_SHR">
+        <description>일용직 근태 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				A.SITE_CD AS SITE_CD,
+			    SF_GET_COMMNAME('01','AY',A.SITE_CD) AS  SITE_NM,
+				A.ENO_NM AS ENO_NM,
+				A.CET_NO AS CET_NO,
+				A.ADDRESS  AS ADDRESS,
+				A.ACC_NO  AS ACC_NO,
+				A.REMARK AS REMARK
+			FROM T_CA_PERSON A
+			WHERE 1=1
+				AND A.USE_STS =  '1'
+				AND A.SITE_CD LIKE '%'||?||'%'
+			ORDER BY A.SITE_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 근태 정보를 조회 한다. -->
+    <sql name="ADAY020_SHR_01">
+        <description>근태 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				A.WRK_DT AS WRK_DT,
+				A.YOIL AS YOIL,
+				A.SITE_CD AS  SITE_CD,
+				A.ENO_NM AS ENO_NM,
+				A.CET_NO AS  CET_NO,
+				A.WRK_GB AS WRK_GB,
+				A.WRK_YM AS  WRK_YM
+			FROM T_CA_DILIGENCE A
+				WHERE A.WRK_YM =  ?
+					AND A.ENO_NM =  ?
+					AND A.CET_NO =  ?
+				ORDER BY A.WRK_DT
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 달력 정보를 조회 한다. -->
+    <sql name="ADAY020_SHR_02">
+        <description>달력 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				A.WRK_DT AS YYMMDD,
+				A.YOIL AS  YOIL
+				FROM T_CA_CALENDAR A
+			WHERE A.WRK_DT BETWEEN ? AND ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 매핑 정보를 조회 한다. -->
+    <sql name="ADAY020_SHR_03">
+        <description>매핑 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				A.SITE_CD,
+				SF_GET_COMMNAME('01','AY',A.SITE_CD) AS  SITE_NM
+				FROM T_CA_MAPPING A
+			WHERE A.ENO_NO =  ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 생성 한다. -->
+    <sql name="ADAY020_INS">
+        <description>데이터 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CA_DILIGENCE
+                 (WRK_DT,		YOIL,				SITE_CD,    	ENO_NM,  		CET_NO,		WRK_GB,			WRK_YM,
+				  I_EMPNO,    I_DATE,			U_EMPNO,   	U_DATE)
+            VALUES
+                 (?,    ?,    ?,    ?,		?,    ?,    ?,
+				  ?, 	sysdate, 	?, 		sysdate )
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 삭제 한다. -->
+    <sql name="ADAY020_DEL">
+        <description>데이터 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM T_CA_DILIGENCE
+			WHERE ENO_NM =?
+			AND CET_NO =?
+			AND WRK_DT =?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : ADAY030
+* @description : 일용직 노무비관리
+***********************************************************************
+* 2013/06/25      이동훈       최초작성
+***********************************************************************
+-->
+
+    <!-- 일용직 노무비 정보를 조회 한다. -->
+    <sql name="ADAY030_SHR">
+        <description>일용직 근태 정보 조회</description>
+        <query>
+            <![CDATA[
+				SELECT
+					A.WRK_YM AS WRK_YM,
+					A.SITE_CD AS SITE_CD,
+					SF_GET_COMMNAME('01','AY',A.SITE_CD) AS  SITE_NM,
+					A.ENO_NM AS ENO_NM,
+					B.REMARK AS REMARK,
+					A.CET_NO AS CET_NO,
+					B.BNK_CD AS BNK_CD,
+					SF_GET_COMMNAME('01','BK',B.BNK_CD)  AS BNK_NM,
+					B.ACC_NO AS ACC_NO,
+					SF_GET_INTAGE(A.CET_NO)	AS INT_AGE,
+					B.PH_NO AS PH_NO,
+					B.ADDRESS AS ADDRESS,
+					A.WRK_AMT  AS WRK_AMT,
+					A.WRK_DAY  AS WRK_DAY,
+          			C.CNT AS CNT,
+					A.WRK_PAY  AS WRK_PAY,
+					A.INCM_TAX AS INCM_TAX,
+					A.CITI_TAX AS CITI_TAX,
+					A.NPEN_AMT  AS NPEN_AMT,
+					A.HINU_AMT  AS HINU_AMT,
+					A.HINS_AMT  AS HINS_AMT,
+
+					A.SUB_SUM  AS SUB_SUM,
+					A.ACT_AMT  AS ACT_AMT,
+
+					A.NPEN_CAMT  AS NPEN_CAMT,
+					A.HINU_CAMT  AS HINU_CAMT,
+					A.HINS_CAMT  AS HINS_CAMT,
+					A.SAN_CAMT  AS SAN_CAMT,
+					A.SUB_CSUM  AS SUB_CSUM,
+					A.FINAL_AMT  AS FINAL_AMT,
+
+					A.APP_YN  AS APP_YN
+				FROM T_CA_PAYMASTER A,
+				T_CA_PERSON B,
+		        (SELECT CET_NO,COUNT(*) CNT
+		            FROM T_CA_DILIGENCE
+		           WHERE WRK_YM = ?
+		           AND WRK_GB != 'X'
+		          GROUP BY CET_NO) C
+				WHERE 1=1
+					AND A.CET_NO = B.CET_NO
+					AND A.CET_NO = C.CET_NO
+					AND A.WRK_YM = ?
+				ORDER BY A.SITE_CD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 생성 한다. -->
+    <sql name="ADAY030_INS">
+        <description>데이터 생성</description>
+        <query>
+            <![CDATA[
+				INSERT INTO T_CA_PAYMASTER (
+					WRK_YM, SITE_CD, ENO_NM, CET_NO,
+					WRK_AMT,
+					WRK_DAY,
+					WRK_PAY,
+					INCM_TAX, CITI_TAX,
+					NPEN_AMT, HINU_AMT, HINS_AMT, SUB_SUM, ACT_AMT,
+					NPEN_CAMT, HINU_CAMT,HINS_CAMT, SAN_CAMT,
+					SUB_CSUM,FINAL_AMT,
+					I_EMPNO, I_DATE, U_EMPNO, U_DATE
+				)
+				SELECT
+					V.WRK_YM,V.SITE_CD,V.ENO_NM,V.CET_NO,
+					V.WRK_AMT,
+					V.WRK_DAY2 AS WRK_DAY,
+					V.WRK_PAY,
+					V.INCM_TAX, V.CITI_TAX,
+					V.NPEN_AMT,
+					V.HINU_AMT,
+					V.HINS_AMT,
+					FLOOR((V.INCM_TAX+V.CITI_TAX+V.NPEN_AMT+V.HINU_AMT+V.HINS_AMT)/10)*10  AS SUB_SUM,
+					FLOOR(V.WRK_PAY/10)*10 - FLOOR((V.INCM_TAX+V.CITI_TAX+V.NPEN_AMT+V.HINU_AMT+V.HINS_AMT)/10)*10  AS ACT_AMT,
+					V.NPEN_CAMT,
+					V.HINU_CAMT,
+					V.HINS_CAMT,
+					V.SAN_CAMT,
+					FLOOR((V.NPEN_CAMT+V.HINU_CAMT+V.HINS_CAMT+V.SAN_CAMT)/10)*10  AS SUB_CSUM,
+					V.WRK_PAY+FLOOR((V.NPEN_CAMT+V.HINU_CAMT+V.HINS_CAMT+V.SAN_CAMT)/10)*10  AS FINAL_AMT,
+					?,SYSDATE,?,SYSDATE
+					FROM
+					(SELECT
+					X.WRK_YM,Y.SITE_CD,
+					Y.ENO_NM, X.CET_NO,
+					Y.WRK_AMT,X.WRK_DAY,X.WRK_DAY2,
+					FLOOR((X.WRK_DAY2*Y.WRK_AMT)/10)*10 AS WRK_PAY,
+					FLOOR(Z.INCM_TAX/10)*10 AS INCM_TAX,	--소득세
+					FLOOR(Z.INCM_TAX/100)*10 AS CITI_TAX,		--주민세
+
+          			--Z.CITI_TAX AS CITI_TAX,
+
+					--CASE WHEN Y.WRK_AMT>100000 THEN  FLOOR(((Y.WRK_AMT-100000)*0.027)*X.WRK_DAY/10)*10
+					--ELSE 0 END AS INCM_TAX,	--소득세
+					--CASE WHEN Y.WRK_AMT>100000 THEN  FLOOR(((Y.WRK_AMT-100000)*0.027)*X.WRK_DAY/100)*10
+					--ELSE 0 END AS CITI_TAX,	--주민세
+
+					-- 2014.08.07 체류만료된 사람들(조희선 배종수)빼는 로직 추가
+					--CASE
+							--WHEN X.CET_NO = '6312295120190' OR X.CET_NO = '7211185102099' THEN 0
+					--		WHEN X.WRK_DAY2*Y.WRK_AMT < '250000' THEN 0
+					--     WHEN M.CET_NO = '8910316660199' THEN 0
+					--		WHEN ( (SF_GET_INTAGE(X.CET_NO) < '60') AND (X.WRK_DAY2*Y.WRK_AMT > '3980000') ) THEN 179100
+					--		WHEN (X.WRK_DAY>20 OR M.NPEN_AMT>0) AND SF_GET_INTAGE(X.CET_NO) < '60'
+					--					THEN  FLOOR(((FLOOR(X.WRK_DAY2*Y.WRK_AMT/1000)*1000)*0.045)/10)*10
+					--		WHEN SF_GET_INTAGE(X.CET_NO) > '60' THEN 0
+					--ELSE 0 END AS NPEN_AMT, 			--국민연금
+
+					-- 2014.08.07 체류만료된 사람들(조희선 배종수)빼는 로직 추가
+					--CASE
+							--WHEN X.CET_NO = '6312295120190' OR X.CET_NO = '7211185102099' THEN 0
+					--		WHEN X.WRK_DAY2*Y.WRK_AMT < '250000' THEN 0
+					--     WHEN M.CET_NO = '8910316660199' THEN 0
+					--		WHEN ( (SF_GET_INTAGE(X.CET_NO) < '60') AND (X.WRK_DAY2*Y.WRK_AMT > '3980000') ) THEN 179100
+					--		WHEN (X.WRK_DAY>20 OR M.NPEN_AMT>0) AND SF_GET_INTAGE(X.CET_NO) < '60'
+					--					THEN  FLOOR(((FLOOR(X.WRK_DAY2*Y.WRK_AMT/1000)*1000)*0.045)/10)*10
+					--		WHEN SF_GET_INTAGE(X.CET_NO) > '60' THEN 0
+					--ELSE 0 END AS NPEN_CAMT,        	--국민연금
+
+					-- 2014.10.06 체류만료된 사람들(조희선 배종수)빼는 로직 추가
+					CASE
+							WHEN X.CET_NO = '6312295120190' OR X.CET_NO = '7211185102099' THEN 0
+							WHEN X.WRK_DAY2*Y.WRK_AMT < '260000' THEN 0							
+							--WHEN X.WRK_DAY2*Y.WRK_AMT < '260000' THEN 11700
+					        WHEN M.CET_NO = '8910316660199' THEN 0
+							WHEN ( (SF_GET_INTAGE(X.CET_NO) < '60') AND (X.WRK_DAY2*Y.WRK_AMT > '4080000') ) THEN 183600
+							WHEN (X.WRK_DAY>20 OR M.NPEN_AMT>0) AND SF_GET_INTAGE(X.CET_NO) < '60'
+										THEN  FLOOR(((FLOOR(X.WRK_DAY2*Y.WRK_AMT/1000)*1000)*0.045)/10)*10
+							WHEN SF_GET_INTAGE(X.CET_NO) > '60' THEN 0
+					ELSE 0 END AS NPEN_AMT, 			--국민연금
+
+					-- 2014.10.06 체류만료된 사람들(조희선 배종수)빼는 로직 추가
+					CASE
+							WHEN X.CET_NO = '6312295120190' OR X.CET_NO = '7211185102099' THEN 0
+							WHEN X.WRK_DAY2*Y.WRK_AMT < '260000' THEN 0							
+							--WHEN X.WRK_DAY2*Y.WRK_AMT < '260000' THEN 11700
+					        WHEN M.CET_NO = '8910316660199' THEN 0
+							WHEN ( (SF_GET_INTAGE(X.CET_NO) < '60') AND (X.WRK_DAY2*Y.WRK_AMT > '4080000') ) THEN 183600
+							WHEN (X.WRK_DAY>20 OR M.NPEN_AMT>0) AND SF_GET_INTAGE(X.CET_NO) < '60'
+										THEN  FLOOR(((FLOOR(X.WRK_DAY2*Y.WRK_AMT/1000)*1000)*0.045)/10)*10
+							WHEN SF_GET_INTAGE(X.CET_NO) > '60' THEN 0
+					ELSE 0 END AS NPEN_CAMT,        	--국민연금
+
+					-- 2014.08.07 체류만료된 사람들(조희선 배종수)빼는 로직 추가
+					CASE
+							WHEN X.CET_NO = '6312295120190' OR X.CET_NO = '7211185102099' OR X.CET_NO = '7212251064110' THEN 0
+							--WHEN X.WRK_DAY2*Y.WRK_AMT < '280000' THEN 9040
+							WHEN X.WRK_DAY2*Y.WRK_AMT < '280000' THEN 0							
+							WHEN (X.WRK_DAY>20 OR M.HINU_AMT>0) THEN
+									FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.03035)/10)*10 + FLOOR(((FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.03035)/10)*10)*0.0655)/10)*10
+					ELSE 0 END AS HINU_AMT, --건강보험
+
+					-- 2014.08.07 체류만료된 사람들(조희선 배종수)빼는 로직 추가
+					CASE
+							WHEN X.CET_NO = '6312295120190' OR X.CET_NO = '7211185102099' OR X.CET_NO = '7212251064110' THEN 0
+							--WHEN X.WRK_DAY2*Y.WRK_AMT < '280000' THEN 9040
+							WHEN X.WRK_DAY2*Y.WRK_AMT < '280000' THEN 0	
+							WHEN (X.WRK_DAY>20 OR M.HINU_AMT>0) THEN
+									FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.03035)/10)*10 + FLOOR(((FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.03035)/10)*10)*0.0655)/10)*10
+					ELSE 0 END AS HINU_CAMT,        --건강보험
+
+					--CASE WHEN ( (SF_GET_INTAGE(X.CET_NO) < '60') AND (X.WRK_DAY2*Y.WRK_AMT > '3980000') ) THEN 179100
+					--		WHEN (X.WRK_DAY>20 OR M.NPEN_AMT>0 AND (M.CET_NO != '7911122343819' AND M.CET_NO != '7610052058245')) AND SF_GET_INTAGE(X.CET_NO) < '60'
+					--					THEN  FLOOR(((FLOOR(X.WRK_DAY2*Y.WRK_AMT/1000)*1000)*0.045)/10)*10
+					--		WHEN SF_GET_INTAGE(X.CET_NO) > '60' THEN 0
+					--ELSE 0 END AS NPEN_AMT, 			--국민연금
+
+					--CASE WHEN ( (SF_GET_INTAGE(X.CET_NO) < '60') AND (X.WRK_DAY2*Y.WRK_AMT > '3980000') ) THEN 179100
+					--		WHEN (X.WRK_DAY>20 OR M.NPEN_AMT>0 AND (M.CET_NO != '7911122343819' AND M.CET_NO != '7610052058245')) AND SF_GET_INTAGE(X.CET_NO) < '60'
+					--					THEN  FLOOR(((FLOOR(X.WRK_DAY2*Y.WRK_AMT/1000)*1000)*0.045)/10)*10
+					--		WHEN SF_GET_INTAGE(X.CET_NO) > '60' THEN 0
+					--ELSE 0 END AS NPEN_CAMT,        	--국민연금
+
+					--CASE WHEN (X.WRK_DAY>20 OR M.HINU_AMT>0 AND M.CET_NO != '7911122343819' AND M.CET_NO != '7610052058245')
+					--THEN
+					--FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.02995)/10)*10 + FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.02995*0.0655)/10)*10
+					--ELSE 0 END AS HINU_AMT, --건강보험
+
+					--CASE WHEN (X.WRK_DAY>20 OR M.HINU_AMT>0 AND M.CET_NO != '7911122343819' AND M.CET_NO != '7610052058245')
+					--THEN
+					--FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.02995)/10)*10 + FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.02995*0.0655)/10)*10
+					--ELSE 0 END AS HINU_CAMT,        --건강보험
+
+					--CASE WHEN X.WRK_DAY>20 AND SF_GET_INTAGE(X.CET_NO) < '60' THEN  FLOOR((X.WRK_DAY*Y.WRK_AMT*0.045)/10)*10
+					--WHEN SF_GET_INTAGE(X.CET_NO) > '60' THEN 0
+					--ELSE 0 END AS NPEN_AMT,	--국민연금
+					--CASE WHEN X.WRK_DAY>20 AND SF_GET_INTAGE(X.CET_NO) < '60' THEN  FLOOR((X.WRK_DAY*Y.WRK_AMT*0.045)/10)*10
+					--WHEN SF_GET_INTAGE(X.CET_NO) > '60' THEN 0
+					--ELSE 0 END AS NPEN_CAMT,	--국민연금
+
+					--CASE WHEN X.WRK_DAY>20 THEN
+					--FLOOR((X.WRK_DAY*Y.WRK_AMT*0.02945)/10)*10 + FLOOR((X.WRK_DAY*Y.WRK_AMT*0.02945*0.0655)/10)*10
+					--ELSE 0 END AS HINU_AMT,	--건강보험
+					--CASE WHEN X.WRK_DAY>20 THEN
+					--FLOOR((X.WRK_DAY*Y.WRK_AMT*0.02945)/10)*10 + FLOOR((X.WRK_DAY*Y.WRK_AMT*0.02945*0.0655)/10)*10
+					--ELSE 0 END AS HINU_CAMT,	--건강보험
+
+					--CASE WHEN SF_GET_INTAGE(X.CET_NO) < '65' THEN  FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.0065)/10)*10
+					--WHEN SF_GET_INTAGE(X.CET_NO) >= '65' THEN 0
+					--ELSE 0 END AS HINS_AMT,	--고용(근로자)
+					--CASE WHEN SF_GET_INTAGE(X.CET_NO) < '65' THEN  FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.013)/10)*10
+					--WHEN SF_GET_INTAGE(X.CET_NO) >= '65' THEN FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.0065)/10)*10
+					--ELSE 0 END AS HINS_CAMT,	--고용(회사)
+
+					-- 2014.08.07 체류만료된 사람들(조희선 배종수)빼는 로직 추가
+					CASE
+					--WHEN X.CET_NO = '6312295120190' OR X.CET_NO = '7211185102099' THEN 0
+					WHEN SF_GET_INTAGE(X.CET_NO) < '65' THEN  FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.0065)/10)*10
+					WHEN SF_GET_INTAGE(X.CET_NO) >= '65' THEN 0
+					ELSE 0 END AS HINS_AMT,	--고용(근로자)
+
+					CASE
+					--WHEN X.CET_NO = '6312295120190' OR X.CET_NO = '7211185102099' THEN 0
+					WHEN SF_GET_INTAGE(X.CET_NO) < '65' THEN  FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.013)/10)*10
+					WHEN SF_GET_INTAGE(X.CET_NO) >= '65' THEN FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.0065)/10)*10
+					ELSE 0 END AS HINS_CAMT,	--고용(회사)
+
+					--FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.0065)/10)*10 AS HINS_AMT,--고용(근로자)
+					--FLOOR((X.WRK_DAY2*Y.WRK_AMT*0.013)/10)*10 AS HINS_CAMT,--고용(회사)
+
+					CASE WHEN X.SITE_CD IN ('K209','K110','K111','K112','K113','K114','K115','K116','K210','K301','KK36') THEN
+					FLOOR((X.WRK_DAY*Y.WRK_AMT*0.00784)/10)*10
+					ELSE 0 END AS SAN_CAMT	--산재(회사만)
+
+					--FLOOR((X.WRK_DAY*Y.WRK_AMT*0.00684)/10)*10 	AS SAN_CAMT--산재(회사만)
+
+				FROM
+					(SELECT A.CET_NO, A.WRK_YM, A.SITE_CD,
+					 SUM(CASE WHEN A.WRK_GB ='1' THEN '1'
+					                  WHEN A.WRK_GB ='2' THEN '0'
+					                  WHEN A.WRK_GB ='3' THEN '1'
+					           END)  WRK_DAY,					            -- 소득세,주민세 세금 계산을 위한 근무일수
+					 SUM(CASE WHEN A.WRK_GB ='1' THEN '1'
+					                  WHEN A.WRK_GB ='2' THEN '0.5'
+					                  WHEN A.WRK_GB ='3' THEN '1.5'
+					           END)  WRK_DAY2								-- 지급액까지 계산하고 보여주기 기타세금계산 위한 근무일수 WRK_DAY
+					FROM T_CA_DILIGENCE A
+					WHERE A.WRK_YM = ?
+					GROUP BY A.CET_NO, A.WRK_YM, A.SITE_CD) X
+
+					LEFT JOIN T_CA_PERSON Y ON X.CET_NO = Y.CET_NO
+			        LEFT JOIN  (SELECT A.CET_NO,
+			              SUM(CASE WHEN A.WRK_AMT*DECODE(B.WRK_GB,'1',1,'2',0.5,'3',1.5) > 100000 THEN
+			              FLOOR((A.WRK_AMT*DECODE(B.WRK_GB,'1',1,'2',0.5,'3',1.5) - 100000)*0.027)
+			              ELSE 0 END) AS INCM_TAX,
+			              SUM(CASE WHEN A.WRK_AMT*DECODE(B.WRK_GB,'1',1,'2',0.5,'3',1.5) > 100000 THEN
+			              FLOOR(((A.WRK_AMT*DECODE(B.WRK_GB,'1',1,'2',0.5,'3',1.5) - 100000)*0.027)/100)*10
+			              ELSE 0 END) AS CITI_TAX
+			              FROM T_CA_PERSON A, T_CA_DILIGENCE B
+			              WHERE A.CET_NO = B.CET_NO
+			              AND B.WRK_YM = ?
+			              GROUP BY A.CET_NO) Z ON Z.CET_NO = X.CET_NO
+
+					LEFT JOIN T_CA_PAYMASTER M ON M.CET_NO = Y.CET_NO AND M.CET_NO = Y.CET_NO AND M.WRK_YM = TO_CHAR(ADD_MONTHS(?||'01',-1),'YYYYMM')
+				) V
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 삭제 한다. -->
+    <sql name="ADAY030_DEL">
+        <description>데이터 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM T_CA_PAYMASTER
+			WHERE WRK_YM = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : ADAY040
+* @description : 일용직 결재조회
+***********************************************************************
+* 2013/06/25      이동훈       최초작성
+***********************************************************************
+-->
+
+    <!-- 일용직 결재 정보를 조회 한다. -->
+    <sql name="ADAY040_SHR">
+        <description>일용직 결재 정보 조회</description>
+        <query>
+            <![CDATA[
+		       SELECT GUN_GBN, SUBSTR(REQ_NO,7,4) AS SITE_CD,
+		       		   SF_GET_COMMNAME('01', 'AY', SUBSTR(REQ_NO,7,4)) AS SITE_NM,
+				       GUN_DPT AS DPT_CD,
+				       SEQ_NO,
+				       ENO_NO,
+				       JOB_CD,
+		       		   IPT_YMD,
+		       		   PENO_NO,SF_GET_ENONAME('01', PENO_NO) AS PENO_NM,APP_YN,
+		       		   DECODE(APP_YN,NULL,'미결','Y','결재','N','부결') AS APP_YN_NM,
+		       		   SF_GET_ENONAME('01', ENO_NO) AS ENO_NM,
+		       		   SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM,
+		               SF_GET_DPTNAME('01', 'A4', GUN_DPT) AS DPT_NM,
+		               REQ_NO
+		       FROM   T_DI_APPROVAL
+		       WHERE  GUN_GBN = 'K'
+					AND SUBSTR(REQ_NO,1,6) = ?
+					AND SUBSTR(REQ_NO,7,4) LIKE '%'||?||'%'
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : ADAY050
+* @description : 일용직 결재
+***********************************************************************
+* 2013/06/25      이동훈       최초작성
+***********************************************************************
+-->
+
+    <!-- 일용직 결재 정보를 조회 한다. -->
+    <sql name="ADAY050_SHR_MST">
+        <description>일용직 결재 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+                A.PENO_NO AS ENO_NO, SF_GET_ENONAME('01', A.PENO_NO) AS ENO_NM,
+                B.DPT_CD, SF_GET_DPTNAME('01', 'A4', B.DPT_CD) AS DPT_NM,
+                B.JOB_CD, SF_GET_COMMNAME('01', 'A2', B.JOB_CD) AS JOB_NM,
+                TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS REQ_YMD	,
+                SF_GET_COMMNAME('01', 'AY', SUBSTR(?,7,4)) AS SITE_NM
+            FROM T_DI_APPROVAL A, T_CM_PERSON B
+
+            WHERE A.PENO_NO = B.ENO_NO
+            AND A.REQ_NO = ?
+            AND A.SEQ_NO = '1'
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 일용직 결재 정보를 조회 한다. -->
+    <sql name="ADAY050_SHR_DTL">
+        <description>일용직 결재 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				A.ENO_NM, A.CET_NO, A.WRK_AMT,
+				C.SITE_CD, SF_GET_COMMNAME('01','AY',C.SITE_CD) AS  SITE_NM,
+				C.WRK_DAY,
+				D.WRK_PAY,
+				C.STR_YMD, C.END_YMD, C.WRK_YM
+			FROM T_CA_PERSON A,
+				(SELECT
+						B.ENO_NM, B.CET_NO,
+					  	SUM(CASE WHEN B.WRK_GB ='1' THEN '1'
+                      					WHEN B.WRK_GB ='2' THEN '0.5'
+                      					WHEN B.WRK_GB ='3' THEN '1.5'
+                				END)  AS WRK_DAY,
+						MAX(B.SITE_CD) SITE_CD,
+						MIN(WRK_DT) STR_YMD, MAX(WRK_DT) END_YMD, MAX(B.WRK_YM) WRK_YM
+				FROM T_CA_DILIGENCE B
+					WHERE B.WRK_GB IN ('1','2','3')
+					AND B.WRK_YM = ?
+				GROUP BY B.ENO_NM, B.CET_NO) C, T_CA_PAYMASTER D
+			WHERE A.CET_NO = C.CET_NO AND A.CET_NO = D.CET_NO AND C.WRK_YM = D.WRK_YM
+				AND C.WRK_YM = ?
+				AND C.SITE_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 품의번호  조회 -->
+    <sql name="ADAY050_SHR_REQ">
+        <description>품의번호 조회</description>
+        <query>
+            <![CDATA[
+				SELECT
+					?||?||TRIM(TO_CHAR( DECODE( MAX(SUBSTR(REQ_NO, 11, 2)), NULL, '01', MAX(SUBSTR(REQ_NO, 11,2))+1 ), '00'))
+					AS REQ_NO
+				FROM    T_DI_APPROVAL
+				WHERE   GUN_GBN = 'K'
+					AND SUBSTR(REQ_NO,1,6) = ?
+					AND SUBSTR(REQ_NO,7,4) = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 근태정보  조회 -->
+    <sql name="ADAY050_SHR_GUN">
+        <description>근태정보 조회</description>
+        <query>
+            <![CDATA[
+				SELECT
+					A.WRK_DT AS WRK_DT,
+					A.YOIL AS YOIL,
+					A.SITE_CD AS  SITE_CD,
+					A.ENO_NM AS ENO_NM,
+					A.CET_NO AS  CET_NO,
+					A.WRK_GB AS WRK_GB,
+					A.WRK_YM AS  WRK_YM
+				FROM T_CA_DILIGENCE A
+				WHERE A.WRK_YM =  ?
+					AND A.CET_NO =  ?
+					ORDER BY A.WRK_DT
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 일용직 결재 정보를 조회 한다. -->
+    <sql name="ADAY050_SHR_APP">
+        <description>일용직 결재 정보 조회</description>
+        <query>
+            <![CDATA[
+			   SELECT
+			        GUN_YMD,
+			        GUN_GBN,
+			        GUN_DPT AS DPT_CD,
+			        SEQ_NO,
+			        ENO_NO,
+			        JOB_CD,
+			        APP_TIME,
+			        PENO_NO
+			        ,APP_YN
+				    , (CASE WHEN APP_YN = 'N' THEN  '부결  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+				                  WHEN APP_YN = 'E' THEN  '반송  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+				                  WHEN APP_YN = 'Y' THEN  '승인  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+				              ELSE '미결'
+				     END ) AS APP_YN_NM
+			        ,SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+			        ,SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+			        ,SF_GET_DPTNAME('01', 'A4', GUN_DPT) AS DPT_NM
+			        ,REQ_NO
+				    ,(CASE WHEN APP_YN = 'Y' THEN TO_CHAR(UPT_YMD, 'YYYY-MM-DD HH24:MI') ELSE '' END ) AS UPT_YMD
+			        ,REMARK
+			        ,NVL2(REMARK,'Click','') AS REMARK1
+			   FROM   T_DI_APPROVAL
+			   WHERE  GUN_GBN = 'K'
+					AND SUBSTR(REQ_NO,1,6) = ?
+					AND SUBSTR(REQ_NO,7,4) = ?
+		         	AND SUBSTR(REQ_NO,11,2) = (SELECT MAX(C.REQ_NO)
+		                                        FROM(
+		                                        SELECT SUBSTR(REQ_NO,11,2) AS REQ_NO
+		                                            FROM   T_DI_APPROVAL
+		                                            WHERE  GUN_GBN = 'K'
+		                                                 AND SUBSTR(REQ_NO,1,6) = ?
+		                                                 AND SUBSTR(REQ_NO,7,4) = ?
+		                                            GROUP BY REQ_NO) C)
+			ORDER BY SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재정보 저장 -->
+    <sql name="ADAY050_SAV_APP">
+        <description>결재정보 저장</description>
+        <query>
+            <![CDATA[
+           INSERT INTO T_DI_APPROVAL
+                ( GUN_YMD
+                , GUN_GBN
+                , GUN_DPT
+                , PENO_NO
+                , REQ_NO
+                , APP_YN
+                , SEQ_NO
+                , ENO_NO
+                , JOB_CD
+                , IPT_MAN
+                , IPT_YMD
+                , UPT_MAN
+                , UPT_YMD)
+         VALUES ( ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , SYSDATE
+                , ?
+                , SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재처리 -->
+    <sql name="ADAY050_UPT_APP">
+        <description>결재정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_DI_APPROVAL
+            SET    APP_YN = ?,
+                   APP_TIME = TO_CHAR(sysdate,'HH24:MI'),
+                   REMARK   = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD = sysdate
+            WHERE  1=1
+            AND    REQ_NO  = ?
+            AND    GUN_GBN = ?
+            AND    ENO_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+</sqls>

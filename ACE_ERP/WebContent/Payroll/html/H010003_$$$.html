@@ -1,0 +1,1267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	소속정보관리
++ 프로그램 ID	: h010003
++ 기 능 정 의	: 조회|등록|저장|삭제|출력
++ 변 경 이 력	: 이순미
++ 수 정 이 력	: 정영식 ( 출력순 삽입)
++ 서 블 릿 명	: h010003_s1,h010003_t1
+------------------------------------------------------------------------------>
+<HTML>
+  <HEAD>
+    <TITLE>
+    소속정보관리
+    </TITLE>
+    <META http-equiv=Content-Type content="text/html; charset=ks_c_5601-1987">
+    <!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+    <LINK href="../../common/include/common.css" rel=stylesheet>
+    <!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+    <SCRIPT language=javascript src="../../common/include/PubFun.js">
+    </SCRIPT>
+    <!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+    <STYLE type=text/css>
+      <!--
+//-->
+    </STYLE>
+    <!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+    <SCRIPT language=javascript>
+    /******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+
+	ln_Luxequery();		//공통코드[근무지]
+
+	//ln_Query22();			//조직정보[Tree조직]
+	//ln_Query2();			//조직정보[하위소속]
+	//ln_Query3();			//조직정보[전체소속]
+}
+
+/******************************************************************************
+	Description : 소속코드 - 조회
+******************************************************************************/
+function ln_Query(){
+
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	document.all.LowerFrame.style.visibility="visible";
+
+	var str1 = txt_deptcd1.value;
+	var str2 = txt_deptnmk1.value;
+	
+	gcds_dept.DataID = "/services/servlet/Person.h010003_s1?v_str1="+str1 +"&v_str2="+str2;
+	gcds_dept.Reset();
+	
+	gcem_deptcd.enabled = false;
+
+		if (gcds_dept.namevalue(gcds_dept.rowposition,"USEYN") == "T") {
+		txt_useyn.checked		= true;
+	} else {
+		txt_useyn.checked		= false;
+	}
+
+	if (gcds_dept.namevalue(gcds_dept.rowposition,"REDTAXYN") == "T") {
+		txt_useyn2.checked	= true;
+	} else {
+		txt_useyn2.checked	= false;
+	}
+
+}
+
+/*-----------------------------------------------------------------------------
+ #  조직정보  : 조회[Tree조직리스트]
+-----------------------------------------------------------------------------*/
+function ln_Query22(){
+
+	var str1 = "F";
+	var str9 = '99999999'//gcds_dept11.namevalue(gcds_dept11.rowposition,"TREECD");
+
+	gcds_dept11.DataID = "/services/servlet/Person.h010003_s1?v_str4="+str1+"&v_str9="+str9;	//Tree조직리스트
+	gcds_dept11.Reset();
+
+	//gcds_dept2.DataID = "/services/servlet/Person.h010003_s1?v_str4="+str1;		//하위소속
+	//gcds_dept2.Reset();
+
+	//gcds_dept3.DataID = "/services/servlet/Person.h010003_s1?v_str4="+str1;
+	//gcds_dept3.Reset();
+
+}
+
+/*-----------------------------------------------------------------------------
+ #  조직정보  : 조회[하위소속]
+-----------------------------------------------------------------------------*/
+
+function ln_Query2(){
+
+	var str1 = "F";
+
+	gcds_dept2.DataID = "/services/servlet/Person.h010003_s1?v_str4="+str1;		//하위소속
+	gcds_dept2.Reset();
+
+}
+
+/*-----------------------------------------------------------------------------
+ #  조직정보  : 조회[전체소속]
+-----------------------------------------------------------------------------*/
+function ln_Query3(){
+
+	//window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	//document.all.LowerFrame.style.visibility="visible";
+	var str1 = "F";
+
+		gcds_dept3.DataID = "/services/servlet/Person.h010003_s1?v_str4="+str1;
+	 gcds_dept3.Reset();
+
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+
+	if (gcds_dept.countrow < 1) {	
+		alert("조회 후 데이터를 등록해 주십시오");
+		return;
+	} else {
+   gcds_dept.addrow();
+	 gcem_deptcd.enabled	= true;
+	 txt_useyn.checked		= false;
+	 txt_useyn2.checked		= false;
+
+	 txt_treecd.value='99999999';
+	 ln_Luxequery();		//공통코드[근무지]
+	}
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save(){
+
+	if (!ln_ValchkS()) return;
+
+	if (txt_useyn.checked == true) {
+		gcds_dept.namevalue(gcds_dept.rowposition, "USEYN") = "T";
+	} else {
+		gcds_dept.namevalue(gcds_dept.rowposition, "USEYN") = "F";
+	}
+
+	if (txt_useyn2.checked == true) {
+		gcds_dept.namevalue(gcds_dept.rowposition, "REDTAXYN") = "T";
+	} else {
+		gcds_dept.namevalue(gcds_dept.rowposition, "REDTAXYN") = "F";
+	}
+
+	var row = gcds_dept.rowposition;
+	var level_1 = gcds_dept.namevalue(row, "TREECD");
+	var level_2 = gcds_dept.namevalue(row, "TREECD");
+	var level_3 = gcds_dept.namevalue(row, "TREECD");
+
+	level_1 = level_1.substring(0,8);		//LEVEL 1 - '00000000'
+	level_2 = level_2.substring(4,8);		//LEVEL 2 - '0000'
+	level_3 = level_3.substring(6,8);		//LEVEL 3 - '00'
+	//level_33 = level_1.substring(0,4);	
+	//level_44 = level_1.substring(4,6);
+
+	if (level_1 == '00000000' && gcds_dept.namevalue(row, "LEVEL") != "") {		
+			gcds_dept.namevalue(row, "LEVEL") = '1';
+	} else if (level_2 == '0000' && level_1 != '00000000' && gcds_dept.namevalue(row, "LEVEL") != "") {		
+			gcds_dept.namevalue(row, "LEVEL") = '2';
+	} else if (level_3 == '00' && level_2 != '0000' && level_1 != '00000000' && gcds_dept.namevalue(row, "LEVEL") != "") {	
+			gcds_dept.namevalue(row, "LEVEL") = '3';
+	} else if (level_3 == '00' && level_2 != '0000' && level_1 != '00000000' && gcds_dept.namevalue(row, "LEVEL") != "") {	
+			gcds_dept.namevalue(row, "LEVEL") = '3';
+	}
+
+	if (gcds_dept.IsUpdated) {	
+	//prompt('',gcds_dept.text);
+		if (confirm("입력하신 사항을 등록하시겠습니까?")){
+			gctr_dept.KeyValue = "h010003_t1(I:USER=gcds_dept)";
+			gctr_dept.Action = "/services/servlet/Person.h010003_t1";
+			gctr_dept.post();
+			ln_Query();
+		} else gcds_dept.undo(gcds_dept.rowposition);
+	}
+}
+
+/******************************************************************************
+	Description : 입력값 체크[발령코드]
+******************************************************************************/
+function ln_ValchkS() {
+
+	if (gcem_deptcd.text == "") {			
+		alert("정확한 소속코드를 입력해 주십시오");
+		gcem_deptcd.focus();
+		return false;
+	}
+
+	if (txt_deptnmk.value == "") {			
+		alert("정확한 소속코드명을 입력해 주십시오");
+		txt_deptnmk.focus();
+		return false;
+	}
+
+	return true;
+
+}
+
+/*-----------------------------------------------------------------------------
+ #  조직정보  : 저장[조직정보]
+-----------------------------------------------------------------------------*/
+function ln_Save2(){
+
+	var temp2 = gcds_temp2.rowposition;
+	var row3 = gcds_dept3.rowposition;
+	var row2 = gcds_dept2.rowposition;
+
+	//하위소속 TR 
+	if (gcds_dept2.IsUpdated && gcds_temp2.namevalue(temp2,"TREECD") != '99999999' && (gcds_dept2.SysStatus(row2) == '1' || ((gcds_dept2.SysStatus(row2) == '1' && gcds_dept3.SysStatus(row3) == '0')))) {
+		//prompt('222',gcds_dept2.text);
+		if (confirm("입력하신 사항을 등록하시겠습니까?")){
+			gctr_dept3.KeyValue = "h010003_t3(I:USER=gcds_dept3)";//gcds_dept2
+			gctr_dept3.Action = "/services/servlet/Person.h010003_t3";	
+			gctr_dept3.post();
+			gcds_temp2.ClearData();
+			ln_Query22();
+			ln_Query2();
+			ln_Query3();
+		}
+		//전체소속 TR
+	} else if (gcds_dept3.IsUpdated && (gcds_dept3.namevalue(row3,"TREECD") != '99999999') && ((gcds_dept3.SysStatus(row3) == '0' && (gcds_dept2.SysStatus(row2) != '1')) || gcds_dept3.SysStatus(row3) == '3')) {
+		//prompt('333',gcds_dept3.text);
+		//prompt('333-2',gcds_dept2.text);
+		if (gcds_dept2.IsUpdated) {
+			if (confirm("입력하신 사항을 등록하시겠습니까?")){
+				gctr_dept2.KeyValue = "h010003_t2(I:USER=gcds_dept3)";//gcds_dept2
+				gctr_dept2.Action = "/services/servlet/Person.h010003_t2";	
+				gctr_dept2.post();
+				ln_Query22();
+				ln_Query2();
+				ln_Query3();
+			}
+		}	
+	} else {
+		//prompt('else-dept3',gcds_dept3.text);
+		if (confirm("입력하신 사항을 등록하시겠습니까?")){
+			gctr_dept3.KeyValue = "h010003_t3(I:USER=gcds_dept3)";
+			gctr_dept3.Action = "/services/servlet/Person.h010003_t3";	
+			gctr_dept3.post();
+			gcds_temp2.ClearData();
+			ln_Query22();
+			ln_Query2();
+			ln_Query3();
+		}
+	}
+}
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+
+	if (gcds_dept.countrow < 1) {	
+		alert("삭제하실 데이터가 없습니다.");
+		return;
+	} else {
+		if (confirm("선택하신 사항을 삭제하시겠습니까?")){
+			gcds_dept.deleterow(gcds_dept.rowposition);
+			gctr_dept.KeyValue = "h010003_t1(I:USER=gcds_dept)";
+			gctr_dept.Action = "/services/servlet/Person.h010003_t1";
+			gctr_dept.post();
+			return ln_Query();
+		}else gcds_dept.undo(gcds_dept.rowposition);
+	}
+	ln_Query();
+	ln_Query22();
+
+}
+
+/******************************************************************************
+	Description : 레벨
+******************************************************************************/
+function ln_Level(){
+
+	var row = gcds_dept11.rowposition;
+	var level_1 = gcds_dept11.namevalue(row, "TREECD");
+	var level_2 = gcds_dept11.namevalue(row, "TREECD");
+	var level_3 = gcds_dept11.namevalue(row, "TREECD");
+
+	level_1 = level_1.substring(0,8);		//LEVEL 1 - '00000000'
+	level_2 = level_2.substring(4,8);		//LEVEL 2 - '0000'
+	level_3 = level_3.substring(6,8);		//LEVEL 3 - '00'
+	//level_33 = level_1.substring(0,4);	
+	//level_44 = level_1.substring(4,6);
+
+	if (level_1 == '00000000' && gcds_dept11.namevalue(row, "LEVEL") != "") {			
+			gcds_dept11.namevalue(row, "LEVEL") = '1';
+	} else if (level_2 == '0000' && level_1 != '00000000' && gcds_dept11.namevalue(row, "LEVEL") != "") {		
+			gcds_dept11.namevalue(row, "LEVEL") = '2';
+	} else if (level_3 == '00' && level_2 != '0000' && level_1 != '00000000' && gcds_dept11.namevalue(row, "LEVEL") != "") {	
+			gcds_dept11.namevalue(row, "LEVEL") = '3';
+	} else if (level_3 == '00' && level_2 != '0000' && level_1 != '00000000' && gcds_dept11.namevalue(row, "LEVEL") != "") {	
+			gcds_dept11.namevalue(row, "LEVEL") = '3';
+	}
+
+	return;
+
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+	alert("준비중입니다");
+
+	//gcgd_dept.RunExcel('관리');
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+/******************************************************************************
+	Description : 탭 설정
+******************************************************************************/
+function ln_Tabset(index){
+
+	var div_cm=new Array("div_buhistory","div_information");
+
+	for(var i=0;i<=1;i++)	{
+		if(i==index) {
+			eval("document.all."+div_cm[i]+".style.display='block';");
+		}	else 	{
+			eval("document.all."+div_cm[i]+".style.display='none';");
+		}
+	}
+}
+
+/******************************************************************************
+	Description : 공통코드 조회
+******************************************************************************/
+function ln_Luxequery(){
+
+	//소속코드[ 근무지]
+	gcds_dept1.DataID = "/services/servlet/Person.hclcode_s1?v_str1=1111"; 
+	gcds_dept1.Reset();
+
+	//소속코드[ 근무지구분]
+	gcds_deptgb.DataID = "/services/servlet/Person.hclcode_s1?v_str1=2050"; 
+	gcds_deptgb.Reset();
+
+	//출력순_근무지그룹[ 근무지구분]
+	gcds_groupid.DataID = "/services/servlet/Person.hclcode_s1?v_str1=2051"; 
+	gcds_groupid.Reset();
+
+
+}
+
+/******************************************************************************
+	Description : CheckBox[사용유무]
+******************************************************************************/
+function ln_Valchk(e,a) {
+
+	var row = gcds_dept.rowposition;
+
+	if (e.checked == true) { 
+		gcds_dept.namevalue(row,a) = "T"; 
+	} else {
+		gcds_dept.namevalue(row,a) = "F";
+	}
+
+}
+
+/******************************************************************************
+	Description : CheckBox[세액구분]
+******************************************************************************/
+function ln_Valchk2(e,a) {
+
+	var row = gcds_dept.rowposition;
+
+	if (e.checked == true) { 
+		gcds_dept.namevalue(row,a) = "T"; 
+	} else {
+		gcds_dept.namevalue(row,a) = "F";
+	}
+}
+
+/******************************************************************************
+	Description : 개별 이동
+******************************************************************************/
+function ln_Move(arg){
+
+	if (arg =='GORIGHT') {	//하위소속 --(RIGHT)----> 전체소속
+
+		if (gcds_dept2.countrow > 0) {
+
+			//동일 소속번호가 존재 할 경우
+			//조직도에 임의값 99(0,2)를 넣고 저장한다.
+			for(var i=1;i<=gcds_dept3.countrow;i++)  {	//하위소속와 전체소속코드가 같으면 하위소속코드의 ROW삭제		
+
+				if (gcds_dept3.namevalue(i,"DEPTCD") == gcds_dept2.namevalue(gcds_dept2.rowposition,"DEPTCD")) {
+
+					gcds_dept2.namevalue(gcds_dept2.rowposition,"TREECD") = '99999999';
+
+					gcds_dept3.namevalue(i,"TREECD")	= '99999999';
+					gcds_dept3.namevalue(i,"LEVEL")		= '';
+					gcds_dept2.namevalue(gcds_dept2.rowposition,"TREECD") = gcds_dept3.namevalue(i,"TREECD");
+
+					ln_Setheader();	//Temp Header 설정
+
+					gcds_temp2.addRow();
+
+					var temp2 = gcds_temp2.rowposition;
+					var dept2 = gcds_dept2.rowposition;
+
+					gcds_temp2.namevalue(temp2,"DEPTCD")		= gcds_dept2.namevalue(dept2,"DEPTCD");
+					gcds_temp2.namevalue(temp2,"DEPTNM")		= gcds_dept2.namevalue(dept2,"DEPTNM");
+					gcds_temp2.namevalue(temp2,"DEPTNMK")		= gcds_dept2.namevalue(dept2,"DEPTNMK");
+					gcds_temp2.namevalue(temp2,"DEPTNME")		= gcds_dept2.namevalue(dept2,"DEPTNME");
+					gcds_temp2.namevalue(temp2,"DEPTPRT")		= gcds_dept2.namevalue(dept2,"DEPTPRT");
+					gcds_temp2.namevalue(temp2,"TREECD")		= '99999999';
+					gcds_temp2.namevalue(temp2,"FRDT")			= gcds_dept2.namevalue(dept2,"FRDT");
+					gcds_temp2.namevalue(temp2,"TODT")			= gcds_dept2.namevalue(dept2,"TODT");
+					gcds_temp2.namevalue(temp2,"USEYN")			= gcds_dept2.namevalue(dept2,"USEYN");
+					gcds_temp2.namevalue(temp2,"REDTAXYN")	= gcds_dept2.namevalue(dept2,"REDTAXYN");
+					gcds_temp2.namevalue(temp2,"LEVEL")			= "";
+					gcds_temp2.namevalue(temp2,"DEPTGB")	  = gcds_dept2.namevalue(dept2,"DEPTGB");
+
+					gcds_dept2.deleterow(gcds_dept2.rowposition);
+					return false;
+
+					gcds_dept3.addrow(); 
+			
+					var lpos = gcds_dept2.rowposition;			//하위소속
+					var rpos = gcds_dept3.rowposition;			//전체소속
+
+					gcds_dept3.namevalue(rpos,"DEPTCD")		=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTCD"));		//소속코드
+					gcds_dept3.namevalue(rpos,"DEPTNM")		=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTNM"));		//소속약칭
+					gcds_dept3.namevalue(rpos,"DEPTNMK")	=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTNMK"));	//소속명
+					gcds_dept3.namevalue(rpos,"DEPTNME")	=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTNME"));	//영문소속명
+					gcds_dept3.namevalue(rpos,"DEPTPRT")	=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTPRT"));	//근무지코드
+					gcds_dept3.namevalue(rpos,"TREECD")		=		"99999999";		//조직도순
+					gcds_dept3.namevalue(rpos,"FRDT")			=		ln_Trim(gcds_dept2.namevalue(lpos,"FRDT"));			//시작일
+					gcds_dept3.namevalue(rpos,"TODT")			=		ln_Trim(gcds_dept2.namevalue(lpos,"TODT"));			//종료일
+					gcds_dept3.namevalue(rpos,"USEYN")		=		ln_Trim(gcds_dept2.namevalue(lpos,"USEYN"));		//사용유무
+					gcds_dept3.namevalue(rpos,"REDTAXYN")	=		ln_Trim(gcds_dept2.namevalue(lpos,"REDTAXYN"));	//세액구분
+					gcds_dept3.namevalue(rpos,"LEVEL")		=		"";
+					gcds_dept3.namevalue(rpos,"DEPTGB")		=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTGB"));		//사용구분
+
+					gcds_dept2.deleterow(lpos);
+
+				}else{
+				
+								if (gcds_dept3.namevalue(i,"DEPTCD") == gcds_dept2.namevalue(gcds_dept2.rowposition,"DEPTCD")) {
+									gcds_dept3.addrow(); 
+							
+									var lpos = gcds_dept2.rowposition;			//하위소속
+									var rpos = gcds_dept3.rowposition;			//전체소속
+
+									gcds_dept3.namevalue(rpos,"DEPTCD")		=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTCD"));		//소속코드
+									gcds_dept3.namevalue(rpos,"DEPTNM")		=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTNM"));		//소속약칭
+									gcds_dept3.namevalue(rpos,"DEPTNMK")	=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTNMK"));	//소속명
+									gcds_dept3.namevalue(rpos,"DEPTNME")	=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTNME"));	//영문소속명
+									gcds_dept3.namevalue(rpos,"DEPTPRT")	=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTPRT"));	//근무지코드
+									gcds_dept3.namevalue(rpos,"TREECD")		=		"99999999";		//조직도순
+									gcds_dept3.namevalue(rpos,"FRDT")			=		ln_Trim(gcds_dept2.namevalue(lpos,"FRDT"));			//시작일
+									gcds_dept3.namevalue(rpos,"TODT")			=		ln_Trim(gcds_dept2.namevalue(lpos,"TODT"));			//종료일
+									gcds_dept3.namevalue(rpos,"USEYN")		=		ln_Trim(gcds_dept2.namevalue(lpos,"USEYN"));		//사용유무
+									gcds_dept3.namevalue(rpos,"REDTAXYN")	=		ln_Trim(gcds_dept2.namevalue(lpos,"REDTAXYN"));	//세액구분
+									gcds_dept3.namevalue(rpos,"LEVEL")		=		"";
+									gcds_dept3.namevalue(rpos,"DEPTGB")		=		ln_Trim(gcds_dept2.namevalue(lpos,"DEPTGB"));		//사용구분
+
+									gcds_dept2.deleterow(lpos);
+								}
+				}
+			}		
+		} 
+
+	} else {
+
+		if (gcds_dept3.countrow >0) {	//하위소속 <----(LEFT)-- 전체소속
+
+			for(var i=1;i<=gcds_dept2.countrow;i++)  {
+				if (gcds_dept3.namevalue(gcds_dept3.rowposition,"DEPTCD") == gcds_dept2.namevalue(i,"DEPTCD")) {
+					alert("동일한 소속코드가 존재합니다");
+					return false;
+				} else if (gcds_dept3.namevalue(gcds_dept3.rowposition,"DEPTCD") == gcds_dept11.namevalue(gcds_dept11.rowposition,"DEPTCD")) {
+					alert("상위레벨이 같은 소속는 추가할 수 없습니다");
+					return false;
+				}
+			}
+			
+			var level_33 = gcds_dept11.namevalue(gcds_dept11.rowposition,"TREECD");
+			var level_st = gcds_dept11.namevalue(gcds_dept11.rowposition,"LEVEL");
+			var level_cd = "";
+			
+			level_0 = level_33.substring(0,8);
+			level_1 = level_33.substring(0,4);
+			level_2 = level_33.substring(4,8);
+			level_3 = level_33.substring(4,6);
+			level_3456 = level_33.substring(4,7);
+
+			level_1_2 = level_33.substring(2,3);	//3째자리
+			level_1_3 = level_33.substring(3,4);	//4째자리
+			level_1_4 = level_33.substring(4,5);	//4째자리
+
+			n_level_1 = level_33.substring(0,3);
+			n_level_1_1 = level_33.substring(3,4);
+
+			level_4 = level_33.substring(6,8);
+
+			max_value = gcds_dept2.Max(6,0,0);
+
+			treecd_max1 = (parseInt(max_value,10)+10000);	//level 1
+			treecd_max = (parseInt(max_value,10)+100);		//level 2
+			treecd_max2 = (parseInt(max_value,10)+10);		//level 33
+			treecd_max3 = (parseInt(max_value,10)+1);			//level 3
+			treecd_max4 = (parseInt(max_value,10)+1);			//level 3.3
+			
+			treecd_plu = (parseInt(level_2,10)+100);			//level 2
+			treecd_plu2 = (parseInt(level_2,10)+1000);		//level 1
+			treecd_plunew = (parseInt(level_2,10)+10000);	//level 1 new
+			treecd_plu3 = (parseInt(level_2,10)+1);				//level 3
+			treecd_cnt = level_1 + treecd_plu;
+
+			level_34 = max_value.substring(4,5);	//0 0 0[0]0 0 0 0  --4
+			level_35 = max_value.substring(2,3);	//0 0[0]0 0 0 0 0  --3
+			level_34_1 = max_value.substring(3,4);	//0 0[0]0 0 0 0 0  --3
+			level_36 = max_value.substring(7,8);  //0 0 0 0 0 0[0]0  --7
+			level_37 = max_value.substring(6,7);  //0 0 0 0 0[0]0 0  --6
+			level_378 = max_value.substring(6,8); //0 0 0 0 00[0 0]  --7,8
+
+			// [Countrow <= 0 경우] 작은경우
+			if (gcds_dept2.countrow<=0 && level_0 == '00000000' || gcds_dept2.countrow<=0 && level_st == '1') {		
+				treecd_cnt = '000' + treecd_plunew;
+				level_cd = '2';
+				//alert("T - 0")
+			} else if (gcds_dept2.countrow<=0 && level_2 == '0000' && level_0 != '00000000' && level_st == '2') {		
+				treecd_cnt = level_1 + "0" + treecd_plu;
+				level_cd = '3';
+				//alert("T - 1")
+			} else if (gcds_dept2.countrow<=0 && level_2 == '0000' && level_0 != '00000000' && level_34 != '0' && level_st != '2') {		
+				treecd_cnt = level_1 + "0" + treecd_plu;
+				level_cd = '3';
+				//alert("T - 2")
+			} else if (gcds_dept2.countrow<=0 && level_3 != '00' && level_2 != '0000' && level_0 != '00000000' && level_st == '3') {		
+				//alert(level_1+"/"+treecd_max4+"/"+level_1);
+				treecd_cnt = level_1 + level_3+"01";
+				level_cd = '4';
+				//alert("T - 3")
+			} else if (gcds_dept2.countrow<=0 && level_3 != '00' && level_2 != '0000' && level_0 != '00000000' && level_st != '4' ){
+				treecd_cnt = level_1 + "0"+treecd_plu3;
+				level_cd = '4';
+				//alert("T - 4")
+				//alert(level_st);
+			} else if (gcds_dept2.countrow<=0 && level_3 != '00' && level_2 != '0000' && level_0 != '00000000' && level_st == '4'){
+				//LEVEL 4 END
+				return false;
+
+			// [Countrow > 0 경우] 큰경우
+			} else if (gcds_dept2.countrow>0 && level_0 == '00000000') {	//2 LEVEL
+					
+					if (level_1_2 =='0' && level_1_3 != '0' ) {  //&& level_1_3 <9
+						treecd_cnt = "000" + treecd_max1;
+						level_cd = '2';
+					}else if (level_1_2 =='0' && level_1_3 != '0') {
+						treecd_cnt = "00" + treecd_max1;
+						level_cd = '2';
+					}else if (level_35 !='0' && level_34 != '0') {
+						treecd_cnt = "00" + treecd_max1;
+						level_cd = '2';
+					}else {
+						treecd_cnt = "00" + treecd_max1;
+						level_cd = '2';
+					}
+
+			} else if (gcds_dept2.countrow>0 && n_level_1 == '000' && level_2 != '0000' && level_0 != '00000000') {	//3 LEVEL
+					// 000 + 1 + 0[level_34] + 1[level_35] 00
+					if (level_34 == "0" && level_35 == "0" && level_36 == "0" && level_37 == "0") {
+						//alert(level_35+"/"+level_34+"/"+level_36+"/"+level_37);
+						treecd_cnt = "00" + treecd_max;	//10이하일때(4,6)
+						level_cd = '3';
+						//alert("B - 1")
+					} else if (level_34 == "0" && level_35 != "0" && level_36 == "0" && level_378 != "00") {
+						treecd_cnt = "000" + treecd_max;	//10이하일때(4,6)
+						level_cd = '3';
+						//alert("B - 2")
+					}else if (level_34 == "0" && level_35 == "0" && level_36 != "0" && level_37 == "0" && level_378 != "00" && level_st != '4') {
+						treecd_cnt = "000" + treecd_max3;	//10이하일때(4,6)
+						level_cd = '4';
+						//alert("B - 3")
+					}else if (level_34 == "0" && level_35 == "0" && level_36 == "0" && level_37 != "0" ) {
+						treecd_cnt = "000" + treecd_max4;	//10이하일때(4,6)
+						level_cd = '3';
+						//alert("B - 4")
+					}else if (level_34 == "0" && level_35 == "0" && level_36 != "0" && level_37 != "0" && level_st != '4') {
+						treecd_cnt = "000" + treecd_max4;	//10이하일때(4,6)
+						level_cd = '4';
+						//alert("B - 5")
+					}else {
+						treecd_cnt = "0001010" + treecd_max4;	//10이하일때(4,6)
+						level_cd = '3';
+						//alert("B - ELSE")
+					}
+
+			} else if (gcds_dept2.countrow>0 && level_2 == '0000' && level_0 != '00000000') {	//4 LEVEL
+
+					if (level_34 != "0" && level_35 != "0") {
+							//alert("이상 : "+level_34+level_35);	///(0,3체크)
+							treecd_cnt = "00" + treecd_max;		//10이상일때(4,6)
+							level_cd = '3';
+							//alert("C - 1")
+					} else if (level_34 != "0" && level_35 != "0" && level_378 != "00") {
+							//alert("이하 : "+level_34+level_35);
+							treecd_cnt = "000" + treecd_max;	//10이하일때(4,6)
+							level_cd = '3';
+							//alert("C - 2")
+					} else if (level_35 != "0" && level_34_1 != "0" && level_378 == "00") {
+							//0011 일경우. 4자리 & 3자리 0 아닌경우 7,8자리 00 인경우
+							treecd_cnt = "00" + treecd_max;	//10이하일때(4,6)
+							level_cd = '3';
+							//alert("C - 3")
+					} else if (level_35 != "0" && level_34_1 == "0" && level_378 == "00") {
+							//0010 일경우. 3자리는 '1' 4자리 0인경우 7,8자리 00 인경우
+							treecd_cnt = "00" + treecd_max;	//10이하일때(4,6)
+							level_cd = '3';
+							//alert("C - 4")
+					} else {
+							//alert("이상 : "+level_34+level_35);	///(0,3체크)  /3-1
+							treecd_cnt = "000" + treecd_max;		//10이상일때(4,6)
+							level_cd = '3';
+							//alert("C - ELSE")
+					}
+
+			} else if (gcds_dept2.countrow>0 && level_3 != '00' && level_2 != '0000' && level_0 != '00000000'){
+					treecd_cnt = "00" + treecd_max3;
+					level_cd = '4';
+					//alert("H - 1")
+			} else if (gcds_dept2.countrow>0 && level_2 == '000' && level_0 != '00000000') {		
+					treecd_cnt = "000" + treecd_max3;
+					level_cd = '4';
+					//alert("H - 1")
+			}
+		
+			gcds_dept2.addrow();
+
+			var lpos = gcds_dept2.rowposition;	//하위소속
+			var rpos = gcds_dept3.rowposition;	//전체소속
+
+			gcds_dept2.namevalue(lpos,"DEPTCD")		=		ln_Trim(gcds_dept3.namevalue(rpos,"DEPTCD"));		//소속코드  
+			gcds_dept2.namevalue(lpos,"DEPTNM")		=		ln_Trim(gcds_dept3.namevalue(rpos,"DEPTNM"));		//소속약칭  
+			gcds_dept2.namevalue(lpos,"DEPTNMK")	=		ln_Trim(gcds_dept3.namevalue(rpos,"DEPTNMK"));	//소속명    
+																																															            
+			gcds_dept2.namevalue(lpos,"DEPTNME")	=		ln_Trim(gcds_dept3.namevalue(rpos,"DEPTNME"));	//영문소속명
+			gcds_dept2.namevalue(lpos,"DEPTPRT")	=		ln_Trim(gcds_dept3.namevalue(rpos,"DEPTPRT"));	//근무지코드
+
+			gcds_dept2.namevalue(lpos,"TREECD")		=		treecd_cnt;	//조직도순
+						gcds_dept3.namevalue(rpos,"TREECD")   =   treecd_cnt//전체소속도 변경된 조직도순으로 적용
+
+			gcds_dept2.namevalue(lpos,"FRDT")			=		ln_Trim(gcds_dept3.namevalue(rpos,"FRDT"));			//시작일    
+			gcds_dept2.namevalue(lpos,"TODT")			=		ln_Trim(gcds_dept3.namevalue(rpos,"TODT"));			//종료일    
+			gcds_dept2.namevalue(lpos,"USEYN")		=		ln_Trim(gcds_dept3.namevalue(rpos,"USEYN"));		//사용유무  
+			gcds_dept2.namevalue(lpos,"REDTAXYN")	=		ln_Trim(gcds_dept3.namevalue(rpos,"REDTAXYN"));	//세액구분  
+			gcds_dept2.namevalue(lpos,"LEVEL")		=		level_cd; 	//레벨
+						gcds_dept3.namevalue(rpos,"LEVEL")   =   level_cd//전체소속도 변경된 레벨로 적용
+			gcds_dept2.namevalue(lpos,"DEPTGB")		=		ln_Trim(gcds_dept3.namevalue(rpos,"DEPTGB"));		//사용구분
+
+			//gcds_dept3.deleterow(rpos);
+
+		}
+	}
+}
+
+/******************************************************************************
+	Description : 공백제거
+******************************************************************************/
+function ln_Trim(str){
+   
+  str = str.replace(/^\s*/,'').replace(/\s*$/, ''); 
+  return str; 
+} 
+
+/******************************************************************************
+	Description : dataset header 설정
+******************************************************************************/
+function ln_Setheader(){
+	
+	var THeader = "DEPTCD:String(4),DEPTNM:String(50),DEPTNMK:String(70),DEPTNME:String(50),DEPTPRT:String(4),"
+							+ "TREECD:String(8),FRDT:String(8),TODT:String(8),USEYN:String(1),REDTAXYN:String(1),"
+							+ "LEVEL:String(1),DEPTGB:String(1)";
+
+	gcds_temp2.SetDataHeader(THeader);	//Header Set
+
+}
+    </SCRIPT>
+    <!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+    <!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+    <!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<SCRIPT language=JavaScript event=OnSelChanged(index) for=gs_tab>
+	ln_Tabset((index-1));
+	ln_Query22();
+	ln_Query3();
+</SCRIPT>
+
+<SCRIPT language=javascript event=OnLoadStarted() for=gcds_dept2>	//하위코드
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	document.all.LowerFrame.style.visibility="visible";
+</SCRIPT>
+
+<SCRIPT language=javascript event=onsuccess() for=gctr_dept>
+	alert("작업이 성공적으로 완료되었습니다.");
+</SCRIPT>
+
+<SCRIPT language=javascript event=onfail() for=gctr_dept>
+	alert("작업이 성공적으로 완료되지 못했습니다.");
+</SCRIPT>
+
+<SCRIPT language=javascript event=onsuccess() for=gctr_dept2>
+	alert("작업이 성공적으로 완료되었습니다.");
+</SCRIPT>
+
+<SCRIPT language=javascript event=onfail() for=gctr_dept2>
+	alert("작업이 성공적으로 완료되지 못했습니다.");
+</SCRIPT>
+
+<SCRIPT language=javascript event=onsuccess() for=gctr_dept3>
+	alert("작업이 성공적으로 완료되었습니다.");
+</SCRIPT>
+
+<SCRIPT language=javascript event=onfail() for=gctr_dept3>
+	alert("작업이 성공적으로 완료되지 못했습니다.");
+</SCRIPT>
+
+<SCRIPT language=javascript event=onClick() for=gcgd_dept>
+
+	if (gcds_dept.namevalue(gcds_dept.rowposition,"USEYN") == "T") {
+		txt_useyn.checked		= true;
+	} else {
+		txt_useyn.checked		= false;
+	}
+
+	if (gcds_dept.namevalue(gcds_dept.rowposition,"REDTAXYN") == "T") {
+		txt_useyn2.checked	= true;
+	} else {
+		txt_useyn2.checked	= false;
+	}
+
+</SCRIPT>
+
+<SCRIPT language=JavaScript event=OnLoadCompleted(rowcount) for=gcds_dept>//소속코드 총 검색 건수
+
+	window.status="조회가 완료 되었습니다.";
+	document.all.LowerFrame.style.visibility="hidden";
+
+	if (rowcount ==0 ){ alert("검색된 데이타가 없습니다."); } 
+
+	lbl_search1.innerText = "총 ( " + rowcount + " ) 건";
+	window.status = "정상적으로 조회되었습니다.";
+
+	if (rowcount > 1 && gcds_dept.namevalue(gcds_dept.rowposition,"USEYN") == "T") {
+		txt_useyn.checked		= true;
+	} else {
+		txt_useyn.checked		= false;
+	}
+
+	if (rowcount > 1 && gcds_dept.namevalue(gcds_dept.rowposition,"REDTAXYN") == "T") {
+		txt_useyn2.checked	= true;
+	} else {
+		txt_useyn2.checked	= false;
+	}
+</SCRIPT>
+
+<SCRIPT language=JavaScript event=OnLoadCompleted(rowcount) for=gcds_dept11>//tree
+	txt_treenm.value = gcds_dept11.namevalue(gcds_dept11.rowposition,"DEPTNMK");	//상위소속명칭
+</SCRIPT>
+
+<SCRIPT language=JavaScript event=OnLoadCompleted(rowcount) for=gcds_dept2>//하위소속 총 검색 건수
+	window.status="조회가 완료 되었습니다.";
+	document.all.LowerFrame.style.visibility="hidden";
+
+	if (rowcount ==0 ){
+		alert("검색된 데이타가 없습니다.");
+	} 
+
+	lbl_search2.innerText = "총 ( " + rowcount + " ) 건";
+	window.status = "정상적으로 조회되었습니다.";
+</SCRIPT>
+
+<SCRIPT language=javascript event=onClick() for=Tb_TreeView>//Tree구조
+
+	txt_treenm.value = gcds_dept11.namevalue(gcds_dept11.rowposition,"DEPTNMK");	//상위소속명칭
+
+/*	
+	//LEVEL 1 이면 TREECD 자릿수 모두 == '00000000'
+	//LEVEL 2 이면 TREECD SUBSTR(4,8) == '0000' && SUBSTR(0,8) != '00000000'
+	//LEVEL 3 이면 TREECD SUBSTR(4,8) != '0000' && SUBSTR(0,8) != '00000000' && SUBSTR(6,8) == '00'
+*/
+
+	var row = gcds_dept11.rowposition;
+	var level_1 = gcds_dept11.namevalue(row, "TREECD");
+	var level_2 = gcds_dept11.namevalue(row, "TREECD");
+	var level_3 = gcds_dept11.namevalue(row, "TREECD");
+	var level_4 = gcds_dept11.namevalue(row, "TREECD");
+
+	level_1 = level_1.substring(0,8);
+	level_2 = level_2.substring(4,8);
+	level_3 = level_3.substring(6,8);
+//	level_3 = gcds_dept11.namevalue(row, "TREECD");
+
+	level_33 = level_1.substring(0,4);
+	level_44 = level_1.substring(4,6);
+
+	if (level_1 == '00000000' && gcds_dept11.namevalue(row, "LEVEL") != "") {			
+			//LEVE 8자리 ALL '0' 일때
+			var str5 = gcds_dept11.namevalue(row, "LEVEL") = '1';
+			var str4 = 'F';
+			gcds_dept2.DataID="/services/servlet/Person.h010003_s1?v_str5=" + str5+"&v_str4="+str4; // + "&v_str4=" + str4;
+			gcds_dept2.Reset();
+
+			for (var s=1;s<gcds_dept3.countrow;s++) {
+				if (gcds_dept3.SysStatus(s) == '1' || gcds_dept3.SysStatus(s) == '2' || gcds_dept3.SysStatus(s) == '3') {
+					//alert(gcds_dept3.SysStatus(1));
+					ln_Query3();//전체소속 조회
+				}
+			}
+
+	} else if (level_2 == '0000' && level_1 != '00000000' && gcds_dept11.namevalue(row, "LEVEL") != "") {		
+			//LEVE 뒤 4자리 ALL '0' 이면서 앞 4자리에 해당하는 3레벨을 조회 --> 0004 하위레벨 조회
+			var str5 = gcds_dept11.namevalue(row, "LEVEL") = '2';
+			var str6 = level_33;	//4자리
+			var str4 = 'F';
+			gcds_dept2.DataID="/services/servlet/Person.h010003_s1?v_str5=" + str5 + "&v_str6=" + str6+"&v_str4="+str4;
+			gcds_dept2.Reset();
+
+			for (var s=1;s<gcds_dept3.countrow;s++) {
+				if (gcds_dept3.SysStatus(s) == '1' || gcds_dept3.SysStatus(s) == '2' || gcds_dept3.SysStatus(s) == '3') {
+					//alert(gcds_dept3.SysStatus(1));
+					ln_Query3();//전체소속 조회
+				}
+			}
+
+	} else if (level_3 == '00' && level_2 != '0000' && level_1 != '00000000' && gcds_dept11.namevalue(row, "LEVEL") != "") {	
+			//LEVE 앞 2자리, 뒤 2자리 ALL '0' 이면서 앞4자리 비교후 뒤(5,2) 자리수에 해당 하위레벨 조회
+			var str5 = gcds_dept11.namevalue(row, "LEVEL") = '3';
+			var str6 = level_33;	//(1,4)4자리 '0004'0000
+			var str7 = level_44;	//(5,2)2자리 0000'00'00
+			var str4 = 'F';
+			gcds_dept2.DataID="/services/servlet/Person.h010003_s1?v_str5=" + str5 + "&v_str6=" + str6 + "&v_str7=" + str7+"&v_str4="+str4;
+			gcds_dept2.Reset();
+
+			for (var s=1;s<gcds_dept3.countrow;s++) {
+				if (gcds_dept3.SysStatus(s) == '1' || gcds_dept3.SysStatus(s) == '2' || gcds_dept3.SysStatus(s) == '3') {
+					//alert(gcds_dept3.SysStatus(1));
+					ln_Query3();//전체소속 조회
+				}
+			}
+
+	/*
+	} else if (level_3 != '00' && level_2 != '0000' && level_1 != '00000000' && gcds_dept11.namevalue(row, "LEVEL") != "") {	
+			//LEVE 앞 2자리, 뒤 2자리 ALL '0' 이면서 앞4자리 비교후 뒤(5,2) 자리수에 해당 하위레벨 조회
+			//alert("LEVEL - 3");
+			alert("222");
+			var str5 = gcds_dept11.namevalue(row, "LEVEL") = '4';
+			var str6 = level_33;	//(1,4)4자리 '0004'0000
+			var str7 = level_44;	//(5,2)2자리 0000'00'00
+			gcds_dept2.DataID="/services/servlet/Person.h010003_s1?v_str5=" + str5 + "&v_str6=" + str6 + "&v_str7=" + str7 ; 
+			gcds_dept2.Reset();
+*/
+	} else {//if (level_3 != '00' && level_2 != '0000' && level_1 != '00000000' && gcds_dept11.namevalue(row, "LEVEL") != "") {
+			//LEVE 그외 값 일때
+			//alert("LEVEL - 4");					
+			//var str5 = gcds_dept11.namevalue(row, "LEVEL") = '4';
+			//gcds_dept2.DataID="/services/servlet/Person.h010003_s1?v_str5=" + str5; 
+			//gcds_dept2.Reset();
+			//	alert("aa11")
+	//} else {
+		return;
+	}
+
+	//ln_Query3();
+
+</SCRIPT>
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+    <!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------><!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<META content="MSHTML 6.00.2900.2802" name=GENERATOR></HEAD>
+<BODY bgColor=#ffffff leftMargin=0 topMargin=0 onload=ln_Start() marginwidth="0" 
+marginheight="0">
+<DIV style="Z-INDEX: 10000; WIDTH: 162px; POSITION: absolute; HEIGHT: 30px">
+<OBJECT id=gcds_dept classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 
+VIEWASTEXT><PARAM NAME="SortExpr" VALUE="+TREECD">
+ 	<!--소속코드-->	</OBJECT>
+<OBJECT id=gcds_dept1 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 
+VIEWASTEXT><PARAM NAME="SortExpr" VALUE="+MINORNM"><PARAM NAME="SyncLoad" VALUE="-1">
+ 	<!--공통코드[근무지]-->	</OBJECT>
+<OBJECT id=gcds_deptgb classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 
+VIEWASTEXT><PARAM NAME="SortExpr" VALUE="+MINORNM"><PARAM NAME="SyncLoad" VALUE="-1">
+ 	<!--공통코드[근무지구분]-->	</OBJECT>
+<OBJECT id=gcds_dept11 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 
+VIEWASTEXT><PARAM NAME="SyncLoad" VALUE="-1">
+ 	<!--조직정보[TREE]--></OBJECT>
+<OBJECT id=gcds_dept2 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 
+VIEWASTEXT>
+ 	<!--조직정보[하위소속]--></OBJECT>
+<OBJECT id=gcds_temp2 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 
+VIEWASTEXT><PARAM NAME="SyncLoad" VALUE="-1">
+ 	<!--조직정보[하위소속] TEMP--></OBJECT>
+<OBJECT id=gcds_dept3 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 
+VIEWASTEXT><PARAM NAME="SortExpr" VALUE="+TREECD"><PARAM NAME="SyncLoad" VALUE="-1">
+ 	<!--조직정보[전체소속]-->	</OBJECT>
+<OBJECT id=gcds_groupid classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 
+VIEWASTEXT><PARAM NAME="SortExpr" VALUE="+TREECD"><PARAM NAME="SyncLoad" VALUE="-1">
+ 	<!--출력순_근무지그룹-->	</OBJECT>
+<OBJECT id=gctr_dept classid=clsid:0A2233AD-E771-11D2-973D-00104B15E56F 
+VIEWASTEXT><PARAM NAME="KeyName" VALUE="toinb_dataid4"><PARAM NAME="KeyValue" VALUE="hdasan_h010003_t1(I:USER=gcds_dept)"></OBJECT>
+<OBJECT id=gctr_dept2 classid=clsid:0A2233AD-E771-11D2-973D-00104B15E56F 
+VIEWASTEXT><PARAM NAME="KeyName" VALUE="toinb_dataid4">
+<!--하위소속 -->        <!-- <PARAM NAME="KeyValue" 
+VALUE="hdasan_h010003_t1(I:USER=gcds_dept2)"> --></OBJECT>
+<OBJECT id=gctr_dept3 classid=clsid:0A2233AD-E771-11D2-973D-00104B15E56F 
+VIEWASTEXT><PARAM NAME="KeyName" VALUE="toinb_dataid4">
+<!--전체소속 -->        <!-- <PARAM NAME="KeyValue" 
+VALUE="hdasan_h010003_t1(I:USER=gcds_dept2)"> --></OBJECT></DIV>
+<TABLE style="LEFT: 3px; POSITION: relative" cellSpacing=0 cellPadding=0 
+width=876 border=0>
+  <TBODY>
+  <TR>
+    <TD><IMG src="../img/h010003_head.gif"></TD>
+    <TD align=right width=685 
+    background=../../common/img/com_t_bg.gif>&nbsp;</TD></TR>
+  <TR>
+    <TD colSpan=2 ALING="LEFT">
+      <TABLE cellSpacing=0 cellPadding=1 width=0 border=0>
+        <TBODY>
+        <TR>
+          <TD align=right width=0><NOBR>
+            <OBJECT id=gs_tab style="WIDTH: 660px; HEIGHT: 20px" 
+            classid=clsid:ED382953-E907-11D3-B694-006097AD7252 VIEWASTEXT><PARAM NAME="Format" VALUE="&#13;&#10;                <T>divid=div_buhistory&#9;&#9;title=소속코드</T>&#13;&#10;                <T>divid=div_information  title=조직정보</T>                                  &#13;&#10;                "><PARAM NAME="BackColor" VALUE="#cccccc"><PARAM NAME="DisableBackColor" VALUE="#eeeeee"></OBJECT></NOBR></TD></TR></TBODY></TABLE></TD></TR>
+  <TR>
+    <TD height=10></TD></TR>
+  <TR>
+    <TD colSpan=2>
+      <DIV id=div_buhistory>
+      <TABLE cellSpacing=0 cellPadding=1 width=875 border=0>
+        <TBODY>
+        <TR>
+          <TD align=middle colSpan=8>
+            <TABLE 
+            style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #708090 1px solid; WIDTH: 846px; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px; BACKGROUND-COLOR: #ffffff" 
+            cellSpacing=0 cellPadding=1 width=846 border=0>
+              <TBODY>
+              <TR>
+                <TD class=txtbox 
+                style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 0px solid" 
+                bgColor=#eeeeee><NOBR>&nbsp;소속코드&nbsp;</NOBR> </TD>
+                <TD width=260>&nbsp; <INPUT class=txtbox id=txt_deptcd1 
+                  onkeydown="if(event.keyCode==13) ln_Query();" 
+                  onblur=bytelength(this,this.value,4); 
+                  style="LEFT: -5px; POSITION: relative" maxLength=4 height="18" 
+                  width="70"> </TD>
+                <TD class=txtbox 
+                style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 1px solid; BORDER-BOTTOM: #708090 0px solid" 
+                bgColor=#eeeeee><NOBR>&nbsp;소 속 명&nbsp;</NOBR> </TD>
+                <TD width=260>&nbsp; <INPUT class=txtbox id=txt_deptnmk1 
+                  onkeydown="if(event.keyCode==13) ln_Query();" 
+                  onblur=bytelength(this,this.value,70); 
+                  style="LEFT: -5px; POSITION: relative" maxLength=70 
+                  height="18" width="70"> </TD>
+                <TD width="100%">&nbsp;</TD>
+                <TD><NOBR><!-- <img src="../../common/img/btn/com_b_print.gif"		style="cursor:hand;position:relative;top:-68px" onClick="ln_Print()"  > --><IMG 
+                  style="CURSOR: hand; POSITION: relative; TOP: -68px" 
+                  onclick=ln_Delete() 
+                  src="../../common/img/btn/com_b_delete.gif"> <IMG 
+                  style="CURSOR: hand; POSITION: relative; TOP: -68px" 
+                  onclick=ln_Add() src="../../common/img/btn/com_b_insert.gif"> 
+                  <IMG style="CURSOR: hand; POSITION: relative; TOP: -68px" 
+                  onclick=ln_Save() src="../../common/img/btn/com_b_save.gif"> 
+                  <IMG style="CURSOR: hand; POSITION: relative; TOP: -68px" 
+                  onclick=ln_Query() src="../../common/img/btn/com_b_query.gif"> 
+                  </NOBR></TD></TR></TBODY></TABLE></TD></TR>
+        <TR>
+          <TD vAlign=top align=middle>
+            <TABLE cellSpacing=0 cellPadding=1 width=847 border=0>
+              <TBODY>
+              <TR>
+                <TD style="WIDTH: 847px" vAlign=top align=middle>
+                  <OBJECT id=gcgd_dept 
+                  style="BORDER-RIGHT: #777777 1px solid; BORDER-TOP: #777777 1px solid; DISPLAY: block; BORDER-LEFT: #777777 1px solid; WIDTH: 615px; BORDER-BOTTOM: #777777 1px solid; HEIGHT: 379px" 
+                  classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 viewastext><PARAM NAME="FillArea" VALUE="-1"><PARAM NAME="Format" VALUE="  &#13;&#10;              <C> Name='코드'&#9;&#9;&#9;ID=DEPTCD&#9;&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=45&#9;&#9;align=CENTER&#9;, sort = true</C> &#13;&#10;              <C> Name='소속명'&#9;&#9;ID=DEPTNMK&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=129&#9;align=LEFT,&#9;&#9;sort = true</C></C>&#13;&#10;              <C> Name='적용일'&#9;&#9;ID=FRDT&#9;&#9;&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=65&#9;&#9;align=CENTER&#9;Mask='XXXX/XX/XX'</C>&#13;&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;<C> Name='종료일'&#9;&#9;ID=TODT&#9;&#9;&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=60&#9;&#9;align=CENTER&#9;SHOW=FALSE</C>&#13;&#10;              <C> Name='근무지'&#9;&#9;ID=DEPTPRT&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=125&#9;align=LEFT&#9;&#9;EditStyle=Lookup  Data='gcds_dept1:MINORCD:MINORNM', sort = true</C>&#13;&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;<C> Name='구분'&#9;&#9;&#9;ID=DEPTGB&#9;&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=55&#9;&#9;align=CENTER&#9;EditStyle=Lookup  Data='gcds_deptgb:MINORCD:MINORNM', sort = true</C>&#13;&#10;              <C> Name='사용'&#9;&#9;&#9;ID=USEYN&#9;&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=50&#9;&#9;align=CENTER&#9;EditStyle=combo  Data='T:사용,F:미사용' , sort = true</C>&#13;&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;<C> Name='출력순'&#9;&#9;ID=GROUPID&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=114&#9;align=LEFT&#9;EditStyle=Lookup  Data='gcds_GROUPID:MINORCD:MINORNM', sort = true</C>&#13;&#10;              "><PARAM NAME="DataID" VALUE="gcds_dept"><PARAM NAME="BorderStyle" VALUE="0"><PARAM NAME="SortView" VALUE="left">
+                                                                  						         
+                     <!-- CheckBoxText='USEYN' -->            </OBJECT></TD>
+                <TD align=left>
+                  <TABLE class=itemdisp 
+                  style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #708090 1px solid; WIDTH: 227px; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 382px; BACKGROUND-COLOR: #ffffff" 
+                  cellSpacing=0 cellPadding=0 border=0>
+                    <TBODY>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; WIDTH: 105px; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle bgColor=#eeeeee>소속코드</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid">
+                        <OBJECT class=txtbox id=gcem_deptcd 
+                        style="LEFT: 5px; WIDTH: 40px; POSITION: relative; TOP: 1px; HEIGHT: 20px" 
+                        tabIndex=1 
+                        classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F 
+                        validExp="" validFeatures="ignoreStatus=yes"><PARAM NAME="IsComma" VALUE="0"><PARAM NAME="MaxLength" VALUE="4"><PARAM NAME="Format" VALUE="####"><PARAM NAME="Numeric" VALUE="0"><PARAM NAME="InheritColor" VALUE="0"><PARAM NAME="UpperFlag" VALUE="1"></OBJECT></TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle 
+                      bgColor=#eeeeee>약&nbsp;&nbsp;&nbsp;&nbsp;칭</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px"><INPUT 
+                        class=txtbox id=txt_deptnm 
+                        onblur=bytelength(this,this.value,50); 
+                        style="LEFT: 5px; WIDTH: 137px; POSITION: relative" 
+                        maxLength=50 name=txt_deptnm> </TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle bgColor=#eeeeee>소&nbsp;속&nbsp;명</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px"><INPUT 
+                        class=txtbox id=txt_deptnmk 
+                        onblur=bytelength(this,this.value,70); 
+                        style="LEFT: 5px; WIDTH: 137px; POSITION: relative; HEIGHT: 20px" 
+                        maxLength=70 name=txt_deptnmk> </TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle bgColor=#eeeeee>영&nbsp;문&nbsp;명</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px"><INPUT 
+                        class=txtbox id=txt_deptnme 
+                        onblur=bytelength(this,this.value,50); 
+                        style="LEFT: 5px; WIDTH: 137px; POSITION: relative; HEIGHT: 20px" 
+                        maxLength=50 name=txt_deptnme> </TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle bgColor=#eeeeee>조직도순</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px"><INPUT 
+                        class=txtbox id=txt_treecd 
+                        onblur=bytelength(this,this.value,8); 
+                        style="LEFT: 5px; WIDTH: 137px; POSITION: relative; HEIGHT: 20px" 
+                        maxLength=8 name=txt_treecd> </TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle 
+                      bgColor=#eeeeee><NOBR>적&nbsp;용&nbsp;일</NOBR></TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px">
+                        <OBJECT class=objclsEme1 id=gcem_frdt 
+                        style="FONT-SIZE: 9pt; Z-INDEX: 2; LEFT: 5px; WIDTH: 70px; FONT-FAMILY: 굴림; POSITION: relative; TOP: 1px; HEIGHT: 20px" 
+                        tabIndex=1 
+                        classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F 
+                        validExp="" validFeatures="ignoreStatus=yes"><PARAM NAME="IsComma" VALUE="0"><PARAM NAME="MaxLength" VALUE="8"><PARAM NAME="Format" VALUE="YYYY/MM/DD"><PARAM NAME="Numeric" VALUE="0"><PARAM NAME="InheritColor" VALUE="0"></OBJECT><IMG 
+                        id=img_calendar1 
+                        style="LEFT: 5px; WIDTH: 20px; CURSOR: hand; POSITION: relative" 
+                        onclick="__GetCallCalendar('gcem_frdt', 'Text')" 
+                        src="../img/calender.gif" value="calender.gif"> </TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle 
+                      bgColor=#eeeeee><NOBR>종&nbsp;료&nbsp;일</NOBR></TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px"><NOBR>
+                        <OBJECT class=objclsEme1 id=gcem_todt 
+                        style="FONT-SIZE: 9pt; Z-INDEX: 2; LEFT: 5px; WIDTH: 70px; FONT-FAMILY: 굴림; POSITION: relative; TOP: 1px; HEIGHT: 20px" 
+                        tabIndex=1 
+                        classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F 
+                        validExp="" validFeatures="ignoreStatus=yes"><PARAM NAME="IsComma" VALUE="0"><PARAM NAME="MaxLength" VALUE="8"><PARAM NAME="Format" VALUE="YYYY/MM/DD"><PARAM NAME="Numeric" VALUE="0"><PARAM NAME="InheritColor" VALUE="0"></OBJECT><IMG 
+                        id=img_calendar1 
+                        style="LEFT: 5px; WIDTH: 20px; CURSOR: hand; POSITION: relative" 
+                        onclick="__GetCallCalendar('gcem_todt', 'Text')" 
+                        src="../img/calender.gif" value="calender.gif"></NOBR> 
+                      </TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle bgColor=#eeeeee>근&nbsp;무&nbsp;지</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px"><NOBR>
+                        <OBJECT class=txtbox id=gclx_deptprt 
+                        style="LEFT: 5px; POSITION: relative" height=120 
+                        width=138 
+                        classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69><PARAM NAME="Sort" VALUE="0"><PARAM NAME="ListExprFormat" VALUE="MINORNM^0^140"><PARAM NAME="ComboDataID" VALUE="gcds_dept1"><PARAM NAME="SearchColumn" VALUE="MINORCD^MINORNM"><PARAM NAME="BindColumn" VALUE="MINORCD"></OBJECT>&nbsp;</NOBR> 
+                      </TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle bgColor=#eeeeee>근무지 구분</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px">
+                        <OBJECT class=txtbox id=gclx_deptgb 
+                        style="LEFT: 5px; POSITION: relative" height=120 
+                        width=138 
+                        classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69><PARAM NAME="Sort" VALUE="0"><PARAM NAME="ListExprFormat" VALUE="MINORNM^0^140"><PARAM NAME="ComboDataID" VALUE="gcds_deptgb"><PARAM NAME="SearchColumn" VALUE="MINORCD^MINORNM"><PARAM NAME="BindColumn" VALUE="MINORCD"></OBJECT></TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle bgColor=#eeeeee>사용유무</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px"><NOBR><INPUT 
+                        id=txt_useyn 
+                        style="LEFT: 5px; WIDTH: 15px; POSITION: relative; HEIGHT: 15px" 
+                        onclick="ln_Valchk(this, 'USEYN')" type=checkbox 
+                        value="" name=txt_useyn>&nbsp;</NOBR> </TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle bgColor=#eeeeee>세액구분</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px"><NOBR><INPUT 
+                        id=txt_useyn2 onblur=bytelength(this,this.value,1); 
+                        style="LEFT: 5px; WIDTH: 15px; POSITION: relative; HEIGHT: 15px" 
+                        onclick="ln_Valchk2(this, 'REDTAXYN')" type=checkbox 
+                        maxLength=1 value="" name=txt_useyn2><INPUT 
+                        style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FONT-SIZE: 9pt; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px; POSITION: relative; TOP: 2px" 
+                        value=" 면세 및 감면 대상">&nbsp;</NOBR> </TD></TR>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px" 
+                      align=middle bgColor=#eeeeee>출력순</TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px">
+                        <OBJECT class=txtbox id=gclx_groupid 
+                        style="LEFT: 5px; POSITION: relative" height=108 
+                        width=138 
+                        classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69><PARAM NAME="Sort" VALUE="0"><PARAM NAME="ListExprFormat" VALUE="MINORNM^0^140"><PARAM NAME="ComboDataID" VALUE="gcds_groupid"><PARAM NAME="SearchColumn" VALUE="MINORCD^MINORNM"><PARAM NAME="BindColumn" VALUE="MINORCD"></OBJECT></TD></TR>
+                    <TR>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 0px solid; HEIGHT: 100%" 
+                      colSpan=4>&nbsp; 
+          </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+      <TABLE cellSpacing=0 cellPadding=0 width=875 border=0>
+        <TBODY>
+        <TR>
+          <TD height=10></TD></TR>
+        <TR>
+          <TD height=24>조회건수 : <LABEL 
+      id=lbl_search1></LABEL></TD></TR></TBODY></TABLE></DIV>
+      <DIV id=div_information style="DISPLAY: none">
+      <TABLE cellSpacing=0 cellPadding=1 width=875 border=0>
+        <TBODY>
+        <TR>
+          <TD align=middle>
+            <TABLE cellSpacing=0 cellPadding=1 width=847 border=0>
+              <TBODY>
+              <TR>
+                <TD vAlign=top rowSpan=3>
+                  <OBJECT id=Tb_TreeView 
+                  style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #708090 1px solid; WIDTH: 150px; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 410px" 
+                  height="100%" width=150 
+                  classid=clsid:4401B994-DD33-11D2-B539-006097ADB678><PARAM NAME="DataID" VALUE="gcds_dept11"><PARAM NAME="TextColumn" VALUE="DEPTNMK"><PARAM NAME="LevelColumn" VALUE="LEVEL"><PARAM NAME="UseImage" VALUE="0"><PARAM NAME="BorderStyle" VALUE="0">
+                   																																				<!-- <param 
+                  name="ExpandLevel"		value="1">  -->					</OBJECT></TD>
+                <TD vAlign=top align=left>
+                  <TABLE 
+                  style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #708090 1px solid; BORDER-BOTTOM: #708090 1px solid; HEIGHT: 30px; BACKGROUND-COLOR: #ffffff" 
+                  cellSpacing=0 cellPadding=0 width=694 border=0>
+                    <TBODY>
+                    <TR>
+                      <TD class=txtbox 
+                      style="BORDER-RIGHT: #708090 1px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 0px solid; HEIGHT: 30px" 
+                      bgColor=#eeeeee><NOBR>&nbsp;상위소속명칭&nbsp;</NOBR></TD>
+                      <TD 
+                      style="BORDER-RIGHT: #708090 0px solid; BORDER-TOP: #708090 0px solid; BORDER-LEFT: #708090 0px solid; BORDER-BOTTOM: #708090 0px solid; HEIGHT: 30px"><INPUT 
+                        class=txtbox id=txt_treenm 
+                        onblur=bytelength(this,this.value,70); 
+                        style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FONT-SIZE: 9pt; LEFT: 5px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px; POSITION: relative; TOP: 1px" 
+                        maxLength=70>&nbsp;</TD>
+                      <TD width="100%">&nbsp;</TD>
+                      <TD><NOBR></NOBR></TD></TR></TBODY></TABLE>
+                  <TABLE cellSpacing=0 cellPadding=0 width=687 border=0>
+                    <TBODY>
+                    <TR>
+                      <TD height=5></TD></TR></TBODY></TABLE>
+                  <TABLE height=0 cellSpacing=0 cellPadding=0 width=687 
+border=0>
+                    <TBODY>
+                    <TR>
+                      <TD class=txtbox vAlign=bottom height=0><NOBR>+ 
+                        하위소속코드정보</NOBR></TD>
+                      <TD vAlign=bottom height=35><NOBR>&nbsp;<INPUT 
+                        style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FONT-SIZE: 12px; LEFT: 245px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px; POSITION: relative" 
+                        value="+ 전체소속코드정보"></NOBR></TD>
+                      <TD width="100%"></TD>
+                      <TD 
+                      style="PADDING-RIGHT: 5px; PADDING-TOP: 3px">&nbsp;</TD>
+                      <TD style="PADDING-TOP: 3px"><NOBR><!-- <img src="../../common/img/btn/com_b_level.gif" style="cursor:hand;position:relative;top:-111px" onClick="ln_Level()"> --><IMG 
+                        style="CURSOR: hand; POSITION: relative; TOP: -111px" 
+                        onclick=ln_Save2() 
+                        src="../../common/img/btn/com_b_save.gif"> 
+                      <NOBR></NOBR></TD></TR></TBODY></TABLE></TD></TR>
+              <TR>
+                <TD vAlign=top align=left>
+                  <TABLE cellSpacing=0 cellPadding=1 width=685 border=0>
+                    <TBODY>
+                    <TR>
+                      <TD style="WIDTH: 331px" vAlign=top align=middle>
+                        <OBJECT class=txtbox id=gcgd_reresult 
+                        style="BORDER-RIGHT: #777777 1px solid; BORDER-TOP: #777777 1px solid; DISPLAY: block; BORDER-LEFT: #777777 1px solid; WIDTH: 331px; BORDER-BOTTOM: #777777 1px solid; HEIGHT: 335px" 
+                        classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 
+                        viewastext><PARAM NAME="FillArea" VALUE="-1"><PARAM NAME="Format" VALUE="  &#13;&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;<C> Name='조직도순'&#9;&#9;ID=TREECD&#9;&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=60&#9;&#9;align=center&#9;Edit=none</C>&#13;&#10;                <C> Name='소속코드'&#9;&#9;ID=DEPTCD&#9;&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=60&#9;&#9;align=center&#9;Edit=none</C> &#13;&#10;                <C> Name='소 속 명'&#9;&#9;ID=DEPTNMK  HeadAlign=Center HeadBgColor=#B9D4DC Width=180&#9;align=left&#9;&#9;Edit=none</C> &#13;&#10;                "><PARAM NAME="DataID" VALUE="gcds_dept2"><PARAM NAME="BorderStyle" VALUE="0"></OBJECT></TD>
+                      <TD><IMG style="CURSOR: hand" 
+                        onclick="ln_Move('GORIGHT')" 
+                        src="../../common/img/btn/com_btn_right.gif"><BR><IMG 
+                        style="CURSOR: hand" onclick="ln_Move('GOLEFT') " 
+                        src="../../common/img/btn/com_btn_left.gif"> </TD>
+                      <TD style="WIDTH: 331px" vAlign=top align=middle>
+                        <OBJECT class=txtbox id=gcgd_reresult 
+                        style="BORDER-RIGHT: #777777 1px solid; BORDER-TOP: #777777 1px solid; DISPLAY: block; BORDER-LEFT: #777777 1px solid; WIDTH: 331px; BORDER-BOTTOM: #777777 1px solid; HEIGHT: 335px" 
+                        classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 
+                        viewastext><PARAM NAME="FillArea" VALUE="-1"><PARAM NAME="Format" VALUE="  &#13;&#10;&#9;&#9;&#9;&#9;&#9;&#9;&#9;&#9;<C> Name='조직도순'&#9;&#9;ID=TREECD&#9;&#9;HeadAlign=Center HeadBgColor=#B9D4DC Width=60&#9;&#9;align=center&#9;Edit=none</C>&#13;&#10;                <F> Name='소속코드'&#9;&#9;ID=DEPTCD   HeadAlign=Center HeadBgColor=#B9D4DC Width=60&#9;&#9;align=center&#9;Edit=none</F> &#13;&#10;                <C> Name='소 속 명'&#9;&#9;ID=DEPTNMK  HeadAlign=Center HeadBgColor=#B9D4DC Width=180&#9;align=left&#9;&#9;Edit=none</C> &#13;&#10;                "><PARAM NAME="DataID" VALUE="gcds_dept3"><PARAM NAME="BorderStyle" VALUE="0"></OBJECT></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+      <TABLE cellSpacing=0 cellPadding=0 width=875 border=0>
+        <TBODY>
+        <TR>
+          <TD height=10></TD></TR>
+        <TR>
+          <TD height=24>조회건수 : <LABEL 
+      id=lbl_search2></LABEL></TD></TR></TBODY></TABLE></DIV>
+    <TD></TD></TR></TBODY></TABLE><!-----------------------------------------------------------------------------
+											B I N D   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<OBJECT id=gcbn_dept classid=CLSID:9C9AB433-EA85-11D2-A4F9-00608CEBEE49><PARAM NAME="DataID" VALUE="gcds_dept"><PARAM NAME="BindInfo" VALUE="&#13;&#10;&#9;&#9;<C>Col=DEPTCD&#9;&#9;&#9;Ctrl=gcem_deptcd    Param=text&#9;&#9;&#9;</C>&#13;&#10;&#9;&#9;<C>Col=DEPTNM&#9;&#9;&#9;Ctrl=txt_deptnm&#9;    Param=value&#9;&#9;&#9;</C>&#13;&#10;&#9;&#9;<C>Col=DEPTNMK&#9;&#9;Ctrl=txt_deptnmk    Param=value&#9;&#9;&#9;</C>&#13;&#10;&#9;&#9;<C>Col=DEPTNME&#9;&#9;Ctrl=txt_deptnme    Param=value&#9;&#9;&#9;</C>&#13;&#10;&#9;&#9;<C>Col=TREECD&#9;&#9;&#9;Ctrl=txt_treecd&#9;&#9;&#9;Param=value&#9;&#9;&#9;</C>&#13;&#10;&#9;&#9;<C>Col=FRDT&#9;&#9;&#9;&#9;Ctrl=gcem_frdt&#9;&#9;&#9;Param=text&#9;&#9;&#9;</C>&#13;&#10;&#9;&#9;<C>Col=TODT&#9;&#9;&#9;&#9;Ctrl=gcem_todt&#9;&#9;&#9;Param=text&#9;&#9;&#9;</C>&#13;&#10;&#9;&#9;<C>Col=DEPTPRT&#9;&#9;Ctrl=gclx_deptprt&#9;&#9;Param=BindColVal</C>&#13;&#10;&#9;&#9;<C>Col=DEPTGB&#9;&#9;&#9;Ctrl=gclx_deptgb    Param=BindColVal</C>&#13;&#10;&#9;&#9;<C>Col=USEYN&#9;&#9;&#9;Ctrl=txt_useyn&#9;&#9;&#9;Param=value&#9;&#9;&#9;</C>&#13;&#10;&#9;&#9;<C>Col=REDTAXYN&#9;&#9;Ctrl=txt_useyn2&#9;&#9;&#9;Param=value&#9;&#9;&#9;</C>&#13;&#10;    <C>Col=GROUPID&#9;&#9;Ctrl=gclx_groupid&#9;&#9;Param=BindColVal</C>&#13;&#10;  "></OBJECT>
+<DIV class=page id=out_line 
+style="Z-INDEX: -1; LEFT: 4px; WIDTH: 875px; POSITION: absolute; TOP: 68px; HEIGHT: 437px"></DIV><IFRAME 
+id=LowerFrame 
+style="LEFT: 280px; VISIBILITY: hidden; POSITION: absolute; TOP: 220px" 
+name=work src="../../common/img/flash/loading.swf" frameBorder=0 width=320 
+height=42> </IFRAME></BODY></HTML>

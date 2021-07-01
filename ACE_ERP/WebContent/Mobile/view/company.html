@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/mobile/lib/common.css" />
+
+    <script src="/mobile/controller/company.js"></script>
+    <script data-main="/mobile/lib/app" src="/mobile/lib/require.js"></script>
+
+</head>
+<body>
+    <div id="pageCompany" data-role="page">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div><!--//menu-->
+
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div>
+                <ul id="listCompany" data-role="listview" data-theme="c" data-filter="true" data-filter-placeholder="회사명" data-filter-theme="b">
+                    <li data-role="list-divider" data-theme="f"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="pageCompanyDetail" data-role="page">
+        <div data-role="header">
+			<a href="#pageCompany" data-icon="back">목록</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div class="ui-field-contain">
+                <input type="hidden" id="hdnCD_CORP" />
+                <input type="hidden" id="hdnNO_ID" />
+                <input type="hidden" id="hdnDT_OPEN" />
+                <input type="hidden" id="hdnDT_CLOSE" />
+                <input type="hidden" id="hdnRM_REASON" />
+                <input type="hidden" id="hdnDS_UPTAE" />
+                <input type="hidden" id="hdnDS_UPJONG" />
+                
+                <label for="txtDS_CORP">법인명:</label>
+                <input type="text" id="txtDS_CORP" readonly="readonly" class="ui-readonly" />
+                <label for="txtNO_CORP">법인번호:</label>
+                <input type="text" id="txtNO_CORP" readonly="readonly" class="ui-readonly" />
+                <label for="txtNO_SAUP">사업자번호:</label>
+                <input type="text" id="txtNO_SAUP" readonly="readonly" class="ui-readonly" />
+                <label for="txtDS_SAUP">회사명:</label>
+                <input type="text" id="txtDS_SAUP" readonly="readonly" />
+                <label for="txtDS_SAUPADDR">회사주소:</label>
+                <textarea id="txtDS_SAUPADDR" readonly="readonly"></textarea>
+                <label for="txtNO_ZIP">우편번호:</label>
+                <input type="text" id="txtNO_ZIP" readonly="readonly" />
+                <label for="txtNO_SAUPTEL">전화번호:</label>
+                <input type="text" id="txtNO_SAUPTEL" readonly="readonly" />
+                <label for="txtDS_NAME">대표자명:</label>
+                <input type="text" id="txtDS_NAME" readonly="readonly" />
+            </div>
+            <div id="divEdit">
+                <input type="button" id="btnEdit" value="수정하기" data-theme="f" data-icon="edit" />
+            </div>
+            <div id="divSave" style="display:none;">
+                <div class="ui-grid-a"> 
+                    <div class="ui-block-a">
+                        <input type="button" id="btnSave" value="저장" data-theme="d" data-icon="check" />
+                    </div>
+                    <div class="ui-block-b">
+                        <input type="button" id="btnCancel" value="취소" data-theme="b" data-icon="delete" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

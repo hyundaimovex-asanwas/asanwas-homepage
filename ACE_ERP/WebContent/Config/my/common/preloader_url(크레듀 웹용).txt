@@ -1,0 +1,3 @@
+&credu_server=Y&
+&address=http://www.credu.com/flashTp/swf/logo_loading.swf&
+&percent=50&

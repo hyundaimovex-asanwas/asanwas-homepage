@@ -1,0 +1,142 @@
+<!-----------------------------------------------------------------------------
+                          케이씨티시 웹 
+-------------------------------------------------------------------------------
+시 스 템 명 : 사진등록
+프로그램 ID : htec034r.html
+유       형 : html
+사 용 언 어 : html
+기 능 정 의 :
+변 경 이 력 : 
+특 기 사 항 : 
+------------------------------------------------------------------------------>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>사진저장</TITLE>
+<META NAME="Generator" CONTENT="EditPlus">
+<META NAME="Author" CONTENT="">
+<META NAME="Keywords" CONTENT="">
+<META NAME="Description" CONTENT="">
+<!--****************************************************************************-->
+
+<!--****************************************************************************-->
+<!-----------------------------------------------------------------------------
+  문자형 정의 [charset]
+------------------------------------------------------------------------------>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ks_c_5601">
+<link rel="stylesheet" href="../../common/include/common.css">
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+<!---------------------------------------------------------------------------
+마우스 오른쪽 버튼 사용금지
+----------------------------------------------------------------------------->
+<script language="JavaScript1.2">
+if (document.all)
+//document.onmousedown= new Function("if (event.button==2||event.button==3) alert('<주> 케이씨티시 웹싸이트에 오신것을 환영합니다!')")
+</script>
+<!--****************************************************************************--> 
+
+<script language="JavaScript">
+/*<!--전역변수-->*/
+var key_ec34aa="";
+var key_ec34ab="";
+var key_ec34ac=0;
+
+/*<!--현재일자 읽어오기  -->*/
+var mdate = new Date();
+var year=mdate.getYear(); 
+var day=mdate.getDay(); 
+var month=mdate.getMonth()+1 ;
+	if (month<10) 
+		month="0"+month; 
+		var daym=mdate.getDate();
+	if (daym<10) 
+		daym="0"+daym;
+ year  = year +"";
+ month = month +"";
+ daym  = daym +"";
+var curdate = year+month+daym;
+
+function lfn_save()
+{
+  if(form1.up_file.value != "")
+   {
+ 	document.form1.action="/services/servlet/CLSEMP.photo_save";
+   	document.form1.submit();
+   }
+}
+
+function exit()
+ {	window.close();  }
+
+/*<!--소문자를 대문자로  -->*/
+function strUP(obj)
+{
+  obj.value = obj.value.toUpperCase();
+}
+//객체앞뒤공백제거 함수
+function trim(strSource)
+{  re = /^\s+|\s+$/g;
+  return strSource.replace(re, ''); }
+
+/*<!--버튼 변경-->*/
+function MM_swapImgRestore() 
+{ //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+function MM_preloadImages() 
+{ //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+function MM_findObj(n, d)
+{ //v4.0
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && document.getElementById) x=document.getElementById(n); return x;
+}
+function MM_swapImage()
+{ //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+</script>
+
+<BODY bgcolor="#FFFFFF" text="#000000" topmargin=0 leftmargin=0 marginwidth=0 marginheight=0  >
+<table width="400px" height="150px" border="1" class=cond_table  cellpadding="0" cellspacing="0">
+<!--제목및 버튼부분-->
+ <tr>
+  <td width=100% height="50px">
+    <table border="0" cellpadding="0" cellspacing="0" width=100% height="50px">
+       <tr>
+         <td width="30px" height="50px"  background='../img/page_topbg.jpg' ><img src="../img/title_img.gif">         </td>
+         <td width="370px"  align="left" background='../img/title_line.jpg' class=title>이미지저장</td>
+       </tr>
+     <table>
+    </td>
+ </tr>
+<!--내용-->
+<tr>
+ <td width=100% height="100px" cellpadding="0" cellspacing="0" valign="top">
+     <table width=100%  height="100px" border="0" cellpadding="0" cellspacing="0" valign="top">
+   		<tr>
+		  <form name=form1 method=post enctype="multipart/form-data">
+   			<td width=80 align=center>사진입력</td>
+			<td  colspan="2" width=320 align=left><input <input type=file name=up_file size=32 ></td>
+		  </form>
+		</tr>
+		<tr height="70px" >
+		   <td width=80  align=center></td>
+		   <td width=240 align=center>사진파일명은 사번.gif로 하여주십시요.</td>
+		   <td width=80  align=right><a href="#" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('btn_save','','../img/kctc_save_off.jpg',1)" onClick="lfn_save()"><img name="btn_save" border="0" src="../img/kctc_save.jpg" ></a>&nbsp;&nbsp;</td>
+   		</tr>
+	  </table>
+  </td>
+ </tr>
+</table>
+
+</BODY>
+</HTML>
+

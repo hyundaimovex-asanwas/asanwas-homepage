@@ -1,0 +1,66 @@
+.num  {
+	font-family : Verdana;
+	font-size : 12px;
+	line-height : 14px;
+	}
+.num A{
+	text-decoration : none;
+	}
+.num A:hover {
+	text-decoration : none;
+	}
+.webd  {
+	color : #ffffff;
+	font-family : Webdings;
+	font-size : 16px;
+	line-height : 14px;
+	text-decoration : none;
+	}
+.webd A{
+	color : #333333;
+	text-decoration : none;
+	}
+.webd A:hover {
+	text-decoration : underline;
+	}
+#boardid{ 
+		BACKGROUND-COLOR: #FFFFFF; 
+		border-top: 0 inset;
+		border-left: 1 outset;
+		border-right: 0 outset;
+		border-bottom: 0 outset;
+		PADDING-BOTTOM: 0px; 
+		PADDING-LEFT: 0px; 
+		PADDING-RIGHT: 0px; 
+		PADDING-TOP: 0px; 
+		WIDTH: 100%;
+	}
+#calendardiv, #calendardiv_p, #calendardiv_n {
+		BACKGROUND-COLOR: #F6F6F6;
+		border-top: 0 solid threedhighlight;
+		border-left: 0 solid threedhighlight;
+		border-right: 0 solid threedshadow;
+		border-bottom: 0 solid threedshadow;
+		PADDING-BOTTOM: 0px;
+		PADDING-LEFT: 0px;
+		PADDING-RIGHT: 0px;
+		PADDING-TOP: 0px;
+		WIDTH: 10px;
+		height: 142px;
+		z-index:1;
+}
+
+.today 
+{
+	font-weight:bold;
+	background-color:#FFFAE0;
+	border:1px solid #000066;
+	padding:2px;
+	text-decoration : none;
+	font-family : Verdana;
+	font-size : 12px;
+	line-height : 14px;
+}
+
+/* 날짜가 선택되었을때 색을 변환해준다. */
+.leftBarBg {background-color:#DBEAF5;}

@@ -1,0 +1,25 @@
+@charset "euc-kr";
+/* 이미지 경로는 서버와 로컬이 달라요..
+   서버에는 /HDAsan/이 없어요..
+ */
+		body		{ 
+		  scrollbar-face-color:#ffffff;
+		  scrollbar-highlight-color:#909090;
+		  scrollbar-3dlight-color:#ffffff;
+		  scrollbar-shadow-color:#909090;
+		  scrollbar-darkshadow-color:#ffffff;
+		  scrollbar-track-color:#ffffff;
+		  scrollbar-arrow-color:#909090;}
+		td {font-size: 12px; color: #333333; bgcolor: #ffffff; text-decoration: none }
+		/*-- NON 필수항목 --*/
+		.text {background: #d4d0c8; text-align: center; text-valign: middle; line-width: 72px; line-height: 25px;}
+		/*------------  입력 form양식 ------------*/
+		.textbox {font-size: 12px; color: #333333; border:1 solid #666666;}
+		/*------------  투명 form양식 ------------*/
+		.hidden { 	
+			border-style: none; font-size: 12px; color: #333333; 
+			border-top-width: 0px; 
+			border-right-width: 0px; 
+			border-bottom-width: 0px; 
+			border-left-width: 0px }
+ 

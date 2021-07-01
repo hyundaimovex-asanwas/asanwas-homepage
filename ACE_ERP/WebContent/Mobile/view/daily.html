@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/mobile/lib/mobipick.css" />
+    <link rel="stylesheet" href="/mobile/lib/common.css" />
+    
+    <script src="/mobile/controller/daily.js?v2"></script>
+    <script data-main="/mobile/lib/app" src="/mobile/lib/require.js"></script>
+
+</head>
+<body>
+    <div id="pageDaily" data-role="page" class="insa">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div><!--//menu-->
+        
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Eland</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div class="ui-grid-b">
+                <div class="ui-block-a" style="width: 40%;">
+                    <input type="hidden" id="hdnCD_SITE" />
+                    <button id="btnSite" data-mini="true" data-theme="b"><span id="spDS_SITE">현장</span></button>
+                </div>
+                <div class="ui-block-b" style="width: 25%; margin-left:3px;">
+                    <input type="text" id="txtDT_WORK" data-mini="true" data-theme="b" placeholder="출역일" />
+                </div>
+                <div class="ui-block-b" style="width: 30%">
+                    <input id="btnSearch" type="button" data-icon="search" data-iconpos="right" data-theme="d" data-mini="true" value="조회">
+                </div>
+            </div>
+            <div style="margin-top: 20px; margin-bottom: 40px;">
+                <ul id="listDaily" data-role="listview" data-theme="c" data-split-icon="phone" data-split-theme="a">
+                    <li data-role="list-divider" data-theme="f"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

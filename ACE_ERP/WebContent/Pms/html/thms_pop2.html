@@ -1,0 +1,228 @@
+<!--
+/*--------------------------------------------------------------------------------
++ 시스템명 : 현장명 및 공종명 조회 
++ 프로그램ID : thms_pop2.HTML
++ 기능정의 : 
++ 작 성 자 : 이 동 훈 
++ 작성일자 : 2010.08.24
+----------------------------------------------------------------------------------
++ 수정내용 :
++ 수 정 자 : 
++ 수정일자 :
+----------------------------------------------------------------------------------
++ 서블릿명 : 
+------------------------------------------------------------------------------>
+
+
+<html>
+<head>
+<title>현장 및 공종 조회 </title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+
+	get_cookdata();       //읽기
+
+	var strParam = new Array();
+		
+	strParam=window.dialogArguments;
+
+	var gs_strGubun = strParam;
+
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+
+	if(gs_strGubun == "01" ){	
+			txt_code.value = "현장";
+	}else if(gs_strGubun == "02"){	
+			txt_code.value = "공종";
+	}
+
+	txt_codenm.focus();
+
+
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(){
+
+
+	if(txt_code.value == "현장")
+	{
+	gcds_data.DataID = "/services/servlet/THMS.thms_code_s?v_str1=TS001&v_str2=" + txt_codenm.value;			 		//현장명
+	gcds_data.Reset();
+	} 
+	else if(txt_code.value == "공종")
+	{
+	gcds_data.DataID = "/services/servlet/THMS.thms_code_s?v_str1=TS002&v_str2=" + txt_codenm.value;			 		//공종명
+	gcds_data.Reset();
+	}
+	
+
+}
+
+ 
+/******************************************************************************
+	Description : 선택 버튼 클릭!
+******************************************************************************/
+function ln_select(){
+
+		if(gcds_data.countrow<1) 
+		{
+			alert("선택하실 대상이 없습니다.");
+			return;
+		}
+
+		 if (gcds_data.countrow>=1) {		 
+		  var row = gcds_data.rowposition;		  
+			window.returnValue =  gs_strGubun+ ";" + gcds_data.namevalue(row,"COM_CODE") + ";"+ gcds_data.namevalue(row,"COM_SNAME");
+			window.close();  				
+		 } 
+		else {
+		  window.close();
+		}
+
+}
+
+/******************************************************************************
+	Description : 창닫기
+******************************************************************************/
+function ln_Close(){
+		window.close();
+}
+
+</script>
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__">
+<OBJECT id=gcds_data classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+</comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcgd_disp" event="OnDblClick(row,colid)">
+
+	if (row<1) return;
+
+	ln_select();
+
+</script>
+
+<script language="javascript" for="gcgd_disp" event="OnKeyPress(row,colid)">
+
+	if (row<1) return;
+
+	ln_select();
+
+</script>
+
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+
+<table cellpadding="0" cellspacing="0" border="0" width="250" height="390">
+	<tr height="15"><td>&nbsp;</td></tr>
+	<tr height="35">
+		<td><b>&nbsp;[공통 코드 정보]</b></td>
+			<td align="right">
+			<img src="../img/btn/com_b_query.gif"   		style="cursor:hand" onclick="ln_Query()">
+			<img src="../img/btn/com_b_select.gif"   	style="cursor:hand" onclick="ln_select()">  
+		</td>
+	</tr>
+	<tr height="25">
+		<td colspan="2" >
+			<table cellpadding="0" cellspacing="1" style="position:relative;left:5px;width:350px;height:25px;font-size:12px;" bgcolor="#708090">
+				<tr>
+          			<td align="center" bgcolor="#eeeeee" width="20px" align="center">&nbsp;HEAD</td>
+					<td  bgcolor="#FFFFFF" width="120px;">
+					<input type="text" id="txt_code" name="txt_code" style="position:relative;left:5px;width:100px;" readonly>
+					</td>
+          			<td align="center" bgcolor="#eeeeee" width="20px" align="center">&nbsp;DETAIL</td>
+					<td  bgcolor="#FFFFFF" width="120px;">
+					<input type="text" id="txt_codenm" name="txt_codenm" style="position:relative;left:5px;width:100px;ime-mode:active" onkeydown="if(event.keyCode==13) ln_Query();" >
+					</td>					
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr height="100%">
+		<td colspan="2" valign="top"><br>
+			<table cellpadding="0" cellspacing="1" style="position:relative;left:5px;width:350px;height:260px;" bgcolor="#708090">
+				<tr >
+					<td valign="top" bgcolor="#FFFFFF" width="300px" >
+							<comment id="__NSID__">
+							<OBJECT id=gcgd_disp  classid="clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49" style="position:relative;left:0px;width:340px; height:240px;font-size:12px;">
+							<param name=DataID					value=gcds_data>
+							<param Name=BorderStyle			value=0> 
+							<param name=indwidth				value=0>
+							<param name=Editable				value=false>
+							<param name=fillarea				value=true>
+							<param name=colsizing				value=true>
+							<param name=UsingOneClick		value=true>
+							<param name="sortview"     value=left>
+							<param name=TitleHeight			value=30>
+							<param name=format					value='
+							<F> Name=NO				ID={CurRow}	HeadAlign=Center HeadBgColor=#B9D4DC Width=50,	align=center </F> 
+							<FC>ID=COM_CODE					,	Name="코드",  		width=55,	 HeadBgColor=#B9D4DC,	HeadAlign=center align=center sort=true</FC>
+							<FC>ID=COM_SNAME				,	Name="코드명",  width=215,	 HeadBgColor=#B9D4DC,	HeadAlign=center sort=true</FC>
+							'>
+							</OBJECT></comment><script>__ws__(__NSID__);</script>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+
+
+</body>
+</html>

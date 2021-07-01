@@ -1,0 +1,421 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	SYSTEM
++ 프로그램 ID	: COM0040.HTML
++ 기 능 정 의	: 저장
++ 변 경 이 력	: 
++ 서 블 릿 명	: hdasan_sys, hdasan_user, hdasan_usrpgm_s1, hdasan_usrpgm_s2, hdasan_usrpgm_tr
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title>그룹관리</title>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+get_cookdata();
+lfn_init();
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+	gcds_bas.DataID = "/services/servlet/common.hdasan_sys?gstr1="; 
+	gcds_bas.Reset(); 
+
+	gcds_group.DataID = "/services/servlet/common.hdasan_group_s1?gstr1="; 
+	gcds_group.Reset(); 
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(arg1,arg2,arg3){
+	if (arg1==null) arg1 = "";
+	gcds_pgm.DataID = "/services/servlet/common.hdasan_grppgm_s1?gstr1=" + arg1 + "&gstr2=" + arg2 + "&gstr3=" + arg3; 
+	gcds_pgm.Reset(); 
+
+	gcds_grppgm.DataID = "/services/servlet/common.hdasan_grppgm_s2?gstr1=" + arg1 + "&gstr2=" + arg2 + "&gstr3=" + arg3; 
+	gcds_grppgm.Reset(); 
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+	gcds_group.addrow();
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save(){
+	if (gcds_grppgm.IsUpdated) {
+		if (confirm("해당 입력정보를 저장하겠습니까 ?")) {
+
+ 	    gctr_grppgm.action = "/services/servlet/common.hdasan_grppgm_tr";
+			gctr_grppgm.post();
+		}
+	}
+}
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+	if (confirm("해당 그룹정보를 삭제하겠습니까 ?")) {
+		if (gcds_group.sysStatus(gcds_group.rowposition)=="1") gcds_group.undo(gcds_group.rowposition);
+		else {
+			gcds_group.Deleterow(gcds_group.rowposition);
+		  gctr_grppgm2.action = "/services/servlet/common.hdasan_grppgm_tr2";
+			gctr_grppgm2.post();
+		}
+	}
+
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+/******************************************************************************
+	Description : 기본조회
+******************************************************************************/
+function ln_Bef(arg){
+	gcds_sys.DataID = "/services/servlet/common.hdasan_sys?gstr1=" + arg; 
+	gcds_sys.Reset(); 
+}
+
+/******************************************************************************
+	Description : 선택
+******************************************************************************/
+function ln_Move(arg){
+	if (arg =='L') {
+		if (gcds_grppgm.countrow<1) return;
+		gcds_pgm.addrow();
+
+		var lpos = gcds_pgm.rowposition;
+		var rpos = gcds_grppgm.rowposition;
+		
+		gcds_pgm.namevalue(lpos,"pgmid")		= gcds_grppgm.namevalue(rpos,"pgmid");
+		gcds_pgm.namevalue(lpos,"pgmnm")		= gcds_grppgm.namevalue(rpos,"pgmnm");
+		gcds_pgm.namevalue(lpos,"rpgmid")		= gcds_grppgm.namevalue(rpos,"rpgmid");
+		gcds_pgm.namevalue(lpos,"sysid")		= gcds_grppgm.namevalue(rpos,"sysid");
+		gcds_pgm.namevalue(lpos,"upmenuid") = gcds_grppgm.namevalue(rpos,"upmenuid");
+
+		gcds_grppgm.deleterow(rpos);
+	} else if (arg == 'LA') {
+		if (gcds_grppgm.countrow<1) return;
+		var tcnt = gcds_grppgm.countrow;
+		for (var i=1;i<=tcnt;i++){
+			gcds_pgm.addrow();
+			var lpos = gcds_pgm.rowposition;
+			gcds_pgm.namevalue(lpos,"pgmid")		= gcds_grppgm.namevalue(1,"pgmid");
+			gcds_pgm.namevalue(lpos,"pgmnm")		= gcds_grppgm.namevalue(1,"pgmnm");
+			gcds_pgm.namevalue(lpos,"rpgmid")		= gcds_grppgm.namevalue(1,"rpgmid");
+			gcds_pgm.namevalue(lpos,"sysid")		= gcds_grppgm.namevalue(1,"sysid");
+			gcds_pgm.namevalue(lpos,"upmenuid") = gcds_grppgm.namevalue(1,"upmenuid");
+			gcds_grppgm.deleterow(1);
+		}	
+	} else if (arg == 'R') {
+		if (gcds_pgm.countrow<1) return;
+		gcds_grppgm.addrow();
+
+		var lpos = gcds_pgm.rowposition;
+		var rpos = gcds_grppgm.rowposition;
+		
+		gcds_grppgm.namevalue(rpos,"grpid")			= gcds_group.namevalue(gcds_group.rowposition,"grpid");
+		gcds_grppgm.namevalue(rpos,"grpnm")			= gcds_group.namevalue(gcds_group.rowposition,"grpnm");
+		gcds_grppgm.namevalue(rpos,"pgmid")			= gcds_pgm.namevalue(lpos,"pgmid");
+		gcds_grppgm.namevalue(rpos,"pgmnm")			= gcds_pgm.namevalue(lpos,"pgmnm");
+		gcds_grppgm.namevalue(rpos,"rpgmid")		= gcds_pgm.namevalue(lpos,"rpgmid");
+		gcds_grppgm.namevalue(rpos,"sysid")			= gcds_pgm.namevalue(lpos,"sysid");
+		gcds_grppgm.namevalue(rpos,"upmenuid")	= gcds_pgm.namevalue(lpos,"upmenuid");
+
+		gcds_pgm.deleterow(lpos);
+	} else if (arg == 'RA') {
+		if (gcds_pgm.countrow<1) return;
+		var tcnt = gcds_pgm.countrow;
+		for (var i=1;i<=tcnt;i++){
+			gcds_grppgm.addrow();
+			var rpos = gcds_grppgm.rowposition;
+			gcds_grppgm.namevalue(rpos,"grpid")			= gcds_group.namevalue(gcds_group.rowposition,"grpid");
+			gcds_grppgm.namevalue(rpos,"grpnm")			= gcds_group.namevalue(gcds_group.rowposition,"grpnm");
+			gcds_grppgm.namevalue(rpos,"pgmid")			= gcds_pgm.namevalue(1,"pgmid");
+			gcds_grppgm.namevalue(rpos,"pgmnm")			= gcds_pgm.namevalue(1,"pgmnm");
+			gcds_grppgm.namevalue(rpos,"rpgmid")		= gcds_pgm.namevalue(1,"rpgmid");
+			gcds_grppgm.namevalue(rpos,"sysid")			= gcds_pgm.namevalue(1,"sysid");
+			gcds_grppgm.namevalue(rpos,"upmenuid")	= gcds_pgm.namevalue(1,"upmenuid");
+			gcds_pgm.deleterow(1);
+		}
+	}
+}
+
+</script>
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object id="gcds_group" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" > 
+	<PARAM NAME="SyncLoad" VALUE="false">
+ </OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__"><object id="gcds_bas" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" > 
+	<PARAM NAME="SyncLoad" VALUE="false">
+	<PARAM NAME="SortExpr" VALUE="+scode">
+ </OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__"><object id="gcds_sys" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" > 
+	<PARAM NAME="SyncLoad" VALUE="false">
+ </OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__"><object id="gcds_pgm" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" > 
+	<PARAM NAME="SyncLoad" VALUE="false">
+ </OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__"><object id="gcds_grppgm" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" > 
+	<PARAM NAME="SyncLoad" VALUE="false">
+ </OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object id=gctr_grppgm classid=clsid:0A2233AD-E771-11D2-973D-00104B15E56F VIEWASTEXT>
+	<PARAM NAME="KeyName"  VALUE="toinb_dataid4">
+	<PARAM NAME="KeyValue" VALUE="hdasan_grppgm_tr(I:GROUP=gcds_grppgm)">
+ </OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__"><object id=gctr_grppgm2 classid=clsid:0A2233AD-E771-11D2-973D-00104B15E56F VIEWASTEXT>
+	<PARAM NAME="KeyName"  VALUE="toinb_dataid4">
+	<PARAM NAME="KeyValue" VALUE="hdasan_grppgm_tr2(I:GROUP=gcds_group)">
+ </OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcds_pgm" event="OnLoadStarted()">
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language="javascript" for="gcds_pgm" event="onloadCompleted(row,colid)">
+	ft_cnt1.innerText = "조회건수 : " + row + " 건";
+	document.all.LowerFrame.style.visibility="hidden";
+</script>
+
+<script language="javascript" for="gcds_grppgm" event="onloadCompleted(row,colid)">
+	window.status="조회가 완료 되었습니다.";
+	document.all.LowerFrame.style.visibility="hidden";
+	ft_cnt2.innerText = "조회건수 : " + row + " 건";
+	if (row <1) alert("사용중인 프로그램 목록이 없습니다.");
+</script>
+
+<script language="javascript" for="gcds_group" event="OnRowPosChanged(row)">
+	var svar = 	gcds_group.sysStatus(row);
+	if (svar==1) gcgd_group.Editable = "true";
+	else gcgd_group.Editable = "false";
+</script>
+
+<script language=JavaScript for=gcds_group event=CanRowPosChange(row)>
+	var prep = "N";
+	for (var i=1; i<gcds_grppgm.countrow; i++){
+		if (gcds_grppgm.sysStatus(i)=="1") {
+			if (prep == "N") prep = "Y";
+		}
+	}
+	if (prep == "Y") {
+		if (confirm("변경된 정보가 있습니다 계속 진행하시겠습니까?"))	{
+			gcds_sys.ClearData();
+			gcds_pgm.ClearData();
+			gcds_grppgm.ClearData();
+			return true;
+		} else return false;
+	}
+
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcgd_group" event="onclick(row)">
+	if (row > 0) {
+		gcds_sys.clearall();
+		gcds_pgm.clearall();
+		gcds_grppgm.clearall();
+	}
+</script>
+
+<script language="javascript" for="gcgd_bas" event="onclick(row)">
+	if (row > 0) {
+		gcds_pgm.clearall();
+		gcds_grppgm.clearall();
+		ln_Bef(gcds_bas.namevalue(row,"scode"));
+	}
+</script>
+
+<script language="javascript" for="gcgd_sys" event="onclick(row)">
+	if (row > 0) ln_Query(gcds_group.namevalue(gcds_group.rowposition,"grpid"),gcds_sys.namevalue(row,"upcode"),gcds_sys.namevalue(row,"scode"));
+</script>
+
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gctr_grppgm" event="onsuccess()">
+	alert("요청하신 작업을 성공적으로 수행하였습니다.");
+	gcds_group.reset();
+	gcds_pgm.reset();
+	gcds_grppgm.reset();
+</script>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+<table width="877" cellpadding="0" cellspacing="0" border="0" style="position:relative;left:3px">
+  <tr> 
+    <td background="../img/com_t_bg.gif"><img src="../img/com_sys04_head.gif" width="197" height="47"></td>
+    <td width="685" background="../img/com_t_bg.gif" align=right>
+			<img src="../img/btn/com_b_delete.gif" style="position:relative;top:2px;cursor:hand" onclick="ln_Delete()">
+			<img src="../img/btn/com_b_save.gif" style="position:relative;top:2px;cursor:hand" onclick="ln_Save()">
+			<img src="../img/btn/com_b_insert.gif" style="position:relative;top:2px;cursor:hand" onclick="ln_Add()">
+			&nbsp;
+		</td>
+ </tr>
+  <!--------------------------------------------------------------------------------> 
+  <!------------------------    FORM 내용부분   ------------------------------------> 
+  <!--------------------------------------------------------------------------------> 
+  <tr> 
+    <td colspan="2"> 
+      <table width="877" cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td colspan="3">
+						<comment id="__NSID__"><object classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_group style="width: 302px; height: 159px;border:1 solid #777777" viewastext>
+              <PARAM NAME="DataID"			VALUE="gcds_group">
+              <PARAM NAME="BorderStyle" VALUE="0">
+							<PARAM NAME="Indwidth"		VALUE="10">
+							<param name="Fillarea"		VALUE="true">
+							<param name="sortview"		value="left">
+							<PARAM NAME="Editable"		VALUE="1">
+							<PARAM NAME="AllShowEdit"	VALUE="1">
+						  <PARAM NAME="Format"			VALUE=" 
+								<C> Name='그룹아이디'	ID=GRPID 		HeadAlign=Center HeadBgColor=#B9D4DC Width=115 align=left, sort=true</C> 
+								<C> Name='그룹명'			ID=GRPNM		HeadAlign=Center HeadBgColor=#B9D4DC Width=160 align=left, sort=true</C>
+							">
+             </OBJECT></comment><script>__ws__(__NSID__);</script>
+						<comment id="__NSID__"><object classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_bas style="position:relative;left:3px;width: 295px; height: 159px; border:1 solid #999999" viewastext>
+              <PARAM NAME="DataID"			VALUE="gcds_bas">
+              <PARAM NAME="BorderStyle" VALUE="0">
+							<PARAM NAME="Indwidth"		VALUE="0">
+							<param name="Fillarea"		VALUE="true">
+						  <PARAM NAME="Format"			VALUE=" 
+								<C> Name='시스템명'		ID=SCDNM 			HeadAlign=Center HeadBgColor=#B9D4DC Width=280 align=center</C> 
+							">
+             </OBJECT></comment><script>__ws__(__NSID__);</script>
+						<comment id="__NSID__"><object classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_sys style="position:relative;left:6px;width: 267px; height: 159px; border:1 solid #999999" viewastext>
+              <PARAM NAME="DataID"			VALUE="gcds_sys">
+              <PARAM NAME="BorderStyle" VALUE="0">
+							<PARAM NAME="Indwidth"		VALUE="0">
+							<param name="Fillarea"		VALUE="true">
+						  <PARAM NAME="Format"			VALUE=" 
+								<C> Name='분류명'		ID=SCDNM 			HeadAlign=Center HeadBgColor=#B9D4DC Width=250 align=left</C> 
+							">
+             </OBJECT></comment><script>__ws__(__NSID__);</script>
+					</td>
+				</tr>
+				<tr><td colspan="3" style="height:3px;"></td></tr>
+				<tr>
+					<td colspan="3">
+						<img src="../img/com_sys_dhead01.gif" style="position:relative;top:4px;width:390px;height:0px;">
+						<img src="../img/com_sys_dhead02.gif" style="position:relative;top:4px;left:66px;height:0px;">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<comment id="__NSID__"><object classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_pgm style="position:relative;WIDTH: 408px; HEIGHT: 299px; border:1 solid #999999" viewastext>
+              <PARAM NAME="DataID"			VALUE="gcds_pgm">
+              <PARAM NAME="BorderStyle" VALUE="0">
+							<PARAM NAME="Indwidth"		VALUE="10">
+							<param name="Fillarea"		VALUE="true">
+						  <PARAM NAME="Format"			VALUE=" 
+								<F> Name='프로그램ID'		ID=PGMID			HeadAlign=Center HeadBgColor=#B9D4DC Width=90  align=left</F>
+								<F> Name='프로그램명'		ID=PGMNM 			HeadAlign=Center HeadBgColor=#B9D4DC Width=190 align=left</F> 
+								<C> Name='실프로그램ID' ID=RPGMID   	HeadAlign=Center HeadBgColor=#B9D4DC Width=100  align=left</C> 
+							">
+             </OBJECT></comment><script>__ws__(__NSID__);</script>
+						<fieldset style="width:410px;height:20px;border:1 solid #708090;border-top-width:0px;text-align:left;">
+							&nbsp;<font id=ft_cnt1 style="position:relative;top:3px;"></font>
+						</fieldset>
+					</td>
+					<td style="width:100px;" align="center">
+						<img src="../img/btn/com_btn_leftall.gif" style="cursor:hand" onclick="ln_Move('LA')"><br><br>
+						<img src="../img/btn/com_btn_left.gif" style="cursor:hand" onclick="ln_Move('L')"><br><br>
+						<img src="../img/btn/com_btn_right.gif" style="cursor:hand" onclick="ln_Move('R')"><br><br>
+						<img src="../img/btn/com_btn_rightall.gif" style="cursor:hand" onclick="ln_Move('RA')">
+					</td>
+					<td>
+						<comment id="__NSID__"><object classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_usrpgm style="position:relative;width: 406px; height: 299px; border:1 solid #999999" viewastext>
+              <PARAM NAME="DataID"			VALUE="gcds_grppgm">
+              <PARAM NAME="BorderStyle" VALUE="0">
+							<PARAM NAME="Indwidth"		VALUE="10">
+							<param name="Fillarea"		VALUE="true">
+						  <PARAM NAME="Format"			VALUE=" 
+								<F> Name='프로그램ID'		ID=PGMID			HeadAlign=Center HeadBgColor=#B9D4DC Width=90  align=left</F>
+								<F> Name='프로그램명'		ID=PGMNM 			HeadAlign=Center HeadBgColor=#B9D4DC Width=190 align=left</F> 
+								<C> Name='실프로그램ID' ID=RPGMID   	HeadAlign=Center HeadBgColor=#B9D4DC Width=100 align=left</C> 
+							">
+             </OBJECT></comment><script>__ws__(__NSID__);</script>
+						<fieldset style="width:408px;height:20px;border:1 solid #708090;border-top-width:0px;text-align:left;">
+							&nbsp;<font id=ft_cnt2 style="position:relative;top:3px;"></font>
+						</fieldset>
+					</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:280px; top:220px;" FrameBorder="0" src="../../common/img/flash/loading.swf" width="320px" height="42px"></iframe> 
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+	<global compressed="false" fragment="100">  
+		<charset default="utf-8" get="utf-8" post="utf-8"/>
+		<col-def decimal="7.0" integer="6" round="R" string="255"/>  
+		
+		<!--SecurityAdapter provides function that can prevent leakage of 
+            information being transmitted over a network, change of information, 
+            and denial of information reception and transmission.
+		-->
+		<crypto spi="com.gauce.common.crypto.impl.SecuiAdapter"/>
+		<!--crypto spi="com.gauce.common.crypto.impl.XecureAdapter">
+			<param name="conf" value="/home/xecureweb_ver5/xecure_servlet.conf"/>
+		</crypto-->        
+		<!--crypto spi="com.gauce.common.crypto.impl.InisafeNetAdapter">
+			<param name="conf" value="C:\INISAFENET.properties"/>
+		</crypto-->
+		<!--crypto spi="com.gauce.common.crypto.impl.SigngateAdapter">
+			<param name="conf" value="C:\kmPri.key"/>
+			<param name="passwd" value="1234"/>
+		</crypto-->
+	</global>
+</configuration>

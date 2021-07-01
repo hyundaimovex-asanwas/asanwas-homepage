@@ -1,0 +1,280 @@
+<!--
+시스템명   : 
+프로그램명 : 
+기능정의   : 매장 점유율
+기능설명   : 
+특기사항   : 
+변경이력   : 
+--> 
+<html>
+<head>
+<title>매장 점유율</title>
+<link rel="STYLESHEET" href="../../css/cssSingiro.css" type="text/css">
+<Script LANGUAGE="JavaScript" src = "../../include/style.js"></script>
+<Script LANGUAGE="VBScript" src = "../../include/fgchk.vbs"></script>
+<Script LANGUAGE="JavaScript" src = "../../common/include/XChart.js"></script>
+
+
+<script language=vbscript>
+'****************************************************************************
+' 프로그램 시작과 동시에 초기화하는 작업
+'****************************************************************************
+sub Window_Onload()
+   dim vdate,vfromdate,vtodate,vmdate,vpdate
+	
+	vdate = fAddSys(Date)
+	vtodate = replace(vdate, "-", "")
+   
+	vfromdate = fAddSys(DateAdd("m",-3,vdate))
+	vfromdate = replace(vfromdate, "-", "")
+
+	
+   tbme_from.text = 20010101
+   tbme_to.text   = vtodate 
+End sub
+
+</script>
+
+<script language="javascript">
+	function fn_init(){
+
+/*----------------------------------------------------------------------------------------
+//챠트 초기화 셋팅
+------------------------------------------------------------------------------------------*/
+//챠트 초기화 제어
+	cfInitXChart1(XChart);
+	cfInitXChart2(XChart1);
+	}
+</script>
+
+<script langage="javascript">
+<!----------------- 조회버튼클릭시------------------->
+function lfn_search() {
+//alert("shop :"+tbcc_shop.bindcolval);
+
+				tbds_grid.DataId=	"/services/servlet/Singiro.manage.cls.acd001s1?shop=" + tbcc_shop.bindcolval 
+																	+ "&from=" + tbme_from.text 
+																	+ "&to=" + tbme_to.text;
+				tbds_grid.Reset();
+	alert(tbcc_shop.bindcolval);
+// 조회결과를 막대챠트에 뿌려줌..
+			tbds_Chart.DataID = "/services/servlet/Singiro.manage.cls.acd001s1_ch?shop=" + tbcc_shop.bindcolval
+																	+ "&from=" + tbme_from.text 
+																	+ "&to=" + tbme_to.text;
+			tbds_Chart.Reset();
+	
+}
+</script>
+
+
+<!-----------------------------------------------------------------------
+GAUCE Component Script 정의
+------------------------------------------------------------------------>
+<script language="javascript"  for=tbds_grid event=OnLoadStarted()>
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+<script language=JavaScript for="tbds_grid" event="OnLoadCompleted(row)">
+//alert(row);
+	document.all.LowerFrame.style.visibility="hidden";
+			if (tbds_grid.countRow < 1){alert("데이타가 없습니다.");return ;}	
+</script>
+<script language=JavaScript for="tbds_grid" event="OnLoadError()">
+	document.all.LowerFrame.style.visibility="hidden";
+alert(ErrorMsg+ErrorCode);
+</script>
+
+<script language="javascript"  for=tbds_shop event=OnLoadCompleted(rowcount)>
+// 온로드시 콤보박스에 영업점의 값을 셋팅한다.
+// 본사 위주로 할 경우 - 선택가능하게, 지점 위주로 할 경우 - 값을 셋팅시킨다.
+	tbcc_shop.focus();
+	tbcc_shop.Index = 0;
+</script>
+
+
+<script language=JavaScript for=tbds_Chart event=OnLoadCompleted(rowcnt)>
+	if (tbds_Chart.countrow == 0){
+		alert('조회된 내용이 없습니다.');
+	}
+	window.status = "정상적으로 조회되었습니다.";
+
+/*----------------------------------------------------------------------------------------
+//챠트 디자인 - 해당조건에 맞게 챠트를 디자인한다
+------------------------------------------------------------------------------------------
+*/
+	cfAddSeriesOne_1(XChart, tbds_Chart.id, 31, " man", "green", "ITEM_CODE", "mkt_rate" );
+	cfAddSeriesOne_1(XChart1, tbds_Chart.id, 5, " man", "green", "ITEM_CODE", "mkt_rate" );
+</script>
+
+<!------------------------------------------------------------
+				GAUCE Component
+-------------------------------------------------------------->
+
+<!--DataSet Component(그리드)-->
+<comment id="__NSID__"><object id="tbds_grid" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49">
+<param name=SortExpr	value="+sale_date"> 
+</object></comment><script>__ws__(__NSID__);</script>
+
+<!--DataSet Component(챠트)-->
+<comment id="__NSID__"><object id="tbds_Chart" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49">
+</object></comment><script>__ws__(__NSID__);</script>
+
+<!--DataSet Component(영업장)-->
+<comment id="__NSID__"><object id="tbds_shop" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" tabindex="-1" > 
+	<param name="DataID"	value="/services/servlet/Singiro.manage.cls.mcd_shop">
+</object></comment><script>__ws__(__NSID__);</script>
+
+</head>
+<body bgcolor="#F5F5F5" onload="fn_init()">
+<font style=font-size:9pt Style="LEFT: 10px; POSITION: absolute; TOP: 2px;">
+<img src='../../images/page_icon.gif'><b>매장 점유율</b></font>
+<table border=0 bgcolor="#d0d0b9" style=font-size:9pt 
+Style="LEFT: 10px; POSITION: absolute; TOP: 17px;" cellspacing=0 cellpadding=0 width="845px">
+	<tr>
+		<td>
+      	<table border=1 cellspacing=0 cellpadding=0 width="100%">
+	 			<tr>
+	  				<td>
+	    				<table border=0 style=font-size:9pt cellspacing=0 cellpadding=0 width="100%" height=40>
+	      				<tr bgcolor="#d0d0b9">
+								<td align=right><b>판매년월</b></td>
+									<!--MEdit Component-->
+								<td>&nbsp;
+									<comment id="__NSID__"><object classid="clsid:E6876E99-7C28-43AD-9088-315DC302C05F" id="tbme_from" style="width:70px;"tabindex="2">
+										  <PARAM NAME="InheritColor" VALUE="0">
+										  <param name="Align" value="1">
+										  <param name="Format" value="YYYY-MM-DD">
+									</object></comment><script>__ws__(__NSID__);</script>&nbsp;~&nbsp;
+										<comment id="__NSID__"><object classid="clsid:E6876E99-7C28-43AD-9088-315DC302C05F" id="tbme_to" style="width:70px;"tabindex="2">
+										  <PARAM NAME="InheritColor" VALUE="0">
+										  <param name="Align" value="1">
+										  <param name="Format" value="YYYY-MM-DD">
+									</object></comment><script>__ws__(__NSID__);</script>
+								</td>
+				 				<td align=right><b>영업장</b></td>
+								<td>&nbsp;<!-- <comment id="__NSID__"><object id="tbcc_shop" classid="clsid:FD4C6571-DD20-11D2-973D-00104B15E56F"
+												  tabindex="3" style="width:120px; height=400;" > 
+													<param name=ComboDataID    value=tbds_shop>
+													<param name=CodeCColumn    value=SALEDPT_CODE>
+													<param name=DataCColumn    value=SALEDPT_NAME>
+													<param name=Auto           value=false>
+											</object></comment><script>__ws__(__NSID__);</script> -->
+									<comment id="__NSID__"><OBJECT id=tbcc_shop style="width:100px" classid=clsid:60109D65-70C0-425c-B3A4-4CB001513C69 VIEWASTEXT>
+									 <PARAM NAME="Index" VALUE="0">
+									 <param name=ComboDataID    value=tbds_shop>
+									 <PARAM NAME="ListExprFormat" VALUE="SALEDPT_NAME^0^80">
+									 <PARAM NAME="CBDataColumns" VALUE="1">
+									 <PARAM NAME="SearchColumn" VALUE="SALEDPT_NAME">
+									 <PARAM NAME="BindColumn" VALUE="SALEDPT_CODE">
+									 </OBJECT></comment><script>__ws__(__NSID__);</script>	
+								</td>
+								<td width=170px align=right>
+									<IMG alt=조회 height=20 id=btnseach src="../../images/query1.gif" 	 tabindex="-1" style="cursor:'hand';HEIGHT: 25px; WIDTH: 68px"  
+									 OnClick = "lfn_search()">
+								  <IMG alt=인쇄 id=print src="../../images/print.gif"   style="cursor:'hand';HEIGHT: 25px; WIDTH: 68px" tabindex="-1"   OnClick = "tbrp_data.preview()">
+								</td>
+							</tr>
+	    				</table>	
+	  				</td>
+	 			</tr>
+	 		</table>
+     	</td>
+   </tr>
+	<tr>
+		<td align="center" bgcolor="#F5F5F5">
+			<!-------- Grid Component ---------->
+			<comment id="__NSID__"><object classid="clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49"
+			 tabindex="-1" name="Grid" height="110" WIDTH="100%" id="tbgd_1">
+			<Param Name=Editable Value="false">
+			<param name="MultiRowSelect" value="true">
+			<param name="colsizing" value="true">
+			<param name="RowHeight" value="18">
+			<param name="DataID" value="tbds_grid">
+			<param name="Format" value='
+		       	<F> id=sale_date, name=판매년월,width=80, DispMask="XXXX-XX", align=center,suppress=1 ,headBgcolor=#EDEDDA</F>
+				<c> id=item_code, name=품목,width=110, align=left, suppress=2,headBgcolor=#EDEDDA</c>
+				<c> id=shop_code, name=영업장,width=120, align=left, suppress=3,headBgcolor=#EDEDDA</c>
+				<c> id=brnd_code, name=브랜드,width=120, align=center,headBgcolor=#EDEDDA</c>
+				<c> id=mkt_rate, 	name=점유율,width=100, align=right,headBgcolor=#EDEDDA</c>
+				<c> id=comp_code, name=브랜드회사,width=150, align=left,headBgcolor=#EDEDDA</c>
+				<c> id=seq_number,name=매장위치조정,width=120, align=center,headBgcolor=#EDEDDA</c>
+				'>
+				</object></comment><script>__ws__(__NSID__);</script>
+    	</td>
+   </tr>
+   <tr><td bgcolor="#F5F5F5">&nbsp;
+   </td></tr>
+    <tr>
+        <td >
+            <table width="100%" border="1" cellpadding="0" cellspacing="0" style="font-size:9pt">
+                <tr>
+                    <td border=1>
+                    <!----- 그래프 챠트 ----------->
+<!-- 			<comment id="__NSID__"><OBJECT id=tbct_1 style="WIDTH: 100%;HEIGHT: 320px" classid=clsid:75B5421D-15E1-43FA-990D-C7847D1077F0 VIEWASTEXT>
+				<PARAM NAME="Base64" VALUE="VFBGMAtUQ2hhcnRDaGFydAAETGVmdAIAA1RvcAIABVdpZHRoA5ABBkhlaWdodAP6ABFMZWdlbmQu&#13;&#10;Q2hlY2tCb3hlcwkWTGVnZW5kLkZvbnRTZXJpZXNDb2xvcgkPTGVnZW5kLkludmVydGVkCRJMZWdl&#13;&#10;bmQuTGVnZW5kU3R5bGUHCGxzU2VyaWVzCkJldmVsT3V0ZXIHBmJ2Tm9uZQVDb2xvcgcHY2xXaGl0&#13;&#10;ZQAKVEJhclNlcmllcwdTZXJpZXMwEU1hcmtzLkFycm93TGVuZ3RoAhQLTWFya3MuU3R5bGUHCHNt&#13;&#10;c1ZhbHVlDU1hcmtzLlZpc2libGUJC1Nlcmllc0NvbG9yBP+AQAAFVGl0bGUGCMbHuMXH1bDoEkdy&#13;&#10;YWRpZW50LkRpcmVjdGlvbgcLZ2RUb3BCb3R0b20QWFZhbHVlcy5EYXRlVGltZQgMWFZhbHVlcy5O&#13;&#10;YW1lBgFYDVhWYWx1ZXMuT3JkZXIHC2xvQXNjZW5kaW5nEFlWYWx1ZXMuRGF0ZVRpbWUIDFlWYWx1&#13;&#10;ZXMuTmFtZQYDQmFyDVlWYWx1ZXMuT3JkZXIHBmxvTm9uZQAAAAAAAAACAAAAAP////8=">
+				<PARAM NAME="Series(0).DataID" VALUE="tbds_Chart">
+				<PARAM NAME="Series(0).LabelColumn" VALUE="item_code">
+				<PARAM NAME="Series(0).YValueColumn" VALUE="mkt_rate">
+				</OBJECT></comment><script>__ws__(__NSID__);</script> -->
+				  <comment id="__NSID__"><OBJECT id=XChart style="WIDTH: 100%;HEIGHT: 320px"   classid=clsid:75B5421D-15E1-43FA-990D-C7847D1077F0 VIEWASTEXT>
+				  </OBJECT></comment><script>__ws__(__NSID__);</script>
+
+                    </td>
+                    <td border=1>
+                    <!----- pie 챠트 ----------->
+<!-- 				<comment id="__NSID__"><OBJECT id=tbct_2 style="WIDTH: 100%;HEIGHT: 320px"
+			classid=clsid:75B5421D-15E1-43FA-990D-C7847D1077F0 VIEWASTEXT>
+				<PARAM NAME="Base64" VALUE="VFBGMAtUQ2hhcnRDaGFydAAETGVmdAIAA1RvcAIABVdpZHRoA5ABBkhlaWdodAP6ABdWaWV3M0RP&#13;&#10;cHRpb25zLkVsZXZhdGlvbgM7ARhWaWV3M0RPcHRpb25zLk9ydGhvZ29uYWwIGVZpZXczRE9wdGlv&#13;&#10;bnMuUGVyc3BlY3RpdmUCABZWaWV3M0RPcHRpb25zLlJvdGF0aW9uA2gBBUNvbG9yBwdjbFdoaXRl&#13;&#10;AApUUGllU2VyaWVzB1NlcmllczARTWFya3MuQXJyb3dMZW5ndGgCCA1NYXJrcy5WaXNpYmxlCQtT&#13;&#10;ZXJpZXNDb2xvcgcFY2xSZWQSUGllVmFsdWVzLkRhdGVUaW1lCA5QaWVWYWx1ZXMuTmFtZQYDUGll&#13;&#10;D1BpZVZhbHVlcy5PcmRlcgcGbG9Ob25lAAAAAAAAAAIAAAAA/////w==">
+				<PARAM NAME="Series(0).DataID" VALUE="tbds_Chart">
+				<PARAM NAME="Series(0).LabelColumn" VALUE="item_code">
+				<PARAM NAME="Series(0).YValueColumn" VALUE="mkt_rate">
+				</OBJECT></comment><script>__ws__(__NSID__);</script> -->
+  				  <comment id="__NSID__"><OBJECT id=XChart1 style="WIDTH: 100%;HEIGHT: 320px"   classid=clsid:75B5421D-15E1-43FA-990D-C7847D1077F0 VIEWASTEXT>
+				  </OBJECT></comment><script>__ws__(__NSID__);</script>
+
+                    </td>
+                </tr>
+            </table>
+          </td>
+    	</tr>
+	</table>
+
+<comment id="__NSID__"><object id="tbrp_data" classid="clsid:37D13B2F-E5EB-11D2-973D-00104B15E56F" codebase="../toinbocx/toinbrep.cab#version=1,0,3,6"> 
+	<param name="MasterDataID"	value="tbds_grid">
+	<param name="DetailDataID"	value="tbds_grid">
+	<param name="PaperSize"	value="A4">
+	<param name="Landscape"	value=false>
+	<param name="Format" value="
+		<B>id=Header ,			left=0,top=0 ,right=2869 ,bottom=100 ,face='굴림체' ,size=12 ,penwidth=1 
+			<T>id='[ 매장 점유율 ]' ,left=3   ,	top=19 , right=500 ,	bottom=100,	align='left'</T>			
+		</B>	
+		<B>id=DHeader ,			left=0,top=0 ,right=2869 ,bottom=141 ,face='굴림체' ,size=10 ,penwidth=1 bgcolor='#EDEDDA'
+			<X>left=0, top=20, right=1700, bottom=100,border=false,penwidth=8,pencolor=#EDEDDA</X>		
+			<T>id=판매년월 ,			left=3   ,	top=19 ,right=200 ,		bottom=97,	align='left'</T>
+			<T>id=품목 ,					left=210 ,	top=19 ,right=410 ,		bottom=97,	align='left'</T>
+			<T>id=영업장 ,				left=420 ,	top=19 ,right=620 ,		bottom=97,	align='left'</T>
+			<T>id=브랜드,					left=630 ,	top=19 ,right=880 ,		bottom=97,	align='center'</T>
+			<T>id=점유율 ,				left=890 ,	top=19 ,right=1090 ,	bottom=97,	align='center'</T>
+			<T>id=브랜드회사 ,		left=1100 ,	top=19 ,right=1300 ,	bottom=97,	align='center'</T>
+			<T>id=매장위치조정 ,	left=1310 ,	top=19 ,right=1560 ,	bottom=97,	align='center'</T>
+			<L>left=0, top=10, right=1700, bottom=10 </L>
+			<L>left=0, top=107, right=1700, bottom=107 </L>
+		</B>
+		<B>id=Default ,left=0,top=0 ,right=2869 ,bottom=96 ,face='굴림체' ,size=10 ,penwidth=1
+			<L> left=0 ,top=70 ,right=1700 ,bottom=70 </L>
+			<C>id=sale_date,  	left=3   	,	top=9 ,right=200 ,	bottom=69,	align='left'</C>
+			<C>id=item_code,  	left=210 	,	top=9 ,right=410 ,	bottom=69,	align='left'</C>
+			<C>id=shop_code,  	left=420  ,	top=9 ,right=620 ,	bottom=69,	align='left'</C>
+			<C>id=brnd_code,   	left=630 	,	top=9 ,right=880 ,	bottom=69,	align='right'</C>
+			<C>id=mkt_rate,    	left=890 	,	top=9 ,right=1000 ,	bottom=69,	align='right'</C>
+			<C>id=comp_code,   	left=1100 ,	top=9 ,right=1300 ,	bottom=69,	align='center'</C>
+			<C>id=seq_number   	left=1310 ,	top=9 ,right=1560 ,	bottom=69,	align='center'</C>
+		</B>
+	">
+</object></comment><script>__ws__(__NSID__);</script>	
+<!------------------------------------------------------------------------
+wait  이미지 
+-------------------------------------------------------------------------->
+<iframe id="LowerFrame" name="work" style="visibility:hidden; position:absolute; left:300px; top:150px" FrameBorder="0" src="../../include/wait.html" width="268px" height="22px">
+</iframe>	
+</BODY>
+</HTML>

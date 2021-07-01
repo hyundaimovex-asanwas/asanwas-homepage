@@ -1,0 +1,3244 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!--
+***********************************************************************
+* @UseCase     : TAXA010
+* @description : 데이타유효성체크
+***********************************************************************
+* 2007/05/03     한학현       최초작성
+***********************************************************************
+-->
+
+    <!-- 데이타유효성체크 조회 -->
+    <sql name="TAXA010_SHR">
+        <description>데이타유효성체크 조회</description>
+        <query>
+            <![CDATA[
+			SELECT A.ENO_NO, B.ENO_NM,B.CET_NO,
+					B.HEAD_CD,  	
+					B.DPT_CD,  
+					B.TEAM_CD,  
+                    DECODE(SF_GET_DPTNAME('01', 'A4', DPT_CD), DPT_CD, DECODE(SF_GET_DPTNAME('01', 'A6', TEAM_CD), TEAM_CD, 
+                    SF_GET_DPTNAME('01', 'B2', HEAD_CD), SF_GET_DPTNAME('01', 'A6', DPT_CD)) , SF_GET_DPTNAME('01', 'A4', DPT_CD))  AS DPT_NM,					
+				    DECODE(SF_GET_DPTNAME('01', 'A6', B.TEAM_CD), B.TEAM_CD, 
+					SF_GET_DPTNAME('01', 'A4', B.DPT_CD), SF_GET_DPTNAME('01', 'A6', B.TEAM_CD)) AS TEAM_NM,
+                    B.JOB_CD,  SF_GET_COMMNAME('01', 'A2', B.JOB_CD) AS JOB_NM,
+                    
+                    (A.MGR_AMT+A.MNI_AMT+A.FREE_INCOME) AS SALT_AMTT,
+                    A.FREE_INCOME, 
+                    (A.MGR_AMT+A.MNI_AMT) AS TAX_INCOME,
+                                        
+                    --A.SALT_AMTT, 
+                    --A.FREE_INCOME, 
+                    --A.TAX_INCOME, 
+                    A.MGR_AMT, 
+                    A.MNI_AMT, 
+                    GREATEST(A.MNI_AMT - A.INDED_TOT + A.SPC_TOT, 0) AS MNI_TOT,
+                    A.TAX_AMT,
+                    A.TDED_TOT,
+                    A.DGG_TAX,A.DJM_TAX, A.DGG_TAX+A.DJM_TAX AS DGG_DJM,
+                    A.AGG_TAX,A.AJM_TAX, A.AGG_TAX+A.AJM_TAX AS AGG_AJM,
+                    A.DRE_INTX,A.DRE_CTTX,
+                    (A.DRE_INTX + A.DRE_CTTX) AS RET_SUM                  
+			FROM   T_AC_RETACC A, T_CM_PERSON B
+			WHERE A.PIS_YY = ?
+			 AND A.ENO_NO = B.ENO_NO
+		     AND NVL(A.MDPT_CD,' ') LIKE '%'||?||'%'
+		     AND NVL(A.ENO_NO,' ') LIKE '%'||?||'%'		     
+			ORDER BY B.HEAD_CD, B.DPT_CD DESC, B.TEAM_CD, B.JOB_CD, B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : TAXA020
+* @description : 부당공제자재처리관리
+***********************************************************************
+* 2007/04/16     조정호       최초작성
+***********************************************************************
+-->
+    <!-- 작업 현황 검색 -->
+    <sql name="TAXA020_SHR">
+        <description>작업 현황 검색</description>
+        <query>
+            <![CDATA[
+             SELECT PIS_YY
+                   ,PIS_MM
+                   ,SUBSTR(REMARK,1,4) AS AGN_YY
+                   ,SUBSTR(REMARK,5,2) AS AGN_MM
+                   ,OCC_CD
+                   ,SAL_GBN
+                   ,PRO_STS
+                   ,NVL(PRO_CNT,0) AS PRO_CNT
+                   ,NVL(ERR_CNT,0) AS ERR_CNT
+               FROM T_CP_WORKLOG
+              WHERE OCC_CD  = ?
+                AND PIS_YY  = ?
+                AND PIS_MM  = ?
+                AND SAL_GBN = ?
+                AND REMARK  = ?||?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 부당공제자 현황 검색 -->
+    <sql name="TAXA020_SHR_02">
+        <description>부당공제자 현황 검색</description>
+        <query>
+            <![CDATA[
+             SELECT A.PIS_YY AS PIS_YY
+                   ,A.PIS_MM AS PIS_MM
+                   ,A.AGN_YY AS AGN_YY
+                   ,A.AGN_MM AS AGN_MM
+                   ,A.ENO_NO AS ENO_NO
+                   ,A.OCC_CD AS OCC_CD
+                   ,B.ENO_NM AS ENO_NM
+                   ,A.DPT_CD AS DPT_CD
+                   ,SF_GET_DPTNAME('01', 'A4',A.DPT_CD) AS DPT_NM
+                   ,A.JOB_CD AS JOB_CD
+                   ,SF_GET_COMMNAME('01', 'A2', A.JOB_CD) AS JOB_NM
+               FROM T_AC_AGAIN A, T_CM_PERSON B
+              WHERE A.ENO_NO=B.ENO_NO
+                AND A.PIS_YY  = ?
+                AND A.PIS_MM  = ?
+                AND A.AGN_YY  = ?
+                AND A.AGN_MM  = ?
+                AND A.OCC_CD  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 부당공제자 신규 저장 -->
+    <sql name="TAXA020_INS">
+        <description>부당공제자 신규 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_AC_AGAIN
+                 ( PIS_YY,  PIS_MM,  AGN_YY,  AGN_MM,  ENO_NO,
+                   OCC_CD,  DPT_CD,  JOB_CD,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+
+                 )
+            VALUES
+                 ( ?, ?, ?, ?, ?,
+                   ?, ?, ?,
+                   ?, SYSDATE,?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 정산내역 재처리를위해 백업데이터 신규 저장 -->
+    <sql name="TAXA020_INS_01">
+        <description>정산내역 재처리를위해 백업데이터 신규 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_AC_RETACC_BEFORE
+            SELECT * FROM T_AC_RETACC
+            WHERE PIS_YY=?
+            AND   PIS_MM=?
+            AND   ENO_NO=?
+            AND   OCC_CD=?
+            AND   GBN_TAG='8'
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 작업로그 신규저장 (작업 OPEN) -->
+    <sql name="TAXA020_INS_02">
+        <description>작업로그 신규저장 (작업 OPEN)</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CP_WORKLOG
+                 ( PIS_YY, PIS_MM, OCC_CD, SAL_GBN, SEQ,
+                   PRO_STS, PAY_YMD, WOM_AMT, APY_YMD, BPAY_PCT, BYY_PCT, BBYY_PCT, PRO_CNT, ERR_CNT, REMARK,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 (  ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, SYSDATE,?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : TAXA030
+* @description : 정산계산처리(미사용부분 프로시저 처리로 변경)
+***********************************************************************
+* 2007/04/16     조정호       최초작성
+***********************************************************************
+-->
+    <!-- 작업 현황 검색 -->
+    <sql name="TAXA030_SHR_LOG">
+        <description>작업 현황 검색</description>
+        <query>
+            <![CDATA[
+             SELECT PIS_YY
+                  , PIS_MM
+                  , OCC_CD
+                  , SAL_GBN
+                  , PRO_STS
+                  , DECODE(PRO_STS ,'1' ,'대상자선정'
+                                   ,'2' ,'정산계산'
+                                   ,'3' ,'작업완료'
+                                   ,'4' ,'자료반영')    AS PRO_STS_MSG
+                  , NVL(PRO_CNT, 0)                     AS PRO_CNT
+                  , NVL(ERR_CNT, 0)                     AS ERR_CNT
+                  , DECODE(NVL(PAY_YMD,''),'','',SUBSTR(PAY_YMD,1,4)||'-'||SUBSTR(PAY_YMD,5,2)||'-'||SUBSTR(PAY_YMD,7,2)) AS PAY_YMD
+
+               FROM T_CP_WORKLOG
+              WHERE OCC_CD  = ?
+                AND PIS_YY  = ?
+                AND PIS_MM  = ?
+                AND SAL_GBN = ?
+           ORDER BY PIS_YY DESC
+                  , PIS_MM DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 미처리자 검색 -->
+    <sql name="TAXA030_SHR_01">
+        <description>미처리자 검색</description>
+        <query>
+            <![CDATA[
+            SELECT COUNT(*) AS CNT
+            FROM   T_CM_PERSON
+            WHERE  OCC_CD = ?
+            AND    SUBSTR(TO_CHAR(HIR_YMD,'YYYYMMDD'),1,4) <= ?
+            AND   ('9' = ?
+                   AND ( (TO_CHAR(RET_YMD,'YYYYMMDD')  BETWEEN ?||?||'01' AND ?||?||'31')
+                          OR (TO_CHAR(MID_YMD1,'YYYYMMDD') BETWEEN ?||?||'01' AND ?||?||'31')
+                          OR (TO_CHAR(MID_YMD2,'YYYYMMDD') BETWEEN ?||?||'01' AND ?||?||'31')
+                          OR (TO_CHAR(MID_YMD3,'YYYYMMDD') BETWEEN ?||?||'01' AND ?||?||'31')
+                       )
+                  )
+            AND ((ENO_NO NOT IN (SELECT ENO_NO
+                                  FROM T_AC_RETTABLE
+                                 WHERE PRO_YM = ?||?)) OR
+                 (ENO_NO IN (SELECT A.ENO_NO
+                               FROM (SELECT ENO_NO, COUNT(*) CNT FROM T_AC_RETMASTER WHERE SUBSTR(RAM_YMD,1,6)= ?||? GROUP BY ENO_NO) A,
+                                    (SELECT ENO_NO, COUNT(*) CNT FROM T_AC_RETTABLE  WHERE PRO_YM = ?||? GROUP BY ENO_NO) B
+                              WHERE A.CNT <> B.CNT
+                                AND A.ENO_NO = B.ENO_NO)))
+            AND   (ENO_NO NOT IN (SELECT ENO_NO
+                                  FROM   T_AC_RETACC
+                                  WHERE  GBN_TAG = '9'))
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 퇴직정산자 리스트 조회 -->
+    <sql name="TAXA030_SHR_RET">
+        <description>작업 현황 검색</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , A.OCC_CD
+                 , A.DPT_CD
+                 , A.JOB_CD
+                 , SF_GET_ENONAME ('01'      , A.ENO_NO) AS ENO_NM
+                 , SF_GET_COMMNAME('01', 'A1', A.OCC_CD) AS OCC_NM
+                 , SF_GET_DPTNAME ('01', 'A4', A.DPT_CD) AS DPT_NM
+                 , SF_GET_COMMNAME('01', 'A2', A.JOB_CD) AS JOB_NM
+                 , TO_CHAR(TO_DATE(A.HIR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS HIR_YMD
+                 , TO_CHAR(TO_DATE(A.RET_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS RET_YMD
+                 , A.RET_AMT
+                 , A.LSE_MM
+				 , A.ICM_TAX
+ 				 , A.DJM_TAX
+              FROM T_AC_RETTABLE A
+             WHERE A.OCC_CD in ('0','1','2','3','8','9')
+               AND A.PRO_YM = ?
+          ORDER BY SF_GET_DPTSEQ  ('01', 'A4', A.DPT_CD)
+                 , SF_GET_COMMSEQ ('01', 'A2', A.JOB_CD)
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : TAXA040
+* @description : 근로소득정산현황
+***********************************************************************
+* 2007/04/23     조정호       최초작성
+***********************************************************************
+-->
+    <!-- 근로소득정산현황 검색 -->
+    <sql name="TAXA040_SHR">
+        <description>근로소득정산현황 검색</description>
+        <query>
+            <![CDATA[
+             SELECT SF_GET_DPTNAME('01', 'A4', ACC.MDPT_CD) AS  DPT_NM
+                   ,ACC.ENO_NO
+                   ,PERSON.ENO_NM
+                   ,PERSON.CET_NO                  
+                   ,PERSON.RET_YMD AS RET_YN
+                   ,SUBSTR(PERSON.RET_YMD,1,4)||SUBSTR(PERSON.RET_YMD,5,2)||SUBSTR(PERSON.RET_YMD,7,2) AS RET_YMD                      
+                   ,SF_GET_COMMNAME('01', 'A2', ACC.MJOB_CD) AS JOB_NM
+                   ,NVL(ACC.PAYD_AMTS, 0)   AS PAYD_AMTS
+                   ,NVL(ACC.PAYD_AMTB, 0)   AS PAYD_AMTB
+                   ,NVL(ACC.OUTT_AMTS, 0)   AS OUTT_AMTS
+                   ,NVL(ACC.OUTT_AMTB, 0)   AS OUTT_AMTB
+                   ,NVL(BONUS.JAA_AMT, 0)   AS JAA_AMT
+                   ,NVL(BONUS.JAC_AMT, 0)   AS JAC_AMT
+                   ,NVL(BONUS.JAB_AMT, 0)   AS JAB_AMT
+                   ,NVL(BONUS.JAD_AMT, 0)   AS JAD_AMT
+                   ,NVL(BONUS.JAG_AMT, 0)   AS JAG_AMT
+                   ,NVL(ACC.FREE_INCOME, 0) AS FREE_INCOME
+                   ,NVL(ACC.TAX_INCOME, 0)+NVL(ACC.YAB_INCOME, 0) AS TAX_INCOME
+                   ,NVL(ACC.MGR_AMT, 0)     AS MGR_AMT
+                   ,NVL(ACC.MNI_AMT, 0)     AS MNI_AMT
+                   ,NVL(ACC.BADD_AMT, 0)    AS BADD_AMT
+                   ,NVL(ACC.SPSB_AMT, 0)    AS SPSB_AMT
+                   ,NVL(ACC.DFM_CNT, 0)     AS DFM_CNT
+                   ,NVL(ACC.GDED_AMT, 0)    AS GDED_AMT
+                   ,NVL(ACC.GOL_CNT, 0)     AS GOL_CNT
+                   ,NVL(ACC.GOL_AMT, 0)     AS GOL_AMT
+                   ,NVL(ACC.TRB_CNT, 0)     AS TRB_CNT
+                   ,NVL(ACC.TBL_DED, 0)     AS TBL_DED
+                   ,NVL(ACC.WDD_AMT, 0)     AS WDD_AMT
+                   ,NVL(ACC.RCH_CNT, 0)     AS RCH_CNT
+                   ,NVL(ACC.RCH_AMT, 0)     AS RCH_AMT
+                   ,NVL(ACC.INP_CNT, 0)     AS INP_CNT
+                   ,NVL(ACC.INP_AMT, 0)     AS INP_AMT 
+                   ,NVL(ACC.CHI_CNT, 0)     AS CHI_CNT                                      
+                   ,NVL(ACC.SMD_AMT, 0)     AS SMD_AMT
+                   ,NVL(ACC.PER_TOT, 0)     AS PER_TOT
+                   ,NVL(ACC.HINU_AMT, 0) + NVL(BONUS.JAH_AMT, 0) AS HINU_AMT
+                   ,NVL(ACC.OLD_AMT, 0) AS OLD_AMT
+                   ,NVL(ACC.HINS_AMT, 0) + NVL(BONUS.JAP_AMT, 0) AS HINS_AMT
+                   ,NVL(ACC.LIN_AMT, 0)     AS LIN_AMT
+                   ,NVL(ACC.LIN_DED, 0)     AS LIN_DED
+                   ,NVL(ACC.MIN_DED, 0)     AS MIN_DED
+                   ,NVL(ACC.LMA_AMT, 0)     AS LMA_AMT
+                   ,NVL(ACC.LF2_AMT, 0)     AS LF2_AMT
+  
+                   ,NVL(ACC.MHEA_AMT, 0)     AS MHEA_AMT
+                   ,NVL(ACC.OHEA_AMT, 0)     AS OHEA_AMT                   
+                   
+                   ,NVL(ACC.MMA_DED, 0)     AS MMA_DED
+                   ,NVL(ACC.GRA_AMT, 0)     AS LED_AMT
+                   ,NVL(ACC.EDU_AMT1, 0) + NVL(ACC.EDU_AMT2, 0) + NVL(ACC.EDU_AMT3, 0)  + NVL(ACC.EDU_AMT4, 0) + NVL(ACC.EDU_AMT5, 0)AS LEF_AMT
+                   ,NVL(ACC.EDU_DED, 0)     AS EDU_DED
+                   ,NVL(ACC.LHO_AMT, 0)     AS LHO_AMT
+                   ,NVL(ACC.LH1_AMT, 0)     AS LH1_AMT
+                   ,NVL(ACC.LH2_AMT, 0)     AS LH2_AMT
+                   ,NVL(ACC.HOS_DED, 0)     AS HOS_DED
+                   ,NVL(ACC.LC3_AMT, 0)     AS LC3_AMT
+                   ,NVL(ACC.LC2_AMT, 0)     AS LC2_AMT
+                   ,NVL(ACC.LC1_AMT, 0)     AS LC1_AMT
+                   ,NVL(ACC.CPC_DED, 0)     AS CPC_DED
+                   ,DECODE(NVL(ACC.NSE_TOT, 0), 0, ACC.STA_TOT, ACC.NSE_TOT) AS NSE_TOT
+                   ,NVL(ACC.LF1_AMT, 0)     AS LF1_AMT
+                   ,NVL(ACC.PER_SAV, 0)     AS PER_SAV
+                   ,NVL(ACC.FLD_AMT, 0)     AS FLD_AMT
+                   ,NVL(ACC.FLD_DED, 0)     AS FLD_DED
+                   ,NVL(ACC.VEN_AMT, 0)     AS VEN_AMT
+                   ,NVL(ACC.VEN_DED, 0)     AS VEN_DED
+                   ,NVL(ACC.CARD_AMT, 0)    AS CARD_AMT
+                   ,NVL(ACC.CARD_DED, 0)    AS CARD_DED
+                   ,NVL(ACC.SPC_TOT, 0)     AS SPC_TOT
+                   ,NVL(ACC.TTAX_STD, 0)    AS TTAX_STD
+                   ,NVL(ACC.TAX_AMT, 0)     AS TAX_AMT
+                   ,NVL(ACC.HGR_DED, 0)     AS HGR_DED
+                   ,NVL(ACC.STX_DED, 0)     AS STX_DED
+                   ,NVL(ACC.HTX_DED, 0)     AS HTX_DED
+                   ,NVL(ACC.OTX_DED, 0)     AS OTX_DED
+                   ,NVL(ACC.HSX_DED, 0)     AS HSX_DED
+                   ,NVL(ACC.TDED_TOT, 0)    AS TDED_TOT
+                   ,NVL(ACC.TAX_DED, 0)     AS TAX_DED
+                   ,NVL(ACC.DGG_TAX, 0)     AS DGG_TAX
+                   ,NVL(ACC.DBW_TAX, 0)     AS DBW_TAX
+                   ,NVL(ACC.DJM_TAX, 0)     AS DJM_TAX
+                   ,NVL(BONUS.JAL_AMT, 0)   AS JAL_AMT
+                   ,NVL(BONUS.JAM_AMT, 0)   AS JAM_AMT
+                   ,NVL(BONUS.JAN_AMT, 0)   AS JAN_AMT
+                   ,NVL(ACC.INCM_TAX, 0)    AS INCM_TAX
+                   ,NVL(ACC.CONT_TAX, 0)    AS CONT_TAX
+                   ,NVL(ACC.CITI_TAX, 0)    AS CITI_TAX
+                   ,NVL(ACC.DRE_INTX, 0)    AS DRE_INTX
+                   ,NVL(ACC.DRE_DFTX, 0)    AS DRE_DFTX
+                   ,NVL(ACC.DRE_CTTX, 0)    AS DRE_CTTX
+                   ,NVL(ACC.LIH_AMT, 0)     AS LIH_AMT
+                   ,NVL(ACC.CHI_AMT, 0)     AS CHI_AMT
+                   ,NVL(ACC.HIG_AMT, 0)     AS HIG_AMT
+                   ,NVL(ACC.UNI_AMT, 0)     AS UNI_AMT
+                   ,NVL(ACC.GRA_AMT, 0)     AS GRA_AMT
+                   ,NVL(ACC.ANN_AMT, 0)     AS ANN_AMT
+                   ,NVL(ACC.ANN_DED, 0)     AS ANN_DED
+                   ,NVL(ACC.GOV_AMT, 0)     AS GOV_AMT
+                   ,NVL(ACC.GOV_DED, 0)     AS GOV_DED
+                   ,NVL(ACC.LON_AMT, 0)     AS LON_AMT
+                   ,NVL(ACC.LIH_DED, 0)     AS LIH_DED
+                   ,NVL(ACC.LSX_DED, 0)     AS LSX_DED
+                   ,NVL(ACC.NPEN_DED, 0)    AS NPEN_DED
+                   ,NVL(ACC.NPEN_AMT, 0)    AS NPEN_AMT
+               FROM T_AC_RETACC ACC
+                   ,T_CM_PERSON PERSON
+                   ,(SELECT ENO_NO
+                           ,SUM(NVL(JAA_AMT, 0)) JAA_AMT
+                           ,SUM(NVL(JAB_AMT, 0)) JAB_AMT
+                           ,SUM(NVL(JAC_AMT, 0)) JAC_AMT
+                           ,SUM(NVL(JAD_AMT, 0)) JAD_AMT
+                           ,SUM(NVL(JAG_AMT, 0)) JAG_AMT
+                           ,SUM(NVL(JAL_AMT, 0)) JAL_AMT
+                           ,SUM(NVL(JAM_AMT, 0)) JAM_AMT
+                           ,SUM(NVL(JAN_AMT, 0)) JAN_AMT
+                           ,SUM(NVL(JAH_AMT, 0)) JAH_AMT
+                           ,SUM(NVL(JAP_AMT, 0)) JAP_AMT
+                           ,SUM(NVL(JAQ_AMT, 0)) JAQ_AMT
+                       FROM T_AC_DUTYPLACE
+                      WHERE PIS_YY  = ?
+                   GROUP BY ENO_NO) BONUS
+              WHERE ACC.PIS_YY      = ?
+                AND ACC.PIS_MM      = ?
+                AND ACC.GBN_TAG     = ?
+                AND ACC.MDPT_CD  LIKE ?||'%'
+                AND ACC.ENO_NO   LIKE ?||'%'
+                AND PERSON.ENO_NO   = ACC.ENO_NO
+                AND BONUS.ENO_NO(+) = ACC.ENO_NO
+           ORDER BY ACC.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : TAXA040
+* @description : 근로소득정산현황출력
+***********************************************************************
+* 2007/04/23     조정호       최초작성
+* 계산필드때문에 새로만듬..
+***********************************************************************
+-->
+    <!-- 근로소득정산현황 검색 -->
+    <sql name="TAXA040_SHR_PRT">
+        <description>근로소득정산현황 출력</description>
+        <query>
+            <![CDATA[
+             SELECT SF_GET_DPTNAME('01', 'A4', ACC.MDPT_CD) AS  DPT_NM
+                   ,ACC.ENO_NO
+                   ,PERSON.ENO_NM
+                   ,SF_GET_COMMNAME('01', 'A2', ACC.MJOB_CD) AS JOB_NM
+                   ,NVL(ACC.PAYD_AMTS, 0)   AS PAYD_AMTS
+                   ,NVL(ACC.PAYD_AMTB, 0)   AS PAYD_AMTB
+                   ,NVL(ACC.OUTT_AMTS, 0)   AS OUTT_AMTS
+                   ,NVL(ACC.OUTT_AMTB, 0)   AS OUTT_AMTB
+                   ,NVL(BONUS.JAA_AMT, 0)   AS JAA_AMT
+                   ,NVL(BONUS.JAC_AMT, 0)   AS JAC_AMT
+                   ,NVL(BONUS.JAB_AMT, 0)   AS JAB_AMT
+                   ,NVL(BONUS.JAD_AMT, 0)   AS JAD_AMT
+                   ,NVL(BONUS.JAG_AMT, 0)   AS JAG_AMT
+                   ,NVL(ACC.FREE_INCOME, 0) AS FREE_INCOME
+                   ,NVL(ACC.TAX_INCOME, 0)+NVL(ACC.YAB_INCOME, 0) AS TAX_INCOME
+                   ,NVL(ACC.MGR_AMT, 0)     AS MGR_AMT
+                   ,NVL(ACC.MNI_AMT, 0)     AS MNI_AMT
+                   ,NVL(ACC.BADD_AMT, 0)    AS BADD_AMT
+                   ,NVL(ACC.SPSB_AMT, 0)    AS SPSB_AMT
+                   ,NVL(ACC.DFM_CNT, 0)     AS DFM_CNT
+                   ,NVL(ACC.GDED_AMT, 0)    AS GDED_AMT
+                   ,NVL(ACC.GOL_CNT, 0)     AS GOL_CNT
+                   ,NVL(ACC.GOL_AMT, 0)     AS GOL_AMT
+                   ,NVL(ACC.TRB_CNT, 0)     AS TRB_CNT
+                   ,NVL(ACC.TBL_DED, 0)     AS TBL_DED
+                   ,NVL(ACC.WDD_AMT, 0)     AS WDD_AMT
+                   ,NVL(ACC.RCH_CNT, 0)     AS RCH_CNT
+                   ,NVL(ACC.RCH_AMT, 0)     AS RCH_AMT
+                   ,NVL(ACC.SMD_AMT, 0)     AS SMD_AMT
+                   ,NVL(ACC.PER_TOT, 0)     AS PER_TOT
+                   ,NVL(ACC.HINU_AMT, 0) + NVL(BONUS.JAH_AMT, 0) AS HINU_AMT
+                   ,NVL(ACC.HINS_AMT, 0) + NVL(BONUS.JAP_AMT, 0) AS HINS_AMT
+                   ,NVL(ACC.LIN_AMT, 0)     AS LIN_AMT
+                   ,NVL(ACC.LIN_DED, 0)     AS LIN_DED
+                   ,NVL(ACC.MIN_DED, 0)     AS MIN_DED
+                   ,NVL(ACC.LMA_AMT, 0)     AS LMA_AMT
+                   ,NVL(ACC.LF2_AMT, 0)     AS LF2_AMT
+                   ,NVL(ACC.MMA_DED, 0)     AS MMA_DED
+                   ,NVL(ACC.GRA_AMT, 0)     AS LED_AMT
+                   ,NVL(ACC.CHI_AMT, 0) + NVL(ACC.HIG_AMT, 0) + NVL(ACC.UNI_AMT, 0) AS LEF_AMT
+                   ,NVL(ACC.EDU_DED, 0)     AS EDU_DED
+                   ,NVL(ACC.LHO_AMT, 0)     AS LHO_AMT
+                   ,NVL(ACC.LH1_AMT, 0)     AS LH1_AMT
+                   ,NVL(ACC.LH2_AMT, 0)     AS LH2_AMT
+                   ,NVL(ACC.HOS_DED, 0)     AS HOS_DED
+                   ,NVL(ACC.LC3_AMT, 0)     AS LC3_AMT
+                   ,NVL(ACC.LC2_AMT, 0)     AS LC2_AMT
+                   ,NVL(ACC.LC1_AMT, 0)     AS LC1_AMT
+                   ,NVL(ACC.CPC_DED, 0)     AS CPC_DED
+                   ,DECODE(NVL(ACC.NSE_TOT, 0), 0, ACC.STA_TOT, ACC.NSE_TOT) AS NSE_TOT
+                   ,NVL(ACC.LF1_AMT, 0)     AS LF1_AMT
+                   ,NVL(ACC.PER_SAV, 0)     AS PER_SAV
+                   ,NVL(ACC.FLD_AMT, 0)     AS FLD_AMT
+                   ,NVL(ACC.FLD_DED, 0)     AS FLD_DED
+                   ,NVL(ACC.VEN_AMT, 0)     AS VEN_AMT
+                   ,NVL(ACC.VEN_DED, 0)     AS VEN_DED
+                   ,NVL(ACC.CARD_AMT, 0)    AS CARD_AMT
+                   ,NVL(ACC.CARD_DED, 0)    AS CARD_DED
+                   ,NVL(ACC.SPC_TOT, 0)     AS SPC_TOT
+                   ,NVL(ACC.TTAX_STD, 0)    AS TTAX_STD
+                   ,NVL(ACC.TAX_AMT, 0)     AS TAX_AMT
+                   ,NVL(ACC.HGR_DED, 0)     AS HGR_DED
+                   ,NVL(ACC.STX_DED, 0)     AS STX_DED
+                   ,NVL(ACC.HTX_DED, 0)     AS HTX_DED
+                   ,NVL(ACC.OTX_DED, 0)     AS OTX_DED
+                   ,NVL(ACC.HSX_DED, 0)     AS HSX_DED
+                   ,NVL(ACC.TDED_TOT, 0)    AS TDED_TOT
+                   ,NVL(ACC.TAX_DED, 0)     AS TAX_DED
+                   ,NVL(ACC.DGG_TAX, 0)     AS DGG_TAX
+                   ,NVL(ACC.DBW_TAX, 0)     AS DBW_TAX
+                   ,NVL(ACC.DJM_TAX, 0)     AS DJM_TAX
+                   ,NVL(BONUS.JAL_AMT, 0)   AS JAL_AMT
+                   ,NVL(BONUS.JAM_AMT, 0)   AS JAM_AMT
+                   ,NVL(BONUS.JAN_AMT, 0)   AS JAN_AMT
+                   ,NVL(ACC.INCM_TAX, 0)    AS INCM_TAX
+                   ,NVL(ACC.CONT_TAX, 0)    AS CONT_TAX
+                   ,NVL(ACC.CITI_TAX, 0)    AS CITI_TAX
+                   ,NVL(ACC.DRE_INTX, 0)    AS DRE_INTX
+                   ,NVL(ACC.DRE_DFTX, 0)    AS DRE_DFTX
+                   ,NVL(ACC.DRE_CTTX, 0)    AS DRE_CTTX
+                   ,NVL(ACC.LIH_AMT, 0)     AS LIH_AMT
+                   ,NVL(ACC.CHI_AMT, 0)     AS CHI_AMT
+                   ,NVL(ACC.HIG_AMT, 0)     AS HIG_AMT
+                   ,NVL(ACC.UNI_AMT, 0)     AS UNI_AMT
+                   ,NVL(ACC.GRA_AMT, 0)     AS GRA_AMT
+                   ,NVL(ACC.ANN_AMT, 0)     AS ANN_AMT
+                   ,NVL(ACC.ANN_DED, 0)     AS ANN_DED
+                   ,NVL(ACC.GOV_AMT, 0)     AS GOV_AMT
+                   ,NVL(ACC.GOV_DED, 0)     AS GOV_DED
+                   ,NVL(ACC.LON_AMT, 0)     AS LON_AMT
+                   ,NVL(ACC.LIH_DED, 0)     AS LIH_DED
+                   ,NVL(ACC.LSX_DED, 0)     AS LSX_DED
+                   ,NVL(ACC.NPEN_DED, 0)    AS NPEN_DED
+                   ,NVL(ACC.NPEN_AMT, 0)    AS NPEN_AMT
+               FROM T_AC_RETACC ACC
+                   ,T_CM_PERSON PERSON
+                   ,(SELECT ENO_NO
+                           ,SUM(NVL(JAA_AMT, 0)) JAA_AMT
+                           ,SUM(NVL(JAB_AMT, 0)) JAB_AMT
+                           ,SUM(NVL(JAC_AMT, 0)) JAC_AMT
+                           ,SUM(NVL(JAD_AMT, 0)) JAD_AMT
+                           ,SUM(NVL(JAG_AMT, 0)) JAG_AMT
+                           ,SUM(NVL(JAL_AMT, 0)) JAL_AMT
+                           ,SUM(NVL(JAM_AMT, 0)) JAM_AMT
+                           ,SUM(NVL(JAN_AMT, 0)) JAN_AMT
+                           ,SUM(NVL(JAH_AMT, 0)) JAH_AMT
+                           ,SUM(NVL(JAP_AMT, 0)) JAP_AMT
+                           ,SUM(NVL(JAQ_AMT, 0)) JAQ_AMT
+                       FROM T_AC_DUTYPLACE
+                      WHERE PIS_YY  = ?
+                   GROUP BY ENO_NO) BONUS
+              WHERE ACC.PIS_YY      = ?
+                AND ACC.PIS_MM      = ?
+                AND ACC.GBN_TAG     = ?
+                AND ACC.OCC_CD   LIKE ?||'%'
+                AND ACC.MDPT_CD  LIKE ?||'%'
+                AND ACC.ENO_NO   LIKE ?||'%'
+                AND PERSON.ENO_NO   = ACC.ENO_NO
+                AND BONUS.ENO_NO(+) = ACC.ENO_NO
+                AND TO_CHAR(PERSON.HIR_YMD, 'YYYYMMDD') >= DECODE(?, 'X', ?||'0101', '0')
+           ORDER BY ACC.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa050
+* @description : 소득공제항목별현황
+***********************************************************************
+* 2007/04/25      조정호        최초작성.
+***********************************************************************
+-->
+    <!-- 지점정보관리 데이터 조회 -->
+    <sql name="TAXA050_SHR">
+        <description>지점정보관리 조회</description>
+        <query>
+            <![CDATA[
+             SELECT *
+               FROM (SELECT ACC.PIS_YY
+                           ,ACC.PIS_MM
+                           ,ACC.GBN_TAG
+                           ,ACC.OCC_CD
+                           ,ACC.MDPT_CD
+                           ,PERSON.ENO_NO
+                           ,PERSON.ENO_NM
+                           ,PERSON.DPT_NM
+                           ,PERSON.DPT_SEQ
+                           ,PERSON.JOB_NM
+                           ,PERSON.JOB_SEQ
+                           ,DECODE(?
+                                  ,'01', NVL(ACC.TAX_INCOME,0)
+                                  ,'11', 0
+                                  ,'12', 0
+                                  ,'13', 0
+                                  ,'14', 0
+                                  ,'15', 0
+                                  ,'16', 0
+                                  ,'17', 0
+                                  ,'20', TRUNC(ACC.NPEN_AMT/2)
+                                  ,'30', NVL(ACC.HINU_AMT,0)
+                                  ,'31', NVL(ACC.HINS_AMT,0)
+                                  ,'32', NVL(ACC.LIN_AMT, 0)
+                                  ,'33', NVL(ACC.LMA_AMT, 0) +NVL(ACC.LF2_AMT ,0)
+                                  ,'34', NVL(ACC.CHI_AMT, 0) +NVL(ACC.HIG_AMT ,0) +NVL(ACC.UNI_AMT, 0) +NVL(ACC.GRA_AMT ,0)
+                                  ,'35', NVL(ACC.LHO_AMT, 0) +NVL(ACC.LH1_AMT ,0) +NVL(ACC.LH2_AMT, 0)
+                                  ,'36', NVL(ACC.LC3_AMT, 0) +NVL(ACC.LC2_AMT ,0) +NVL(ACC.LC1_AMT, 0)
+                                  ,'37', NVL(ACC.LIH_AMT, 0)
+                                  ,'50', NVL(ACC.LF1_AMT, 0)
+                                  ,'51', NVL(ACC.FLD_AMT, 0)
+                                  ,'52', NVL(ACC.VEN_AMT, 0)
+                                  ,'53', NVL(ACC.CARD_AMT,0)
+                                  ,'54', NVL(ACC.ANN_AMT, 0)
+                                  ,'55', NVL(ACC.GOV_AMT, 0)
+                                  ,'60', 0
+                                  ,'61', NVL(ACC.LJH_AMT, 0)
+                                  ,'62', NVL(ACC.LST_AMT, 0)
+                                  ,'63', NVL(ACC.LSQ_AMT, 0)
+                                  ,'64', NVL(ACC.LJJ_AMT, 0)
+                                  ,'65', NVL(ACC.LON_AMT, 0)
+                                  ,'70', 0
+                                  ,'71', 0
+                                  ,'72', 0
+                                  ,0) AS TDED_AMT
+                           ,DECODE(?
+                                  ,'01', NVL(ACC.MGR_AMT, 0)
+                                  ,'10', NVL(ACC.BADD_AMT,0)
+                                  ,'11', NVL(ACC.SPSB_AMT,0)
+                                  ,'12', NVL(ACC.GDED_AMT,0)
+                                  ,'13', NVL(ACC.GOL_AMT, 0)
+                                  ,'14', NVL(ACC.TBL_DED, 0)
+                                  ,'15', NVL(ACC.WDD_AMT, 0)
+                                  ,'16', NVL(ACC.RCH_AMT, 0)
+                                  ,'17', NVL(ACC.SMD_AMT, 0)
+                                  ,'20', NVL(ACC.NPEN_DED,0)
+                                  ,'30', NVL(ACC.HINU_AMT,0)
+                                  ,'31', NVL(ACC.HINS_AMT,0)
+                                  ,'32', NVL(ACC.LIN_DED, 0)
+                                  ,'33', NVL(ACC.MMA_DED, 0)
+                                  ,'34', NVL(ACC.EDU_DED, 0)
+                                  ,'35', NVL(ACC.HOS_DED, 0)
+                                  ,'36', NVL(ACC.CPC_DED, 0)
+                                  ,'37', NVL(ACC.LIH_DED, 0)
+                                  ,'50', NVL(ACC.PER_SAV, 0)
+                                  ,'51', NVL(ACC.FLD_DED, 0)
+                                  ,'52', NVL(ACC.VEN_DED, 0)
+                                  ,'53', NVL(ACC.CARD_DED,0)
+                                  ,'54', NVL(ACC.ANN_DED, 0)
+                                  ,'55', NVL(ACC.GOV_DED, 0)
+                                  ,'60', NVL(ACC.HGR_DED, 0)
+                                  ,'61', NVL(ACC.STX_DED, 0)
+                                  ,'62', NVL(ACC.HTX_DED, 0)
+                                  ,'63', NVL(ACC.OTX_DED, 0)
+                                  ,'64', NVL(ACC.HSX_DED, 0)
+                                  ,'65', NVL(ACC.LSX_DED, 0)
+                                  ,'70', NVL(DUTY.JAL_AMT,0)
+                                  ,'71', NVL(DUTY.JAN_AMT,0)
+                                  ,'72', NVL(DUTY.JAM_AMT,0)
+                                  ,0) AS DED_AMT
+                                  ,'' AS REMARK
+                       FROM T_AC_RETACC ACC
+                 INNER JOIN VI_T_CM_PERSON2 PERSON
+                         ON ACC.ENO_NO      = PERSON.ENO_NO
+                  LEFT JOIN T_AC_DUTYPLACE DUTY
+                         ON ACC.PIS_YY      = DUTY.PIS_YY
+                        AND ACC.PIS_MM      = DUTY.PIS_MM
+                        AND ACC.ENO_NO      = DUTY.ENO_NO)
+              WHERE PIS_YY          = ?
+                AND PIS_MM          = ?
+                AND GBN_TAG         = ?
+                AND OCC_CD          = NVL(?, OCC_CD)
+                AND MDPT_CD         = NVL(?, MDPT_CD)
+                AND DED_AMT != 0
+[1]
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa060
+* @description : 퇴직급여정산현황
+***********************************************************************
+* 2007/04/25      조정호        최초작성.
+***********************************************************************
+-->
+    <!-- 퇴직급여정산현황 조회 -->
+    <sql name="TAXA060_SHR">
+        <description>퇴직급여정산현황 조회</description>
+        <query>
+            <![CDATA[
+             SELECT RET.*
+                   ,NVL(LOAN.GMK_BAK, 0) AS GMK_BAK
+               FROM (SELECT '1' AS TYPE
+                           ,SUBSTR(PRO_YM,1,4) AS PIS_YY
+                           ,SUBSTR(PRO_YM,5,2) AS PIS_MM
+                           ,PRO_YM
+                           ,RET.OCC_CD
+                           ,OCC_NM
+                           ,RET.ENO_NO
+                           ,ENO_NM
+                           ,DPT_NM
+                           ,RET.RET_YMD
+                           ,RPT_YM              -- 퇴직소득
+                           ,TAX_YM              -- 근로소득
+                           ,RET.LSE_YY
+                           ,RET_AMT
+                           ,ICM_TAX
+                           ,DJM_TAX
+                       FROM T_AC_RETTABLE RET
+                 INNER JOIN VI_T_CM_PERSON2 PERSON
+                         ON RET.ENO_NO  = PERSON.ENO_NO
+                      WHERE PRO_YM BETWEEN ? AND ?
+                        AND RET.OCC_CD LIKE ?||'%'
+                      UNION
+                     SELECT '2' AS TYPE
+                           ,PIS_YY
+                           ,PIS_MM
+                           ,ACC.PIS_YY||ACC.PIS_MM
+                           ,PERSON.OCC_CD
+                           ,PERSON.OCC_NM
+                           ,PERSON.ENO_NO
+                           ,PERSON.ENO_NM
+                           ,PERSON.DPT_NM
+                           ,TO_CHAR(PERSON.RET_YMD, 'YYYYMMDD') AS RET_YMD
+                           ,'' RPT_YM            -- 퇴직소득
+                           ,ACC.RPT_YM TAX_YM    -- 근로소득
+                           ,0
+                           ,0
+                           ,0
+                           ,0
+                       FROM T_AC_RETACC ACC
+                 INNER JOIN VI_T_CM_PERSON2 PERSON
+                         ON ACC.ENO_NO  = PERSON.ENO_NO
+                      WHERE ACC.PIS_YY||ACC.PIS_MM BETWEEN ? AND ?
+                        AND ACC.GBN_TAG = '9'
+                        AND ACC.OCC_CD LIKE ?||'%'
+                        AND ACC.ENO_NO NOT IN (SELECT ENO_NO
+                                                 FROM T_AC_RETTABLE
+                                                WHERE PRO_YM BETWEEN ? AND ?)) RET
+          LEFT JOIN (SELECT *
+                       FROM (SELECT ROW_NUMBER() OVER(PARTITION BY ENO_NO
+                                                          ORDER BY ENO_NO
+                                                                  ,PIS_YY DESC
+                                                                  ,PIS_MM DESC) AS NUM
+                                   ,ENO_NO
+                                   ,NVL(GMK_BAK, 0) AS GMK_BAK
+                               FROM T_AC_LOAN
+                              WHERE GMK_TAG = '1')
+                      WHERE NUM = 1) LOAN
+                 ON RET.ENO_NO = LOAN.ENO_NO
+           ORDER BY PRO_YM
+                   ,RET.OCC_CD
+                   ,LSE_YY DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 퇴직 정산내역 수정 -->
+    <sql name="TAXA060_UPT">
+        <description>퇴직 정산내역 수정</description>
+        <query>
+            <![CDATA[
+            DECLARE
+                l_cnt       NUMBER;
+
+                l_ret_amt   NUMBER;
+                l_lse_yy    NUMBER;
+                l_icm_tax   NUMBER;
+                l_djm_tax   NUMBER;
+                l_rpt_ym    VARCHAR2(6);
+                l_tax_ym    VARCHAR2(6);
+                l_upt_man   VARCHAR2(8);
+                l_eno_no    VARCHAR2(8);
+                l_pro_ym    VARCHAR2(6);
+
+            BEGIN
+                l_ret_amt   := ?;
+                l_lse_yy    := ?;
+                l_icm_tax   := ?;
+                l_djm_tax   := ?;
+                l_rpt_ym    := ?;
+                l_tax_ym    := ?;
+                l_upt_man   := ?;
+                l_eno_no    := ?;
+                l_pro_ym    := ?;
+
+                --퇴직 정산내역 수정
+                UPDATE T_AC_RETTABLE
+                   SET RET_AMT = l_ret_amt
+                     , LSE_YY  = l_lse_yy
+                     , ICM_TAX = l_icm_tax
+                     , DJM_TAX = l_djm_tax
+                     , RPT_YM  = l_rpt_ym
+                     , TAX_YM  = l_tax_ym
+                     , UPT_MAN = l_upt_man
+                     , UPT_YMD = SYSDATE
+                 WHERE ENO_NO  = l_eno_no
+                   AND PRO_YM  = l_pro_ym;
+
+                --주민세 신고일 수정
+                SELECT COUNT(*)
+                  INTO l_cnt
+                  FROM T_AC_RETACC
+                 WHERE ENO_NO  = l_eno_no
+                   AND PIS_YY  = SUBSTR(l_pro_ym, 1, 4)
+                   AND PIS_MM  = SUBSTR(l_pro_ym, 5, 2)
+                   AND GBN_TAG = '9';
+
+                IF l_cnt = 1
+                THEN
+                    UPDATE T_AC_RETACC
+                       SET RPT_YM  = l_tax_ym
+                         , UPT_MAN = l_upt_man
+                         , UPT_YMD = SYSDATE
+                     WHERE ENO_NO  = l_eno_no
+                       AND PIS_YY  = SUBSTR(l_pro_ym, 1, 4)
+                       AND PIS_MM  = SUBSTR(l_pro_ym, 5, 2)
+                       AND GBN_TAG = '9';
+                END IF;
+
+            END;
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 퇴직 정산내역 삭제 -->
+    <sql name="TAXA060_DEL">
+        <description>퇴직 정산내역 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE
+               FROM T_AC_RETTABLE
+              WHERE ENO_NO  = ?
+                AND PRO_YM  = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : taxa070
+* @description : 연말정산자료급여반영
+***********************************************************************
+* 2007/05/03      조정호        최초작성.
+***********************************************************************
+-->
+    <!-- 작업 로그 조회 -->
+    <sql name="TAXA070_SHR">
+        <description>작업 로그 조회</description>
+        <query>
+            <![CDATA[
+             SELECT SUBSTR(REMARK,1,4) AS PIS_YY
+                   ,SUBSTR(REMARK,5,2) AS PIS_MM
+                   ,SUBSTR(REMARK,7,1) AS SAL_GBN
+                   ,PRO_STS
+                   ,DECODE(PRO_STS
+                          ,'1' ,'대상자선정'
+                          ,'2' ,'정산계산'
+                          ,'3' ,'작업완료'
+                          ,'4' ,'자료반영') AS PRO_STS_MSG
+                   ,NVL(PRO_CNT,0) AS PRO_CNT
+               FROM T_CP_WORKLOG
+              WHERE OCC_CD  = ?
+                AND PIS_YY  = ?
+                AND PIS_MM  = '12'
+                AND SAL_GBN = '8'
+           ORDER BY PIS_YY DESC
+                   ,PIS_MM DESC
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa110
+* @description : 사업소세(종업원할)산출내역
+***********************************************************************
+* 2007/05/04     이승욱        최초작성.
+***********************************************************************
+-->
+    <!-- 사업소세(종업원할)산출내역 -->
+    <sql name="TAXA110_SHR">
+        <description>사업소세(종업원할)산출내역 조회</description>
+        <query>
+            <![CDATA[
+			WITH SALT_YM AS
+			       (-- 사무직 급여
+			        SELECT 'A'                 as OCC_CD   -- 사무/택배 구분
+			             , '0'                 as SAL_GBN
+			             , ?                   as PIS_YY
+			             , ?                   as PIS_MM
+			          FROM DUAL
+			        UNION ALL
+			        -- 사무직 상여
+			        SELECT 'A'                 as OCC_CD   -- 사무/택배 구분
+			             , '1'                 as SAL_GBN
+			             , SUBSTR(REG_YMD,1,4) as PIS_YY
+			             , SUBSTR(REG_YMD,5,2) as PIS_MM
+			          FROM T_DI_HOLIDAY
+			         WHERE REG_YMD BETWEEN ?||?||'01' AND ?||?||'01'
+			           AND SUBSTR(REG_YMD,7,2)  = '01'
+			        UNION ALL
+			        -- 택배직 급여
+			        SELECT 'M'                 as OCC_CD   -- 사무/택배 구분
+			             , '0'                 as SAL_GBN
+			             , ?                   as PIS_YY
+			             , ?                   as PIS_MM
+			          FROM DUAL
+			        UNION ALL
+			        -- 택배직 상여
+			        SELECT 'M'                 as OCC_CD   -- 사무/택배 구분
+			             , '1'                 as SAL_GBN
+			             , SUBSTR(REG_YMD,1,4) as PIS_YY
+			             , SUBSTR(REG_YMD,5,2) as PIS_MM
+			          FROM T_DI_HOLIDAY
+			         WHERE REG_YMD BETWEEN ?||?||'01' AND ?||?||'01'
+			           AND SUBSTR(REG_YMD,7,2)  = '01'
+			       )
+			   , SALY_YM AS
+			       (-- 본사 연월차
+			        SELECT '0'                 as HEAD_TAG
+			             , '4'                 as SAL_GBN
+			             , ?                   as PIS_YY
+			             , ?                   as PIS_MM
+			          FROM DUAL
+			        UNION ALL
+			        -- 지방 연월차
+			        SELECT '1'                 as HEAD_TAG
+			             , '4'                 as SAL_GBN
+			             , ?                   as PIS_YY
+			             , ?                   as PIS_MM
+			          FROM DUAL
+			        UNION ALL
+			        SELECT '2'                 as HEAD_TAG
+			             , '4'                 as SAL_GBN
+			             , ?                   as PIS_YY
+			             , ?                   as PIS_MM
+			          FROM DUAL
+			       )
+			SELECT COUNT(DISTINCT ENO_NO)                                                    as ENO_CNT
+			     , COUNT(DISTINCT CASE WHEN HEAD_TAG != '0' THEN ENO_NO END)                 as BENO_CNT
+			     , COUNT(DISTINCT CASE WHEN HEAD_TAG  = '0' THEN ENO_NO END)                 as GENO_CNT
+			     , SUM(NVL(SALT_AMT,0)-NVL(FREE_TAX,0))                                      as SALT_AMT
+			     , SUM(CASE WHEN HEAD_TAG != '0' THEN (NVL(SALT_AMT,0)-NVL(FREE_TAX,0)) END) as SALB_AMT -- 비과세대상
+			     , SUM(CASE WHEN HEAD_TAG  = '0' THEN (NVL(SALT_AMT,0)-NVL(FREE_TAX,0)) END) as SALG_AMT -- 과세대상
+			     , TO_CHAR(SYSDATE, 'YYYYMMDD')                                              as CUR_DATE
+			  FROM (SELECT P.ENO_NO
+			             , P.SALT_AMT
+			             , P.FREE_TAX
+			             , D.HEAD_TAG
+			          FROM T_CP_PAYMASTER P
+			             , T_CM_DEPT      D
+			             , SALT_YM        S
+			         WHERE P.TAX_DPT    = D.DPT_CD
+			           AND D.CD_GBN     = 'A4'
+			           [1]
+			           AND P.OCC_CD     = S.OCC_CD
+			           AND P.SAL_GBN    = S.SAL_GBN
+			           AND P.PIS_MM     = S.PIS_MM
+			           AND P.PIS_YY     = S.PIS_YY
+			        UNION ALL
+			        SELECT P.ENO_NO
+			             , P.SALT_AMT
+			             , P.FREE_TAX
+			             , D.HEAD_TAG
+			          FROM T_CP_PAYMASTER P
+			             , T_CM_DEPT      D
+			             , SALY_YM        S
+			         WHERE P.TAX_DPT    = D.DPT_CD
+			           AND D.CD_GBN     = 'A4'
+			           [2]
+			           AND D.HEAD_TAG   = S.HEAD_TAG
+			           AND P.SAL_GBN    = S.SAL_GBN
+			           AND P.PIS_MM     = S.PIS_MM
+			           AND P.PIS_YY     = S.PIS_YY
+			        )
+            ]]>
+        </query>
+    </sql>
+
+  <sql name="TAXA110_SHR_PRT1">
+    <description>사업소세(종업원할)산출내역 인쇄-남대문/구로</description>
+      <query>
+         <![CDATA[
+
+   		SELECT Sum(bon_p_c1) bon_p_c1 , Sum(bon_p_1) bon_p_1,  Sum(bon_b_c1) bon_b_c1,  Sum(bon_b_1) bon_b_1,  Sum(bon_y_c1) bon_y_c1,  Sum(bon_y_1) bon_y_1,
+	           Sum(ji_p_c1) ji_p_c1,  Sum(ji_p_1) ji_p_1,  Sum(ji_b_c1) ji_b_c1,  Sum(ji_b_1) ji_b_1,  Sum(ji_y_c1) ji_y_c1,  Sum(ji_y_1) ji_y_1 ,
+               Trunc((Sum(bon_p_1)+Sum(bon_b_1)+Sum(bon_y_1)+Sum(ji_p_1)+Sum(ji_b_1)+Sum(ji_y_1))*0.005,-1) AS seu
+			FROM	(
+			  SELECT NVL(COUNT(DISTINCT(ENO_NO)),0) bon_p_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) bon_p_1 ,0 bon_b_c1, 0 bon_b_1 ,0 bon_y_c1,0 bon_y_1,
+			          0 ji_p_c1, 0 ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+				  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.OCC_CD  = 'A'
+	              AND A.SAL_GBN = '0'
+			      AND A.PIS_YY = SUBSTR(?,1,4)
+			      AND A.PIS_MM = SUBSTR(?,5,2)
+			      AND B.CD_GBN = 'AD'
+			      AND A.TAX_DPT = B.COMM_CD
+                  AND DECODE(B.HEAD_TAG,'0','XX','1','ZZ',B.COMM_CD) = ?
+			  UNION ALL
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, NVL(COUNT(DISTINCT(ENO_NO)),0) bon_b_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) bon_b_1,0 bon_y_c1 ,0 bon_y_1,
+		           0 ji_p_c1, 0 ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+				  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.OCC_CD  = 'A'
+                AND A.SAL_GBN = '1'
+		        AND A.PIS_YY BETWEEN SUBSTR(?,1,4) AND SUBSTR(?,1,4)
+				AND A.PIS_YY||A.PIS_MM BETWEEN ? AND ?
+				AND B.CD_GBN = 'AD'
+                AND A.TAX_DPT = B.COMM_CD
+                AND DECODE(B.HEAD_TAG,'0','XX','1','ZZ',B.COMM_CD) = ?
+
+			  UNION ALL
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , NVL(COUNT(DISTINCT(ENO_NO)),0) bon_y_c1 , NVL(SUM(SALT_AMT),0) bon_y_1 ,
+		           0 ji_p_c1, 0 ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+			  FROM T_CP_PAYMASTER A, T_CM_common B
+			  WHERE A.OCC_CD  = 'A'
+              AND A.SAL_GBN = '4'
+		      AND A.PIS_YY = SUBSTR(?,1,4)
+		      AND A.PIS_MM = SUBSTR(?,5,2)
+		      AND B.CD_GBN = 'AD'
+		      AND A.TAX_DPT = B.COMM_CD
+              AND DECODE(B.HEAD_TAG,'0','XX','1','ZZ',B.COMM_CD) = ?
+
+			  UNION ALL
+
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1 ,
+			          NVL(COUNT(DISTINCT(ENO_NO)),0) ji_p_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+					  FROM T_CP_PAYMASTER A, T_CM_common B
+					  WHERE A.OCC_CD  = 'M'
+		              AND A.SAL_GBN = '0'
+				      AND A.PIS_YY = SUBSTR(?,1,4)
+				      AND A.PIS_MM = SUBSTR(?,5,2)
+				      AND B.CD_GBN = 'AD'
+				      AND A.TAX_DPT = B.COMM_CD
+	                  AND DECODE(B.HEAD_TAG,'0','XX','1','ZZ',B.COMM_CD) = ?
+
+			  UNION ALL
+
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1 ,
+		          0 ji_p_c1 , 0 ji_p_1 , NVL(COUNT(DISTINCT(ENO_NO)),0) ji_b_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+			  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.OCC_CD  = 'M'
+                  AND A.SAL_GBN = '1'
+			      AND A.PIS_YY BETWEEN SUBSTR(?,1,4) AND SUBSTR(?,1,4)
+			      AND A.PIS_YY||A.PIS_MM BETWEEN ? AND ?
+			      AND B.CD_GBN = 'AD'
+			      AND A.TAX_DPT = B.COMM_CD
+                  AND DECODE(B.HEAD_TAG,'0','XX','1','ZZ',B.COMM_CD) = ?
+
+			  UNION ALL
+
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1 ,
+		          0 ji_p_c1 , 0 ji_p_1 , 0 ji_b_c1 , 0 ji_b_1 ,  NVL(COUNT(DISTINCT(ENO_NO)),0) ji_y_c1 , NVL(SUM(SALT_AMT),0) ji_y_1
+				  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.OCC_CD  = 'M'
+                AND A.SAL_GBN = '4'
+		      AND A.PIS_YY = SUBSTR(?,1,4)
+			      AND A.PIS_MM = SUBSTR(?,5,2)
+			      AND B.CD_GBN = 'AD'
+			      AND B.HEAD_TAG NOT IN ('0','1')
+			      AND A.TAX_DPT = B.COMM_CD
+                AND DECODE(B.HEAD_TAG,'0','XX','1','ZZ',B.COMM_CD) = ?
+
+							)  a
+
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="TAXA110_SHR_PRT2">
+        <description>사업소세(종업원할)산출내역 인쇄-지점</description>
+        <query>
+            <![CDATA[
+
+            		SELECT     A.DPT_CD, COM.OFFICE, COM.REMARK2,
+					       		COM.REMARK3,
+							       COM.COM_NO, MIN(COM.DPT_NM) AS DPT_NM, MIN(COM.BIGO) BIGO,
+					           Sum(bon_p_c1) bon_p_c1 , Sum(bon_p_1) bon_p_1,  Sum(bon_b_c1) bon_b_c1,  Sum(bon_b_1) bon_b_1,  Sum(bon_y_c1) bon_y_c1,  Sum(bon_y_1) bon_y_1,
+										 Sum(ji_p_c1) ji_p_c1,  Sum(ji_p_1) ji_p_1,  Sum(ji_b_c1) ji_b_c1,  Sum(ji_b_1) ji_b_1,  Sum(ji_y_c1) ji_y_c1,  Sum(ji_y_1) ji_y_1
+
+					FROM
+					(
+					        SELECT A.DPT_CD , NVL(COUNT(DISTINCT(ENO_NO)),0) bon_p_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) bon_p_1 , 0 bon_b_c1, 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1,
+					                0 ji_p_c1, 0 ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+					        FROM T_CP_PAYMASTER A, T_CM_DEPT B
+					        WHERE A.OCC_CD  = 'A'
+					            AND A.SAL_GBN = '0'
+					            AND A.PIS_YY = SUBSTR(?,1,4)
+					            AND A.PIS_MM = SUBSTR(?,5,2)
+					            AND B.CD_GBN = 'A4'
+					            AND A.TAX_DPT = B.DPT_CD
+					            AND B.HEAD_TAG NOT IN ('0','1')
+					        GROUP BY A.TAX_DPT
+
+					        UNION ALL
+
+					        SELECT A.DPT_CD , 0 bon_p_c1 , 0 bon_p_1, NVL(COUNT(DISTINCT(ENO_NO)),0) bon_b_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) bon_b_1,  0 bon_y_c1 , 0 bon_y_1,
+					                 0 ji_p_c1, 0 ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+					        FROM T_CP_PAYMASTER A, T_CM_DEPT B
+					        WHERE A.OCC_CD  = 'A'
+					            AND A.SAL_GBN = '1'
+					            AND A.PIS_YY BETWEEN SUBSTR(?,1,4) AND SUBSTR(?,1,4)
+					            AND A.PIS_YY||A.PIS_MM BETWEEN ? AND ?
+					            AND B.CD_GBN = 'A4'
+					            AND A.TAX_DPT = B.DPT_CD
+					            AND B.HEAD_TAG NOT IN ('0','1')
+					        GROUP BY A.TAX_DPT
+
+					        UNION ALL
+
+					        SELECT  A.DPT_CD , 0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , NVL(COUNT(DISTINCT(ENO_NO)),0) bon_y_c1 , NVL(SUM(SALT_AMT),0) bon_y_1 ,
+					                 0 ji_p_c1, 0 ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+					        FROM T_CP_PAYMASTER A, T_CM_DEPT B
+					        WHERE A.OCC_CD  = 'A'
+					            AND A.SAL_GBN = '4'
+					            AND A.PIS_YY = SUBSTR(?,1,4)
+					            AND A.PIS_MM = SUBSTR(?,5,2)
+					            AND B.CD_GBN = 'A4'
+					            AND A.TAX_DPT = B.DPT_CD
+					            AND B.HEAD_TAG NOT IN ('0','1')
+					        GROUP BY A.TAX_DPT
+
+					        UNION ALL
+
+					        SELECT A.DPT_CD ,0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1 ,
+					                NVL(COUNT(DISTINCT(ENO_NO)),0) ji_p_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+					        FROM T_CP_PAYMASTER A, T_CM_DEPT B
+					        WHERE A.OCC_CD  = 'M'
+					            AND A.SAL_GBN = '0'
+					            AND A.PIS_YY = SUBSTR(?,1,4)
+					            AND A.PIS_MM = SUBSTR(?,5,2)
+					            AND B.CD_GBN = 'A4'
+					            AND A.TAX_DPT = B.DPT_CD
+					            AND B.HEAD_TAG NOT IN ('0','1')
+					        GROUP BY A.TAX_DPT
+
+					        UNION ALL
+
+					        SELECT A.DPT_CD ,0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1 ,
+					                0 ji_p_c1 , 0 ji_p_1 , NVL(COUNT(DISTINCT(ENO_NO)),0) ji_b_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+					        FROM T_CP_PAYMASTER A, T_CM_DEPT B
+					        WHERE A.OCC_CD  = 'M'
+					            AND A.SAL_GBN = '1'
+					            AND A.PIS_YY BETWEEN SUBSTR(?,1,4) AND SUBSTR(?,1,4)
+					            AND A.PIS_YY||A.PIS_MM BETWEEN ? AND ?
+					            AND B.CD_GBN = 'A4'
+					            AND A.TAX_DPT = B.DPT_CD
+					            AND B.HEAD_TAG NOT IN ('0','1')
+					        GROUP BY A.TAX_DPT
+
+					        UNION ALL
+
+					        SELECT A.DPT_CD ,0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1 ,
+					                0 ji_p_c1 , 0 ji_p_1 , 0 ji_b_c1 , 0 ji_b_1 ,  NVL(COUNT(DISTINCT(ENO_NO)),0) ji_y_c1 , NVL(SUM(SALT_AMT),0) ji_y_1
+					        FROM T_CP_PAYMASTER A, T_CM_DEPT B
+					        WHERE A.OCC_CD  = 'M'
+					            AND A.SAL_GBN = '4'
+					            AND A.PIS_YY = SUBSTR(?,1,4)
+					            AND A.PIS_MM = SUBSTR(?,5,2)
+					            AND B.CD_GBN = 'A4'
+					            AND B.HEAD_TAG NOT IN ('0','1')
+					            AND A.TAX_DPT = B.DPT_CD
+					            AND B.HEAD_TAG NOT IN ('0','1')
+					        GROUP BY A.TAX_DPT
+					)  a
+
+					LEFT OUTER JOIN
+					    (
+					      SELECT DPT_CD,
+					           DPT_NM,
+					           REMARK2,
+					           '02) 2170-3355' AS REMARK3,
+					           OFFICE,
+					           REMARK,
+					           ''                                                                                               AS GBN_CD,
+					           '102-81-23012'                                                                                   AS COM_NO
+					           , REMARK3 AS BIGO
+					    FROM   T_CM_DEPT
+					    WHERE  CD_GBN = 'A4'
+						    AND    DPT_CD LIKE '%'
+						    --AND    SORT_NO BETWEEN 200 AND 750
+						    --AND    GBN2_TAG <> '1'
+						      )	COM	 ON A.DPT_CD = COM.DPT_CD
+						GROUP BY A.DPT_CD,
+								COM.OFFICE,
+						        COM.REMARK2,
+								    COM.REMARK3,
+								    COM.COM_NO
+						ORDER BY SF_GET_DPTSEQ('01','A4',A.DPT_CD)
+
+
+
+				            ]]>
+				        </query>
+				    </sql>
+
+
+    <sql name="TAXA110_SHR_PRT3">
+        <description>사업소세(종업원할)산출내역 인쇄</description>
+        <query>
+            <![CDATA[
+	SELECT     Sum(bon_p_c1) bon_p_c1 , Sum(bon_p_1) bon_p_1,  Sum(bon_b_c1) bon_b_c1,  Sum(bon_b_1) bon_b_1,  Sum(bon_y_c1) bon_y_c1,  Sum(bon_y_1) bon_y_1,
+	           Sum(ji_p_c1) ji_p_c1,  Sum(ji_p_1) ji_p_1,  Sum(ji_b_c1) ji_b_c1,  Sum(ji_b_1) ji_b_1,  Sum(ji_y_c1) ji_y_c1,  Sum(ji_y_1) ji_y_1
+	          ,Trunc((Sum(bon_p_1)+Sum(bon_b_1)+Sum(bon_y_1))*0.005,-1) AS seu
+		FROM
+			(
+			  SELECT NVL(COUNT(DISTINCT(ENO_NO)),0) bon_p_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) bon_p_1 , 0 bon_b_c1, 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1,
+			          0 ji_p_c1, 0 ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+			  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.SAL_GBN = '0'
+			      AND A.PIS_YY = SUBSTR(?,1,4)
+			      AND A.PIS_MM = SUBSTR(?,5,2)
+			      AND B.CD_GBN = 'AD'
+			      AND A.TAX_DPT = B.COMM_CD
+			      AND B.HEAD_TAG IN ('0','1')
+
+			  UNION ALL
+
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, NVL(COUNT(DISTINCT(ENO_NO)),0) bon_b_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) bon_b_1,  0 bon_y_c1 , 0 bon_y_1,
+  		             0 ji_p_c1, 0 ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+			  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.SAL_GBN = '1'
+			      AND A.PIS_YY BETWEEN SUBSTR(?,1,4) AND SUBSTR(?,1,4)
+			      AND A.PIS_YY||A.PIS_MM BETWEEN ? AND ?
+			      AND B.CD_GBN = 'AD'
+			      AND A.TAX_DPT = B.COMM_CD
+			      AND B.HEAD_TAG IN ('0','1')
+
+			  UNION ALL
+
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , NVL(COUNT(DISTINCT(ENO_NO)),0) bon_y_c1 , NVL(SUM(SALT_AMT),0) bon_y_1 ,
+		           0 ji_p_c1, 0 ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+			  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.SAL_GBN = '4'
+			      AND A.PIS_YY = SUBSTR(?,1,4)
+			      AND A.PIS_MM = SUBSTR(?,5,2)
+			      AND B.CD_GBN = 'AD'
+			      AND B.HEAD_TAG IN ('0','1')
+			      AND A.TAX_DPT = B.COMM_CD
+
+			  UNION ALL
+
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1 ,
+			          NVL(COUNT(DISTINCT(ENO_NO)),0) ji_p_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) ji_p_1 , 0 ji_b_c1, 0 ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+			  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.SAL_GBN = '0'
+			      AND A.PIS_YY = SUBSTR(?,1,4)
+			      AND A.PIS_MM = SUBSTR(?,5,2)
+			      AND B.CD_GBN = 'AD'
+			      AND A.TAX_DPT = B.COMM_CD
+			      AND B.HEAD_TAG NOT IN ('0','1')
+			  UNION ALL
+
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1 ,
+	 		          0 ji_p_c1 , 0 ji_p_1 , NVL(COUNT(DISTINCT(ENO_NO)),0) ji_b_c1 , NVL(SUM(SALT_AMT),0)-NVL(SUM(NVL(FREE_TAX,0)),0) ji_b_1 , 0 ji_y_c1 , 0 ji_y_1
+			  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.SAL_GBN = '1'
+			      AND A.PIS_YY BETWEEN SUBSTR(?,1,4) AND SUBSTR(?,1,4)
+			      AND A.PIS_YY||A.PIS_MM BETWEEN ? AND ?
+			      AND B.CD_GBN = 'AD'
+			      AND A.TAX_DPT = B.COMM_CD
+			      AND B.HEAD_TAG NOT IN ('0','1')
+
+			  UNION ALL
+
+			  SELECT 0 bon_p_c1 , 0 bon_p_1, 0 bon_b_c1 , 0 bon_b_1 , 0 bon_y_c1 , 0 bon_y_1 ,
+			          0 ji_p_c1 , 0 ji_p_1 , 0 ji_b_c1 , 0 ji_b_1 ,  NVL(COUNT(DISTINCT(ENO_NO)),0) ji_y_c1 , NVL(SUM(SALT_AMT),0) ji_y_1
+			  FROM T_CP_PAYMASTER A, T_CM_common B
+				  WHERE A.SAL_GBN = '4'
+				      AND A.PIS_YY = SUBSTR(?,1,4)
+				      AND A.PIS_MM = SUBSTR(?,5,2)
+				      AND B.CD_GBN = 'AD'
+				      AND B.HEAD_TAG NOT IN ('0','1')
+				      AND A.TAX_DPT = B.COMM_CD
+					)  a
+
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa110_CORP
+* @description : 사업소세(종업원할)산출내역
+***********************************************************************
+* 2007/05/04     이승욱        최초작성.
+***********************************************************************
+-->
+    <!-- 사업소세(종업원할)산출내역 -->
+    <sql name="TAXA110_CORP">
+        <description>사업장 정보</description>
+        <query>
+            <![CDATA[
+            SELECT COMP_NM
+                 , ADDRESS_HD
+                 , PRESIDENT_NM
+                 , TEL_NO
+                 , TAX_NO
+                 , CORP_NO
+                 , WARD_OFFICE
+              FROM T_CM_COMPANY
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : taxa130
+* @description : 기타소득/조정납부액관리
+***********************************************************************
+* 2007/04/26      조정호        최초작성.
+***********************************************************************
+-->
+<!-- ******************** 사용 안함 *********************** -->
+
+    <!-- 기타소득/조정납부액관리 조회 -->
+    <sql name="TAXA130_SHR3">
+        <description>기타소득/조정납부액관리 조회</description>
+        <query>
+            <![CDATA[
+                    SELECT ? AS PIS_YY
+                          ,? AS PIS_MM
+                          ,COMM.COMM_CD AS DPT_CD
+                          ,COMM.COMM_NM AS DPT_NM
+                          ,NVL(ETCPAY_LA.AMT,0) AS LAB_AMT
+                          ,NVL(ETCPAY_SO.AMT,0) AS SO_AMT
+                          ,NVL(ETCPAY_MC.AMT,0) AS MIS_CAL
+                          ,NVL(ETCPAY_MM.AMT,0) AS MIS_AMT
+                          ,NVL(ETCPAY_PM.AMT,0) AS MIS_PRO
+                      FROM (SELECT DPT_CD
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND DPT_CD LIKE ?||'%'
+                          GROUP BY DPT_CD) ETCPAY
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'LA'
+                          GROUP BY DPT_CD) ETCPAY_LA
+                        ON ETCPAY.DPT_CD = ETCPAY_LA.DPT_CD
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'SO'
+                          GROUP BY DPT_CD) ETCPAY_SO
+                        ON ETCPAY.DPT_CD = ETCPAY_SO.DPT_CD
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'MC'
+                          GROUP BY DPT_CD) ETCPAY_MC
+                        ON ETCPAY.DPT_CD = ETCPAY_MC.DPT_CD
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'MM'
+                          GROUP BY DPT_CD) ETCPAY_MM
+                        ON ETCPAY.DPT_CD = ETCPAY_MM.DPT_CD
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'PM'
+                          GROUP BY DPT_CD) ETCPAY_PM
+                        ON ETCPAY.DPT_CD = ETCPAY_PM.DPT_CD
+                INNER JOIN (SELECT COMM_CD
+                                  ,COMM_NM
+                                  ,SORT_NO
+                              FROM T_CM_COMMON
+                             WHERE CD_GBN = 'A4') COMM
+                        ON ETCPAY.DPT_CD = COMM.COMM_CD
+                  ORDER BY DECODE(COMM.COMM_CD,'XX',1,COMM.SORT_NO)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기타소득/조정납부액관리 등록 -->
+    <sql name="TAXA130_INS3">
+        <description>기타소득/조정납부액관리 등록</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_AC_ETCPAY
+                  (PIS_YY
+                  ,PIS_MM
+                  ,DPT_CD
+                  ,SAL_CD
+                  ,ADD_TAG
+                  ,AMOUNT
+                  ,OCC_CD
+                  ,IPT_MAN
+                  ,IPT_YMD
+                  ,UPT_MAN
+                  ,UPT_YMD
+                  ,IPT_HMS
+                  ,SEQ_NO)
+            VALUES(?
+                  ,?
+                  ,?
+                  ,?
+                  ,?
+                  ,?
+                  ,'A'
+                  ,?
+                  ,SYSDATE
+                  ,?
+                  ,SYSDATE
+                  ,TO_CHAR(SYSDATE,'HH24:MI:SS')
+                  ,(SELECT NVL(MAX(SEQ_NO),0) + 1
+                      FROM T_AC_ETCPAY
+                     WHERE PIS_YY = ?
+                       AND PIS_MM = ?
+                       AND DPT_CD = ?))
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기타소득/조정납부액관리 상세 내역 수정 -->
+    <sql name="TAXA130_UPT3">
+        <description>기타소득/조정납부액관리 상세 내역 수정</description>
+        <query>
+            <![CDATA[
+              UPDATE T_AC_ETCPAY
+                 SET ADD_TAG    = ?
+                    ,AMOUNT     = ?
+                    ,UPT_MAN    = ?
+                    ,UPT_YMD    = SYSDATE
+               WHERE PIS_YY     = ?
+                 AND PIS_MM     = ?
+                 AND DPT_CD     = ?
+                 AND SEQ_NO     = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 기타소득/조정납부액관리 상세 내역 삭제 -->
+    <sql name="TAXA130_DEL3">
+        <description>기타소득/조정납부액관리 상세 내역 삭제</description>
+        <query>
+            <![CDATA[
+              DELETE
+                FROM T_AC_ETCPAY
+               WHERE PIS_YY     = ?
+                 AND PIS_MM     = ?
+                 AND DPT_CD     = ?
+                 AND SEQ_NO     = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 원천징수 정산 내역 등록 -->
+    <sql name="TAXA130_SAV4">
+        <description>원천징수 정산 내역 등록</description>
+        <query>
+            <![CDATA[
+             MERGE
+              INTO T_AC_WITHHOLDING A
+             USING (SELECT ?    AS PIS_YY
+                         , ?    AS PIS_MM
+                         , ?    AS DPT_CD
+                         , ?    AS YAC_NORE
+                         , ?    AS MON_RET
+                         , ?    AS THS_RETU
+                         , ?    AS THS_PAY
+                         , ?    AS ENO_NO
+                      FROM DUAL
+                    ) B
+                ON (A.PIS_YY    = B.PIS_YY
+               AND  A.PIS_MM    = B.PIS_MM
+               AND  A.DPT_CD    = B.DPT_CD)
+              WHEN MATCHED THEN
+            UPDATE
+               SET A.YAC_NORE   = B.YAC_NORE
+                 , A.MON_RET    = B.MON_RET
+                 , A.THS_RETU   = B.THS_RETU
+                 , A.THS_PAY    = B.THS_PAY
+                 , A.SEL_YMD    = TO_CHAR(SYSDATE,'YYYYMMDD')
+                 , A.UPT_MAN    = B.ENO_NO
+                 , A.UPT_YMD    = SYSDATE
+              WHEN NOT MATCHED THEN
+            INSERT
+                 ( PIS_YY
+                 , PIS_MM
+                 , DPT_CD
+                 , YAC_NORE
+                 , MON_RET
+                 , THS_RETU
+                 , THS_PAY
+                 , SEL_YMD
+                 , OCC_CD
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD)
+          VALUES ( B.PIS_YY
+                 , B.PIS_MM
+                 , B.DPT_CD
+                 , B.YAC_NORE
+                 , B.MON_RET
+                 , B.THS_RETU
+                 , B.THS_PAY
+                 , TO_CHAR(SYSDATE,'YYYYMMDD')
+                 , 'A'
+                 , B.ENO_NO
+                 , SYSDATE
+                 , B.ENO_NO
+                 , SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 기타소득/조정납부액관리 상세 내역 -->
+    <sql name="TAXA130_SHR_DTL">
+        <description>기타소득/조정납부액관리 상세 내역</description>
+        <query>
+            <![CDATA[
+             SELECT DPT_CD
+                   ,SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM
+                   ,SAL_CD
+                   ,SF_GET_COMMNAME('01','H2',SAL_CD) AS SAL_NM
+                   ,ADD_TAG
+                   ,AMOUNT
+                   ,SEQ_NO
+               FROM T_AC_ETCPAY
+              WHERE PIS_YY = ?
+                AND PIS_MM = ?
+                AND DPT_CD = ?
+           ORDER BY SAL_CD
+                   ,SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 원천징수정산 내역 조회 -->
+    <sql name="TAXA130_SHR4">
+        <description>원천징수정산 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DPT.PIS_YY
+                  ,DPT.PIS_MM
+                  ,DPT.DPT_CD
+                  ,SF_GET_DPTNAME('01','A4',DPT.DPT_CD) AS DPT_NM
+                  ,NVL(ETCPAY.NO_RESTORE    ,0) AS NO_RESTORE   --미환급
+                  ,NVL(ETCPAY.NO_PAYMENT    ,0) AS NO_PAYMENT   --미납부
+                  ,NVL(ETCPAY2.AMT_LA       ,0) AS AMT_LA       --기타소득
+                  ,NVL(ETCPAY2.AMT_SO       ,0) AS AMT_SO
+                  ,NVL(ETCPAY2.AMT_MM       ,0) AS AMT_MM
+                  ,NVL(ETCPAY2.AMT_MC       ,0) AS AMT_MC
+                  ,NVL(ETCPAY2.AMT_PM       ,0) AS AMT_PM
+                  ,NVL(PAYMASTER.CITI_TAX   ,0) AS CITI_TAX     --근로소득
+                  ,NVL(RETTABLE.DJM_TAX     ,0) AS DJM_TAX      --퇴직소득
+                  ,NVL(RETACC.RET_CTTX      ,0) AS RET_CTTX     --퇴직정산분
+                  ,NVL(ACC.DRE_CTTX         ,0) AS DRE_CTTX     --연말정산
+                  ,NVL(WITHHOLDING.YAC_NORE ,0) AS YAC_NORE     --전월미환급분
+                  ,NVL(WITHHOLDING.MON_RET  ,0) AS MON_RET      --환급분
+                  ,NVL(WITHHOLDING.THS_RETU ,0) AS THS_RETU     --원천세환급
+                  ,NVL(WITHHOLDING.THS_PAY  ,0) AS THS_PAY      --원천세납부액
+              FROM (SELECT ?    AS PIS_YY
+                          ,?    AS PIS_MM
+                          ,DPT_CD
+                          ,SORT_NO
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,COM.DPT_CD) AS DPT_CD
+                                  ,DECODE(COM.HEAD_TAG ,'0' ,1 ,'1' ,2 ,COM.SORT_NO) AS SORT_NO
+                              FROM T_CM_DEPT COM
+                                  ,(SELECT DPT_CD
+                                      FROM T_CP_PAYMASTER PAY
+                                     WHERE PAY.PIS_YY   = ?
+                                       AND PAY.PIS_MM   = ?
+                                  GROUP BY DPT_CD
+                                     UNION
+                                    SELECT MDPT_CD
+                                      FROM T_AC_RETACC ACC
+                                     WHERE ACC.RPT_YM   = ?||?
+                                       AND ACC.PIS_YY   = ?
+                                       AND ACC.GBN_TAG  = '9'
+                                  GROUP BY MDPT_CD
+                                     UNION
+                                    SELECT DPT_CD
+                                      FROM T_AC_RETTABLE RET
+                                          ,T_CM_PERSON PERSON
+                                     WHERE RET.RPT_YM   = ?||?
+                                       AND RET.ENO_NO   = PERSON.ENO_NO
+                                  GROUP BY DPT_CD
+                                     UNION
+                                    SELECT DPT_CD
+                                      FROM T_AC_ETCPAY
+                                     WHERE PIS_YY       = ?
+                                       AND PIS_MM       = ?
+                                  GROUP BY DPT_CD) PAY
+                             WHERE PAY.DPT_CD = COM.DPT_CD
+                               AND COM.CD_GBN = 'A4')
+                     WHERE DPT_CD = ?||'%'
+                  GROUP BY DPT_CD
+                          ,SORT_NO) DPT
+         --전월조정분(미환급,미납부)
+         LEFT JOIN (SELECT DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM
+                          ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,0)),0) AS NO_RESTORE
+                          ,NVL(SUM(DECODE(ADD_TAG,'1', AMOUNT,0)),0) AS NO_PAYMENT
+                      FROM T_AC_ETCPAY
+                     WHERE SAL_CD IN ('MC','MM','PM')
+                  GROUP BY DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM) ETCPAY
+                ON DPT.DPT_CD = ETCPAY.DPT_CD
+               AND DECODE(DPT.PIS_MM,'01',DPT.PIS_YY-1,DPT.PIS_YY)              = ETCPAY.PIS_YY
+               AND DECODE(DPT.PIS_MM,'01','12',TO_CHAR(DPT.PIS_MM-01,'FM00'))   = ETCPAY.PIS_MM
+         --근로.기타소득
+         LEFT JOIN (SELECT DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM
+                          ,NVL(SUM(DECODE(SAL_CD,'LA',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_LA
+                          ,NVL(SUM(DECODE(SAL_CD,'SO',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_SO
+                          ,NVL(SUM(DECODE(SAL_CD,'MM',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_MM
+                          ,NVL(SUM(DECODE(SAL_CD,'MC',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_MC
+                          ,NVL(SUM(DECODE(SAL_CD,'PM',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_PM
+                      FROM T_AC_ETCPAY
+                  GROUP BY DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM) ETCPAY2
+                ON DPT.DPT_CD = ETCPAY2.DPT_CD
+               AND DPT.PIS_YY = ETCPAY2.PIS_YY
+               AND DPT.PIS_MM = ETCPAY2.PIS_MM
+         --근로소득
+         LEFT JOIN (SELECT DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM
+                          ,NVL(SUM(CITI_TAX),0) AS CITI_TAX
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,DPT_CD) AS DPT_CD
+                                  ,PIS_YY
+                                  ,PIS_MM
+                                  ,CITI_TAX
+                              FROM T_CP_PAYMASTER PAY
+                                  ,T_CM_COMMON COM
+                             WHERE COM.CD_GBN = 'A4'
+                               AND COM.COMM_CD = PAY.DPT_CD
+                               AND SAL_GBN IN ('0','1','4'))
+                  GROUP BY DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM) PAYMASTER
+                ON DPT.DPT_CD = PAYMASTER.DPT_CD
+               AND DPT.PIS_YY = PAYMASTER.PIS_YY
+               AND DPT.PIS_MM = PAYMASTER.PIS_MM
+         --퇴직소득
+         LEFT JOIN (SELECT DPT_CD
+                          ,RPT_YM
+                          ,NVL(SUM(DJM_TAX),0) AS DJM_TAX
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,PERSON.DPT_CD) AS DPT_CD
+                                  ,RET.RPT_YM
+                                  ,DJM_TAX
+                              FROM T_AC_RETTABLE RET
+                                  ,T_CM_PERSON PERSON
+                                  ,T_CM_COMMON COM
+                             WHERE RET.ENO_NO = PERSON.ENO_NO
+                               AND COM.CD_GBN = 'A4'
+                               AND COM.COMM_CD = PERSON.DPT_CD)
+                  GROUP BY RPT_YM
+                          ,DPT_CD) RETTABLE
+                ON DPT.DPT_CD = RETTABLE.DPT_CD
+               AND DPT.PIS_YY||DPT.PIS_MM = RETTABLE.RPT_YM
+         --퇴직정산분
+         LEFT JOIN (SELECT RPT_YM
+                          ,PIS_YY
+                          ,DPT_CD
+                          ,NVL(SUM(RET_CTTX),0) AS RET_CTTX
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,MDPT_CD) AS DPT_CD
+                                  ,RPT_YM
+                                  ,PIS_YY
+                                  ,MDPT_CD
+                                  ,DRE_CTTX AS RET_CTTX
+                              FROM T_AC_RETACC ACC
+                                  ,T_CM_COMMON COM
+                             WHERE GBN_TAG = '9'
+                               AND COM.CD_GBN = 'A4'
+                               AND COM.COMM_CD = ACC.MDPT_CD)
+                  GROUP BY RPT_YM
+                          ,PIS_YY
+                          ,DPT_CD) RETACC
+                ON DPT.DPT_CD = RETACC.DPT_CD
+               AND DPT.PIS_YY||DPT.PIS_MM = RETACC.RPT_YM
+         --연말정산
+         LEFT JOIN (SELECT DPT_CD
+                          ,PIS_YY
+                          ,NVL(SUM(DRE_CTTX),0) AS DRE_CTTX
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,MDPT_CD) AS DPT_CD
+                                  ,RPT_YM
+                                  ,PIS_YY
+                                  ,MDPT_CD
+                                  ,DRE_CTTX
+                              FROM T_AC_RETACC ACC
+                                  ,T_CM_COMMON COM
+                             WHERE GBN_TAG = '8'
+                               AND COM.CD_GBN = 'A4'
+                               AND COM.COMM_CD = ACC.MDPT_CD
+                               AND PIS_MM = '12'
+                               AND ENO_NO NOT IN (SELECT ENO_NO
+                                                    FROM T_AC_RETACC ACC9
+                                                   WHERE GBN_TAG = '9'
+                                                     AND RPT_YM BETWEEN ?-1||'01' AND ?-1||'12'))
+                  GROUP BY PIS_YY
+                          ,DPT_CD) ACC
+                ON DPT.DPT_CD = ACC.DPT_CD
+               AND DPT.PIS_YY-1 = ACC.PIS_YY
+         --전월미환급분, 환급분, 원천세환급, 원천세납부액
+         LEFT JOIN (SELECT DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM
+                          ,NVL(SUM(YAC_NORE),0)  AS YAC_NORE
+                          ,NVL(SUM(MON_RET),0)   AS MON_RET
+                          ,NVL(SUM(THS_RETU),0)  AS THS_RETU
+                          ,NVL(SUM(THS_PAY),0)   AS THS_PAY
+                      FROM T_AC_WITHHOLDING
+                  GROUP BY PIS_YY
+                          ,PIS_MM
+                          ,DPT_CD) WITHHOLDING
+                ON DPT.DPT_CD = WITHHOLDING.DPT_CD
+               AND DECODE(DPT.PIS_MM,'01',DPT.PIS_YY-1,DPT.PIS_YY)              = WITHHOLDING.PIS_YY
+               AND DECODE(DPT.PIS_MM,'01','12',TO_CHAR(DPT.PIS_MM-01,'FM00'))   = WITHHOLDING.PIS_MM
+     ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!--원천징수정산 내역을 위해 부서 코드를 가져옴 -->
+    <sql name="TAXA130_SHR_DPT">
+        <description>원천징수정산 내역을 위해 부서 코드를 가져옴</description>
+        <query>
+            <![CDATA[
+            SELECT DPT_CD AS CODE
+                  ,SF_GET_DPTNAME('01','A4',DPT_CD) AS CODE_NAME
+              FROM (SELECT DPT_CD
+                          ,SORT_NO
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,DPT_CD) AS DPT_CD
+                                  ,DECODE(COM.HEAD_TAG ,'0' ,1 ,'1' ,2 ,COM.SORT_NO) AS SORT_NO
+                              FROM T_CM_COMMON COM
+                                  ,(SELECT DPT_CD
+                                      FROM T_CP_PAYMASTER PAY
+                                     WHERE PAY.PIS_YY   = ?
+                                       AND PAY.PIS_MM   = ?
+                                  GROUP BY DPT_CD
+                                     UNION
+                                    SELECT MDPT_CD
+                                      FROM T_AC_RETACC ACC
+                                     WHERE ACC.RPT_YM   = ?||?
+                                       AND ACC.PIS_YY   = ?
+                                       AND ACC.GBN_TAG  = '9'
+                                  GROUP BY MDPT_CD
+                                     UNION
+                                    SELECT DPT_CD
+                                      FROM T_AC_RETTABLE RET
+                                          ,T_CM_PERSON PERSON
+                                     WHERE RET.RPT_YM   = ?||?
+                                       AND RET.ENO_NO   = PERSON.ENO_NO
+                                  GROUP BY DPT_CD
+                                     UNION
+                                    SELECT DPT_CD
+                                      FROM T_AC_ETCPAY
+                                     WHERE PIS_YY       = ?
+                                       AND PIS_MM       = ?
+                                  GROUP BY DPT_CD) PAY
+                             WHERE PAY.DPT_CD = COM.COMM_CD
+                               AND COM.CD_GBN = 'A4')
+                  GROUP BY DPT_CD
+                          ,SORT_NO)
+          ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+<!-- ******************** 사용 안함 *********************** -->
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa140
+* @description : 출자금/대출금관리
+***********************************************************************
+* 2007/04/30      한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 출자금/대출금관리 조회 -->
+    <sql name="TAXA140_SHR">
+        <description>출자금/대출금관리 조회</description>
+        <query>
+            <![CDATA[
+         SELECT A.PIS_YY AS PIS_YY,
+                A.PIS_MM AS PIS_MM,
+                A.SAL_GBN AS SAL_GBN,
+                D.OCC_CD AS OCC_CD,
+                SF_GET_COMMNAME(GUBUN, 'A1', D.OCC_CD)         AS OCC_NM,                 -- 직종명
+                D.DPT_CD AS DPT_CD,
+                SF_GET_DPTNAME('01', 'A4',D.DPT_CD) AS DPT_NM,
+                D.JOB_CD AS JOB_CD,
+                SF_GET_COMMNAME('01','A2',D.JOB_CD) AS JOB_NM,
+                A.ENO_NO AS ENO_NO,
+                D.ENO_NM AS ENO_NM,
+                A.GMK_AMT AS GMK_AMT,
+                A.GMK_INT AS GMK_INT,
+                A.GMK_BAK AS GMK_BAK
+           FROM T_AC_LOAN A, T_CM_PERSON D
+          WHERE A.PIS_YY  = ?
+            AND A.PIS_MM  = ?
+            AND A.GMK_TAG = ?
+            AND A.SAL_GBN = ?
+            AND A.SEQ     = ?
+            AND A.ENO_NO  = D.ENO_NO
+            AND D.OCC_CD LIKE '%'||?||'%'
+            AND D.DPT_CD LIKE '%'||?||'%'
+          ORDER BY D.OCC_CD, SF_GET_DPTSEQ('01','A4',D.DPT_CD), SF_GET_COMMSEQ('01','A2',D.JOB_CD), D.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 제일은행 대출금 삭제 -->
+    <sql name="TAXA140_DEL">
+        <description>제일은행 대출금 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_AC_LOAN
+             WHERE PIS_YY  = ?
+               AND PIS_MM  = ?
+               AND SAL_GBN = ?
+               AND GMK_TAG = '3'
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa150
+* @description : 사업장 정보관리
+***********************************************************************
+* 2007/04/21      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 사업장정보관리 데이터 조회 -->
+    <sql name="TAXA150_SHR">
+        <description>사업장정보관리 조회</description>
+        <query>
+            <![CDATA[
+            SELECT COMM_CD,
+                   COMM_NM,
+                   REMARK2,
+                   REMARK3,
+                   OFFICE,
+                   HEAD_TAG,
+				   GBN2_TAG,
+                   TO_CHAR(STR_YMD,'YYYY-MM-DD')   AS STR_YMD,
+                   TO_CHAR(END_YMD,'YYYY-MM-DD')   AS END_YMD,
+                   DECODE(COM_NO, NULL, '101-86-16129', SUBSTR(COM_NO,1,3) || '-' || SUBSTR(COM_NO,4,2) || '-' || SUBSTR(COM_NO,6,5))
+                                                                                                                    AS COM_NO
+            FROM   T_CM_COMMON
+            WHERE  CD_GBN = 'AD'
+            AND    COMM_CD LIKE '%' || ? ||'%'
+         --   AND    COMM_CD IN (SELECT DISTINCT(TAX_DPT)
+         --                       FROM T_CP_PAYMASTER
+         --                      WHERE PIS_YY||PIS_MM BETWEEN TO_CHAR(SYSDATE-30,'YYYYMM') AND TO_CHAR(SYSDATE,'YYYYMM'))
+            AND    GBN2_TAG <> '1'
+            ORDER BY COMM_CD
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해당 사업장코드의 변경내용을 반영한다. -->
+    <sql name="TAXA150_UPT">
+        <description>사업장코드의 변경내용을 반영</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_CM_COMMON
+            SET     COMM_NM     = ?,		        -- 코드명
+                    REMARK2     = ?,                -- 주소
+                    REMARK3     = ?,                -- 전화번호
+                    OFFICE      = ?,                -- 관할기관
+                    HEAD_TAG    = ?,                -- 주민세
+                    GBN2_TAG    = ?,                -- 본사/지방
+                    STR_YMD		= ?,				-- 시작일
+                    END_YMD		= ?,				-- 종료일
+                    COM_NO		= ?,				-- 종료일
+                    UPT_MAN     = ?,                -- 최종 수정자
+                    UPT_YMD     = sysdate           -- 최종 수정일시
+            WHERE   CD_GBN = 'AD'
+            AND     COMM_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : taxa170
+* @description :
+***********************************************************************
+* 2007/04/21      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 지점정보관리 데이터 조회 -->
+    <sql name="TAXA170_SHR">
+        <description>지점정보관리 조회</description>
+        <query>
+            <![CDATA[
+            SELECT MAX(SEQ) SEQ
+              FROM T_AC_RETTABLE
+             WHERE PRO_YM = ?
+               AND ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa180
+* @description :
+***********************************************************************
+* 2016/09/09      이동훈        최초작성.
+***********************************************************************
+-->
+    <!-- 갑근세원천징수증명서 데이터 조회 -->
+    <sql name="TAXA180_SHR">
+        <description>갑근세원천징수증명서 조회</description>
+        <query>
+            <![CDATA[
+			SELECT 
+		        A.ENO_NO, 
+		        (A.PIS_YY || '/' ||A.PIS_MM) AS PIS_DATE, 
+		        SUM(A.SALT_AMT) AS SALT_AMT, 
+		        SUM(A.INCM_TAX) AS TAX_AMT,
+				TO_CHAR(ADD_MONTHS(TO_DATE(A.PIS_YY || A.PIS_MM || '10', 'YYYYMMDD'),1),'YYYY/MM/DD') AS AMT_DATE
+			FROM ASNHR.T_CP_NPAYMASTER A
+			WHERE  A.PIS_YY||A.PIS_MM <= ?
+					AND A.PIS_YY||A.PIS_MM >= ?
+					AND A.ENO_NO = ?
+			GROUP  BY A.ENO_NO, A.PIS_YY, A.PIS_MM
+			ORDER  BY A.ENO_NO, A.PIS_YY, A.PIS_MM
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 갑근세원천징수증명서 인원 정보 조회 -->
+    <sql name="TAXA180_SHR2">
+        <description>갑근세원천징수증명서 조회</description>
+        <query>
+            <![CDATA[
+			SELECT 
+		        A.ENO_NO, 
+		        A.ENO_NM,
+		        A.CET_NO,
+            	A.ADR_CT||' '||A.ADDRESS AS ADDRESS,
+            	TO_CHAR(SYSDATE,'YYYY-MM-DD') AS TODAY
+			FROM ASNHR.T_CM_PERSON A
+			WHERE A.ENO_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : taxa120
+* @description : 은행송금명세서
+***********************************************************************
+* 2007/05/03      김학수        최초작성.
+***********************************************************************
+-->
+    <!-- 은행송금명세서 -->
+    <sql name="TAXA120_SHR1">
+        <description>은행송금명세서(외환은행)</description>
+        <query>
+            <![CDATA[
+			SELECT BANK
+				  .NEXT_KEY
+				  ,BANK.GBN
+				  ,BANK.ABA
+				  ,BANK.ENO
+				  ,BANK.NAM
+				  ,BANK.REC
+				  ,BANK.ACC
+				  ,BANK.PAY
+			 FROM  (SELECT B.ABA_CD||B.ACC_NO||B.ENO_NO  AS NEXT_KEY,
+						   '1'        AS GBN,
+						   C.COMM_NM   AS ABA,
+						   B.ENO_NO   AS ENO,
+						   A.ENO_NM  AS NAM,
+						   B.REC_NAM  AS REC,
+						   B.ACC_NO   AS ACC,
+						   B.PAY_AMT  AS PAY
+					  FROM T_CM_PERSON A,T_CP_PAYMASTER B,T_CM_COMMON C
+					 WHERE (B.OCC_CD  = ?)
+					   AND (B.SAL_GBN = ?)
+				       AND (B.SEQ = ?)
+					   AND (B.PIS_YY  = SUBSTR(?,1,4))
+					   AND (B.PIS_MM  = SUBSTR(?,5,2))
+					   AND (B.ABA_CD  = '01')
+					   AND (B.ENO_NO  = A.ENO_NO)
+					   AND (C.CD_GBN  = 'BK')
+					   AND (C.COMM_CD    = B.ABA_CD)
+					   AND (B.PAY_AMT > 0)
+				   UNION
+					SELECT ABA_CD||MAX(ACC_NO)||'99999999' AS NEXT_KEY,
+						   '2'      AS GBN,
+						   '지점계' AS ABA,
+						   LTRIM(TO_CHAR(COUNT(*),'999'))  AS ENO,
+						   NULL     AS NAM,
+						   NULL     AS REC,
+						   NULL     AS ACC,
+						   SUM(PAY_AMT) AS PAY
+					  FROM T_CP_PAYMASTER
+					 WHERE (OCC_CD  = ?)
+					   AND (SAL_GBN = ?)
+				       AND (SEQ = ?)
+					   AND (PIS_YY  = SUBSTR(?,1,4))
+					   AND (PIS_MM  = SUBSTR(?,5,2))
+					   AND (ABA_CD  = '01')
+					   AND (PAY_AMT > 0)
+					GROUP BY ABA_CD, SUBSTR(ACC_NO,1,3)
+				   ) BANK
+			ORDER BY BANK.NEXT_KEY
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 은행송금명세서 -->
+    <sql name="TAXA120_SHR2">
+        <description>은행송금명세서(기타은행)</description>
+        <query>
+            <![CDATA[
+			SELECT BANK.NEXT_KEY
+				  ,BANK.GBN
+				  ,BANK.ABA
+				  ,BANK.ENO
+				  ,BANK.NAM
+				  ,BANK.REC
+				  ,BANK.ACC
+				  ,BANK.PAY
+			 FROM  (SELECT B.ABA_CD||B.ACC_NO||B.ENO_NO  AS NEXT_KEY,
+						   '1'        AS GBN,
+						   C.COMM_NM   AS ABA,
+						   B.ENO_NO   AS ENO,
+						   A.ENO_NM  AS NAM,
+						   B.REC_NAM  AS REC,
+						   B.ACC_NO   AS ACC,
+						   B.PAY_AMT  AS PAY
+					  FROM T_CM_PERSON A,T_CP_PAYMASTER B,T_CM_COMMON C
+					 WHERE (B.OCC_CD  = ?)
+					   AND (B.SAL_GBN = ?)
+					   AND (B.SEQ = ?)
+					   AND (B.PIS_YY  = SUBSTR(?,1,4))
+					   AND (B.PIS_MM  = SUBSTR(?,5,2))
+					   AND (B.ABA_CD  <> '01')
+					   AND (B.ENO_NO  = A.ENO_NO)
+					   AND (C.CD_GBN  = 'BK')
+					   AND (C.COMM_CD    = B.ABA_CD)
+					   AND (B.PAY_AMT > 0)
+				   UNION
+					SELECT ABA_CD||MAX(ACC_NO)||'99999999' AS NEXT_KEY,
+						   '2'      AS GBN,
+						   '지점계' AS ABA,
+						   LTRIM(TO_CHAR(COUNT(*),'999'))  AS ENO,
+						   NULL     AS NAM,
+						   NULL     AS REC,
+						   NULL     AS ACC,
+						   SUM(PAY_AMT) AS PAY
+					  FROM T_CP_PAYMASTER
+					 WHERE (OCC_CD  = ?)
+					   AND (SAL_GBN = ?)
+					   AND (SEQ = ?)
+					   AND (PIS_YY  = SUBSTR(?,1,4))
+					   AND (PIS_MM  = SUBSTR(?,5,2))
+					   AND (ABA_CD  <> '01')
+					   AND (PAY_AMT > 0)
+					GROUP BY ABA_CD, SUBSTR(ACC_NO,1,3)
+				   ) BANK
+			ORDER BY BANK.NEXT_KEY
+
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : taxa100
+* @description : 직위별부서별공제현황
+***********************************************************************
+* 2007/05/05      김학수        최초작성.
+***********************************************************************
+-->
+    <!-- 지점정보관리 데이터 조회 -->
+    <sql name="TAXA100_SHR1">
+        <description>지점정보관리 조회</description>
+        <query>
+            <![CDATA[
+            SELECT MIN(A.DPT_NM)                                        AS DPTJOB_NM        --부서
+                 , COUNT(DISTINCT(B.ENO_NO))                                      AS CNT              --인원
+                 , NVL(SUM(B.SALT_AMT),0)                               AS SALT_AMT         --급여계
+                 , NVL(SUM(B.DDTT_AMT),0)                               AS DDTT_AMT         --공제액계
+                 , NVL(SUM(B.PAY_AMT) ,0)                               AS PAY_AMT          --차인지급액
+                 , NVL(SUM(B.STAX_DED),0)                               AS STAX_DED         --재형저축세액공제액
+                 , NVL(SUM(B.INCM_TAX),0)                               AS INCM_TAX         --갑근세
+                 , NVL(SUM(B.CITI_TAX),0)                               AS CITI_TAX         --주민세
+                 , NVL(SUM(B.DHLP_AMT),0)                               AS DHLP_AMT         --공조회비
+                 , NVL(SUM(B.HINU_AMT),0)                               AS HINU_AMT         --의료보험료
+                 , NVL(SUM(B.NPEN_AMT),0) + NVL(SUM(B.NPLE_AMT),0)      AS NPEN_AMT         --국민연금
+                 , NVL(SUM(B.HINS_AMT),0)                               AS HINS_AMT         --고용보험
+                 , NVL(SUM(B.SAV_AMT) ,0)                               AS SAV_AMT          --저축액
+                 , NVL(SUM(B.INV_AMT) ,0)                               AS INV_AMT          --금고출자금
+                 , NVL(SUM(B.LON_RPY) ,0) + NVL(SUM(B.LON_INT),0)       AS LON_RPY          --융자상환금
+                 , NVL(SUM(B.ADV_AMT) ,0)                               AS ADV_AMT          --가지급금
+                 , NVL(SUM(B.WOM_AMT) ,0)
+                    + NVL(SUM(B.LAB_AMT) ,0)
+                    + NVL(SUM(B.TB3D_AMT),0)
+                    + NVL(SUM(B.SGFD_AMT),0)
+                    + NVL(SUM(B.OTHD_AMT),0)                            AS ECT              --기타공제액
+                 , NVL(SUM(B.FREE_TAX),0)                               AS LUN_AMT          --중식대
+                 , SF_GET_DPTSEQ('01', 'A4', B.DPT_CD)                  AS SEQ
+              FROM T_CM_DEPT A
+                 , T_CP_PAYMASTER B
+             WHERE (B.OCC_CD = ?
+                OR  B.OCC_CD = ?)
+               AND A.CD_GBN  = 'A4'
+               AND A.DPT_CD  = B.DPT_CD
+               AND B.SAL_GBN = ?
+               AND B.PIS_YY||B.PIS_MM BETWEEN ?
+                                          AND ?
+          GROUP BY B.DPT_CD
+          ORDER BY SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 지점정보관리 데이터 조회 -->
+    <sql name="TAXA100_SHR2">
+        <description>지점정보관리 조회</description>
+        <query>
+            <![CDATA[
+                SELECT B.JOB_CD,
+				       SF_GET_COMMNAME('01', 'A2', B.JOB_CD)               DPTJOB_NM,
+                       COUNT(DISTINCT(B.ENO_NO))                           CNT,		   --인원
+                       NVL(SUM(B.SALT_AMT),0)								SALT_AMT,	   --급여계
+					   NVL(SUM(B.DDTT_AMT),0)								DDTT_AMT,	   --공제액계
+					   NVL(SUM(B.PAY_AMT),0)								PAY_AMT,	   --차인지급액
+                       NVL(SUM(B.STAX_DED),0)								STAX_DED,	   --재형저축세액공제액
+                       NVL(SUM(B.INCM_TAX),0)								INCM_TAX,	   --갑근세
+                       NVL(SUM(B.CITI_TAX),0)								CITI_TAX,	   --주민세
+                       NVL(SUM(B.DHLP_AMT),0)								DHLP_AMT,	   --공조회비
+                       NVL(SUM(B.HINU_AMT),0)								HINU_AMT,	   --의료보험료
+                       NVL(SUM(B.NPEN_AMT),0) + NVL(SUM(B.NPLE_AMT),0)		NPEN_AMT,	   --국민연금
+                       NVL(SUM(B.HINS_AMT),0)								HINS_AMT,	   --고용보험
+                       NVL(SUM(B.SAV_AMT),0)								SAV_AMT,	   --저축액
+                       NVL(SUM(B.INV_AMT),0)								INV_AMT,	   --금고출자금
+                       NVL(SUM(B.LON_RPY),0) + NVL(SUM(B.LON_INT),0)		LON_RPY,	   --융자상환금
+                       NVL(SUM(B.ADV_AMT),0)								ADV_AMT,	   --가지급금
+                       NVL(SUM(B.WOM_AMT),0) + NVL(SUM(B.LAB_AMT),0)  +
+                       NVL(SUM(B.TB3D_AMT),0)+ NVL(SUM(B.SGFD_AMT),0) +
+                       NVL(SUM(B.OTHD_AMT),0)								ECT,		   --기타공제액
+                       NVL(SUM(B.FREE_TAX),0)  						   		LUN_AMT	,	   --중식대
+                          SF_GET_COMMSEQ('01', 'A2', B.JOB_CD) AS SEQ
+                  FROM T_CP_PAYMASTER B, T_CM_COMMON C
+                  WHERE (B.OCC_CD = ? or B.OCC_CD = ?)
+	                  AND (B.SAL_GBN = ?)
+                   AND (B.PIS_YY||B.PIS_MM  BETWEEN ? AND ? )
+                   AND (C.CD_GBN = 'A2')
+                   AND (B.JOB_CD = C.COMM_CD)
+              GROUP BY B.JOB_CD
+              ORDER BY SEQ
+            ]]>
+        </query>
+    </sql>
+
+	    <!-- 지점정보관리 데이터 조회 -->
+    <sql name="TAXA100_SHR3">
+        <description>지점정보관리 조회</description>
+        <query>
+            <![CDATA[
+                SELECT B.JOBT_CD,
+				       SF_GET_COMMNAME('01', 'A2', B.JOBT_CD)               DPTJOB_NM,
+                       COUNT(DISTINCT(B.ENO_NO))	    			        CNT,		    --인원
+                       NVL(SUM(B.SALT_AMT),0)								SALT_AMT,		--급여계
+					   NVL(SUM(B.DDTT_AMT),0)								DDTT_AMT,		--공제액계
+					   NVL(SUM(B.PAY_AMT),0)								PAY_AMT,		--차인지급액
+                       NVL(SUM(B.STAX_DED),0)								STAX_DED,		--재형저축세액공제액
+                       NVL(SUM(B.INCM_TAX),0)								INCM_TAX,		--갑근세
+                       NVL(SUM(B.CITI_TAX),0)								CITI_TAX,		--주민세
+                       NVL(SUM(B.DHLP_AMT),0)								DHLP_AMT,		--공조회비
+                       NVL(SUM(B.HINU_AMT),0)								HINU_AMT,		--의료보험료
+                       NVL(SUM(B.NPEN_AMT),0) + NVL(SUM(B.NPLE_AMT),0)		NPEN_AMT,		--국민연금
+                       NVL(SUM(B.HINS_AMT),0)								HINS_AMT,		--고용보험
+                       NVL(SUM(B.SAV_AMT),0)								SAV_AMT,		--저축액
+                       NVL(SUM(B.INV_AMT),0)								INV_AMT,		--금고출자금
+                       NVL(SUM(B.LON_RPY),0) + NVL(SUM(B.LON_INT),0)		LON_RPY,		--융자상환금
+                       NVL(SUM(B.ADV_AMT),0)								ADV_AMT,		--가지급금
+                       NVL(SUM(B.WOM_AMT),0)  + NVL(SUM(B.LAB_AMT),0)  +
+                       NVL(SUM(B.TB3D_AMT),0)+ NVL(SUM(B.SGFD_AMT),0) +
+                       NVL(SUM(B.OTHD_AMT),0)								ECT,		    --기타공제액
+                       NVL(SUM(B.FREE_TAX),0)  						   		LUN_AMT	,	 	--중식대
+                        SF_GET_COMMSEQ('01', 'A2', B.JOBT_CD) AS SEQ
+                  FROM T_CP_PAYMASTER B
+                 WHERE (B.OCC_CD = ? or B.OCC_CD = ?)
+                   AND (B.SAL_GBN = ?)
+                   AND (B.PIS_YY||B.PIS_MM  BETWEEN ? AND ? )
+              GROUP BY B.JOBT_CD, SF_GET_COMMNAME('01', 'A2', B.JOBT_CD)
+              ORDER BY SEQ
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa210
+* @description : 기타소득/조정납부액관리
+***********************************************************************
+* 2007/04/26      조정호        최초작성.
+***********************************************************************
+-->
+    <!-- 기타소득/조정납부액관리 조회 -->
+    <sql name="TAXA210_SHR">
+        <description>기타소득/조정납부액관리 조회</description>
+        <query>
+            <![CDATA[
+                    SELECT ? AS PIS_YY
+                          ,? AS PIS_MM
+                        ,COMM.comm_CD  AS DPT_CD
+                        ,COMM.comm_NM  AS DPT_NM
+                          ,NVL(ETCPAY_LA.AMT,0) AS LAB_AMT
+                          ,NVL(ETCPAY_SO.AMT,0) AS SO_AMT
+                          ,NVL(ETCPAY_MC.AMT,0) AS MIS_CAL
+                          ,NVL(ETCPAY_MM.AMT,0) AS MIS_AMT
+                          ,NVL(ETCPAY_PM.AMT,0) AS MIS_PRO
+                      FROM (SELECT DPT_CD
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND DPT_CD LIKE ?||'%'
+                          GROUP BY DPT_CD) ETCPAY
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'LA'
+                          GROUP BY DPT_CD) ETCPAY_LA
+                        ON ETCPAY.DPT_CD = ETCPAY_LA.DPT_CD
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'SO'
+                          GROUP BY DPT_CD) ETCPAY_SO
+                        ON ETCPAY.DPT_CD = ETCPAY_SO.DPT_CD
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'MC'
+                          GROUP BY DPT_CD) ETCPAY_MC
+                        ON ETCPAY.DPT_CD = ETCPAY_MC.DPT_CD
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'MM'
+                          GROUP BY DPT_CD) ETCPAY_MM
+                        ON ETCPAY.DPT_CD = ETCPAY_MM.DPT_CD
+                 LEFT JOIN (SELECT DPT_CD
+                                  ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT)),0) AMT
+                              FROM T_AC_ETCPAY
+                             WHERE PIS_YY = ?
+                               AND PIS_MM = ?
+                               AND SAL_CD = 'PM'
+                          GROUP BY DPT_CD) ETCPAY_PM
+                        ON ETCPAY.DPT_CD = ETCPAY_PM.DPT_CD
+                INNER JOIN (SELECT   comm_CD
+                                	,comm_NM
+                                	,SORT_NO
+                              FROM T_CM_common
+                           WHERE CD_GBN = 'AD') COMM
+                      ON ETCPAY.DPT_CD = COMM.comm_CD
+                ORDER BY DECODE(COMM.comm_CD,'XX',1,COMM.SORT_NO)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기타소득/조정납부액관리 상세 내역 -->
+    <sql name="TAXA210_SHR_DTL">
+        <description>기타소득/조정납부액관리 상세 내역</description>
+        <query>
+            <![CDATA[
+             SELECT DPT_CD
+                   ,SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM
+                   ,SAL_CD
+                   ,SF_GET_COMMNAME('01','H2',SAL_CD) AS SAL_NM
+                   ,ADD_TAG
+                   ,AMOUNT
+                   ,SEQ_NO
+               FROM T_AC_ETCPAY
+              WHERE PIS_YY = ?
+                AND PIS_MM = ?
+                AND DPT_CD = ?
+           ORDER BY SAL_CD
+                   ,SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기타소득/조정납부액관리 등록 -->
+    <sql name="TAXA210_INS">
+        <description>기타소득/조정납부액관리 등록</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_AC_ETCPAY
+                  (PIS_YY
+                  ,PIS_MM
+                  ,DPT_CD
+                  ,SAL_CD
+                  ,ADD_TAG
+                  ,AMOUNT
+                  ,OCC_CD
+                  ,IPT_MAN
+                  ,IPT_YMD
+                  ,UPT_MAN
+                  ,UPT_YMD
+                  ,IPT_HMS
+                  ,SEQ_NO)
+            VALUES(?
+                  ,?
+                  ,?
+                  ,?
+                  ,?
+                  ,?
+                  ,'A'
+                  ,?
+                  ,SYSDATE
+                  ,?
+                  ,SYSDATE
+                  ,TO_CHAR(SYSDATE,'HH24:MI:SS')
+                  ,(SELECT NVL(MAX(SEQ_NO),0) + 1
+                      FROM T_AC_ETCPAY
+                     WHERE PIS_YY = ?
+                       AND PIS_MM = ?
+                       AND DPT_CD = ?))
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기타소득/조정납부액관리 상세 내역 수정 -->
+    <sql name="TAXA210_UPT">
+        <description>기타소득/조정납부액관리 상세 내역 수정</description>
+        <query>
+            <![CDATA[
+              UPDATE T_AC_ETCPAY
+                 SET ADD_TAG    = ?
+                    ,AMOUNT     = ?
+                    ,UPT_MAN    = ?
+                    ,UPT_YMD    = SYSDATE
+               WHERE PIS_YY     = ?
+                 AND PIS_MM     = ?
+                 AND DPT_CD     = ?
+                 AND SEQ_NO     = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 기타소득/조정납부액관리 상세 내역 삭제 -->
+    <sql name="TAXA210_DEL">
+        <description>기타소득/조정납부액관리 상세 내역 삭제</description>
+        <query>
+            <![CDATA[
+              DELETE
+                FROM T_AC_ETCPAY
+               WHERE PIS_YY     = ?
+                 AND PIS_MM     = ?
+                 AND DPT_CD     = ?
+                 AND SEQ_NO     = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--원천징수정산 내역을 위해 부서 코드를 가져옴 -->
+    <sql name="TAXA210_SHR_DPT">
+        <description>원천징수정산 내역을 위해 부서 코드를 가져옴</description>
+        <query>
+            <![CDATA[
+            SELECT DPT_CD AS CODE
+                  ,SF_GET_COMMNAME('01','AD',DPT_CD) AS CODE_NAME
+              FROM (SELECT DPT_CD
+                          ,SORT_NO
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,COM.comm_CD)   AS DPT_CD
+                                  ,DECODE(COM.HEAD_TAG ,'0' ,1 ,'1' ,2 ,COM.SORT_NO)        AS SORT_NO
+                              FROM T_CM_common COM
+                                  ,(SELECT NVL(TAX_DPT,DPT_CD) DPT_CD
+                                      FROM T_CP_PAYMASTER PAY
+                                     WHERE PAY.PIS_YY   = ?
+                                       AND PAY.PIS_MM   = ?
+                                  GROUP BY NVL(TAX_DPT,DPT_CD)
+                                     UNION
+                                    SELECT NVL(TAX_DPT,MDPT_CD) DPT_CD
+                                      FROM T_AC_RETACC ACC
+                                     WHERE ACC.RPT_YM   = ?||?
+                                       AND ACC.PIS_YY   = ?
+                                       AND ACC.GBN_TAG  = '9'
+                                  GROUP BY NVL(TAX_DPT,MDPT_CD)
+                                     UNION
+                                    SELECT NVL(RET.TAX_DPT, PERSON.TAX_DPT) DPT_CD
+                                      FROM T_AC_RETTABLE RET
+                                          ,T_CM_PERSON PERSON
+                                     WHERE RET.RPT_YM   = ?||?
+                                       AND RET.ENO_NO   = PERSON.ENO_NO
+                                  GROUP BY NVL(RET.TAX_DPT, PERSON.TAX_DPT)
+                                     UNION
+                                    SELECT DPT_CD
+                                      FROM T_AC_ETCPAY
+                                     WHERE PIS_YY       = ?
+                                       AND PIS_MM       = ?
+                                  GROUP BY DPT_CD
+                                     UNION
+                                    SELECT DPT_CD
+                                      FROM T_AC_WITHHOLDING
+                                     WHERE PIS_YY       = DECODE(?, '01', ?-1, ?)
+                                       AND PIS_MM       = DECODE(?, '01', '12' ,TO_CHAR(?-01,'FM00'))
+                                       AND YAC_NORE+MON_RET+THS_RETU < 0
+                                  GROUP BY DPT_CD
+                                    ) PAY
+                             WHERE PAY.DPT_CD = COM.comm_CD
+                              AND COM.CD_GBN = 'AD')
+                  GROUP BY DPT_CD
+                          ,SORT_NO)
+          ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa220
+* @description : 원천징수정산
+***********************************************************************
+* 2007/04/26      조정호        최초작성.
+***********************************************************************
+-->
+    <!-- 원천징수정산 내역 조회 -->
+    <sql name="TAXA220_SHR">
+        <description>원천징수정산 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DPT.PIS_YY
+                 , DPT.PIS_MM
+                 , DPT.DPT_CD
+                 , SF_GET_COMMNAME('01','AD',DPT.DPT_CD) AS DPT_NM
+                 , NVL(ETCPAY.NO_RESTORE    ,0) AS NO_RESTORE   --미환급
+                 , NVL(ETCPAY.NO_PAYMENT    ,0) AS NO_PAYMENT   --미납부
+                 , NVL(ETCPAY2.AMT_LA       ,0) AS AMT_LA       --기타소득
+                 , NVL(ETCPAY2.AMT_SO       ,0) AS AMT_SO
+                 , NVL(ETCPAY2.AMT_MM       ,0) AS AMT_MM
+                 , NVL(ETCPAY2.AMT_MC       ,0) AS AMT_MC
+                 , NVL(ETCPAY2.AMT_PM       ,0) AS AMT_PM
+
+                 , NVL(PAYMASTER.INCM_TAX   ,0) AS INCM_TAX     --갑근세
+                 , NVL(RETTABLE.ICM_TAX     ,0) AS ICM_TAX      --소득세
+                 , NVL(RETACC.RET_INTX      ,0) AS RET_INTX     --차감(환급)갑근세
+                 , NVL(ACC.DRE_INTX         ,0) AS DRE_INTX     --연말정산(소득세)
+
+                 , NVL(PAYMASTER.CITI_TAX   ,0) AS CITI_TAX     --근로소득
+                 , NVL(RETTABLE.DJM_TAX     ,0) AS DJM_TAX      --퇴직소득
+                 , NVL(RETACC.RET_CTTX      ,0) AS RET_CTTX     --퇴직정산분
+                 , NVL(ACC.DRE_CTTX         ,0) AS DRE_CTTX     --연말정산(주민세)
+
+                 , NVL(WITHHOLDING.ICM_TOT  ,0) AS ICM_TOT      --전월 소득세 총합
+
+                 , NVL(ACC.DRE_CTTX         ,0) AS DRE_CTTX     --연말정산
+                 , NVL(WITHHOLDING.YAC_NORE ,0) AS YAC_NORE     --전월미환급분
+                 , NVL(WITHHOLDING.MON_RET  ,0) AS MON_RET      --환급분
+                 , NVL(WITHHOLDING.THS_RETU ,0) AS THS_RETU     --원천세환급
+                 , NVL(WITHHOLDING.THS_PAY  ,0) AS THS_PAY      --원천세납부액
+              FROM (SELECT ?    AS PIS_YY
+                         , ?    AS PIS_MM
+                         , DPT_CD
+                         , SORT_NO
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,COM.COMM_CD) AS DPT_CD
+                                 , DECODE(COM.HEAD_TAG ,'0' ,1 ,'1' ,2 ,COM.PRTS2_CD) AS SORT_NO
+                              FROM T_CM_COMMON COM
+                                 , (SELECT NVL(TAX_DPT,DPT_CD) DPT_CD
+                                      FROM T_CP_PAYMASTER PAY
+                                     WHERE PAY.PIS_YY   = ?
+                                       AND PAY.PIS_MM   = ?
+                                  GROUP BY NVL(TAX_DPT,DPT_CD)
+                                     UNION
+                                    SELECT NVL(TAX_DPT,MDPT_CD) MDPT_CD
+                                      FROM T_AC_RETACC ACC
+                                     WHERE ACC.RPT_YM   = ?||?
+                                       AND ACC.PIS_YY   = ?
+                                       AND ACC.GBN_TAG  = '9'
+                                  GROUP BY NVL(TAX_DPT,MDPT_CD)
+                                     UNION
+                                    SELECT NVL(RET.TAX_DPT,PERSON.TAX_DPT) DPT_CD
+                                      FROM T_AC_RETTABLE RET
+                                          ,T_CM_PERSON PERSON
+                                     WHERE RET.RPT_YM   = ?||?
+                                       AND RET.ENO_NO   = PERSON.ENO_NO
+                                  GROUP BY NVL(RET.TAX_DPT,PERSON.TAX_DPT)
+                                     UNION
+                                    SELECT DPT_CD
+                                      FROM T_AC_ETCPAY
+                                     WHERE PIS_YY       = ?
+                                       AND PIS_MM       = ?
+                                  GROUP BY DPT_CD
+                                     UNION
+                                    SELECT DPT_CD
+                                      FROM T_AC_WITHHOLDING
+                                     WHERE PIS_YY       = DECODE(?, '01', ?-1, ?)
+                                       AND PIS_MM       = DECODE(?, '01', '12' ,TO_CHAR(?-01,'FM00'))
+                                       AND YAC_NORE+MON_RET+THS_RETU < 0
+                                  GROUP BY DPT_CD
+                                    ) PAY
+                             WHERE PAY.DPT_CD = COM.COMM_CD
+                               AND COM.CD_GBN = 'AD')
+                     WHERE DPT_CD LIKE ?||'%'
+                  GROUP BY DPT_CD
+                         , SORT_NO
+                    ) DPT
+         --전월조정분(미환급,미납부)
+         LEFT JOIN (SELECT DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM
+                          ,NVL(SUM(DECODE(ADD_TAG,'0',-AMOUNT,0)),0) AS NO_RESTORE
+                          ,NVL(SUM(DECODE(ADD_TAG,'1', AMOUNT,0)),0) AS NO_PAYMENT
+                      FROM T_AC_ETCPAY
+                     WHERE SAL_CD IN ('MC','MM','PM')
+                  GROUP BY DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM) ETCPAY
+                ON DPT.DPT_CD = ETCPAY.DPT_CD
+               AND DECODE(DPT.PIS_MM,'01',DPT.PIS_YY-1,DPT.PIS_YY)              = ETCPAY.PIS_YY
+               AND DECODE(DPT.PIS_MM,'01','12',TO_CHAR(DPT.PIS_MM-01,'FM00'))   = ETCPAY.PIS_MM
+         --근로.기타소득
+         LEFT JOIN (SELECT DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM
+                          ,NVL(SUM(DECODE(SAL_CD,'LA',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_LA
+                          ,NVL(SUM(DECODE(SAL_CD,'SO',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_SO
+                          ,NVL(SUM(DECODE(SAL_CD,'MM',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_MM
+                          ,NVL(SUM(DECODE(SAL_CD,'MC',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_MC
+                          ,NVL(SUM(DECODE(SAL_CD,'PM',DECODE(ADD_TAG,'0',-AMOUNT,'1',AMOUNT),0)),0) AS AMT_PM
+                      FROM T_AC_ETCPAY
+                  GROUP BY DPT_CD
+                          ,PIS_YY
+                          ,PIS_MM) ETCPAY2
+                ON DPT.DPT_CD = ETCPAY2.DPT_CD
+               AND DPT.PIS_YY = ETCPAY2.PIS_YY
+               AND DPT.PIS_MM = ETCPAY2.PIS_MM
+         --근로소득
+         LEFT JOIN (SELECT DPT_CD
+                         , PIS_YY
+                         , PIS_MM
+                         , NVL(SUM(INCM_TAX), 0) AS INCM_TAX
+                         , NVL(SUM(CITI_TAX), 0) AS CITI_TAX
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,NVL(PAY.TAX_DPT,PAY.DPT_CD)) AS DPT_CD
+                                 , PIS_YY
+                                 , PIS_MM
+                                 , INCM_TAX     -- 갑근세
+                                 , CITI_TAX     -- 주민세
+                              FROM T_CP_PAYMASTER PAY
+                                 , T_CM_DEPT COM
+                             WHERE COM.CD_GBN = 'A4'
+                               AND COM.DPT_CD = NVL(PAY.TAX_DPT,PAY.DPT_CD)
+                               AND SAL_GBN IN ('0','1','4'))
+                  GROUP BY DPT_CD
+                         , PIS_YY
+                         , PIS_MM
+                    ) PAYMASTER
+                ON DPT.DPT_CD = PAYMASTER.DPT_CD
+               AND DPT.PIS_YY = PAYMASTER.PIS_YY
+               AND DPT.PIS_MM = PAYMASTER.PIS_MM
+         --퇴직소득
+         LEFT JOIN (SELECT DPT_CD
+                         , RPT_YM
+                         , NVL(SUM(ICM_TAX), 0) AS ICM_TAX
+                         , NVL(SUM(DJM_TAX), 0) AS DJM_TAX
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,NVL(RET.TAX_DPT,PERSON.TAX_DPT)) AS DPT_CD
+                                 , RET.RPT_YM
+                                 , ICM_TAX      -- 소득세
+                                 , DJM_TAX      -- 주민세
+                              FROM T_AC_RETTABLE RET
+                                 , T_CM_PERSON PERSON
+                                 , T_CM_DEPT COM
+                             WHERE RET.ENO_NO = PERSON.ENO_NO
+                               AND COM.CD_GBN = 'A4'
+                               AND COM.DPT_CD = NVL(RET.TAX_DPT,PERSON.TAX_DPT))
+                  GROUP BY RPT_YM
+                         , DPT_CD
+                    ) RETTABLE
+                ON DPT.DPT_CD = RETTABLE.DPT_CD
+               AND DPT.PIS_YY||DPT.PIS_MM = RETTABLE.RPT_YM
+         --퇴직정산분
+         LEFT JOIN (SELECT RPT_YM
+                         , PIS_YY
+                         , DPT_CD
+                         , NVL(SUM(RET_INTX), 0) AS RET_INTX
+                         , NVL(SUM(RET_CTTX), 0) AS RET_CTTX
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,NVL(TAX_DPT,MDPT_CD)) AS DPT_CD
+                                 , RPT_YM
+                                 , PIS_YY
+                                 , MDPT_CD
+                                 , DRE_INTX AS RET_INTX     -- 차감(환급)갑근세
+                                 , DRE_CTTX AS RET_CTTX     -- 차감(환급)주민세
+                              FROM T_AC_RETACC ACC
+                                 , T_CM_DEPT COM
+                             WHERE GBN_TAG = '9'
+                               AND COM.CD_GBN = 'A4'
+                               AND COM.DPT_CD = NVL(TAX_DPT,MDPT_CD))
+                  GROUP BY RPT_YM
+                         , PIS_YY
+                         , DPT_CD
+                    ) RETACC
+                ON DPT.DPT_CD = RETACC.DPT_CD
+               AND DPT.PIS_YY||DPT.PIS_MM = RETACC.RPT_YM
+         --연말정산
+         LEFT JOIN (SELECT DPT_CD
+                         , PIS_YY
+                         , NVL(SUM(DRE_INTX),0) AS DRE_INTX
+                         , NVL(SUM(DRE_CTTX),0) AS DRE_CTTX
+                      FROM (SELECT DECODE(COM.HEAD_TAG ,'0' ,'XX' ,'1' ,'ZZ' ,NVL(TAX_DPT,MDPT_CD)) AS DPT_CD
+                                 , RPT_YM
+                                 , PIS_YY
+                                 , MDPT_CD
+                                 , DRE_INTX
+                                 , DRE_CTTX
+                              FROM T_AC_RETACC ACC
+                                 , T_CM_DEPT COM
+                             WHERE GBN_TAG      = '8'
+                               AND COM.CD_GBN   = 'A4'
+                               AND COM.DPT_CD   = NVL(TAX_DPT,MDPT_CD)
+                               AND PIS_MM       = '12'
+                               AND ENO_NO NOT IN (SELECT ENO_NO
+                                                    FROM T_AC_RETACC ACC9
+                                                   WHERE GBN_TAG = '9'
+                                                     AND PIS_YY  = TO_NUMBER(?)-1
+                                                     AND ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON
+                                                                         WHERE TO_CHAR(RET_YMD,'YYYYMMDD') = TO_NUMBER(?)-1||'1231')))
+                  GROUP BY PIS_YY
+                          ,DPT_CD
+                    ) ACC
+                ON DPT.DPT_CD = ACC.DPT_CD
+               AND DPT.PIS_YY-1 = ACC.PIS_YY
+         --전월미환급분, 환급분, 원천세환급, 원천세납부액
+         LEFT JOIN (SELECT DPT_CD
+                         , PIS_YY
+                         , PIS_MM
+                         , NVL(SUM(YAC_NORE ), 0)   AS YAC_NORE
+                         , NVL(SUM(MON_RET  ), 0)   AS MON_RET
+                         , NVL(SUM(THS_RETU ), 0)   AS THS_RETU
+                         , NVL(SUM(THS_PAY  ), 0)   AS THS_PAY
+                         , NVL(SUM(ICM_TOT  ), 0)   AS ICM_TOT
+                      FROM T_AC_WITHHOLDING
+                  GROUP BY PIS_YY
+                         , PIS_MM
+                         , DPT_CD
+                    ) WITHHOLDING
+                ON DPT.DPT_CD = WITHHOLDING.DPT_CD
+               AND DECODE(DPT.PIS_MM,'01',DPT.PIS_YY-1,DPT.PIS_YY)              = WITHHOLDING.PIS_YY
+               AND DECODE(DPT.PIS_MM,'01','12',TO_CHAR(DPT.PIS_MM-01,'FM00'))   = WITHHOLDING.PIS_MM
+     ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 원천징수 정산 내역 일괄 삭제 -->
+    <sql name="TAXA220_DEL">
+        <description>원천징수 정산 내역 일괄 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE
+              FROM T_AC_WITHHOLDING
+             WHERE PIS_YY = ?
+               AND PIS_MM = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 원천징수 정산 내역 등록 -->
+    <sql name="TAXA220_SAV">
+        <description>원천징수 정산 내역 등록</description>
+        <query>
+            <![CDATA[
+             MERGE
+              INTO T_AC_WITHHOLDING A
+             USING (SELECT ?    AS PIS_YY
+                         , ?    AS PIS_MM
+                         , ?    AS DPT_CD
+                         , ?    AS YAC_NORE
+                         , ?    AS MON_RET
+                         , ?    AS THS_RETU
+                         , ?    AS THS_PAY
+                         , ?    AS INCM_TAX
+                         , ?    AS ICM_TAX
+                         , ?    AS RET_INTX
+                         , ?    AS ICM_TOT
+                         , ?    AS UPT_MAN
+                      FROM DUAL
+                    ) B
+                ON (A.PIS_YY    = B.PIS_YY
+               AND  A.PIS_MM    = B.PIS_MM
+               AND  A.DPT_CD    = B.DPT_CD)
+              WHEN MATCHED THEN
+            UPDATE
+               SET A.YAC_NORE   = B.YAC_NORE
+                 , A.MON_RET    = B.MON_RET
+                 , A.THS_RETU   = B.THS_RETU
+                 , A.THS_PAY    = B.THS_PAY
+                 , A.SEL_YMD    = TO_CHAR(SYSDATE,'YYYYMMDD')
+                 , A.UPT_MAN    = B.UPT_MAN
+                 , A.UPT_YMD    = SYSDATE
+              WHEN NOT MATCHED THEN
+            INSERT
+                 ( PIS_YY
+                 , PIS_MM
+                 , DPT_CD
+                 , YAC_NORE
+                 , MON_RET
+                 , THS_RETU
+                 , THS_PAY
+                 , INCM_TAX
+                 , ICM_TAX
+                 , RET_INTX
+                 , ICM_TOT
+                 , SEL_YMD
+                 , OCC_CD
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD)
+          VALUES ( B.PIS_YY
+                 , B.PIS_MM
+                 , B.DPT_CD
+                 , B.YAC_NORE
+                 , B.MON_RET
+                 , B.THS_RETU
+                 , B.THS_PAY
+                 , B.INCM_TAX
+                 , B.ICM_TAX
+                 , B.RET_INTX
+                 , B.ICM_TOT
+                 , TO_CHAR(SYSDATE,'YYYYMMDD')
+                 , 'A'
+                 , B.UPT_MAN
+                 , SYSDATE
+                 , B.UPT_MAN
+                 , SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : TAXA250
+* @description : 각종증명서발급
+***********************************************************************
+* 2007/02/20      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 증명서발급 정보를 조회 한다. -->
+    <sql name="TAXA250_SHR">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.CEF_NO
+                 , A.REQ_NO
+                 , A.ENO_NO
+                 , A.REMARK
+                 , A.CEF_SEC
+                 , SF_GET_COMMNAME('01', 'AC', A.CEF_SEC) AS CEF_SEC_NM
+                 , A.CEF_RSN
+                 , SF_GET_COMMNAME('01', 'R4', A.CEF_RSN) AS CEF_RSN_NM
+                 , A.CEF_CNT
+                 , CEF_YY AS STR_YY
+				 , CEF_YY
+                 , B.DPT_NM
+                 , B.JOB_NM
+                 , B.DPT_CD
+                 , B.JOB_CD
+                 , B.ADDRESS
+                 , B.PER_ADR
+                 , B.ENO_NM
+                 , TO_CHAR(TO_DATE(A.REQ_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS REQ_YMD
+                 , TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SPL_YMD
+                 , TO_CHAR(TO_DATE(A.PRT_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS PRT_YMD
+                 , A.CEF_STS
+                 , DECODE(A.CEF_STS, 'A', '저장'
+                                   , 'B', '신청'
+                                   , 'C', '반송'
+                                   , 'E', '발급'
+                                   , 'F', '직접출력'
+                          ) AS CEF_STS_NM
+                 , TO_CHAR(A.IPT_YMD, 'YYYY-MM-DD') AS IPT_YMD
+                 , 'T' AS IS_CHK
+              FROM T_AC_CEFBOOK A
+                 , (SELECT ENO_NO
+                         , DPT_CD
+                         , DPT_NM
+                         , JOB_CD
+                         , JOB_NM
+                         , ENO_NM
+                         , PER_ADR
+                         , ADR_CT||' '||ADDRESS AS ADDRESS
+                      FROM VI_T_CM_PERSON2
+                    ) B
+             WHERE A.ENO_NO     = B.ENO_NO
+               AND A.ENO_NO     = NVL(?, A.ENO_NO)
+             [1]
+          ORDER BY A.SPL_YMD DESC, A.CEF_NO DESC, REQ_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다.(HDPS) -->
+    <sql name="TAXA250_SHR_01">
+        <description>사원 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  ROLE_CD
+             FROM    T_CM_EMPLIST
+             WHERE   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다. -->
+    <sql name="TAXA250_SHR_02">
+        <description>사원 정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                 , ENO_NM
+                 , DPT_CD
+                 , DPT_NM
+                 , JOB_CD
+                 , JOB_NM
+                 , PER_ADR
+                 , ADDRESS
+              FROM VI_T_CM_PERSON2
+             WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 증명서발급 정보를 저장 한다. -->
+    <sql name="TAXA250_INS">
+        <description>증명서발급 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_AC_CEFBOOK
+                 ( REQ_NO
+                 , ENO_NO
+                 , CEF_SEC
+                 , CEF_RSN
+                 , CEF_CNT
+                 , CEF_NO
+                 , REQ_YMD
+                 , SPL_YMD
+                 , CEF_STS
+                 , CEF_YY
+                 , PRT_YMD
+                 , REMARK
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( (SELECT ?||TRIM(TO_CHAR( DECODE( MAX(SUBSTR(REQ_NO, 7, 10)), NULL, '001', MAX(SUBSTR(REQ_NO, 7,10))+1 ), '000'))
+                      FROM T_AC_CEFBOOK
+                     WHERE SUBSTR(REQ_NO, 0, 6) = ?
+                    )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , DECODE( ?
+                         , ''
+                         , ''
+                         , (SELECT ? ||'-'|| TRIM(TO_CHAR( DECODE( MAX(SUBSTR(CEF_NO, 6, 8)), NULL, '0001', MAX(SUBSTR(CEF_NO, 6,8))+1 ), '0000'))
+                              FROM T_AC_CEFBOOK
+                             WHERE SUBSTR(CEF_NO, 0, 4) = ?
+                            )
+                          )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 정보를 수정 한다. -->
+    <sql name="TAXA250_UPT">
+        <description>증명서발급 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_AC_CEFBOOK
+             SET     CEF_SEC        = ?,       -- 신청서종류
+                     CEF_RSN        = ?,       -- 용도
+                     CEF_CNT        = ?,       -- 매수
+                     SPL_YMD        = ?,       -- 발급일자
+                     CEF_NO         = DECODE(?, '', ''
+                                              ,( SELECT  ? ||'-'|| TRIM(TO_CHAR( DECODE( MAX(SUBSTR(CEF_NO, 6, 8)), NULL, '0001', MAX(SUBSTR(CEF_NO, 6,8))+1 ), '0000'))
+                                                 FROM    T_AC_CEFBOOK
+                                                 WHERE   SUBSTR(CEF_NO, 0, 4) = ?)
+                                      ),       -- 발급번호
+                     CEF_STS        = ?,       -- 상태
+                     CEF_YY         = ?,
+                     PRT_YMD        = ?,       -- 첨부문서출력일
+                     REMARK         = ?,       -- 비고
+                     UPT_MAN        = ?,       -- 최종 수정자
+                     UPT_YMD        = sysdate  -- 최종 수정일자
+             WHERE   REQ_NO         = ?        -- 신청일자
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 일자를 수정한다. -->
+    <sql name="TAXA250_UPT_PRT">
+        <description>증명서발급 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_AC_CEFBOOK
+               SET PRT_YMD      = TO_CHAR(SYSDATE, 'YYYYMMDD')  -- 첨부문서출력일
+                 , UPT_MAN      = ?                             -- 최종 수정자
+                 , UPT_YMD      = SYSDATE                       -- 최종 수정일자
+             WHERE REQ_NO       = ?                             -- 신청일자
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신청서 정보를 삭제 한다. -->
+    <sql name="TAXA250_DEL">
+        <description>신청서 정보 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE
+             FROM    T_AC_CEFBOOK
+             WHERE   REQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : TAXA260
+* @description : 각종증명서발급
+***********************************************************************
+* 2007/01/16      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 증명서발급 대상자 정보를 등록한다.(임시 테이블) -->
+    <sql name="TAXA260_INS_SHR">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT B.ENO_NO
+                 , B.ENO_NM
+              FROM T_ID_CEFBOOK_TEMP A
+                 , T_CM_PERSON B
+             WHERE A.ENO_NO = B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 대상자 정보를 등록한다.(임시 테이블) -->
+    <sql name="TAXA260_INS_TEMP">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_ID_CEFBOOK_TEMP
+                 ( SES_NO
+                 , REQ_NO
+                 , ENO_NO )
+          VALUES ( ?
+                 , ?
+                 , ? )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 대상자 정보를 삭제한다.(임시 테이블) -->
+    <sql name="TAXA260_DEL_TEMP">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+            DELETE
+              FROM T_ID_CEFBOOK_TEMP
+             WHERE SES_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : TAXA270
+* @description : 증명서발급현황
+***********************************************************************
+* 2007/01/17      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 증명서발급 정보를 조회 한다. -->
+    <sql name="TAXA270_SHR">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  A.CEF_NO
+                    ,B.DPT_NM
+                    ,B.JOB_NM
+                    ,A.ENO_NO
+                    ,B.ENO_NM
+                    ,SF_GET_COMMNAME('01', 'AC', A.CEF_SEC) AS CEF_SEC
+                    ,SF_GET_COMMNAME('01', 'R4', A.CEF_RSN) AS CEF_RSN
+                    ,A.CEF_CNT
+                    ,TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SPL_YMD
+             FROM    T_AC_CEFBOOK A,
+                    ( SELECT ENO_NO, DPT_NM, JOB_NM, ENO_NM FROM VI_T_CM_PERSON2 ) B
+             WHERE  A.ENO_NO = B.ENO_NO
+             [1]
+             AND   (CEF_STS = 'E' OR CEF_STS = 'F' )
+             ORDER  BY A.CEF_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 정보를 조회 한다. -->
+    <sql name="TAXA270_SHR_PRINT">
+        <description>증명서발급 대장</description>
+        <query>
+            <![CDATA[
+             SELECT  A.CEF_NO
+                    ,B.DPT_NM
+                    ,B.JOB_NM
+                    ,A.ENO_NO
+                    ,B.ENO_NM
+                    ,SF_GET_COMMNAME('01', 'AC', A.CEF_SEC) AS CEF_SEC  --증명서 종류
+                    ,SF_GET_COMMNAME('01', 'R4', A.CEF_RSN) AS CEF_RSN  --증명서 용도
+                    ,A.CEF_CNT    --증명서 매수
+                    ,TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SPL_YMD
+                    ,A.CEF_STS
+                    ,TO_CHAR(TO_DATE((SELECT Max(SPL_YMD) FROM T_AC_CEFBOOK WHERE  REQ_NO = C.REQ_NO  AND   C.SES_NO = ?),'YYYYMMDD'),'YYYY/MM/DD') AS MAX_YMD
+             FROM    T_AC_CEFBOOK A,
+                    ( SELECT ENO_NO, DPT_NM, JOB_NM, ENO_NM FROM VI_T_CM_PERSON2 ) B,
+                     T_ID_CEFBOOK_TEMP C
+             WHERE  A.ENO_NO = B.ENO_NO
+--             AND   (CEF_STS = 'E' OR CEF_STS = 'F' )
+             AND   A.REQ_NO = C.REQ_NO AND A.ENO_NO = C.ENO_NO
+             AND   C.SES_NO = ?
+             ORDER  BY A.CEF_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : taxa280
+* @description : 원천세,법인세/소득원천세지급현황
+***********************************************************************
+* 2012/01/30      이동훈        최초작성.
+***********************************************************************
+-->
+    <!-- 기타소득/조정납부액관리 조회 -->
+    <sql name="TAXA280_SHR">
+        <description>원천세,법인세/소득원천세지급현황 조회</description>
+        <query>
+            <![CDATA[
+
+		    SELECT
+		    A.ENO_NO, A.ENO_NM, ?||'-'||? AS PIS_YM,
+		    A.DPT_CD,SF_GET_DPTNAME('01','A4',A.DPT_CD) AS DPT_NM,
+		    A.JOB_CD,SF_GET_COMMNAME('01','A2',A.JOB_CD)AS JOB_NM,
+		    B.TAX_DPT,SF_GET_DPTNAMEDH(A.GUBUN, 'AD', B.TAX_DPT) AS REG_NM,
+		    H.GP35000, H.BP35000, H.GP24000, H.BP24000,
+			COALESCE((B.SALT_AMT-H.BP24000-H.BP35000),0) AS PAY_SUM,
+		    B.ETC_AMT,
+		    B.ETC_AMT3,
+		    B.SALT_AMT,
+		    B.INCM_TAX,
+		    B.CITI_TAX,
+		    B.OTHD_AMT,
+		    B.DDTT_AMT,
+		    B.PAY_AMT
+		    FROM T_CM_PERSON A, T_CP_PAYMASTER B
+		    LEFT JOIN (
+		    SELECT G.ENO_NO, G.PIS_YY, G.PIS_MM, G.SAL_GBN,
+		    CASE WHEN G.ETC_AMT3 > 100000 THEN  (G.ETC_AMT3 - 100000) ELSE 0 END GP35000 ,  --과세식대 , 10만원보다 크면 -10만원한 것이 과세 , 작으면 0이 과세
+		    CASE WHEN G.ETC_AMT3 >= 100000 THEN  100000 ELSE G.ETC_AMT3 END BP35000 ,       --비과세식대 10만원>= 10= 비과세, 더 작으면 식대가 비과세
+		    CASE WHEN G.ETC_AMT > 200000 THEN  (G.ETC_AMT - 200000) ELSE 0 END GP24000 ,  --과세차량 , 20> -20만원=  과세 , 작으면 0이 과세
+		    CASE WHEN G.ETC_AMT >= 200000 THEN  200000 ELSE G.ETC_AMT END BP24000         --비과세차량, 20>= 20만원 비과세, < 차량이가 비과세
+		    FROM T_CP_PAYMASTER G)H ON H.PIS_YY = ? AND H.PIS_MM = ? AND H.SAL_GBN = ? AND H.ENO_NO = B.ENO_NO
+		    WHERE A.ENO_NO = B.ENO_NO
+		    AND B.PIS_YY = ?
+		    AND B.PIS_MM = ?
+		    AND B.SAL_GBN = ?		    
+		   ORDER BY A.JOB_CD
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기타소득/조정납부액관리 조회  전직원-->
+    <sql name="TAXA280_SHR_PRINT">
+        <description>원천세,법인세/소득원천세지급현황 조회</description>
+        <query>
+            <![CDATA[
+
+		    SELECT
+		    ? AS PIS_YY,? AS PIS_MM, COUNT(A.ENO_NO) AS COUNTR, TO_CHAR(SYSDATE, 'YYYYMMDD') AS TODATEE,
+			 SUM(H.GP35000) GP35000,
+			 SUM(H.BP35000) BP35000,
+			 SUM(H.GP24000) GP24000,
+			 SUM(H.BP24000) BP24000,
+			 SUM(COALESCE((B.SALT_AMT-H.BP24000-H.BP35000),0)) AS PAY_SUM,
+			 SUM(B.SALT_AMT) SALT_AMT,
+			 SUM(B.INCM_TAX) INCM_TAX,
+			 SUM(B.CITI_TAX) CITI_TAX,
+			 SUM(B.DDTT_AMT) DDTT_AMT,
+			 SUM(B.PAY_AMT) PAY_AMT
+		    FROM T_CM_PERSON A, T_CP_PAYMASTER B
+		    LEFT JOIN (
+		    SELECT G.ENO_NO, G.PIS_YY, G.PIS_MM, G.SAL_GBN,
+		    CASE WHEN G.ETC_AMT3 > 100000 THEN  (G.ETC_AMT3 - 100000) ELSE 0 END GP35000 ,
+		    CASE WHEN G.ETC_AMT3 >= 100000 THEN  100000 ELSE G.ETC_AMT3 END BP35000 ,
+		    CASE WHEN G.ETC_AMT > 200000 THEN  (G.ETC_AMT - 200000) ELSE 0 END GP24000 ,
+		    CASE WHEN G.ETC_AMT >= 200000 THEN  200000 ELSE G.ETC_AMT END BP24000
+		    FROM T_CP_PAYMASTER G)H ON H.PIS_YY = ? AND H.PIS_MM = ? AND H.SAL_GBN = ? AND H.ENO_NO = B.ENO_NO
+		    WHERE A.ENO_NO = B.ENO_NO
+		    AND B.PIS_YY = ?
+		    AND B.PIS_MM = ?
+		    AND B.SAL_GBN = ?	
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기타소득/조정납부액관리 조회 임원(본사)-->
+    <sql name="TAXA280_SHR_PRINT1">
+        <description>원천세,법인세/소득원천세지급현황 조회</description>
+        <query>
+            <![CDATA[
+
+		    SELECT
+		    ? AS PIS_YY,? AS PIS_MM, COUNT(A.ENO_NO) AS COUNTR, TO_CHAR(SYSDATE, 'YYYYMMDD') AS TODATEE,
+			 SUM(H.GP35000) GP35000,
+			 SUM(H.BP35000) BP35000,
+			 SUM(H.GP24000) GP24000,
+			 SUM(H.BP24000) BP24000,
+			 SUM(COALESCE((B.SALT_AMT-H.BP24000-H.BP35000),0)) AS PAY_SUM,
+			 SUM(B.SALT_AMT) SALT_AMT,
+			 SUM(B.INCM_TAX) INCM_TAX,
+			 SUM(B.CITI_TAX) CITI_TAX,
+			 SUM(B.DDTT_AMT) DDTT_AMT,
+			 SUM(B.PAY_AMT) PAY_AMT
+		    FROM T_CM_PERSON A, T_CP_PAYMASTER B
+		    LEFT JOIN (
+		    SELECT G.ENO_NO, G.PIS_YY, G.PIS_MM, G.SAL_GBN,
+		    CASE WHEN G.ETC_AMT3 > 100000 THEN  (G.ETC_AMT3 - 100000) ELSE 0 END GP35000 ,
+		    CASE WHEN G.ETC_AMT3 >= 100000 THEN  100000 ELSE G.ETC_AMT3 END BP35000 ,
+		    CASE WHEN G.ETC_AMT > 200000 THEN  (G.ETC_AMT - 200000) ELSE 0 END GP24000 ,
+		    CASE WHEN G.ETC_AMT >= 200000 THEN  200000 ELSE G.ETC_AMT END BP24000
+		    FROM T_CP_PAYMASTER G)H ON H.PIS_YY = ? AND H.PIS_MM = ? AND H.SAL_GBN = ? AND H.ENO_NO = B.ENO_NO
+		    WHERE A.ENO_NO = B.ENO_NO
+		    AND A.JOB_CD IN ('000','020','040','100','820','840','920')
+		    AND B.PIS_YY = ?
+		    AND B.PIS_MM = ?
+		    AND B.SAL_GBN = ?	
+
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 기타소득/조정납부액관리 조회 각 회계소속별로-->
+    <sql name="TAXA280_SHR_PRINT2">
+        <description>원천세,법인세/소득원천세지급현황 조회</description>
+        <query>
+            <![CDATA[
+
+		    SELECT
+			 ? AS PIS_YY,? AS PIS_MM, COUNT(A.ENO_NO) AS COUNTR,
+			 B.SORT,B.TAX_DPT,SF_GET_DPTNAMEDH('01','AD',B.TAX_DPT) AS DPT_NM,
+			 SUM(H.GP35000) GP35000,
+			 SUM(H.BP35000) BP35000,
+			 SUM(H.GP24000) GP24000,
+			 SUM(H.BP24000) BP24000,
+			 SUM(COALESCE((B.SALT_AMT-H.BP24000-H.BP35000),0)) AS PAY_SUM,
+			 SUM(B.SALT_AMT) SALT_AMT,
+			 SUM(B.INCM_TAX) INCM_TAX,
+			 SUM(B.CITI_TAX) CITI_TAX,
+			 SUM(B.DDTT_AMT) DDTT_AMT,
+			 SUM(B.PAY_AMT) PAY_AMT
+		    FROM T_CM_PERSON A, T_CP_PAYMASTER B
+		    LEFT JOIN (
+		    SELECT G.ENO_NO, G.PIS_YY, G.PIS_MM, G.SAL_GBN,
+		    CASE WHEN G.ETC_AMT3 > 100000 THEN  (G.ETC_AMT3 - 100000) ELSE 0 END GP35000 ,
+		    CASE WHEN G.ETC_AMT3 >= 100000 THEN  100000 ELSE G.ETC_AMT3 END BP35000 ,
+		    CASE WHEN G.ETC_AMT > 200000 THEN  (G.ETC_AMT - 200000) ELSE 0 END GP24000 ,
+		    CASE WHEN G.ETC_AMT >= 200000 THEN  200000 ELSE G.ETC_AMT END BP24000
+		    FROM T_CP_PAYMASTER G) H
+		    ON H.PIS_YY = ? AND H.PIS_MM = ? AND H.SAL_GBN = ? AND H.ENO_NO = B.ENO_NO
+		    WHERE A.ENO_NO = B.ENO_NO
+		    AND A.JOB_CD NOT IN ('000','020','040', '100','820','840','920')
+		    AND B.PIS_YY = ?
+		    AND B.PIS_MM = ?
+		    AND B.SAL_GBN = ?			    
+ 			GROUP BY B.SORT,B.TAX_DPT
+			ORDER BY B.SORT
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

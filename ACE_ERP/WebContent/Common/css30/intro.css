@@ -1,0 +1,73 @@
+@charset "euc-kr";
+/* ÀüÃ¼°øÅë
+ . class, # id 
+	±âº»ÆùÆ®´Â µ¸¿ò, ÀÎÇ²Àº ¹ÙÅÁ
+ */
+
+
+
+/* BASE SET */
+body { background-color:#FFFFFF; color:#444444; font:normal 12px/1.45 'µ¸¿ò',Dotum,'±¼¸²',Gulim,AppleGothic,Sans-serif; cursor:default; margin:0px; text-align:center; }
+a { text-decoration:none; color:#444444; }
+a:hover, a:active { text-decoration:underline; }
+td { font:normal 12px/1.45 'µ¸¿ò',Dotum,'±¼¸²',Gulim,AppleGothic,Sans-serif; }
+
+h1,h2,h3,h4,h5 { margin:0px; padding:0px; text-align:left; }
+form{margin:0;padding:0}
+label{cursor:pointer;color:#666;font-weight:bold;vertical-align:middle}
+label input{font-weight:normal}
+textarea,.inputtext,.inputpassword{border:1px solid #bdc7d8;font-family:"lucida grande",tahoma,verdana,arial,sans-serif;font-size: 11px;padding:3px;-webkit-appearance:none;-webkit-border-radius:0}
+input,button { margin:0px; padding:0px; text-align:left; }
+input {font:normal 14px/1.45 '¹ÙÅÁ'; }
+ul,li,ol { margin:0px; padding:0px; list-style:none; text-align:left; }
+dl,dt,dd { margin:0px; padding:0px; text-align:left; }
+img { border:0px; }
+.inputtext,.inputpassword{margin:0;padding-bottom:4px; height:28px; font:normal 14px/1.45 '³ª´® °íµñ'}
+.inputtext,.inputpassword{border-color:#1d2a5b;margin:0;width:140px}
+
+.inputtext_m,.inputpassword_m{margin:0;padding-bottom:4px; height:80px; font:normal 20px/1.45 '³ª´® °íµñ'}
+.inputtext_m,.inputpassword_m{border-color:#1d2a5b;margin:0;width:500px}
+
+.inputradio{padding:0;margin:0 5px 0 0;vertical-align:middle}
+.inputcheckbox{border:0;vertical-align:middle}
+.inputbutton,.inputsubmit{border-style:solid;border-width:1px;border-color:#d9dfea #0e1f5b #0e1f5b #d9dfea;background-color:#3b5998;color:#fff;padding:2px 15px 3px 15px;text-align:center}
+.lfloat{float:left}
+.rfloat{float:right}
+
+
+
+
+
+
+
+
+ .html7magic label{color:#fff;padding-left:1px}
+ label{color:#98a9ca;font-weight:normal;margin:0}
+ 
+ .html7magic_m label{color:#fff;padding-left:10px}
+ label{color:#98a9ca;font-weight:900;margin:0}
+ 
+ 
+ .login_form_label_field{padding-bottom:3px;padding-top:1px;vertical-align:bottom}
+ .login_form_label_field input{position:relative;top:1px;vertical-align:bottom}
+ .inputcheckbox{margin-left:0}
+ label,.login_form_label_field a{position:relative;top:-2px;vertical-align:bottom}
+ #txt_id{direction:ltr}
+
+a{color:#98a9ca}
+a:hover{color:#98a9ca}
+
+
+
+
+
+.uiButton{background-image:url(https://s-static.ak.facebook.com/rsrc.php/v1/yf/r/_IKHHfAgFQe.png);background-repeat:no-repeat;background-position:0 -49px;background-color:#eee;border:1px solid #999;border-bottom-color:#888;-webkit-box-shadow:0 1px 0 rgba(0, 0, 0, .1);cursor:pointer;display:-moz-inline-box;display:inline-block;font-size: 11px;font-weight:bold;line-height:normal !important;padding:2px 6px;text-align:center;text-decoration:none;vertical-align:top;white-space:nowrap}
+.uiButton{margin-left:4px;margin-top:5px}
+.uiButton:hover{text-decoration:none}
+.uiButton:active,.uiButtonDepressed{background:#ddd;border-bottom-color:#999;-webkit-box-shadow:0 1px 0 rgba(0, 0, 0, .05)}
+
+
+.uiButton .uiButtonText,.uiButton input{background:none;border:0;color:#fff;cursor:pointer;display:-moz-inline-box;display:inline-block;font-family:'Lucida Grande', Tahoma, Verdana, Arial, sans-serif;font-size: 12px;font-weight:bold;margin:0;outline:none;padding:1px 0 2px;white-space:nowrap}
+
+.uiButtonConfirm{background-image:url(https://s-static.ak.facebook.com/rsrc.php/v1/yf/r/_IKHHfAgFQe.png);background-repeat:no-repeat;background-position:0 -98px;background-color:#5b74a8;border-color:#29447e #29447e #1a356e}
+.uiButtonConfirm:active{background:#4f6aa3;border-bottom-color:#29447e}

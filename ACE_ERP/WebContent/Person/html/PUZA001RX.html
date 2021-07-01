@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<title>코드정보</title>
+  <HEAD>
+    <META http-equiv=Content-Type content="text/html; charset=ks_c_5601-1987">
+    <META content="MSHTML 6.00.2800.1106" name=GENERATOR>
+
+<script language="JavaScript">
+
+function prompt_start()
+{
+ 	var code1,code2;
+    var Is_Param = window.dialogArguments;
+	code1 = Is_Param[0];
+ 	code2 = Is_Param[1];
+    //데이타가 조회되는동안 모래시계 동작.
+	document.body.style.cursor = "wait";
+	ADE_Data_1.DataId= "http://was.kctc.co.kr/services/servlet/CLSEMP.Jaza002r?gstr1=" + code1+ "&gstr2=" + code2;	
+	ADE_Data_1.Reset();
+}
+function exit()
+   {
+	window.close();
+   }
+</script>
+	
+<!--그리드를 더불클릭했을경우에 나타나는 이벤트  -->
+<script language="JavaScript" for="ADE_Grid_1" event="OnDblClick(row, colid)">
+	var endList = new Array()
+	var Row = ADE_Data_1.RowPosition;
+	endList[0] = ADE_Data_1.NameString(Row, "ZA01AC");
+	endList[1] = ADE_Data_1.NameString(Row, "ZA01AD");
+	endList[2] = ADE_Data_1.NameString(Row, "ZA01AE");
+	endList[3] = ADE_Data_1.NameString(Row, "ZA01AF");
+	endList[4] = ADE_Data_1.NameString(Row, "ZA01AG");
+	endList[5] = ADE_Data_1.NameString(Row, "ZA01AH");
+	window.returnValue = endList;
+	window.close();
+</SCRIPT>
+
+<!--컴포넌트 이벤트 구현 부분-->
+<SCRIPT language=JavaScript event=OnLoadCompleted(rowcount) FOR=ADE_Data_1 >
+	document.body.style.cursor = "default";	
+	//윈도위 상태바에 데이타건수 뿌려줌
+	window.status= "(" + ADE_Data_1.countrow + ")건의 데이타가 검색 되었습니다."
+</SCRIPT>
+
+<comment id="__NSID__"><OBJECT id=ADE_Data_1 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+
+
+</HEAD>
+
+<body scroll ="auto" onload ="prompt_start()" background="../img/bgimg.gif">
+
+<table class="table1" cellpadding=0 cellspacing=0  style="
+			border-width:1px; position:relative; top:2px; left:8px; width:370px;">
+  <TR>
+  	<TD width="60"></TD>
+  	<TD WIDTH="310px" align="RIGHT">
+	   <IMG SRC="../img/kctc_cancel.jpg"  BORDER="0" ALT="" onclick="exit()"></TD>
+  </TR>
+  <TR>
+  	<TD colspan = "2" ><comment id="__NSID__"><OBJECT id=ADE_Grid_1 
+	      classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 VIEWASTEXT style="Z-INDEX: 100; LEFT: 238px; WIDTH:370px; HEIGHT:370px">
+		 <param name=dataid value=ADE_Data_1>
+		<param name=indwidth        value=0>
+		<param name=fillarea        value=true>
+		<param name=titleheight     value=25>
+		<param name=rowheight       value=20>
+		<param name=headlinecolor   value=#999999>
+		<param name=linecolor       value=>
+		<param name=fontname        value=굴림>
+		<param name=fontsize        value=9>
+		<param name=Editable        value=true>
+		<PARAM NAME=colsizing       VALUE=true>
+        <PARAM NAME="Format" VALUE=" 
+          <C> Name=구분  코드 ID=ZA01AC HeadAlign=Center WIDTH=60 </C> 
+          <C> Name=코드한글명 ID=ZA01AD HeadAlign=Center WIDTH=310</C>">
+         </OBJECT></comment><script>__ws__(__NSID__);</script></TD>
+  	</TR>
+	<tr>
+	   <td height="24"  bgcolor="#D9E3FF" align="center" width="60" style="font:12">
+			조회건수</td>
+		<td  width="310" style="border:solid; border-width:1px;" > 
+				<INPUT id=Txt1_CNT size=5 disabled ></td> 
+	</tr>
+  </TABLE>
+</BODY>
+</HTML>

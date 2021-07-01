@@ -1,0 +1,11 @@
+	body {font-size:9pt; font-family:±¼¸²;}
+
+	.hand {cursor:hand}
+	
+	.808080_input {color: #808080; border: 1px solid #808080; font-size: 9pt;}
+	
+	.table_form {background-color:threedface; padding:1px; color:menutext; border-width:1px; border-style:solid; border-color:threedhighlight threedshadow threedshadow threedhighlight;}
+	
+	.bt_btn_over {cursor:hand; border: 1px solid #0A246A; background-color: #B6BDD2}
+	.bt_btn_out {cursor:hand; border: 1px solid threedface;}
+	.bt_btn_click {cursor:hand; border: 1px solid #0A246A; background-color: #D4D5D8}

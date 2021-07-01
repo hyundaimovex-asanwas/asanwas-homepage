@@ -1,0 +1,196 @@
+<!--
+	Copyright 2005 HMM Co, Ltd. All Rights Reserved.
+	Programmed by dongilseo, 2005.10.10
+-->
+
+
+
+
+
+
+
+
+<html>
+<head>
+<title>2006년 근로소득공제 신용카드 등 공제 상세 입력</title>
+<link rel="stylesheet" href="imgs/css_ehr.css" type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<script language="JavaScript" src="imgs/web.js"></script>
+<script language="JavaScript" src="imgs/06YearEntryCad.js"></script>
+<script language="JavaScript">
+<!--
+//-->
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" onLoad="getValue(document.entry, '1')";>
+<form name="entry" method="post" action="">
+	<input type="hidden" name="eyy" value="2006">
+	<input type="hidden" name="emm" value="12">
+	<input type="hidden" name="egb" value="0">
+	<input type="hidden" name="gb1" value="L">
+	<input type="hidden" name="eno" value="200089">
+	<input type="hidden" name="cgq" value="1">
+	<input type="hidden" name="mod" value="IPT">
+
+	<!-- 인적사항 및 공제항목 -->
+	<table width="820" border="0" cellspacing="1" cellpadding="3">
+		<tr bgcolor="#FFFFFF">
+			<td colspan="12" height="85">
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+					<tr>
+						<td colspan="2"><b>※ 신용/직불/선불카드</b></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#FF6633">1. 공제 가능 (연간 총소득 100만원 이하자)</font></b></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><font color="#FF6633">&nbsp;&nbsp;&nbsp;&nbsp;- 배우자, 직계존속, 직계비속이 사용한 신용카드 등 총 사용금액중 "공제제외대상액"을 차감한 금액
+						</font></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#3366FF">2. 공제 불가능 (연간 총소득 100만원 초과자)</font></b></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp;- 카드로 지급한 의료비 중 소득공제 혜택을 받은 부분에 대해서만 중복 공제 불가능함 (2006년까지는 중복 공제 재허용됨)<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- <u>형제자매가 사용한 신용카드 등 사용금액</u><br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 접대비 등 회사경비<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 해외 사용금액 등<br><br>
+						</font></td>
+					</tr>
+					<tr>
+						<td colspan="2"><b>※ 학원비 지로납부액</b></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#FF6633">1. 공제 가능 (연간 총소득 100만원 이하자)</font></b></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#FF6633">&nbsp;&nbsp;&nbsp;&nbsp;- 배우자, 직계존속, 직계비속의 학원 수강료를 "지로(Zero)용지"를 이용하여 납부한 경우
+						</font></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#3366FF">2. 공제 불가능 (연간 총소득 100만원 초과자)</font></b></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp;- <u>형제자매의 지로 납부 학원 수강료</u><br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 배우자, 직계존속, 직계비속의 학원 수강료를 카드 납부 및 무통장입금한 경우 등<br><br>
+						</font></td>
+					</tr>
+					<tr>
+						<td colspan="2"><b>※ 현금영수증 사용액</b></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#FF6633">1. 공제 가능 (연간 총소득 100만원 이하자)</font></b></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#FF6633">&nbsp;&nbsp;&nbsp;&nbsp;- 국세청 "현금영수증 홈페이지(www.taxsave.go.kr)"에 회원가입한 자<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 배우자, 직계존속, 직계비속이 사용한 현금영수증 총 사용금액중 "공제제외대상액"을 차감한 금액
+						</font></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#3366FF">2. 공제 불가능 (연간 총소득 100만원 초과자)</font></b></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp;- 현금영수증 소득공제 적용으로 지급한 의료비 중 소득공제 혜택을 받은 부분에 대해서만 중복 공제 불가능함 (2006년까지는 중복 공제 재허용됨)<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- <u>형제자매가 사용한 현금영수증 사용금액</u><br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 접대비 등 회사경비<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 해외 사용금액 등
+						</font></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td align="right"><a href="javascript:checkForm(document.entry, '1');"><img src="imgs/btn_save.gif" border="0"></a> </td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+
+	<table width="820" bgcolor="#666666" border="0" cellspacing="1" cellpadding="3">
+		<tr align="center" bgcolor="#FFFFFF">
+			<td colspan="2" bgcolor="#ffedd2">근 로 소 득 자</td>
+			<td colspan="3" bgcolor="#ffedd2">공 제 신 청 자 (= 사 용 자)</td>
+			<td colspan="4" bgcolor="#ffedd2">금 액</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td bgcolor="#fff8ee" width="65">이 름</td>
+			<td bgcolor="#fff8ee" width="90">주민등록번호</td>
+			<td bgcolor="#fff8ee" width="66">이 름</td>
+			<td bgcolor="#fff8ee" width="90">관 계</td>
+			<td bgcolor="#fff8ee" width="">주민등록번호</td>
+			<td bgcolor="#fff8ee" width="65">자료 구분</td>
+			<td bgcolor="#fff8ee" width="85">신용카드</td>
+			<td bgcolor="#fff8ee" width="85">학원비지로납부</td>
+			<td bgcolor="#fff8ee" width="85">현금영수증</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pyhhnm" value="" class="input02" size="10" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pyhcgq" value="0" class="input02" readonly>
+				<input type="hidden" name="pyhcg1" value="" class="input02" readonly>
+				<input type="hidden" name="pyhcgc" value="" class="input02" readonly>
+				<input type="text" name="pyhcg1hnm" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pyhju1" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pyhju2" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pyhca1" value="0" class="input03" size="10" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this); alert('연간 사용금액 확인서상 [공제대상금액 (의료비+기타의사용액)] 을 기재바랍니다.');" onKeyup="addComma(this);calculatePyhcadtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyhha1" value="0" class="input03" size="10" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this); alert('지로납부영수증 또는 학원장이 발급하는 학원 수강료 지로 납부 확인서상의 금액을 기재바랍니다.');" onKeyup="addComma(this);calculatePyhcadtot(document.entry, '2');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyhma1" value="0" class="input03" size="10" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this); alert('연간 사용금액 확인서상 [공제대상금액 (의료비+기타의사용액)] 을 기재바랍니다.');" onKeyup="addComma(this);calculatePyhcadtot(document.entry, '3');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pyhca2" value="0" class="input01" size="10" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this); alert('연간 사용금액 확인서상 [공제대상금액 (의료비+기타의사용액)] 을 기재바랍니다.');" onKeyup="addComma(this);calculatePyhcadtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyhha2" value="0" class="input01" size="10" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this); alert('지로납부영수증 또는 학원장이 발급하는 학원 수강료 지로 납부 확인서상의 금액을 기재바랍니다.');" onKeyup="addComma(this);calculatePyhcadtot(document.entry, '2');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td colspan="6" bgcolor="#fff8ee">합 계
+				<input type="hidden" name="pyhcaktot" value="0">
+				<input type="hidden" name="pyhcaetot" value="0">
+			</td>
+			<td>
+				<input type="text" name="pyhcadtot" value="0" class="input02" size="10" style="text-align:right;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyhhadtot" value="0" class="input02" size="10" style="text-align:right;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyhmadtot" value="0" class="input02" size="10" style="text-align:right;" readonly>
+			</td>
+		</tr>
+	</table>
+	<div id="tipbox" style="position:absolute; top:0; left:0; border:black solid 1; background-color:infobackground; font-size:9pt; visibility:hidden;"></div>
+
+</form>
+</body>
+</html>

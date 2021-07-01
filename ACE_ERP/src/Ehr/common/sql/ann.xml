@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!--
+***********************************************************************
+* @UseCase     : ANNA010
+* @description : 개인연금관리
+***********************************************************************
+* 2007/03/06     조정호       최초작성
+***********************************************************************
+-->
+    <!-- 선택 직원의 정보를 조회 한다. -->
+    <sql name="ANNA010_SHR_EMP">
+        <description>선택 직원의 정보  조회</description>
+        <query>
+            <![CDATA[
+     SELECT ENO_NO
+           ,ENO_NM
+           ,SF_GET_DPTNAME('01', 'A4', DPT_CD)                   AS DPT_NM      -- 소속
+           ,SF_GET_COMMNAME('01', 'A2', JOB_CD)                   AS JOB_NM      -- 직위
+           ,CET_NO
+           ,TO_CHAR(HIRG_YMD, 'YYYY-MM-DD') AS HIRG_YMD
+           ,SF_GET_COMMNAME(GUBUN, 'A1', OCC_CD) AS OCC_NM
+           ,NVL((SELECT SUM(SUM_SAV)
+                   FROM T_SV_SAVELIST SAVE
+                  WHERE SAVE.ENO_NO = PERSON.ENO_NO
+                ), 0) AS TOTAL_SAV
+       FROM T_CM_PERSON PERSON
+	         WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 선택한 직원의 개인연금 내역을 가져온다. -->
+    <sql name="ANNA010_SHR">
+        <description>개인연금 내역  조회</description>
+        <query>
+            <![CDATA[
+             SELECT BNK_CD
+             		, SAV_CD
+                   ,SF_GET_COMMNAME('01', 'V1', SAV_CD) AS SAV_NM
+                   ,SAV_CD2
+                   ,SF_GET_COMMNAME('01', 'V2', SAV_CD2) AS SAV_NM2
+                   ,(SELECT SUM(PYM_AMT)
+                       FROM T_SV_SAVEBOOK
+                      WHERE ENO_NO = SAVE.ENO_NO) AS PYM_AMT
+                   ,TO_CHAR(TO_DATE(CON_YMD), 'YYYY-MM-DD') AS CON_YMD
+                   ,TO_CHAR(TO_DATE(DUE_YMD), 'YYYY-MM-DD') AS DUE_YMD
+                   ,CONM_AMT
+                   ,DSC_PCT
+                   ,DSC_AMT
+                   ,WOL_AMT
+                   ,OTHP_AMT
+                   ,OTH_AMT
+                   ,SUM_SAV
+                   ,SUMP_CNT
+                   ,(SELECT MAX(DED_YM)
+			                FROM T_SV_SAVEBOOK
+			               WHERE ENO_NO = SAVE.ENO_NO) AS FAPP_YMD
+                   ,CAN_TAG
+                   ,TO_CHAR(TO_DATE(CAN_YMD), 'YYYY-MM-DD') AS CAN_YMD
+                   ,ACC_NO
+               FROM T_SV_SAVELIST SAVE
+              WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 선택한 직원의 개인연금 내역을 등록 -->
+    <sql name="ANNA010_INS">
+        <description>개인연금 내역  등록</description>
+        <query>
+            <![CDATA[
+             INSERT
+               INTO T_SV_SAVELIST
+                    (ENO_NO
+                    ,BNK_CD
+                    ,PIN_MTH
+                    ,SAV_CD
+                    ,SAV_CD2
+                    ,CON_YMD
+                    ,DUE_YMD
+                    ,CONM_AMT
+                    ,DSC_PCT
+                    ,DSC_AMT
+                    ,WOL_AMT
+                    ,OTHP_AMT
+                    ,OTH_AMT
+                    ,SUM_SAV
+                    ,SUMP_CNT
+                    ,FAPP_YMD
+                    ,CAN_TAG
+                    ,CAN_YMD
+                    ,ACC_NO
+                    ,IPT_MAN
+                    ,UPT_MAN
+                    ,IPT_YMD
+                    ,UPT_YMD)
+             VALUES (?
+                    ,(SELECT EXT_01 FROM T_CM_COMMON WHERE  GUBUN = '01' AND CD_GBN = 'V2' AND COMM_CD=?)
+                    ,'0'
+                    ,'10'
+                    ,?
+                    ,TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                    ,TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                    ,'123-456-789'
+                    ,?
+                    ,?
+                    ,SYSDATE
+                    ,SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 선택한 직원의 개인연금 내역을 수정 -->
+    <sql name="ANNA010_UPT">
+        <description>개인연금 내역  수정</description>
+        <query>
+            <![CDATA[
+			 UPDATE T_SV_SAVELIST
+			    SET CAN_TAG     = ?
+			       ,CAN_YMD     = TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+			       ,DUE_YMD     = TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+			       ,CONM_AMT     = ?
+			       ,DSC_PCT     = ?
+			       ,DSC_AMT     = ?
+			       ,WOL_AMT     = ?
+			       ,OTHP_AMT     = ?
+			       ,OTH_AMT     = ?
+			       ,UPT_MAN     = ?
+			       ,UPT_YMD     = SYSDATE
+			  WHERE ENO_NO      = ?
+			    AND ACC_NO      = ?
+			    AND SAV_CD2      = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 선택한 직원의 개인연금 내역을 삭제 -->
+    <sql name="ANNA010_DEL">
+        <description>개인연금 내역  삭제</description>
+        <query>
+            <![CDATA[
+		    DELETE
+		      FROM T_SV_SAVELIST
+		     WHERE ENO_NO = ?
+		       AND BNK_CD = ?
+		       AND ACC_NO = ?
+		       AND SAV_CD2 = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : ANNA011
+* @description : 개인연금관리 (팝업)
+***********************************************************************
+* 2007/03/07     조정호       최초작성
+***********************************************************************
+-->
+    <!-- 선택 직원의 정보를 조회 한다. -->
+    <sql name="ANNA011_SHR_EMP">
+        <description>선택 직원의 정보  조회</description>
+        <query>
+            <![CDATA[
+	        SELECT PERSON.ENO_NO
+	             , ENO_NM
+	             , DPT_NM
+	             , JOB_NM
+	             , CET_NO
+	             , TO_CHAR(HIRG_YMD, 'YYYY-MM-DD')     AS HIRG_YMD
+	             , PERSON.OCC_NM
+	             , SAVE.ACC_NO
+	             , SF_GET_COMMNAME('01', 'BT', BNK_CD) AS BNK_NM
+	             , SF_GET_COMMNAME('01', 'V1', SAV_CD) AS SAV_NM
+	             , SF_GET_COMMNAME('01', 'V2', SAV_CD2)AS SAV_NM2
+	          FROM VI_T_CM_PERSON2  PERSON
+	             , T_SV_SAVELIST   SAVE
+			 WHERE PERSON.ENO_NO = ?
+			   AND SAVE.ACC_NO   = ?
+			   AND SAVE.SAV_CD2 = ?
+			   AND PERSON.ENO_NO = SAVE.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 선택한 직원의 개인연금 내역을 가져온다. -->
+    <sql name="ANNA011_SHR">
+        <description>개인연금 내역  조회</description>
+        <query>
+            <![CDATA[
+	        SELECT DECODE(LENGTH(A.DED_YM), 6, SUBSTR(A.DED_YM, 1, 4)||'/'||SUBSTR(A.DED_YM, 5,6), '') AS DED_YM
+	             , DECODE(A.PIN_MTH, 0, '급여공제', '') AS PIN_MTH
+	             , A.PIN_CNT
+	             , NVL((SELECT SUM(PYM_AMT)
+	                      FROM T_SV_SAVEBOOK
+	                     WHERE ENO_NO  = A.ENO_NO
+	                       AND ACC_NO  = A.ACC_NO
+	                       AND SAV_CD2 = A.SAV_CD2
+                           AND BNK_CD  = A.BNK_CD
+                           AND DED_YM <= A.DED_YM
+                        ), 0) AS TOTAL_SAV
+	             , A.PYM_AMT
+	             , A.DED_TAG
+	          FROM T_SV_SAVEBOOK A
+	         WHERE A.ENO_NO = ?
+	           AND A.ACC_NO = ?
+	           AND A.SAV_CD2 = ?
+               AND A.BNK_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : ANNA020
+* @description : 개인연금공제내역
+***********************************************************************
+* 2007/03/08     조정호       최초작성
+***********************************************************************
+-->
+    <!-- 개인연금공제내역을 조회 한다. -->
+    <sql name="ANNA020_SHR">
+        <description>개인연금공제내역을 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , A.ENO_NM
+                 , A.DPT_NM
+                 , A.JOB_NM
+                 , A.OCC_CD
+                 , A.OCC_NM
+                 , TO_CHAR(A.HIRG_YMD , 'YYYY-MM-DD') AS HIRG_YMD
+                 , TO_CHAR(A.RET_YMD  , 'YYYY-MM-DD') AS RET_YMD
+                 , B.BNK_CD
+                 , B.ACC_NO
+                 , SF_GET_COMMNAME('01', 'V1', B.SAV_CD) AS SAV_NM
+                 , SF_GET_COMMNAME('01', 'V2', B.SAV_CD2) AS SAV_NM2
+                 , NVL(B.CONM_AMT, 0) AS CONM_AMT     --불입액
+                 , NVL(B.SUM_SAV, 0)  AS SUM_SAV      --누적액
+                 , NVL(B.OTHP_AMT, 0) AS OTHP_AMT     --기타지불액
+                 , B.CON_CNT
+                 , TO_CHAR(TO_DATE(B.CON_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS CON_YMD
+                 , TO_CHAR(TO_DATE(B.DUE_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS DUE_YMD
+                 , TO_CHAR(TO_DATE(B.CAN_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS CAN_YMD
+              FROM VI_T_CM_PERSON2 A
+                 , T_SV_SAVELIST B
+             WHERE A.ENO_NO   = B.ENO_NO
+               AND B.SAV_CD   = '10'
+               AND B.SAV_CD2  = NVL(?, B.SAV_CD2)
+               AND A.OCC_CD   = NVL(?, A.OCC_CD)
+			   AND A.RET_YMD IS NULL
+          ORDER BY A.DPT_SEQ
+                 , A.JOB_SEQ
+                 , A.HOB_SEQ DESC
+                 , A.ENO_NO
+            ]]>
+        </query>
+    </sql>
+</sqls>

@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+	<!-- 경영정보 -->
+
+	<!--
+***********************************************************************
+* @UseCase     : misb140
+* @description : 사업체근로실태조사
+***********************************************************************
+* 2007/04/12      방석호        최초작성.
+***********************************************************************
+-->
+	<sql name="MISB140_SHR">
+		<description> misb140</description>
+		<query><![CDATA[
+							SELECT
+								A.GUBUN
+								,A.ENO_NO
+								,A.JOB_SEQ
+								,A.DPT_SEQ
+								,A.ENO_NO
+								,A.OCC_NM
+								,A.JOB_NM
+								,A.DPT_NM
+								,A.ENO_NM
+								,DECODE(A.MF_TAG,'M','남','여') AS MF_NM
+								,DECODE(A.WED_YMD, NULL,'미혼','기혼') AS WED_NM
+								,TO_CHAR(A.BIR_YMD, 'YYYY/MM/DD')               AS BIR_YMD
+								,TO_CHAR(A.HIR_YMD, 'YYYY/MM/DD')               AS HIR_YMD
+								,SF_GET_COMMNAME('01','NS',A.NSO_CD) AS NSO_NM
+								,BAS_AMT, DUTY_AMT,WEL_AMT,OSE_AMT,RUN_AMT,MH_AMT,LSEV_AMT,TB3_AMT,SGF_AMT,
+								OTH_AMT, OT_AMT,
+								SALT_AMT, SANG_AMT,
+								(TO_CHAR(TO_DATE(?,'YYYY-MM-DD') - 365,'YY') || '. ' || B.PIS_MM || '월중 근무조건') AS SUB1,
+								(B.PIS_YY || '. ' || B.PIS_MM || '월 급여') AS SUB2,
+								TO_CHAR(TO_DATE(?,'YYYY-MM-DD') - 365,'YY') AS SUB3
+							FROM VI_T_CM_PERSON2 A,
+								(SELECT ENO_NO,PIS_YY,PIS_MM,
+									BAS_AMT, DUTY_AMT,WEL_AMT,OSE_AMT,RUN_AMT,MH_AMT,LSEV_AMT,TB3_AMT,SGF_AMT,
+									OTH_AMT, OT_AMT,
+									SALT_AMT
+								FROM T_CP_PAYMASTER
+								WHERE SAL_GBN = 0 AND PIS_YY = ? AND PIS_MM=?
+								) B,
+								(SELECT ENO_NO, SUM(SALT_AMT) AS SANG_AMT
+								FROM T_CP_PAYMASTER
+								WHERE SAL_GBN = 1 AND PIS_YY = TO_CHAR(TO_DATE(?,'YYYY-MM-DD') - 365,'YYYY')
+								GROUP BY ENO_NO
+								) C
+							WHERE ((RET_YMD IS NULL)  OR  (RET_YMD > ?))
+							AND A.ENO_NO = B.ENO_NO AND A.ENO_NO = C.ENO_NO AND B.ENO_NO = C.ENO_NO
+							ORDER BY  DPT_SEQ, A.JOB_SEQ
+
+            ]]>
+        </query>
+    </sql>
+
+
+	<!--
+***********************************************************************
+* @UseCase     : misb040
+* @description : 직위별 인원현황
+***********************************************************************
+* 2007/04/12      방석호        최초작성.
+***********************************************************************
+-->
+	<sql name="MISB040_SHR">
+		<description> misb040</description>
+		<query><![CDATA[
+SELECT
+A.GUBUN,A.ENO_NO,MF_NM,REG_NM,'수도권',OCC_NM,JOB_NM,DPT_NM,ENO_NM,AGE,HIR_YMD,HIRG_YMD,JPR_YMD,JAJ_YMD,TERM_YEAR,SCH_NM,MAJ_NM,GUR_YMD,GRD1_NM,(GRD1_1 || '/' || GRD1_2) AS GRD11, (GRD1_3 || '/' || GRD1_4) AS GRD12,GRD2_NM,(GRD2_1|| '/' ||GRD2_2) AS GRD21,(GRD2_3|| '/' ||GRD2_4) AS GRD22,GRD3_NM,(GRD3_1|| '/' ||GRD3_2) AS GRD31,(GRD3_3|| '/' ||GRD3_4) AS GRD32,GRD4_NM,(GRD4_1|| '/' ||GRD4_2)AS GRD41,(GRD4_3|| '/' ||GRD4_4) AS GRD42,GRD5_NM,(GRD5_1|| '/' ||GRD5_2) AS GRD51,(GRD5_3|| '/' ||GRD5_4) AS GRD52,REPLACE( H_NM,',',chr(13) || chr(10))AS H_NM ,P_NM
+,(SELECT COUNT(ENO_NO)
+            FROM   T_CM_AHISTORY
+            WHERE  APP_CD = 'LB1' AND A.ENO_NO = ENO_NO) AS MOVE_CNT
+FROM
+(
+select
+	GUBUN
+	,JOB_SEQ
+	,ENO_NO
+	,MF_NM
+	,DECODE(REG_CD,'1','본사','지방') AS REG_NM
+	,'수도권'
+	,occ_NM
+	,JOB_NM
+	,DPT_NM
+	,ENO_NM
+	,CEIL(MONTHS_BETWEEN(SYSDATE, BIR_YMD)/12)-1  AGE
+	,TO_CHAR(HIR_YMD, 'YYYY/MM/DD')               AS HIR_YMD
+	,TO_CHAR(HIRG_YMD, 'YYYY/MM/DD')               AS HIRG_YMD
+	,TO_CHAR(JPR_YMD, 'YYYY/MM/DD')               AS JPR_YMD
+	,TO_CHAR(JAJ_YMD, 'YYYY/MM/DD')         AS JAJ_YMD
+	,  (FLOOR(MONTHS_BETWEEN(SYSDATE, JAJ_YMD)/12)|| '년 ' || FLOOR(MOD(MONTHS_BETWEEN(SYSDATE, JAJ_YMD),12))||'개월')  AS TERM_YEAR
+	,SCH_NM
+	,MAJ_NM
+	,TO_CHAR(GUR_YMD, 'YYYY')         AS GUR_YMD
+from VI_T_CM_PERSON
+WHERE ((RET_YMD IS NULL)  OR  (RET_YMD > ?))
+)A ,
+(
+SELECT ENO_NO
+	   , MIN (DECODE (C_GRP, 1, YEAR_NM) || '년') AS GRD1_NM
+       , MIN (DECODE (C_GRP, 1, FINAL_GRD11)) GRD1_1
+	   , MIN (DECODE (C_GRP, 1, FINAL_GRD12)) GRD1_2
+	   , MIN (DECODE (C_GRP, 1, FINAL_GRD21)) GRD1_3
+	   , MIN (DECODE (C_GRP, 1, FINAL_GRD22)) GRD1_4
+	   , MIN (DECODE (C_GRP, 2, YEAR_NM) || '년') AS GRD2_NM
+	   , MIN (DECODE (C_GRP, 2, FINAL_GRD11)) GRD2_1
+	   , MIN (DECODE (C_GRP, 2, FINAL_GRD12)) GRD2_2
+	   , MIN (DECODE (C_GRP, 2, FINAL_GRD21)) GRD2_3
+	   , MIN (DECODE (C_GRP, 2, FINAL_GRD22)) GRD2_4
+	   , MIN (DECODE (C_GRP, 3, YEAR_NM) || '년') AS GRD3_NM
+	   , MIN (DECODE (C_GRP, 3, FINAL_GRD11)) GRD3_1
+	   , MIN (DECODE (C_GRP, 3, FINAL_GRD12)) GRD3_2
+	   , MIN (DECODE (C_GRP, 3, FINAL_GRD21)) GRD3_3
+	   , MIN (DECODE (C_GRP, 3, FINAL_GRD22)) GRD3_4
+	   , MIN (DECODE (C_GRP, 4, YEAR_NM) || '년') AS GRD4_NM
+	   , MIN (DECODE (C_GRP, 4, FINAL_GRD11)) GRD4_1
+	   , MIN (DECODE (C_GRP, 4, FINAL_GRD12)) GRD4_2
+	   , MIN (DECODE (C_GRP, 4, FINAL_GRD21)) GRD4_3
+	   , MIN (DECODE (C_GRP, 4, FINAL_GRD22)) GRD4_4
+	   , MIN (DECODE (C_GRP, 5, YEAR_NM) || '년') AS GRD5_NM
+	   , MIN (DECODE (C_GRP, 5, FINAL_GRD11)) GRD5_1
+	   , MIN (DECODE (C_GRP, 5, FINAL_GRD12)) GRD5_2
+	   , MIN (DECODE (C_GRP, 5, FINAL_GRD21)) GRD5_3
+	   , MIN (DECODE (C_GRP, 5, FINAL_GRD22)) GRD5_4
+
+FROM
+(
+		SELECT ENO_NO, YEAR_NM,
+		(CASE WHEN YEAR_NM =  EVL_YY THEN FINAL_GRD11 ELSE '' END) AS FINAL_GRD11,
+		(CASE WHEN YEAR_NM =  EVL_YY THEN FINAL_GRD12 ELSE '' END) AS FINAL_GRD12,
+		(CASE WHEN YEAR_NM =  EVL_YY THEN FINAL_GRD21 ELSE '' END) AS FINAL_GRD21,
+		(CASE WHEN YEAR_NM =  EVL_YY THEN FINAL_GRD22 ELSE '' END) AS FINAL_GRD22,
+		MOD (ROWNUM - 1, 5) + 1 C_GRP, CEIL (ROWNUM / 5) R_GRP
+		FROM		(
+				    SELECT ENO_NO,EVL_YY,                                                    -- 해당년도
+		                   FINAL_GRD11,                                               -- 역량 1회차 등급
+		                   FINAL_GRD12,                                               -- 역량 2회차 등급
+		                   FINAL_GRD21,                                               -- 업적 1회차 등급
+		                   FINAL_GRD22                                               -- 업적 2회차 등급
+		            FROM ( SELECT GUBUN, EVL_YY, ENO_NO,
+		                          MAX(DECODE(EVL_GBN, '1', DECODE(EVL_FRQ, 1, FINAL_GRD)))         AS FINAL_GRD11,
+		                          MAX(DECODE(EVL_GBN, '1', DECODE(EVL_FRQ, 2, FINAL_GRD)))         AS FINAL_GRD12,
+		                          MAX(DECODE(EVL_GBN, '2', DECODE(EVL_FRQ, 1, FINAL_GRD)))         AS FINAL_GRD21,
+		                          MAX(DECODE(EVL_GBN, '2', DECODE(EVL_FRQ, 2, FINAL_GRD)))         AS FINAL_GRD22
+		                   FROM   T_EV_ABLRST
+		                   WHERE  GUBUN   = '01'
+		                  -- AND    EVL_YY  BETWEEN '2002' AND '2007'
+		                  -- AND    ENO_NO  = '19010116'
+		                   GROUP BY GUBUN, EVL_YY, ENO_NO
+		                 )
+		            ORDER BY EVL_YY
+					) A LEFT OUTER JOIN
+
+					(SELECT (TO_CHAR(SYSDATE,'YYYY') - LEVEL) YEAR_NM FROM DUAL  CONNECT BY LEVEL <= 5 ) B
+					ON A.ENO_NO IS NOT NULL
+)
+GROUP BY R_GRP, ENO_NO
+ORDER BY R_GRP ) B,
+
+(
+SELECT
+ENO_NO, MIN(H_NM)AS H_NM, MIN(P_NM) AS P_NM
+FROM
+(
+
+	SELECT
+	ENO_NO,
+	DECODE(REPU_CD ,'H', PATH#,'') AS H_NM,
+	DECODE(REPU_CD ,'P', PATH#,'') AS P_NM
+	FROM
+	(
+
+
+		SELECT ENO_NO,REPU_CD, SUBSTR (MAX (SYS_CONNECT_BY_PATH (REPU_TNM, ',')), 2) path#
+		      FROM (SELECT ENO_NO,REPU_TNM,REPU_CD,
+		                   ROW_NUMBER () OVER (PARTITION BY ENO_NO, REPU_CD ORDER BY ENO_NO) rnum
+		              FROM ( SELECT ENO_NO, REPU_CD,
+		                   	 		(SF_GET_COMMNAME('01', 'K1', REPU_TAG) || '(' || TO_CHAR(TO_DATE(REPU_YMD, 'YYYY-MM-DD'), 'YY') ||')') AS REPU_TNM
+		          			 FROM   T_CM_REWARD
+		                    ))
+		START WITH rnum = 1
+		CONNECT BY PRIOR rnum = rnum - 1 AND PRIOR ENO_NO = ENO_NO AND PRIOR REPU_CD = REPU_CD
+		GROUP BY ENO_NO , REPU_CD
+	)
+)
+GROUP BY ENO_NO
+)C
+WHERE A.ENO_NO = B.ENO_NO AND A.ENO_NO = C.ENO_NO
+ORDER BY A.JOB_SEQ, A.ENO_NO          ]]>
+        </query>
+    </sql>
+
+	<!--
+***********************************************************************
+* @UseCase     : misb060
+* @description : 직무이동 대상자 현황
+***********************************************************************
+* 2007/04/12      방석호        최초작성.
+***********************************************************************
+-->
+	<sql name="MISB060_SHR">
+		<description> misb060</description>
+		<query><![CDATA[
+		SELECT
+								  TOT
+								  ,TIT
+								  ,HEAD_NM
+								  ,HEAD_SEQ
+								  ,(CNT1+CNT2+CNT3+CNT4+CNT5+CNT6+CNT7+CNT8+CNT9+CNT10) AS TOT1
+								  ,(CNT1) AS TOT2
+								  ,(CNT2) AS TOT3
+								  ,(CNT3+CNT6) AS TOT4
+								  ,(CNT4+CNT7) AS TOT5
+								  ,(CNT5+CNT8) AS TOT6
+								  ,(CNT9) AS TOT7
+								  ,(CNT10) AS TOT8
+								  ,(CNT1+CNT2+CNT3+CNT4+CNT5) AS BTOT1
+								  ,(CNT6+CNT7) AS BTOT2
+								  ,(CNT8+CNT9+CNT10) AS BTOT3
+								  ,CNT1,CNT2,CNT3,CNT4,CNT5,CNT6,CNT7,CNT8,CNT9,CNT10
+							FROM
+							(
+								(
+									SELECT
+										  '1' AS TOT,
+										  '합계' AS TIT,
+										  HEAD_CD,
+										   SF_GET_DPTSEQ('01','B2', HEAD_CD) AS HEAD_SEQ,
+
+										  SF_GET_DPTNAME('01','B2', HEAD_CD) AS HEAD_NM,
+										  SUM( CASE WHEN (JOB_CD = '1C' OR JOB_CD ='1N')  AND (TERM_YEAR >= 5) THEN 1 ELSE 0 END) AS CNT1
+										  ,SUM( CASE WHEN (JOB_CD = '1D' AND (TERM_YEAR >= 5) ) THEN 1 ELSE 0 END) AS CNT2
+										  ,SUM( CASE WHEN (JOB_CD = '1E' AND (TERM_YEAR >= 5) AND (DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT3
+										  ,SUM( CASE WHEN ((JOB_CD = '20' OR JOB_CD = '2A' OR JOB_CD = '2B') AND (TERM_YEAR >= 5) AND (DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT4
+										  ,SUM( CASE WHEN ((JOB_CD = '30' OR JOB_CD = '3A' OR JOB_CD = '3B' OR JOB_CD = 'WS') AND (TERM_YEAR >= 5) AND (DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT5
+
+										  ,SUM( CASE WHEN (JOB_CD = '1E' AND (TERM_YEAR >= 4) AND NOT(DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT6
+										  ,SUM( CASE WHEN ((JOB_CD = '20' OR JOB_CD = '2A' OR JOB_CD = '2B') AND (TERM_YEAR >= 4) AND NOT(DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT7
+
+										  ,SUM( CASE WHEN ((JOB_CD = '30' OR JOB_CD = '3A' OR JOB_CD = '3B' OR JOB_CD = 'WS') AND (TERM_YEAR >= 3) AND NOT(DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT8
+										  ,SUM( CASE WHEN ((JOB_CD = '40' OR JOB_CD = '4A' OR JOB_CD = '4B' OR JOB_CD = '41') AND (TERM_YEAR >= 3) ) THEN 1 ELSE 0 END) AS CNT9
+										  ,SUM( CASE WHEN ((JOB_CD = '50' OR JOB_CD = '5A' OR JOB_CD = '5B' ) AND (TERM_YEAR >= 3) ) THEN 1 ELSE 0 END) AS CNT10
+									FROM
+									(
+										SELECT
+											  HEAD_CD,
+											  DUTY_CD,
+											  SF_GET_COMMSEQ(GUBUN,'A2',JOB_CD) AS JOB_SEQ,
+											  JOB_CD,
+											  JPR_YMD,
+											  TO_CHAR(JPR_YMD),
+											  (trunc(SYSDATE - JPR_YMD) / 365)  AS TERM_YEAR
+										FROM VI_T_CM_PERSON2
+										WHERE OCC_CD = 'A' AND ((RET_YMD IS NULL)  OR  (RET_YMD > ?))
+									)
+									WHERE HEAD_CD IS NOT NULL
+									GROUP BY  HEAD_CD
+
+								)
+
+
+								UNION ALL
+								(
+									SELECT
+										  '2' AS TOT,
+										  '본사',
+										  HEAD_CD,
+										   SF_GET_DPTSEQ('01','B2', HEAD_CD) AS HEAD_SEQ,
+										  SF_GET_DPTNAME('01','B2', HEAD_CD) AS HEAD_NM,
+										  SUM( CASE WHEN (JOB_CD = '1C' OR JOB_CD ='1N')  AND (TERM_YEAR >= 5) THEN 1 ELSE 0 END) AS CNT1
+										  ,SUM( CASE WHEN (JOB_CD = '1D' AND (TERM_YEAR >= 5) ) THEN 1 ELSE 0 END) AS CNT2
+										  ,SUM( CASE WHEN (JOB_CD = '1E' AND (TERM_YEAR >= 5) AND (DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT3
+										  ,SUM( CASE WHEN ((JOB_CD = '20' OR JOB_CD = '2A' OR JOB_CD = '2B') AND (TERM_YEAR >= 5) AND (DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT4
+										  ,SUM( CASE WHEN ((JOB_CD = '30' OR JOB_CD = '3A' OR JOB_CD = '3B' OR JOB_CD = 'WS') AND (TERM_YEAR >= 5) AND (DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT5
+
+										  ,SUM( CASE WHEN (JOB_CD = '1E' AND (TERM_YEAR >= 4) AND NOT(DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT6
+										  ,SUM( CASE WHEN ((JOB_CD = '20' OR JOB_CD = '2A' OR JOB_CD = '2B') AND (TERM_YEAR >= 4) AND NOT(DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT7
+
+										  ,SUM( CASE WHEN ((JOB_CD = '30' OR JOB_CD = '3A' OR JOB_CD = '3B' OR JOB_CD = 'WS') AND (TERM_YEAR >= 3) AND NOT(DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT8
+										  ,SUM( CASE WHEN ((JOB_CD = '40' OR JOB_CD = '4A' OR JOB_CD = '4B' OR JOB_CD = '41') AND (TERM_YEAR >= 3) ) THEN 1 ELSE 0 END) AS CNT9
+										  ,SUM( CASE WHEN ((JOB_CD = '50' OR JOB_CD = '5A' OR JOB_CD = '5B' ) AND (TERM_YEAR >= 3) ) THEN 1 ELSE 0 END) AS CNT10
+									FROM
+									(
+										SELECT
+											  REG_CD,
+											  HEAD_CD,
+											  DUTY_CD,
+											  SF_GET_COMMSEQ(GUBUN,'A2',JOB_CD) AS JOB_SEQ,
+											  JOB_CD,
+											  JPR_YMD,
+											  TO_CHAR(JPR_YMD),
+											  (trunc(SYSDATE - JPR_YMD) / 365)  AS TERM_YEAR
+										FROM VI_T_CM_PERSON2
+										WHERE OCC_CD = 'A' AND ((RET_YMD IS NULL)  OR  (RET_YMD > ?)) AND (REG_CD = '1' )
+
+									)
+									WHERE HEAD_CD IS NOT NULL
+									GROUP BY   HEAD_CD
+								)
+
+
+								UNION ALL
+								(
+									SELECT
+										  '3' AS TOT,
+										  '지방',
+										  HEAD_CD,
+										   SF_GET_DPTSEQ('01','B2', HEAD_CD) AS HEAD_SEQ,
+
+										  SF_GET_DPTNAME('01','B2', HEAD_CD) AS HEAD_NM,
+										  SUM( CASE WHEN (JOB_CD = '1C' OR JOB_CD ='1N')  AND (TERM_YEAR >= 5) THEN 1 ELSE 0 END) AS CNT1
+										  ,SUM( CASE WHEN (JOB_CD = '1D' AND (TERM_YEAR >= 5) ) THEN 1 ELSE 0 END) AS CNT2
+										  ,SUM( CASE WHEN (JOB_CD = '1E' AND (TERM_YEAR >= 5) AND (DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT3
+										  ,SUM( CASE WHEN ((JOB_CD = '20' OR JOB_CD = '2A' OR JOB_CD = '2B') AND (TERM_YEAR >= 5) AND (DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT4
+										  ,SUM( CASE WHEN ((JOB_CD = '30' OR JOB_CD = '3A' OR JOB_CD = '3B' OR JOB_CD = 'WS') AND (TERM_YEAR >= 5) AND (DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT5
+
+										  ,SUM( CASE WHEN (JOB_CD = '1E' AND (TERM_YEAR >= 4) AND NOT(DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT6
+										  ,SUM( CASE WHEN ((JOB_CD = '20' OR JOB_CD = '2A' OR JOB_CD = '2B') AND (TERM_YEAR >= 4) AND NOT(DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT7
+
+										  ,SUM( CASE WHEN ((JOB_CD = '30' OR JOB_CD = '3A' OR JOB_CD = '3B' OR JOB_CD = 'WS') AND (TERM_YEAR >= 3) AND NOT(DUTY_CD = 'L4' OR DUTY_CD = 'SM' )) THEN 1 ELSE 0 END) AS CNT8
+										  ,SUM( CASE WHEN ((JOB_CD = '40' OR JOB_CD = '4A' OR JOB_CD = '4B' OR JOB_CD = '41') AND (TERM_YEAR >= 3) ) THEN 1 ELSE 0 END) AS CNT9
+										  ,SUM( CASE WHEN ((JOB_CD = '50' OR JOB_CD = '5A' OR JOB_CD = '5B' ) AND (TERM_YEAR >= 3) ) THEN 1 ELSE 0 END) AS CNT10
+									FROM
+									(
+										SELECT
+											  REG_CD,
+											  HEAD_CD,
+											  DUTY_CD,
+											  SF_GET_COMMSEQ(GUBUN,'A2',JOB_CD) AS JOB_SEQ,
+											  JOB_CD,
+											  JPR_YMD,
+											  TO_CHAR(JPR_YMD),
+											  (trunc(SYSDATE - JPR_YMD) / 365)  AS TERM_YEAR
+										FROM VI_T_CM_PERSON2
+										WHERE OCC_CD = 'A' AND ((RET_YMD IS NULL)  OR  (RET_YMD > ?)) AND (REG_CD != '1'  or reg_cd is null 	)
+
+									)
+									WHERE HEAD_CD IS NOT NULL
+									GROUP BY HEAD_CD
+								)
+							)
+
+							ORDER BY TOT ,HEAD_SEQ		            ]]>
+        </query>
+    </sql>
+
+
+	<!--
+***********************************************************************
+* @UseCase     : misb090
+* @description : 노동통계
+***********************************************************************
+* 2007/04/12      방석호        최초작성.
+***********************************************************************
+-->
+	<sql name="MISB090_SHR">
+		<description>노동통계</description>
+		<query><![CDATA[
+							SELECT
+							  ENO_NO, MIN(ENO_NM), SF_GET_COMMSEQ('01', 'A2', MIN(JOB_CD)) AS JOB_SEQ, MIN(DPT_NM), MIN(TAG_NM), SUM(KIP_AMT), SUM(SANG_AMT),
+							  (SUM(KIP_AMT) + SUM(SANG_AMT)) TOT_AMT
+							FROM
+							(
+								SELECT A.ENO_NM, A.ENO_NO, A.JOB_CD,
+									   SF_GET_DPTNAME(A.GUBUN, 'A4', A.DPT_CD) AS DPT_NM,
+									   DECODE(A.MF_TAG,'M','남','여') AS TAG_NM,
+									   DECODE(SAL_GBN ,'0',  B.SALT_AMT) AS KIP_AMT,
+									   DECODE(SAL_GBN ,'1',  B.SALT_AMT) AS SANG_AMT
+								FROM T_CP_PAYMASTER B ,T_CM_PERSON A
+								WHERE ((A.RET_YMD IS NULL)  OR  (A.RET_YMD > ?))
+								AND A.DPT_CD = ?
+								AND A.ENO_NO = B.ENO_NO
+								AND B.PIS_YY = ? AND B.PIS_MM = ?
+
+							) MAIN
+							GROUP BY MAIN.ENO_NO
+							ORDER BY JOB_SEQ				            ]]>
+        </query>
+    </sql>
+
+
+	<!--
+***********************************************************************
+* @UseCase     : misb100
+* @description : 노동력 수요동향조사 보조조사표
+***********************************************************************
+* 2007/04/12      방석호        최초작성.
+***********************************************************************
+-->
+	<sql name="MISB100_SHR">
+		<description>노동력 수요동향조사 보조조사표</description>
+		<query><![CDATA[
+				SELECT
+					  MIN(NM) AS NM, COMM_CD AS CD, JOB_GBN, SUM(MCNT) AS MTOT , SUM(WCNT) AS WTOT,
+					  MIN(SF_GET_DPTNAME('01','A4', DPTCD)) AS DPT_NM, SCH_GBN
+				FROM
+
+				(
+					SELECT
+						  MIN(COMM_NM) AS NM, MIN(DPTCD) AS DPTCD, COMM_CD, DECODE(MF_TAG,'M', SUM(CNT_PERSON), 0) AS MCNT,
+					 	  DECODE(MF_TAG,'W', SUM(CNT_PERSON), 0) AS WCNT, SCH_GBN, JOB_GBN
+					FROM
+					(
+						SELECT B.COMM_NM,B. COMM_CD, DPTCD,  A. MF_TAG , A.JOB_CD ,DECODE(A.CNT,NULL,0,A.CNT) AS CNT_PERSON, A.EDGR_CD
+						,(CASE WHEN EDGR_CD < '3' THEN '고졸이하' ELSE '대졸이상' END) AS SCH_GBN
+						,(CASE WHEN JOB_SEQ >= 129 THEN '차장이하' ELSE SF_GET_COMMNAME('01', 'A2', JOB_CD) END) AS JOB_GBN
+						FROM T_CM_COMMON B,
+						     (SELECT NSO_CD, MIN(DPT_CD) AS DPTCD, MF_TAG , JOB_CD,  COUNT(ENO_NO) AS CNT , EDGR_CD,
+							 		 SF_GET_COMMSEQ(GUBUN, 'A2', JOB_CD) AS JOB_SEQ
+							  FROM T_CM_PERSON
+							  WHERE ((RET_YMD IS NULL)  OR  (RET_YMD > ?))
+							  [1]
+							  GROUP BY NSO_CD, MF_TAG, JOB_CD , EDGR_CD, GUBUN)  A
+						WHERE B.CD_GBN = 'NS' and A.NSO_CD = B.COMM_CD
+					)
+					GROUP BY COMM_CD, MF_TAG, SCH_GBN, JOB_GBN
+				)
+				GROUP BY COMM_CD, JOB_GBN, SCH_GBN
+				ORDER BY cd, JOB_GBN, COMM_CD
+				            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : misb130
+* @description : 노동력 수요동향 조사
+***********************************************************************
+* 2007/04/12      방석호        최초작성.
+***********************************************************************
+-->
+	<sql name="MISB130_SHR">
+		<description>노동력 수요동향 조사</description>
+		<query><![CDATA[
+				SELECT
+					  MIN(NM) AS NM, COMM_CD AS CD, GBN_CD, SUM(MCNT) AS MTOT , SUM(WCNT) AS WTOT,
+					  MIN(SF_GET_DPTNAME('01','A4', DPTCD)) AS DPT_NM
+				FROM
+
+				(
+					SELECT
+					MIN(COMM_NM) AS NM, MIN(DPTCD) AS DPTCD,COMM_CD, GBN_CD,  DECODE(MF_TAG,'M', SUM(CNT_PERSON), 0) AS MCNT,
+					 DECODE(MF_TAG,'W', SUM(CNT_PERSON), 0) AS WCNT
+					FROM
+					(
+						SELECT B.COMM_NM,B. COMM_CD, DPTCD,  A. MF_TAG , A.GBN_CD ,DECODE(A.CNT,NULL,0,A.CNT) AS CNT_PERSON FROM T_CM_COMMON B
+							   LEFT OUTER JOIN (SELECT NSO_CD, MIN(DPT_CD) AS DPTCD, MF_TAG , GBN_CD,  COUNT(ENO_NO) AS CNT FROM T_CM_PERSON
+							   								WHERE ((RET_YMD IS NULL)  OR  (RET_YMD > ?))
+							   								[1]
+							     							GROUP BY NSO_CD, MF_TAG, GBN_CD )  A
+						  ON A.NSO_CD = B.COMM_CD
+						WHERE B.CD_GBN = 'NS'
+					)
+					GROUP BY COMM_CD, MF_TAG, GBN_CD
+				)
+				GROUP BY COMM_CD, GBN_CD
+				ORDER BY GBN_CD, COMM_CD
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

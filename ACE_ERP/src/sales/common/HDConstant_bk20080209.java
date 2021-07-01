@@ -1,0 +1,229 @@
+package sales.common;
+
+public class HDConstant_bk20080209 { 
+    /**
+     * 각 화면의 커맨드에서 사용할 업무에 따른 상수정의
+     */
+    public static final String PROCESS_TYPE_INIT = "INIT";     // 초기화
+    public static final String PROCESS_TYPE_SEARCH = "S";    // 조회
+    public static final String PROCESS_TYPE_APPLY = "A";     // 적용
+    public static final String PROCESS_TYPE_INSERET = "I";     // 등록
+    public static final String PROCESS_TYPE_DELETE = "D";     // 삭제
+    public static final String PROCESS_TYPE_UPDATE = "U";     // 수정
+    
+    public static final String PROCESS_TYPE_MODIFY = "M";     // 상세
+    public static final String PROCESS_TYPE_EDIT = "E";     // 수정가능 상세 
+    public static final String PROCESS_TYPE_REPLY = "R";     // 답변
+    
+    /**
+	 * Excel 구분
+	 */
+	public static final String PROCESS_TYPE_EXCEL_CUSTOMER = "xsl_cust";	// 고객 엑셀
+	public static final String PROCESS_TYPE_EXCEL_RESERVATION = "xsl_res"; // 예약 엑셀 
+
+    /**
+     * 각 서블릿 경로
+     */
+    
+	// 로컬 : request.getContextPath() = "/erp"
+/*	
+	//2007-07-23 ERP 메뉴 통합
+    public static final String PATH_ERP_COMMON = "/services/servlet/common.";
+
+    //sales 패스
+    public static final String PATH_AC = "/services/servlet/sales.menu.ac.";
+    public static final String PATH_BU = "/services/servlet/sales.menu.bu.";
+    public static final String PATH_CQ = "/services/servlet/sales.menu.cq.";
+    public static final String PATH_CU = "/services/servlet/sales.menu.cu.";
+    public static final String PATH_MI = "/services/servlet/sales.menu.mi.";
+    public static final String PATH_RM = "/services/servlet/sales.menu.rm.";
+    public static final String PATH_RV = "/services/servlet/sales.menu.rv.";
+    public static final String PATH_SY = "/services/servlet/sales.menu.sy.";
+    public static final String PATH_HELP = "/services/servlet/sales.menu.help.";
+    public static final String PATH_SAMPLE = "/services/servlet/sales.sample.";
+	public static final String PATH_COMMON = "/services/servlet/sales.common.";
+*/	
+    
+    // 여기가 erp 용.. :request.getContextPath() ="/services"
+	
+	//2007-07-23 ERP 메뉴 통합
+    public static final String PATH_ERP_COMMON = "/servlet/common.";
+
+    //sales 패스
+    public static final String PATH_AC = "/servlet/sales.menu.ac.";
+    public static final String PATH_BU = "/servlet/sales.menu.bu.";
+    public static final String PATH_CQ = "/servlet/sales.menu.cq.";
+    public static final String PATH_CU = "/servlet/sales.menu.cu.";
+    public static final String PATH_MI = "/servlet/sales.menu.mi.";
+    public static final String PATH_RM = "/servlet/sales.menu.rm.";
+    public static final String PATH_RV = "/servlet/sales.menu.rv.";
+    public static final String PATH_SY = "/servlet/sales.menu.sy.";
+    public static final String PATH_HELP = "/servlet/sales.menu.help.";
+    public static final String PATH_SAMPLE = "/servlet/sales.sample.";
+    public static final String PATH_COMMON = "/servlet/sales.common.";
+
+
+    /**
+     * Message
+     */
+    public static final String A_MSG_CHANGE_DATA 	= "자료가 변경되었습니다. 취소또는 저장하십시오"; 		// alert 수정중 조회시, 수정중 행 추가시 
+    public static final String A_MSG_SAVE_DONE 		= "자료를 저장하였습니다.";							// 저장
+    public static final String A_MSG_MUST_INPUT 	= "을(를) 정확히 입력하십시오.";						// 필수 입력항목 미 입력시
+    
+    public static final String AS_MSG_DELETE_DONE 	= "자료를 삭제하였습니다.";							// 삭제시
+    public static final String AS_MSG_SEARCH_ERR 	= "조회중 에러가 발생하였습니다.";						// 조회중 에러
+    
+    public static final String S_MSG_CANCEL_DONE 	= "자료 변경이 취소되었습니다.";						// 취소
+    public static final String S_MSG_SAVE_DONE 		= "작업이 성공적으로 완료되었습니다.";					// 작업성공
+    public static final String S_MSG_SAVE_ERR 		= "작업중 에러가 발생하였습니다";						// 작업실패
+    public static final String S_MSG_SEARCH_DATA 	= "조회 중입니다. 잠시만 기다려 주십시오...";			// 조회중
+    public static final String S_MSG_SEARCH_DONE 	= "조회가 완료 되었습니다.";							// 조회완료
+    public static final String S_MSG_NO_DATA 		= "조회할 내용이 없습니다.";							// 데이터가 없을 경우
+   
+    public static final String C_MSG_ASK_DELETE 	= "삭제하시겠습니까?";									// 삭제시 
+    
+	/**
+	 * Components 
+	 */
+    public static final String CT_GRID_CLSID 			= "'clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/toinbgrid.cab#version=1,1,1,173'";
+    public static final String CT_EMEDIT_CLSID			= "'clsid:E6876E99-7C28-43AD-9088-315DC302C05F' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbEMEdit.cab#version=1,1,1,61'";
+    public static final String CT_TREEVIEW_CLSID		= "'clsid:4401B994-DD33-11D2-B539-006097ADB678' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/toinbtree.cab#version=1,1,1,40'";
+    public static final String CT_LUXECOMBO_CLSID		= "'clsid:60109D65-70C0-425C-B3A4-4CB001513C69' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/LuxeCombo.cab#version=1,1,1,63'";
+    public static final String CT_MENU_CLSID			= "'clsid:7A54CBF0-2CB4-11D4-973E-0060979E2A03' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbMenu.cab#version=1,1,1,25'";
+    public static final String CT_TEXTAREA_CLSID		= "'clsid:91B0A4F0-3206-4564-9BB4-AF9055DEF8A1' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbTextArea.cab#version=1,1,1,23'";
+    public static final String CT_RADIO_CLSID			= "'clsid:754F3DC4-0C79-4C92-AD64-A806D8FF2AB0' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbRadio.cab#version=1,1,1,24'";
+    public static final String CT_TAB_CLSID				= "'clsid:ED382953-E907-11D3-B694-006097AD7252' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbTab.cab#version=1,1,1,20'";
+    public static final String CT_REPORT_CLSID			= "'clsid:37D13B2F-E5EB-11D2-973D-00104B15E56F' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/toinbrep.cab#version=1,1,1,82'";
+    public static final String CT_DATASET_CLSID			= "'clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbData.cab#version=1,1,1,51'";
+    public static final String CT_TR_CLSID				= "'clsid:0A2233AD-E771-11D2-973D-00104B15E56F' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbTR.cab#version=1,1,1,49'";
+    public static final String CT_IMG_DATASET_CLSID		= "'clsid:BCB3A52D-F8E7-11D3-973E-0060979E2A03' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbImgData.cab#version=1,1,1,20'";
+    public static final String CT_INPUT_FILE_CLSID		= "'clsid:69F1348F-3EBE-11D3-973D-0060979E2A03' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbIFile.cab#version=1,1,1,17'";
+	public static final String CT_BINDER_CLASSID 		= "'clsid:9C9AB433-EA85-11D2-A4F9-00608CEBEE49' codebase='http://erp.hdasan.com/services/Sales/common/component/cabfiles/ToinbBind.cab#version=1,1,1,18'";
+	
+	/**
+	 * IE 패치 관련한 태그 
+	 */
+	public static final String COMMENT_START 	= "<comment id=\"__NSID__\">";
+	public static final String COMMENT_END 		= "</comment><script>__WS__(__NSID__);</script>";
+	
+	/**
+	 * 그리드 환경 설정 
+	 */
+	public static final String GRAD_HEAD_CONFIG = "HeadAlign=Center HeadBgColor=#b8d2ed"; // 그리드 헤더 위치 및 색
+	public static final String GRAD_ERR_COLOR 	= "#FF00FF";
+	public static final String GRAD_OK_COLOR 	= "#FFFFFF";
+	public static final String GRID_LINK_COLOR 	= "#1579C7";
+	public static final String GRID_SUM_COLOR 	= "#F0EE90";
+	public static final String GRID_ITEM = "#FEFEC0" ;
+	
+	public static final String GRID_TOUR_COLOR 	= "#F0EE90";	//RV200I 투숙객 명단
+	
+	/**
+	 * 파일경로
+	public static final String FILE_UPLOAD_PATH_COST = "D:/MyArea/02 Project/WorkSpace/Java/HDASan/WebContent/Sales/file/photo/cust/"; // 파일 저장 경로 고객사진
+	public static final String FILE_DOWNLOAD_PATH_COST = "/Sales/file/photo/cust/"; // 정보 
+	 */
+
+	//김영민
+	// 로컬용
+//	public static final String FILE_UPLOAD_PATH_COST = "C:/project/HDASAN/solbinet/WebContent/Sales/file/photo/"; // 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_COST = "/Sales/file/photo/"; // 정보 
+//	
+//	public static final String FILE_UPLOAD_PATH_EXCEL_COST = "D:/MyArea/02 Project/WorkSpace/Java/HDASan/WebContent/Sales/file/excel/cust/"; // 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_EXCEL_COST = "/Sales/file/excel/cust/"; // 정보 
+	
+	// 실서버용 
+
+//	public static final String FILE_UPLOAD_PATH_EXCEL_COST = "/was/web/salesagent/Sales/file/excel/cust/"; // 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_EXCEL_COST = "/Sales/file/excel/cust/"; // 정보 
+	
+	
+//	public static final String FILE_UPLOAD_PATH_COST = "D:/MyArea/02 Project/WorkSpace/Java/HDASan/WebContent/Sales/file/photo/cust/"; // 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_COST = "D:/MyArea/02 Project/WorkSpace/Java/HDASan/WebContent/Sales/file/photo/cust/"; // 정보 
+	
+	
+	// 테스트 2
+//	public static final String FILE_UPLOAD_PATH_COST = "/was/web/salesagent/Sales/file/photo/cust/"; 		// 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_COST = "/Sales/file/photo/cust/"; 						// 정보 
+//	
+//	public static final String FILE_UPLOAD_PATH_DRIVE = "/was/web/salesagent/Sales/file/photo/drive/"; 		// 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_DRIVE = "/Sales/file/photo/drive/"; 						// 정보 
+//	
+//	public static final String FILE_UPLOAD_PATH_CAR = "/was/web/salesagent/Sales/file/photo/car/"; 		// 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_CAR = "/Sales/file/photo/car/"; 						// 정보 
+//	
+//	public static final String FILE_UPLOAD_PATH_EXCEL_COST = "/was/web/salesagent/Sales/file/excel/cust/"; 	// 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_EXCEL_COST = "/Sales/file/excel/cust/"; 					// 정보 
+
+	
+	// kgs
+	public static final String FILE_UPLOAD_PATH_COST = "/QIBM/UserData/WebASE51/ASE/WAS51Exp/installedApps/erp_WAS51Exp/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/photo/cust/"; 		// 파일 저장 경로 고객사진
+	public static final String FILE_DOWNLOAD_PATH_COST = "http://erp.hdasan.com/services/Sales/file/photo/cust/"; 						// 정보 
+	
+	public static final String FILE_UPLOAD_PATH_DRIVE = "/QIBM/UserData/WebASE51/ASE/WAS51Exp/installedApps/erp_WAS51Exp/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/photo/drive/"; 		// 파일 저장 경로 고객사진
+	public static final String FILE_DOWNLOAD_PATH_DRIVE = "http://erp.hdasan.com/services/Sales/file/photo/drive/"; 						// 정보 
+	
+	public static final String FILE_UPLOAD_PATH_CAR = "/QIBM/UserData/WebASE51/ASE/WAS51Exp/installedApps/erp_WAS51Exp/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/photo/car/"; 		// 파일 저장 경로 고객사진
+	public static final String FILE_DOWNLOAD_PATH_CAR = "http://erp.hdasan.com/services/Sales/file/photo/car/"; 						// 정보 
+	
+	//erp excel
+	public static final String FILE_UPLOAD_PATH_EXCEL_COST = "/QIBM/UserData/WebASE51/ASE/WAS51Exp/installedApps/erp_WAS51Exp/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/excel/cust/"; 	// 파일 저장 경로 액셀
+	public static final String FILE_DOWNLOAD_PATH_EXCEL_COST = "http://erp.hdasan.com/services/Sales/file/excel/cust/"; 					// 정보 
+	
+	//199 excel
+//	public static final String FILE_UPLOAD_PATH_EXCEL_COST = "/QIBM/UserData/WebASE51/ASE/HDASAN/installedApps/WWW_HDASAN/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/"; 	// 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_EXCEL_COST = "http://203.242.32.199/db2samples/Sales/file/"; 					// 정보 
+	
+	//local excel
+//	public static final String FILE_UPLOAD_PATH_EXCEL_COST = "D:/HDASan3/HDASan/WebContent/Sales/file/excel/cust/"; 	// 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_EXCEL_COST = "/Sales/file/excel/cust/"; 					// 정보
+	
+	
+//	public static final String FILE_UPLOAD_PATH_CARD = "/QIBM/UserData/WebASE51/ASE/HDASAN/installedApps/WWW_HDASAN/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/card/";
+//	public static final String FILE_DOWNLOAD_PATH_CARD = "http://erp.hdasan.com/services/Sales/file/card/";
+	
+//	public static final String FILE_UPLOAD_PATH_NOTICES = "/QIBM/UserData/WebASE51/ASE/HDASAN/installedApps/WWW_HDASAN/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/notices/"; 	// 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_NOTICES = "http://erp.hdasan.com/services/Sales/file/notices/"; 					// 정보
+	
+	public static final String FILE_UPLOAD_PATH_REQ = "/QIBM/UserData/WebASE51/ASE/WAS51Exp/installedApps/erp_WAS51Exp/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/photo/req/"; 		// 파일 저장 경로 증빙사진
+	public static final String FILE_DOWNLOAD_PATH_REQ = "http://erp.hdasan.com/services/Sales/file/photo/req/"; 						// 정보 
+	
+//	public static final String FILE_UPLOAD_PATH_REQ = "C:/"; 		// 파일 저장 경로 증빙사진
+//	public static final String FILE_DOWNLOAD_PATH_REQ = "C:/"; 						// 정보 	
+	
+//	public static final String FILE_UPLOAD_PATH_NOTICES = "D:/MyArea/02 Project/WorkSpace/Java/HDASanAgent/WebContent/Sales/file/notices/"; 	// 파일 저장 경로 고객사진
+//	public static final String FILE_DOWNLOAD_PATH_NOTICES = "/Sales/file/notices/"; 					// 정보
+	public static final String FILE_UPLOAD_PATH_NOTICES = "D:/HDASan3/HDASan/WebContent/Sales/file/notices/"; 	// 파일 저장 경로 고객사진
+	public static final String FILE_DOWNLOAD_PATH_NOTICES = "/Sales/file/notices/"; 					// 정보
+	
+	public static final String FILE_UPLOAD_PATH_CARD = "/QIBM/UserData/WebASE51/ASE/WAS51Exp/installedApps/erp_WAS51Exp/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/card/sndFile/";
+	public static final String FILE_DOWNLOAD_PATH_CARD = "http://erp.hdasan.com/services/Sales/file/card/sndFile/";
+
+	
+	/**
+	 * 예약 결재에 필요한 상수 선언
+	 * 현재는 개발기에 대해서만 선언함
+	 */
+	//erp / 대리점 기준...
+	public static final String 	KCP_CAT_ID 		= "1000010473";			//KCP 부여한 단말기 번호
+	public static final String 	KCP_TERM_ID 	= "W6677";				//예약결제 계좌이체 / 가상계좌 생성에 필요한 터미널 번호
+	public static final String 	KCP_MIDBY_KCP 	= "2duv8V.4exyhnWO1O2nRFo4__";				//예약결제 계좌이체 / 가상계좌 생성에 필요한 가맹점 번호
+	
+	public static final String 	KCP_TERM_ID1 	= "W8253";				//보증금결제 계좌이체 / 가상계좌 생성에 필요한 터미널 번호
+	public static final String 	KCP_MIDBY_KCP1 	= "3LoujO7iZ1UhkdHh.-xC47F__";				//보증금결제 계좌이체 / 가상계좌 생성에 필요한 가맹점 번호
+	
+	public static final String KCP_CARD_AUTH = "http://com.hdasan.com/cEDI_card.asp";				//카드 승인 URL		
+	public static final String KCP_ACCOUNT_AUTH = "http://com.hdasan.com/cPlugOrder.asp";			//계좌이체 및 가상계좌 승인 URL
+	
+	//	로컬 기준...
+	//public static final String KCP_RETURN_URL = "http://localhost/HDAsan/Sales/help/rv005hs.jsp";	//결재 처리후 응답받은 url
+	
+	//	erp 기준...
+	public static final String KCP_RETURN_URL = "http://erp.hdasan.com/services/Sales/help/rv005hs.jsp";	//결재 처리후 응답받은 url
+//	public static final String FILE_UPLOAD_PATH_POLICE = null;
+	public static final String FILE_UPLOAD_PATH_POLICE = "/QIBM/UserData/WebASE51/ASE/WAS51Exp/installedApps/erp_WAS51Exp/DB2WebServicesSamples.ear/DB2Samples.war/Sales/file/police/";
+	
+	
+	//	대리점 기준...
+	//public static final String KCP_RETURN_URL = "http://toursales.hdasan.com/services/Sales/help/rv005hs.jsp";	//결재 처리후 응답받은 url
+}

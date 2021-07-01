@@ -1,0 +1,178 @@
+A
+{
+    TEXT-DECORATION: none
+}
+A:hover
+{
+    COLOR: #5b81c1;
+    TEXT-DECORATION: none
+}
+INPUT
+{
+    BORDER-RIGHT: darkgray 1px solid;
+    BORDER-TOP: darkgray 1px solid;
+    FONT-SIZE: 12px;
+    IME-MODE: active;
+    BORDER-LEFT: darkgray 1px solid;
+    COLOR: #666666;
+    BORDER-BOTTOM: darkgray 1px solid;
+    FONT-FAMILY: u
+}
+SELECT
+{
+    FONT-SIZE: 12px;
+    COLOR: #666666;
+    FONT-FAMILY: ¡Go,Verdana, Arial, Helvetica, geneva,sans-serif;
+    BACKGROUND-COLOR: #ffffff
+}
+.select
+{
+    FONT-SIZE: 12px;
+    COLOR: #ffffff;
+    FONT-FAMILY: ¡Go,Verdana, Arial, Helvetica, geneva,sans-serif;
+    BACKGROUND-COLOR: #6cc6e0
+}
+TD
+{
+    FONT-SIZE: 12px;
+    COLOR: #808080;
+    FONT-FAMILY: ¡Go,seoul,helvetica,verdana
+}
+TD A
+{
+    COLOR: #808080
+}
+.title
+{
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 16px;
+    COLOR: #eb6e4f;
+    LINE-HEIGHT: 19px;
+    FONT-FAMILY: ¡Go,seoul,helvetica,verdana
+}
+.title A
+{
+    COLOR: #eb6e4f
+}
+.category2
+{
+    FONT-SIZE: 12px;
+    COLOR: #5b81c1;
+    FONT-FAMILY: ¡Go,seoul,helvetica,verdana
+}
+.category2 A
+{
+    COLOR: #5b81c1
+}
+.margin
+{
+    PADDING-RIGHT: 5px;
+    PADDING-LEFT: 5px
+}
+#txtscroll
+{
+    LEFT: 0px;
+    POSITION: absolute;
+    TOP: 0px
+}
+.cond_table
+{
+    BORDER-RIGHT: white 1px;
+    BORDER-TOP: white 1px;
+    MARGIN-TOP: 0px;
+    MARGIN-LEFT: 0px;
+    BORDER-LEFT: white 1px;
+    BORDER-BOTTOM: white 1px;
+    FONT-FAMILY: U
+}
+.cond_label
+{
+    BORDER-RIGHT: white 1px ridge;
+    PADDING-RIGHT: 1px;
+    BORDER-TOP: white 1px ridge;
+    PADDING-LEFT: 1px;
+    FONT-SIZE: 9pt;
+    PADDING-BOTTOM: 1px;
+    MARGIN: 0px;
+    BORDER-LEFT: white 1px ridge;
+    COLOR: black;
+    LINE-HEIGHT: normal;
+    PADDING-TOP: 1px;
+    BORDER-BOTTOM: white 1px ridge;
+    FONT-FAMILY: "u";
+    BACKGROUND-COLOR: #eaeaea
+}
+.cond_msg
+{
+    BORDER-RIGHT: white 1px ridge;
+    PADDING-RIGHT: 1px;
+    BORDER-TOP: white 1px ridge;
+    PADDING-LEFT: 1px;
+    FONT-SIZE: 10pt;
+    PADDING-BOTTOM: 1px;
+    MARGIN: 0px;
+    BORDER-LEFT: white 1px ridge;
+    COLOR: black;
+    LINE-HEIGHT: normal;
+    PADDING-TOP: 1px;
+    BORDER-BOTTOM: white 1px ridge;
+    FONT-FAMILY: "u";
+    BACKGROUND-COLOR: lightgrey
+}
+.cond_field
+{
+    BORDER-RIGHT: white 1px ridge;
+    PADDING-RIGHT: 1px;
+    BORDER-TOP: white 1px ridge;
+    PADDING-LEFT: 2px;
+    FONT-SIZE: 10pt;
+    PADDING-BOTTOM: 1px;
+    BORDER-LEFT: white 1px ridge;
+    COLOR: #666666;
+    LINE-HEIGHT: normal;
+    PADDING-TOP: 1px;
+    BORDER-BOTTOM: white 1px ridge;
+    FONT-FAMILY: u;
+    BACKGROUND-COLOR: white
+}
+.cond_msgfield
+{
+    BORDER-RIGHT: white 1px outset;
+    PADDING-RIGHT: 1px;
+    BORDER-TOP: white 1px outset;
+    PADDING-LEFT: 2px;
+    FONT-SIZE: 9pt;
+    PADDING-BOTTOM: 1px;
+    BORDER-LEFT: white 1px outset;
+    COLOR: black;
+    LINE-HEIGHT: normal;
+    PADDING-TOP: 1px;
+    BORDER-BOTTOM: white 1px outset;
+    FONT-FAMILY: "u";
+    BACKGROUND-COLOR: white
+}
+.cond_pgmid
+{
+    BORDER-RIGHT: white 1px ridge;
+    PADDING-RIGHT: 1px;
+    BORDER-TOP: white 1px ridge;
+    PADDING-LEFT: 2px;
+    FONT-SIZE: 9pt;
+    PADDING-BOTTOM: 1px;
+    BORDER-LEFT: white 1px ridge;
+    COLOR: black;
+    LINE-HEIGHT: normal;
+    PADDING-TOP: 1px;
+    BORDER-BOTTOM: white 1px ridge;
+    FONT-FAMILY: "u";
+    BACKGROUND-COLOR: white
+}
+.cond_result
+{
+    PADDING-LEFT: 3px;
+    FONT-SIZE: 9pt;
+    COLOR: black;
+    LINE-HEIGHT: normal;
+    FONT-FAMILY: "u";
+    BACKGROUND-COLOR: silver
+}

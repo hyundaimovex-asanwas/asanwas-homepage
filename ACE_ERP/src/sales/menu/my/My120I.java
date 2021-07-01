@@ -1,0 +1,518 @@
+package sales.menu.my;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import sales.common.HDConstant;
+import sales.common.HDCookieManager;
+import sales.common.StringUtil;
+import sales.common.my.BaseCommand;
+import sales.common.my.BaseDataClass;
+import sales.common.my.DBManager;
+
+import java.util.ArrayList;
+
+public class My120I extends BaseCommand {
+
+	private String arrBeans;
+
+	public void makeSql() {
+		// TODO Auto-generated method stub
+		for(int i=0; i<arr_sql.length; i++) {
+			arr_sql[i] = new StringBuffer();
+		}
+ 		
+		//  조회 
+		arr_sql[0].append("SELECT * FROM SALES.TMY020 		\n")
+				  .append("WHERE BRD_GU = '02' 				\n")
+				  .append("		AND DELYN='N' 				\n")
+//				  .append("		AND REF_STEP=0				\n")
+//				   .append("		AND REF_STEP=0				\n")
+//				  .append("ORDER BY BRD_CDATE DESC, REF_STEP DESC, REF_LEVEL DESC,REF DESC 	\n");
+				  .append(" ORDER BY  REF DESC , REF_LEVEL ASC");	
+		//  등록 / 답변 등록
+		arr_sql[1].append("INSERT INTO SALES.TMY020 (   		\n")
+					.append("	BRD_NO, 						\n")
+					.append("	BRD_GU,  						\n")
+					.append("	BRD_SUBJECT,  					\n")
+					.append("	BRD_CREATOR,  					\n")
+					.append("	BRD_CDATE,  					\n")   
+			
+					.append("	BRD_CONTENTS,  					\n")
+					.append("	REAL_FILE,  					\n")
+					.append("	SYS_FILE,  						\n")
+					.append("	BRD_VIEWCNT,  					\n")
+					.append("	BRD_PASSWD,  					\n")           
+			
+					.append("	REF,  							\n")
+					.append("	REF_STEP,  						\n")
+					.append("	REF_LEVEL,  					\n")
+					.append("	DELYN  )						\n")
+					.append("VALUES	(							\n")
+					.append("	?,'02',?,?,CURRENT TIMESTAMP,	\n")
+					.append("	?,?,?,0,?,						\n")
+					.append("	0,0,0,'N' )						\n");
+
+		arr_sql[9].append("update sales.tmy020 set ref = brd_no where brd_gu='02' and ref=0");
+		//  상세전 HIT 업데이트 
+		arr_sql[2].  append(" UPDATE SALES.TMY020 SET 			\n")
+				       .append(" BRD_VIEWCNT = BRD_VIEWCNT+1	\n")
+				       .append(" WHERE 							\n")
+				       .append(" BRD_NO = ? 					\n");
+        
+		//  상세 
+		arr_sql[3].append("SELECT * FROM SALES.TMY020 		\n")
+				  .append("WHERE BRD_GU = '02' 				\n")
+				  .append("		AND DELYN='N' 				\n")
+//				  .append("		AND REF_STEP=0				\n")
+				  .append("		AND BRD_NO = ?				\n");
+//				  .append("ORDER BY REF DESC, REF_STEP ASC 	\n");
+//				  .append("ORDER BY REF ASC, REF_STEP DESC 	\n");
+				
+		//  삭제 
+		arr_sql[4].append("UPDATE SALES.TMY020 SET DELYN = 'Y' WHERE BRD_NO = ?");
+		
+		//  수정 
+		arr_sql[5].append("UPDATE SALES.TMY020 SET    				\n")
+					.append("	BRD_SUBJECT = ?,  					\n")
+					.append("	BRD_CDATE	= CURRENT TIMESTAMP,  	\n")   
+					.append("	BRD_CONTENTS = ?,  					\n")
+					.append("	REAL_FILE = ?,  					\n")
+					.append("	SYS_FILE = ?,  						\n")
+			
+					.append("	REF = ?,  							\n")
+					.append("	REF_STEP = ?,  						\n")
+					.append("	REF_LEVEL = ?,  					\n")
+					.append("	DELYN = 'N' 						\n")
+					.append("WHERE BRD_NO = ?						\n");
+		
+		//  답글 REF_STEP 업데이트
+		arr_sql[6].append("")
+				 .append(" UPDATE SALES.TMY020 SET 				\n")
+		         .append(" 		REF_STEP = REF_STEP + 1 		\n")
+		         .append(" WHERE 								\n")
+		         .append(" 		BRD_GU = '02' 					\n")
+		         .append(" 		AND REF = ? 					\n")
+		         .append(" 		AND REF_STEP >? 				\n");
+//		
+		//  등록 / 답변 등록
+		arr_sql[7].append("INSERT INTO SALES.TMY020 (   		\n")
+					.append("	BRD_NO, 						\n")
+					.append("	BRD_GU,  						\n")
+					.append("	BRD_SUBJECT,  					\n")
+					.append("	BRD_CREATOR,  					\n")
+					.append("	BRD_CDATE,  					\n")   
+			
+					.append("	BRD_CONTENTS,  					\n")
+					.append("	REAL_FILE,  					\n")
+					.append("	SYS_FILE,  						\n")
+					.append("	BRD_VIEWCNT,  					\n")
+					.append("	BRD_PASSWD,  					\n")           
+			
+					.append("	REF,  							\n")
+					.append("	REF_STEP,  						\n")
+					.append("	REF_LEVEL,  					\n")
+					.append("	DELYN  )						\n")
+					.append("VALUES	(							\n")
+					.append("	?,'02',?,?,CURRENT TIMESTAMP,	\n")
+					.append("	?,?,?,0,?,						\n")
+					.append("	?,?,?,'N' )						\n");
+
+		arr_sql[8].append("update sales.tmy020 set  ref_level = ref_level+1 where ref = ? and ref_step = ? and ref_level>= ?");
+	}
+
+	public String select(Connection conn, HttpServletRequest req,
+			HttpServletResponse res, BaseDataClass param) {
+		// TODO Auto-generated method stub
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int cnt = 1;
+		try {
+			
+			// 조건 
+		    System.out.println("select==========>"+arr_sql[0].toString());
+			pstmt = conn.prepareStatement(arr_sql[0].toString());
+			 
+			rs = pstmt.executeQuery();
+			 
+			/* 데이터 넣기 */
+			ArrayList arrBeans = new ArrayList();
+			BaseDataClass data = null;
+			 
+			while(rs.next()) {
+				data = new BaseDataClass();
+				data.setValues(rs);
+				arrBeans.add(data);
+			}
+			 
+			req.setAttribute("DATA",arrBeans);
+			 
+			rs.close();
+			pstmt.close();
+			conn.close();
+			
+			/*
+			 * 파라미터를 새로 쓴다
+			 */
+			req.setAttribute("PARAM",param);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "/jsp/error/error.jsp";
+		}
+		
+		return "/Sales/my/my120s.jsp?scode=SL7&id=m4&menu=2";
+	}
+
+	public String insert(Connection conn, HttpServletRequest req,
+			HttpServletResponse res, BaseDataClass param) {
+		//TODO Auto-generated method stub
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int count = 0;
+		int cnt = 1;
+		try {
+			
+			// MaxConut
+			pstmt = conn.prepareStatement("SELECT COALESCE(MAX(BRD_NO),0)+1 BRD_NO FROM SALES.TMY020 ");
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				count = rs.getInt(1); // MaxCount
+			}
+			
+			
+			rs.close();
+			pstmt.close();
+			
+			// 등록 
+			
+			pstmt = conn.prepareStatement(arr_sql[1].toString());
+			
+			pstmt.setInt(cnt++, count);
+			pstmt.setString(cnt++, StringUtil.encoding(param.get("brd_subject")));
+			pstmt.setString(cnt++, StringUtil.encoding(param.get("brd_creator")));
+			pstmt.setString(cnt++, StringUtil.encoding(param.get("brd_contents")));
+			pstmt.setString(cnt++, StringUtil.encoding(param.get("real_file")));
+			pstmt.setString(cnt++, StringUtil.encoding(param.get("sys_file")));
+			pstmt.setString(cnt++, StringUtil.encoding(param.get("brd_passwd")));
+
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			pstmt = conn.prepareStatement(arr_sql[9].toString());
+			pstmt.executeUpdate();
+			pstmt.close();
+			conn.close();
+			/*
+			 * 파라미터를 새로 쓴다
+			 */
+			req.setAttribute("PARAM",param);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "/jsp/error/error.jsp";
+		}
+		
+		return "/services/servlet/sales.common.my.BaseServlet?scode=SL7&id=m4&menu=2&process_flag="+HDConstant.PROCESS_TYPE_SEARCH+"&ut=A&mt=M&menu_title=my120s";
+	}
+
+	public String update(Connection conn, HttpServletRequest req,
+			HttpServletResponse res, BaseDataClass param) {
+		//TODO Auto-generated method stub
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int count = 0;
+		int cnt = 1;
+		try {
+			
+			// 수정
+			pstmt = conn.prepareStatement(arr_sql[5].toString());
+			
+			pstmt.setString(cnt++, param.get("brd_subject"));
+			pstmt.setString(cnt++, param.get("brd_contents"));
+			pstmt.setString(cnt++, param.get("real_file"));
+			pstmt.setString(cnt++, param.get("sys_file"));
+			pstmt.setInt(cnt++, Integer.parseInt(param.get("ref")));
+			pstmt.setInt(cnt++, Integer.parseInt(param.get("ref_step")));
+			pstmt.setInt(cnt++, Integer.parseInt(param.get("ref_level")));
+			pstmt.setInt(cnt++, Integer.parseInt(param.get("brd_no")));
+			pstmt.executeUpdate();
+			pstmt.close();
+			conn.close();
+			
+			/*
+			 * 파라미터를 새로 쓴다
+			 */
+			req.setAttribute("PARAM",param);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "/jsp/error/error.jsp";
+		}
+		
+		return "/services/servlet/sales.common.my.BaseServlet?scode=SL7&id=m4&menu=2&process_flag="+HDConstant.PROCESS_TYPE_SEARCH+"&ut=A&mt=M&menu_title=my120s";
+	}
+
+	public String delete(Connection conn, HttpServletRequest req,
+			HttpServletResponse res, BaseDataClass param) {
+		// TODO Auto-generated method stub
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int cnt = 1;
+		try {
+			
+			pstmt = conn.prepareStatement(arr_sql[4].toString());
+			pstmt.setInt(1, Integer.parseInt(param.get("brd_no")));
+			
+			pstmt.executeUpdate();
+			 
+			pstmt.close();
+			conn.close();
+			
+			/*
+			 * 파라미터를 새로 쓴다
+			 */
+			req.setAttribute("PARAM",param);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "/jsp/error/error.jsp";
+		}
+		
+		return "/services/servlet/sales.common.my.BaseServlet?scode=SL7&id=m4&menu=2&process_flag="+HDConstant.PROCESS_TYPE_SEARCH+"&ut=A&mt=M&menu_title=my120s";
+	}
+	
+	// 상세 
+	public String modify(Connection conn, HttpServletRequest req,
+			HttpServletResponse res, BaseDataClass param) {
+		// TODO Auto-generated method stub
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int cnt = 1;
+		try {
+			
+			// HIT
+			StringUtil.printMsg("글번호", param.get("brd_no"),this);
+			pstmt = conn.prepareStatement(arr_sql[2].toString());
+			
+		
+			
+			pstmt.setInt(1, Integer.parseInt(param.get("brd_no")));
+			
+			pstmt.executeUpdate();
+			
+			pstmt.close();
+			
+			// 조건 
+			pstmt = conn.prepareStatement(arr_sql[3].toString());
+			pstmt.setInt(1, Integer.parseInt(param.get("brd_no")));
+			
+			rs = pstmt.executeQuery();
+			 
+			/* 데이터 넣기 */
+			ArrayList arrBeans = new ArrayList();
+			BaseDataClass data = null;
+			 
+			while(rs.next()) {
+				data = new BaseDataClass();
+				data.setValues(rs);
+				arrBeans.add(data);
+			}
+			 
+			req.setAttribute("DATA",data);
+			 
+			rs.close();
+			pstmt.close();
+			conn.close();
+			
+			/*
+			 * 파라미터를 새로 쓴다
+			 */
+			req.setAttribute("PARAM",param);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "/jsp/error/error.jsp";
+		}
+		
+		return "/Sales/my/my120v.jsp?scode=SL7&id=m4&menu=2";
+	}
+	
+	// 상세 수정 가능한 
+	public String edit(Connection conn, HttpServletRequest req,
+			HttpServletResponse res, BaseDataClass param) {
+		// TODO Auto-generated method stub
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int cnt = 1;
+		try {
+			
+			
+			pstmt = conn.prepareStatement(arr_sql[3].toString());
+			pstmt.setInt(1, Integer.parseInt(param.get("brd_no")));
+			
+			rs = pstmt.executeQuery();
+			 
+			/* 데이터 넣기 */
+			ArrayList arrBeans = new ArrayList();
+			BaseDataClass data = null;
+			 
+			while(rs.next()) {
+				data = new BaseDataClass();
+				data.setValues(rs);
+				arrBeans.add(data);
+			}
+			 
+			req.setAttribute("DATA",data);
+			 
+			rs.close();
+			pstmt.close();
+			conn.close();
+			
+			/*
+			 * 파라미터를 새로 쓴다
+			 */
+			req.setAttribute("PARAM",param);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "/jsp/error/error.jsp";
+		}
+		
+		return "/Sales/my/my120m.jsp?scode=SL7&id=m4&menu=2";
+	}
+	public ArrayList main_select(HttpServletRequest req,HttpServletResponse res) {
+		// TODO Auto-generated method stub
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int cnt = 1;
+		ArrayList arrBeans = new ArrayList();
+		Connection conn = null;
+		makeSql();
+		try {
+			conn = DBManager.getInstance().getConnection();
+			// 조건 
+			
+			StringUtil.printMsg("대리점문의 메인 쿼리 ", arr_sql[0].toString(),this);
+			pstmt = conn.prepareStatement(arr_sql[0].toString());
+			
+			rs = pstmt.executeQuery();
+			 
+			/* 데이터 넣기 */
+			
+			BaseDataClass data = null;
+			 
+			while(rs.next()) {
+				data = new BaseDataClass();
+				data.setValues(rs);
+				arrBeans.add(data);
+			}
+			 
+			 
+			rs.close();
+			pstmt.close();
+			conn.close();
+			
+			/*
+			 * 파라미터를 새로 쓴다
+			 */
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return arrBeans;
+	}
+	
+	// 답글 
+	public String reply(Connection conn, HttpServletRequest req,
+			HttpServletResponse res, BaseDataClass param) {
+		//TODO Auto-generated method stub
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		int count = 0;
+		int cnt = 1;
+		try {
+			// 답글 ref_step 업데이트 
+			pstmt = conn.prepareStatement(arr_sql[6].toString());
+			System.out.println("refly=========>"+arr_sql[6].toString());
+			pstmt.setInt(1, Integer.parseInt(param.get("ref")));
+			pstmt.setInt(2, Integer.parseInt(param.get("ref_step")));
+
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			pstmt = conn.prepareStatement(arr_sql[8].toString());
+			System.out.println(arr_sql[8].toString());
+			pstmt.setInt(1,Integer.parseInt(param.get("ref")));
+			pstmt.setInt(2,Integer.parseInt(param.get("ref_step")));
+			pstmt.setInt(3,Integer.parseInt(param.get("ref_level")));
+			
+			pstmt.executeUpdate();
+			pstmt.close();
+			// MaxConut
+			pstmt = conn.prepareStatement("SELECT COALESCE(MAX(BRD_NO),0)+1 BRD_NO FROM SALES.TMY020 ");
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				count = rs.getInt(1); // MaxCount
+			}
+			
+			rs.close();
+			pstmt.close();
+			
+			// 등록 
+			
+			pstmt = conn.prepareStatement(arr_sql[7].toString());
+			
+			pstmt.setInt(cnt++, count);
+			pstmt.setString(cnt++, param.get("brd_subject"));
+			pstmt.setString(cnt++, param.get("brd_creator"));
+			pstmt.setString(cnt++, param.get("brd_contents"));
+			pstmt.setString(cnt++, param.get("real_file"));
+			pstmt.setString(cnt++, param.get("sys_file"));
+			pstmt.setString(cnt++, param.get("brd_passwd"));
+			pstmt.setString(cnt++, param.get("ref"));
+			pstmt.setString(cnt++, param.get("ref_step"));
+			pstmt.setString(cnt++, param.get("ref_level"));
+			
+			pstmt.executeUpdate();
+			pstmt.close();
+			conn.close();
+			
+			/*
+			 * 파라미터를 새로 쓴다
+			 */
+			req.setAttribute("PARAM",param);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "/jsp/error/error.jsp";
+		}
+		
+		return "/services/servlet/sales.common.my.BaseServlet?actId=my120s&process_flag="+HDConstant.PROCESS_TYPE_SEARCH+"&ut=A&mt=M&menu_title=my120s";
+	}
+	
+}

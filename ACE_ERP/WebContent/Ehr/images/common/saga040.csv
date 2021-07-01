@@ -1,0 +1,4 @@
+PIS_YY_SHR,VARCHAR,0,0,yes,2009,
+PIS_MM_SHR,VARCHAR,0,0,yes,02,
+title_val,VARCHAR,0,0,yes,급여총괄표09년10월,급여총괄표09년10월
+GBN_CD_SHR,VARCHAR,0,0,yes,1,국내외국분

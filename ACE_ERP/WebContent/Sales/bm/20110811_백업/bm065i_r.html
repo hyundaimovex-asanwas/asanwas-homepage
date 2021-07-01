@@ -1,0 +1,216 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	협력업체관리 팝업
++ 프로그램 ID	: bm065i_r.html
++ 기 능 정 의	: 조회
++ 변 경 이 력	: 김종현
++ 서 블 릿 명	: bm065i_r_s01
+------------------------------------------------------------------------------>
+<html>
+<head>
+<title>협력업체관리 조회</title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="../../Common/css/common.css">
+<Script language="javascript" src="../common/js/PubFun.js"></script>
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+	get_cookdata();
+	var gs_date = gn_Replace(gcurdate,"/");
+	var gs_gubun="";
+	var strParam = new Array();
+	strParam=window.dialogArguments;
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(){
+    if(txt_vend_nm_fr.value==null || txt_vend_nm_fr.value==""){
+		  alert("거래처명을 입력하세요.");
+			return false;
+		}
+
+		var sdata = "/services/servlet/sales.bm.bm065i_r_s01"
+							+ "?v_str1=" + txt_vend_nm_fr.value
+							+ "&v_str2=" + gcem_vend_id_fr.text
+							+ "&v_str3=" + gcra_local_gu_fr.CodeValue;
+		gcds_data.DataID = sdata; 
+		gcds_data.Reset();
+}
+
+
+/******************************************************************************
+	Description : 창닫기
+******************************************************************************/
+function ln_Close(p){
+	if (p=="A") {
+		if(gcds_data.countrow<1) {
+			alert("선택하실 계정코드가 없습니다.");
+		}	else {
+				if(gcds_data.namevalue(gcds_data.rowposition,"VEND_ID_YN")=="등록" && gcds_data.namevalue(gcds_data.rowposition,"LOCAL_GU") == gcra_local_gu_fr.CodeValue){
+					 alert("이미 등록되어있습니다.미등록된 거래처를 선택하세요");
+					 return false;
+				} else {
+								var row = gcds_data.rowposition;
+
+								window.returnValue = gcds_data.namevalue(row,"VEND_CD") + ";"    //거래처코드
+																 + gcds_data.namevalue(row,"VEND_ID") + ";"    //사업자번호
+																 + gcds_data.namevalue(row,"CLIENT_NM") + ";"    //거래처명
+																 + gcds_data.namevalue(row,"CLIENT_DAM_NM") + ";"  //대표자명
+																 + gcds_data.namevalue(row,"BSNS_CND") + ";"   //업태
+																 + gcds_data.namevalue(row,"BSNS_KND") + ";"   //업종
+																 + gcds_data.namevalue(row,"VD_TELNO") + ";"   //전화번호
+																 + gcds_data.namevalue(row,"VD_FAXNO") + ";"   //팩스번호
+																 + gcds_data.namevalue(row,"POSTNO") + ";"     //우편번호
+																 + gcds_data.namevalue(row,"ADDRESS1") + ";"   //주소1
+																 + gcds_data.namevalue(row,"ADDRESS2") + ";"   //주소2
+																 + gcds_data.namevalue(row,"LOCAL_MGR") + ";"  //현지책임자
+																 + gcds_data.namevalue(row,"LOCAL_STAFF") + ";"//현지담당자
+																 + gcra_local_gu_fr.CodeValue + ";"						   //지역구분
+//																 + gcds_data.namevalue(row,"LOCAL_GU") + ";"   //지역구분
+																 + gcds_data.namevalue(row,"LOCAL_TEL") + ";"  //현지전화번호
+																 + gcds_data.namevalue(row,"LOCAL_FAX") + ";"   //현지팩스
+																 + gcds_data.namevalue(row,"VEND_SID");       //VEND_SID
+								window.close();				
+				}
+		}
+	} else {
+		window.close();
+	}
+}
+</script>
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><OBJECT id=gcds_data classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcds_data" event="OnLoadStarted()">
+	gn_LoadStart();
+</script>
+
+<script language="javascript" for="gcds_data" event="onloadCompleted(row,colid)">
+	gn_LoadComp('1',gcds_data.countrow);
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcgd_disp" event="OnDblClick(row,colid)">
+	if (row<1) return;
+	ln_Close('A');
+</script>
+
+
+<script language=javascript for=gcem_vend_id_fr event=OnKeyUp(kcode,scode)>
+	if (kcode=="13") ln_Query();
+</script>
+
+</HEAD>
+
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" >
+<table border="0" cellpadding="0" cellspacing="0" style="position:relative;left:5px;top:5px;width:500px;border:0 solid #c5c5c5">
+	<tr>
+		<td class="tab_a1110">거래처명</td>
+		<td class="tab_b0110">
+	    <input id="txt_vend_nm_fr" type="text" class="txt_a01"  style="width:120px;"  onkeydown="if(event.keyCode==13) ln_Query();" onBlur="bytelength(this,this.value,30);">  
+		</td>	
+		<td class="tab_a0110">사업자번호</td>
+		<td class="tab_b0110">
+				<fieldset class=field_01 style="width:90px;">
+				<comment id="__NSID__"><OBJECT id=gcem_vend_id_fr classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F
+					class="gcem_01" style="width:87px;">
+						<param name=Alignment			value=0>
+						<param name=Border	      value=false>
+						<param name=Format	      value="###############">
+						<param name=PromptChar	  value="">
+						<param name=UpperFlag     value=1>
+				</OBJECT></comment><script>__ws__(__NSID__);</script>
+				</fieldset>						
+		</td>	
+		<td class="tab_b0110">
+      <img src="/services/Sales/images/refer.gif" style="position:relative;cursor:hand;left:3px;top:2px" onclick="ln_Query()">			
+		</td>	
+	</tr>
+	<tr>
+		<td class="tab_a1111">지역구분</td>
+		<td class="tab_b0111" colspan=4>
+				<comment id="__NSID__"><object id=gcra_local_gu_fr classid=CLSID:754F3DC4-0C79-4C92-AD64-A806D8FF2AB0
+						style="height:30; width:150">
+					<param name=Cols	value="2">
+					<param name=AutoMargin	value="true">
+					<param name=CodeValue  value="K">
+					<param name=Format	value="K^금강산,G^개성">			
+				</object></comment><script>__ws__(__NSID__);</script>		
+				<!-- K:금강산,G:개성,B:백두산,P:평양  -->
+		</td>	
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" border="0" style="position:relative;left:5px;top:10px">
+	<tr>
+		<td colspan="3">
+			<comment id="__NSID__">
+			<OBJECT id=gcgd_disp class="tab_b1111" classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49  style="width:497;height:329px;" viewastext >
+				<param name="DataID"				value="gcds_data">
+				<param name="HeadBorder" 		value="4">
+				<param name="HeadLineColor" value="#A4B8C5">
+				<param name="LineColor" 		value="#A4B8C5">
+				<PARAM NAME="BorderStyle"		VALUE="0">
+				<PARAM NAME="Indwidth"			VALUE="0">
+				<PARAM NAME="Fillarea"			VALUE="true">
+				<param name="sortview"			VALUE="left">
+				<param name="TitleHeight"		value="22">
+				<param name="RowHeight"			value="22">
+				<param name="BorderStyle" 	value="0">
+				<param name="ColSizing" 		value="1">
+				<param name="FillArea" 			value="1">
+				<param name="ViewUnbind" 		value="-1">
+				<param name="ViewHeader" 		value="-1">
+				<param name="UsingOneClick" value="1">
+			  <PARAM NAME="Format"				VALUE="  
+					<C>ID=VEND_CD,		   Name='거래처코드',	  width=85,	HeadBgColor=#eeeeee, align=center   </C>
+					<C>ID=VEND_ID,		   Name='사업자번호',	  width=90,	HeadBgColor=#eeeeee, align=center mask='XXX-XX-XXXXX'   </C>
+					<C>ID=CLIENT_NM,		   Name='거래처명',	    width=170,	HeadBgColor=#eeeeee, align=center </C>
+					<C>ID=CLIENT_DAM_NM,		 Name='대표자명',	    width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=BSNS_CND,		   Name='업태',	        width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=BSNS_KND,		   Name='업종',	        width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=VD_TELNO,		   Name='전화번호',	    width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=VD_FAXNO,		   Name='팩스번호',	    width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=POSTNO,		     Name='우편번호',	    width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=ADDRESS1,		   Name='주소1',	      width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=ADDRESS2,		   Name='주소2',	      width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=LOCAL_GU_NM,	 Name='지역구분',	    width=65,	HeadBgColor=#eeeeee, align=center show=true</C>
+					<C>ID=VEND_ID_YN,		 Name='등록유무',	    width=70,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=COOP_SID,		   Name='COOP_SID',	    width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=LOCAL_MGR,		 Name='현지책임자',	  width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=LOCAL_STAFF,	 Name='현지담당자',	  width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=LOCAL_GU,		   Name='지역구분',	    width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=LOCAL_TEL,		 Name='현지전화번호',	width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=LOCAL_FAX,		 Name='현지팩스',	    width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=VEND_SID,		   Name='VEND_SID',	  width=58,	HeadBgColor=#eeeeee, align=center show=false  </C>
+				">
+	    </OBJECT></comment><script>__ws__(__NSID__);</script>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<fieldset id=ft_div1 style="width:498;height:20px;border:1 solid #c5c5c5;border-top-width:0px;text-align:left;">
+				&nbsp;<font id=ft_cnt1 style="position:relative;top:3px;"></font>
+			</fieldset>
+		</td>
+	</tr>
+	<tr><td height="4px"></td></tr>
+	<tr>
+		<td height="30px;" align="center">
+		</td>
+	</tr>
+</table>
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:25px; top:130px;" FrameBorder="0" src="../common/img/flash/loading.swf" width="320px" height="42px"> </iframe>
+</body>
+</html>

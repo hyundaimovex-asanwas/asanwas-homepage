@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+	<global reload="5">
+		<filterChart size="25"/>
+		<service time="2"/>
+	</global>
+</configuration>

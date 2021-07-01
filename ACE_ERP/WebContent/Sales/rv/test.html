@@ -1,0 +1,56 @@
+<!--[if IE 6]>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<![endif]-->
+<!--[if IE 7]>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<![endif]-->
+<html>
+<head>
+<title>브레인스톰 포토스튜디오 샘플 페이지</title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<SCRIPT language=javascript>
+	function OnUpload()
+	{
+		ptupdate.SetMaxUpload(5); 
+		// 설치할 파일이 위치한 주소, 
+		// 로컬에 설치될 폴더경로 (C: 이후),
+		// 업데이트 정보 파일명,
+		// 회원 ID
+		// 실행될 프로그램 파일명
+		// 업로드 페이지 경로(외부에서 접근 가능한 IP나 주소로 세팅하란다.. ㅋ.. 메뉴얼이 전무하구나.얘네;;)
+		ptupdate.Start('http://bsaphoto.brainstorm.co.kr/setting/',
+			'/program files/BSPhoto/', 'update.xml', 'id', 'PhotoStudio.exe', "http://localhost:9080/Sales/rv/upload_ok.jsp");
+	}
+
+	OnEndEdit=function(){
+		count =  ptupdate.GetFileCount();
+		alert(count+"개의 파일");
+		
+		var _imgStr ="";
+		for (i = 0; i < count; i++){
+			alert("파일명:"+ ptupdate.GetFilename() );
+			alert("리얼파일명:"+ ptupdate.GetRealFilename() );
+			
+			_imgStr += "업로드 파일명 " + (i + 1) + " : " + ptupdate.GetFilename() + "</br>";
+			_imgStr += "원본 파일명 " + (i + 1) + " : " + ptupdate.GetRealFilename() + "</br>"
+			
+			ptupdate.Next();		   
+		} // end for i
+
+		document.getElementById('fileList').innerHTML = _imgStr;
+	}
+</SCRIPT>
+</head>
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+
+<object classid="clsid:2CD2FD55-8475-4379-9A83-F098B781BD12" codebase="http://bsaphoto.brainstorm.co.kr/setting/PhotoStudioUpdate.cab#version=1,0,0,10" width="0" height="0" id="ptupdate">
+</object>
+<form name=form method="post">
+<div id="formDiv" align="center">
+<input type=hidden name=id size="20" value="hdasan">
+<input type="button" id="submit" name="submit" value="올리기" OnClick="OnUpload()">
+<div id="fileList"></div>
+</div>
+</form>
+</body>
+</html>

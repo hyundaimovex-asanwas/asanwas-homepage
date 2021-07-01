@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 연차관리 -->
+<!--
+***********************************************************************
+* @UseCase     : YMAA010
+* @description : 연차수당작업관리
+***********************************************************************
+* 2007/04/25     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 인원별 정보 조회 -->
+    <sql name="YMAA010_SHR_01">
+        <description>인원별 정보 조회</description>
+        <query>
+            <![CDATA[
+      SELECT M.ENO_NO AS YHA_ENO_NO,                /*사번*/
+             M.OCC_CD AS YHA_OCC_CD,                /*직종*/
+             M.DPT_CD AS YHA_DPT_CD,                /*부서*/
+             VIEW_1.GBN2_TAG AS YHA_JOB_CD,         /*T직위*/
+             M.HOB_CD AS YHA_SALC_CD,               /*호봉*/
+             M.ACC_NO AS YHA_ACC_NO,                /*송금구좌번호*/
+             M.ABA_CD as YHA_BGB_CD,                /*은행구분*/
+             M.RCO_YN AS YHA_AGBN_TAG,              /*송금구분*/
+             M.REC_NAM AS YHA_REC_NAM,              /*수취인명*/
+             TO_CHAR(M.HIRG_YMD,'YYYYMMDD') AS YHA_BSH_YMD,             /*그릅입사일*/
+             TO_CHAR(M.HIRG_YMD,'YYYYMMDD') AS YHA_HIRG_YMD,            /*그릅입사일*/
+             M.TMR_DD AS EMS_TMR_DD,                /*휴직일수*/
+             NVL(VIEW_2.ATT_H,0) AS YHA_ANUU_MM,    /*사용년차*/
+             NVL(VIEW_3.HUJICKIL,0) AS TEMP_N2,     /*전년도 휴직일수*/
+             NVL(VIEW_4.ATT_AB,0) AS TEMP_N3        /*전년도 결근일수*/
+        FROM T_CM_PERSON M,
+             (SELECT COMM_CD, GBN2_TAG, REMARK
+              FROM T_CM_COMMON
+              WHERE CD_GBN = 'A2') VIEW_1,
+             (SELECT ENO_NO,
+                     SUM(DECODE(NVL(ATT_A,0) + NVL(ATT_B,0),0,0,1)) AS AB_CNT,
+                     NVL(SUM(NVL(ATT_H,0)),0) + NVL(SUM(NVL(ATT_Z,0)),0) + NVL(SUM(NVL(ATT_Q,0)),0) +
+                     ROUND((NVL(SUM(NVL(ATT_P,0)) + SUM(NVL(ATT_V,0)) + SUM(NVL(ATT_R,0)),0)) / 2) AS ATT_H
+                FROM T_DI_DILIGENCE
+               WHERE PIS_YY||PIS_MM >= ?
+                 AND PIS_YY||PIS_MM <= ?
+               GROUP BY ENO_NO) VIEW_2,
+             (SELECT ENO_NO,
+                     NVL(SUM(TO_DATE(LEAST(NVL(RTRIM(END_YMD),?),?),'YYYYMMDD')
+                     - TO_DATE(GREATEST(STR_YMD,?),'YYYYMMDD') + 1),0) AS HUJICKIL
+                FROM T_CM_AHISTORY
+               WHERE (JCD_CD = 'L25' OR JCD_CD = 'L26' OR JCD_CD = 'L27')
+                 AND NOT (STR_YMD > ? OR NVL(RTRIM(END_YMD),?) < ?)
+               GROUP BY ENO_NO) VIEW_3,
+             (SELECT ENO_NO,
+                     NVL(SUM(NVL(ATT_A,0) + NVL(ATT_B,0)),0) AS ATT_AB
+                FROM T_DI_DILIGENCE
+               WHERE PIS_YY||PIS_MM >= SUBSTR(?,1,6)
+                 AND PIS_YY||PIS_MM <= SUBSTR(?,1,6)
+               GROUP BY ENO_NO) VIEW_4
+       WHERE TO_CHAR(M.HIRG_YMD,'YYYYMMDD') <= ?||'31'
+         AND (RTRIM(TO_CHAR(M.RET_YMD,'YYYYMMDD')) IS NULL OR TO_CHAR(M.RET_YMD,'YYYYMMDD') >= ?||'31')
+         AND NVL(M.OCC_CD,' ') LIKE '%'||?||'%'
+         AND VIEW_1.REMARK NOT IN ('1A','A7')    /*중역,감사*/
+         AND M.JOB_CD = VIEW_1.COMM_CD (+)
+         AND M.ENO_NO = VIEW_2.ENO_NO
+         AND M.ENO_NO = VIEW_3.ENO_NO (+)
+         AND M.ENO_NO = VIEW_4.ENO_NO (+)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 대상자 선정(작업 LOG 수정) -->
+    <sql name="YMAA010_UPT_01">
+        <description>대상자 선정(작업 LOG 수정)</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_WORKLOG
+            SET    PRO_CNT = ?,
+                   ERR_CNT = ?,
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    OCC_CD = ?
+            AND    SAL_GBN = ?
+            AND    SEQ = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 대상자 초기화(대상자선정으로 변경) - T_CP_YEARLYBONUS 삭제 -->
+    <sql name="YMAA010_DEL">
+        <description>대상자 초기화(대상자선정으로 변경) - T_CP_YEARLYBONUS 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_CP_YEARLYBONUS
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    OCC_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 계산 초기화 - T_CP_YEARLYBONUS 계산금액 0으로 초기화 -->
+    <sql name="YMAA010_UPT_04">
+        <description>계산 초기화 - T_CP_YEARLYBONUS 계산금액 0으로 초기화</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_CP_YEARLYBONUS
+            SET    MNOR_WAG = 0,
+                      PAY_AMT = 0,
+                      HINS_AMT = 0
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    OCC_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : YMAA020
+* @description : 연차수당수정
+***********************************************************************
+* 2007/04/24     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 해당년월 조회 -->
+    <sql name="YMAA020_SHR_01">
+        <description>해당년월 조회</description>
+        <query>
+            <![CDATA[
+            SELECT MAX(PIS_YY||PIS_MM) AS PIS_YYMM FROM T_CP_YEARLYBONUS
+            ]]>
+        </query>
+    </sql>
+
+ <!-- 연차수당수정 조회 -->
+    <sql name="YMAA020_SHR">
+        <description>연차수당수정 조회</description>
+        <query>
+            <![CDATA[
+         SELECT    a.PIS_YY AS PIS_YY,
+                   a.PIS_MM AS PIS_MM,
+                   a.ENO_NO AS ENO_NO,
+                   b.ENO_NM AS ENO_NM,
+                   a.OCC_CD AS OCC_CD,
+                   SF_GET_COMMNAME('01', 'A1', A.OCC_CD) AS OCC_NM,
+                   a.DPT_CD as DPT_CD,
+                   SF_GET_DPTNAME('01', 'A4',A.DPT_CD) AS DPT_NM,
+                   a.JOB_CD as JOB_CD,
+                   SF_GET_COMMNAME('01', 'A2', A.JOB_CD) AS JOB_NM,
+                   a.SALC_CD as HOB_CD,
+                   SF_GET_COMMNAME('01', 'A3', A.SALC_CD) AS HOB_NM,
+                   a.BSH_YMD as HIR_YMD,
+                   nvl(a.BGB_CD, b.ABA_CD) as ABA_CD,
+                   SF_GET_COMMNAME('01', 'BK', nvl(a.BGB_CD,b.ABA_CD)) AS ABA_NM,
+                   nvl(a.REC_NAM, b.REC_NAM) as REC_NAM,
+                   nvl(a.ACC_NO, b.ACC_NO) as ACC_NO,
+                   a.ANUO_MM as ANUO_MM,
+                   a.ANUU_MM as ANUU_MM,
+                   a.ANUN_MM as ANUN_MM,
+                   a.ADHL_CNT as ADHL_CNT,
+                   a.TUN_DD as TUN_DD,
+                   a.MNOR_WAG as MNOR_WAG,
+                   a.PAY_AMT as PAY_AMT
+          FROM  T_CP_YEARLYBONUS A,T_CM_PERSON B
+          WHERE (a.ENO_NO  = b.ENO_NO)
+          AND   (a.PIS_YY  = ?)
+          AND   (a.PIS_MM  = ?)
+          AND   (a.ENO_NO  = ?)
+            ]]>
+        </query>
+    </sql>
+
+ <!-- 연차수당수정 수정 -->
+    <sql name="YMAA020_UPT">
+        <description>연차수당수정 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_YEARLYBONUS
+               SET ANUO_MM   = ?,
+                   ANUU_MM   = ?,
+                   ANUN_MM   = ?,
+                   ADHL_CNT  = ?,
+                   TUN_DD    = ?,
+                   MNOR_WAG  = ?,
+                   PAY_AMT   = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD = SYSDATE
+             WHERE PIS_YY  = ?
+               AND PIS_MM  = ?
+               AND ENO_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : YMAA030
+* @description : 연차수당지급내역
+***********************************************************************
+* 2007/03/26     오대성        최초작성.
+* 2007/04/27     김학수        YMAA030_SHR_PRT 추가
+***********************************************************************
+-->
+    <!-- 연차수당지급내역 조회 -->
+    <sql name="YMAA030_SHR">
+        <description>연차수당지급내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SF_GET_ENONAME('01',A.ENO_NO) AS ENO_NM, A.ENO_NO, A.BSH_YMD,
+                   A.ANUO_MM, A.ANUU_MM, A.ANUN_MM, A.ADHL_CNT, A.TUN_DD,
+                   A.MNOR_WAG, A.PAY_AMT, B.DPT_NM, C.JOB_NM
+            FROM   T_CP_YEARLYBONUS A,
+                   ( SELECT DPT_NM AS DPT_NM, DPT_CD COMM_CD,
+                            SORT_NO AS DPT_SEQ
+                     FROM   T_CM_DEPT
+                     WHERE  CD_GBN = ? ) B,
+                   ( SELECT COMM_NM AS JOB_NM, COMM_CD,
+                            SORT_NO AS JOB_SEQ
+                     FROM   T_CM_COMMON
+                     WHERE  CD_GBN = ? ) C
+            WHERE  A.PIS_YY = ?
+            AND    A.PIS_MM = ?
+            AND    A.OCC_CD LIKE '%'||?||'%'
+            AND    A.DPT_CD = B.COMM_CD(+)
+            AND    A.JOB_CD = C.COMM_CD(+)
+            [1]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 연차수당지급내역 조회(인쇄용) -->
+    <sql name="YMAA030_SHR_PRT">
+        <description>연차수당지급내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT [1]
+            	 ,  SF_GET_ENONAME('01',A.ENO_NO) AS ENO_NM
+			     , A.ENO_NO
+				 , A.BSH_YMD
+				 , A.ANUO_MM
+				 , A.ANUU_MM
+				 , A.ANUN_MM
+				 , A.ADHL_CNT
+				 , A.TUN_DD
+				 , A.MNOR_WAG
+				 , A.PAY_AMT
+				
+            FROM   T_CP_YEARLYBONUS A,
+                   ( SELECT DPT_NM AS DPT_NM, DPT_CD AS COMM_CD,
+                            SORT_NO AS DPT_SEQ
+                     FROM   T_CM_DEPT
+                     WHERE  CD_GBN = ? AND SORT_NO > 0 ) B,
+                   ( SELECT COMM_NM AS JOB_NM, COMM_CD,
+                            SORT_NO AS JOB_SEQ
+                     FROM   T_CM_COMMON
+                     WHERE  CD_GBN = ? ) C
+            WHERE  A.PIS_YY = ?
+            AND    A.PIS_MM = ?
+            AND    A.OCC_CD LIKE '%'||?||'%'
+            AND    A.DPT_CD = B.COMM_CD(+)
+            AND    A.JOB_CD = C.COMM_CD(+)
+            [2]
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : YMAA040
+* @description : 연차수당지급총괄
+***********************************************************************
+* 2007/04/24     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 연차수당지급총괄 조회(소속) -->
+    <sql name="YMAA040_SHR">
+        <description>연차수당지급총괄 조회(소속)</description>
+        <query>
+            <![CDATA[
+            SELECT B.DPT_NM AS COMM_NM,
+                   COUNT(*) AS ENO_CNT,
+                   SUM(NVL(A.MNOR_WAG,0)) AS MNOR_WAG,
+                   SUM(NVL(A.PAY_AMT,0)) AS PAY_AMT,
+                   '' AS REMARK
+            FROM   T_CP_YEARLYBONUS A, T_CM_DEPT B
+            WHERE  NVL(A.OCC_CD,' ') LIKE '%'||?||'%'
+            AND    A.PIS_YY = ?
+            AND    A.PIS_MM = ?
+            AND    B.CD_GBN = 'A4'
+            AND    A.DPT_CD = B.DPT_CD
+            GROUP BY B.DPT_NM,B.SORT_NO
+            ORDER BY B.SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 연차수당지급총괄 조회(직위) -->
+    <sql name="YMAA040_SHR_01">
+        <description>연차수당지급총괄 조회(직위)</description>
+        <query>
+            <![CDATA[
+            SELECT B.COMM_NM AS COMM_NM,
+                   COUNT(*) AS ENO_CNT,
+                   SUM(NVL(A.MNOR_WAG,0)) AS MNOR_WAG,
+                   SUM(NVL(A.PAY_AMT,0)) AS PAY_AMT,
+                   '' AS REMARK
+            FROM   T_CP_YEARLYBONUS A, T_CM_COMMON B
+            WHERE  NVL(A.OCC_CD,' ') LIKE '%'||?||'%'
+            AND    A.PIS_YY = ?
+            AND    A.PIS_MM = ?
+            AND    B.CD_GBN = 'A2'
+            AND    A.JOB_CD = B.COMM_CD
+            GROUP BY B.COMM_NM, B.SORT_NO
+            ORDER BY B.SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+
+</sqls>

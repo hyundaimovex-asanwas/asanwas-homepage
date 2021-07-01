@@ -1,0 +1,54 @@
+TD {
+	FONT-SIZE: 9pt; LINE-HEIGHT: 140%; FONT-FAMILY: "±¼¸²", "Arial"
+}
+A:hover {
+	FONT-SIZE: 9pt; COLOR: #ff6633; FONT-FAMILY: "±¼¸²", "Arial"; TEXT-DECORATION: none
+}
+A:link {
+	FONT-SIZE: 9pt; FONT-FAMILY: "±¼¸²", "Arial"; TEXT-DECORATION: none
+}
+A:visited {
+	FONT-SIZE: 9pt; FONT-FAMILY: "±¼¸²", "Arial"; TEXT-DECORATION: none
+}
+INPUT {
+	BORDER-RIGHT: #cccccc 1px solid; BORDER-TOP: #cccccc 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #cccccc 1px solid; COLOR: #666666; BORDER-BOTTOM: #cccccc 1px solid; FONT-FAMILY: "±¼¸²", "Arial"; BACKGROUND-COLOR: #ffffff
+}
+.select01 {
+	BORDER-RIGHT: #cccccc 1px solid; BORDER-TOP: #cccccc 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #cccccc 1px solid; COLOR: #666666; BORDER-BOTTOM: #cccccc 1px solid; FONT-FAMILY: "±¼¸²", "Arial"; BACKGROUND-COLOR: #ffffff
+}
+.select02 {
+	BORDER-RIGHT: #cccccc 1px solid; BORDER-TOP: #cccccc 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #cccccc 1px solid; COLOR: #000066; BORDER-BOTTOM: #cccccc 1px solid; FONT-FAMILY: "±¼¸²", "Arial"; BACKGROUND-COLOR: #ecf2f7
+}
+.input01 {
+	BORDER-RIGHT: #ff6600 1px solid; BORDER-TOP: #ff6600 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #ff6600 1px solid; COLOR: #666666; BORDER-BOTTOM: #ff6600 1px solid; FONT-FAMILY: "±¼¸²", "Arial"; BACKGROUND-COLOR: #ffffff
+}
+.input02 {
+	BORDER-RIGHT: #cccccc 1px solid; BORDER-TOP: #cccccc 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #cccccc 1px solid; COLOR: #666666; BORDER-BOTTOM: #cccccc 1px solid; FONT-FAMILY: "±¼¸²", "Arial"; BACKGROUND-COLOR: #f5f5f5
+}
+.input03 {
+	BORDER-RIGHT: #ff6600 1px solid; BORDER-TOP: #ff6600 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #ff6600 1px solid; COLOR: #ff6633; BORDER-BOTTOM: #ff6600 1px solid; FONT-FAMILY: "±¼¸²", "Arial"; BACKGROUND-COLOR: #ffffff
+}
+.input04 {
+	BORDER-RIGHT: #cccccc 1px solid; BORDER-TOP: #cccccc 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #cccccc 1px solid; COLOR: #f5f5f5; BORDER-BOTTOM: #cccccc 1px solid; FONT-FAMILY: "±¼¸²", "Arial"; BACKGROUND-COLOR: #f5f5f5
+}
+.option01 {
+	FONT-SIZE: 10pt; COLOR: #666666; FONT-FAMILY: Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #ebfbe4
+}
+.textarea01 {
+	BORDER-RIGHT: #996633 1px solid; BORDER-TOP: #996633 1px solid; FONT-SIZE: 9pt; BORDER-LEFT: #996633 1px solid; COLOR: #666666; BORDER-BOTTOM: #996633 1px solid; FONT-FAMILY: "±¼¸²", "Arial"; BACKGROUND-COLOR: #ffffff
+}
+.search_bg01 {
+	COLOR: #ffffff; BACKGROUND-COLOR: #9bb257
+}
+.search_bg02 {
+	BACKGROUND-COLOR: #ffffff
+}
+.list_title01 {
+	BACKGROUND-COLOR: #f2ece0
+}
+.list_title02 {
+	BACKGROUND-COLOR: #ffffff
+}
+.border_01 {
+	BORDER-BOTTOM: #996633 1px dotted
+}

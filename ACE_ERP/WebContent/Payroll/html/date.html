@@ -1,0 +1,231 @@
+
+<html> 
+  <head> 
+    <title>test</title> 
+
+  <script language="JavaScript">  
+
+var str2_1=""; var str2_2=""; var str2_3="";  var str2_4="";  var str2_5="";  var str2_6="";
+var str2_7=""; var str2_8=""; var str2_9=""; var str2_10=""; var str2_11=""; var str2_12="";
+var str2_13=""; var str2_14=""; var str2_15="";
+
+function ln_prvyyyy(yyyy,mm)
+{
+	//var returnPrv;
+	if(parseInt(mm)==1)
+	{
+        returnPrv=(parseInt(yyyy)-1)+"";
+	}
+	else returnPrv=yyyy;
+
+	return returnPrv;
+}
+function ln_prvmm(prv)
+{
+//	var returnPrv;
+	if(parseInt(prv)==1) returnPrv="12";
+	else
+	{
+		returnPrv=(parseInt(prv)-1)+"";
+
+	}
+	if(returnPrv.length ==1)
+			returnPrv="0" + returnPrv ;
+
+
+	return returnPrv;
+
+}
+
+function yyyymmPlusMinus(str2)
+{
+     if( str2.length ==8)
+	 {
+	     str2_1=ln_prvyyyy(str2.substr(0,4),str2.substr(4,2)) +""+ ln_prvmm(str2.substr(4,2));
+	     str2_2=ln_prvyyyy(str2_1.substr(0,4),str2_1.substr(4,2)) +""+ ln_prvmm(str2_1.substr(4,2));
+	     str2_3=ln_prvyyyy(str2_2.substr(0,4),str2_2.substr(4,2)) +""+ ln_prvmm(str2_2.substr(4,2));
+	     str2_4=ln_prvyyyy(str2_3.substr(0,4),str2_3.substr(4,2)) +""+ ln_prvmm(str2_3.substr(4,2));
+	     str2_5=ln_prvyyyy(str2_4.substr(0,4),str2_4.substr(4,2)) +""+ ln_prvmm(str2_4.substr(4,2));
+	     str2_6=ln_prvyyyy(str2_5.substr(0,4),str2_5.substr(4,2)) +""+ ln_prvmm(str2_5.substr(4,2));
+
+	     str2_7=ln_prvyyyy(str2_6.substr(0,4),str2_6.substr(4,2)) +""+ ln_prvmm(str2_6.substr(4,2));
+	     str2_8=ln_prvyyyy(str2_7.substr(0,4),str2_7.substr(4,2)) +""+ ln_prvmm(str2_7.substr(4,2));
+	     str2_9=ln_prvyyyy(str2_8.substr(0,4),str2_8.substr(4,2)) +""+ ln_prvmm(str2_8.substr(4,2));
+	    str2_10=ln_prvyyyy(str2_9.substr(0,4),str2_9.substr(4,2)) +""+ ln_prvmm(str2_9.substr(4,2));
+	    str2_11=ln_prvyyyy(str2_10.substr(0,4),str2_10.substr(4,2)) +""+ ln_prvmm(str2_10.substr(4,2));
+	    str2_12=ln_prvyyyy(str2_11.substr(0,4),str2_11.substr(4,2)) +""+ ln_prvmm(str2_11.substr(4,2));
+	    str2_13=ln_prvyyyy(str2_12.substr(0,4),str2_12.substr(4,2)) +""+ ln_prvmm(str2_12.substr(4,2));
+	    str2_14=ln_prvyyyy(str2_13.substr(0,4),str2_13.substr(4,2)) +""+ ln_prvmm(str2_13.substr(4,2));
+	    str2_15=ln_prvyyyy(str2_14.substr(0,4),str2_14.substr(4,2)) +""+ ln_prvmm(str2_14.substr(4,2));
+	 }
+
+
+}    
+     //실제로 날수의 차이를 구하는 함수
+    function dayDiff(d1,d2){ 
+	   //ex) May 05,2004
+            var date1 = new Date(d1);
+            var date2 = new Date(d2);
+                return Math.ceil((date2 - date1) / 1000 / 24 / 60 / 60);
+		} 
+
+     //예제용 페이지에서 사용하는 함수
+     function calc(){ 
+        var d1 = document.test.t1.value; 
+        var d2 = document.test.t2.value; 
+                document.test.t3.value = dayDiff(d1,d2);
+    } 
+    //윤년계산
+	function yunyear(year)
+	
+	{ 
+		if((year%4 == 0 && year%100 != 0) || (year%400)==0)
+		  n = 29;  //윤년
+		else
+		  n = 28;  //윤년아님
+		return n;
+
+
+	}
+
+     //페이지 초기화시 날짜를 보여줌(형식)
+    function init(){ 
+		var yymmdd="20040401";  //퇴직일자
+		yyyymmPlusMinus(yymmdd)
+		var mon= new Array(31,28,31,30,31,30,31,31,30,31,30,31);
+		var weekdays= new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+        yunyear(parseInt(yymmdd.substr(0,4)));
+        for(var i=1;i<13;i++)
+		{
+			if(eval("parseInt(str2_"+i+".substr(4,2))")==2)
+				mon[1]=eval("yunyear(parseInt(str2_"+i+".substr(0,4)))");   //윤달일 바꾸기
+		}
+        var Lday=mon[parseInt(yymmdd.substr(4,2))-1]; //퇴직월 막일
+        var Fday1=mon[parseInt(str2_1.substr(4,2))-1]; //이전1개월 막일
+        var Fday2=mon[parseInt(str2_2.substr(4,2))-1]; //이전2개월 막일
+        var Fday3=mon[parseInt(str2_3.substr(4,2))-1]; //이전3개월 막일
+		var	Lminusday=Lday-(parseInt(yymmdd.substr(6,2)))-1;         //퇴직월 에서 빠진 기간일
+		var	Fminusday=Fday3-Lminusday;         //퇴직일 3개월 이전 일
+		alert(Fminusday.toString().length);
+
+		   if(Fminusday.toString().length==1)
+		     alert(1);
+		//var	Lminusday=lday-parseInt(yymmdd.substr(6,2));         //퇴직일 3개월 이전 일
+
+		alert(mon[1]);
+        alert(weekdays[parseInt(yymmdd.substr(4,2))-1]);
+		alert(parseInt(yymmdd.substr(6,2)));
+/*
+			document.test.t1.value = Date(); 
+			document.test.t2.value = Date(); 
+					calc();
+					yunyear(parseInt(2004));
+*/
+    } 
+
+
+
+        
+  </script>  
+  </head> 
+
+<body onload="init();"> 
+<center>
+<tabel border=1>
+<FORM NAME="test"> 
+<h3>To get two date difference</h3> 
+Date 1: <INPUT TYPE="text" NAME="t1" size=40><br> 
+Date 2: <INPUT TYPE="text" NAME="t2" size=40><br> 
+Differnce : <INPUT TYPE="text" NAME="t3"><br><br> 
+
+<INPUT TYPE="button" NAME="button1" VALUE=" Calculate " onClick="calc(this.form);"> 
+</FORM> 
+</body> 
+</html> 
+<!--
+int year(int y)
+{
+   int n;
+   if((y%4 == 0 && y%100 != 0) || (y%400)==0)
+      n = 1;
+   else
+      n = 0;
+   return n;
+}                                                                                //윤년판단함수 
+
+int weekday(int y,int m,int d)
+{
+   int k,x=0,a,b,c,n;
+   int mon[]={31,28,31,30,31,30,31,31,30,31,30,31};
+  
+
+   for(a=1582; a {
+      n = year(a);
+      x += 365;
+      
+
+      if(n == 1)
+         x++;
+   }
+
+
+   for(b=1;b {
+   x += mon[b-1];
+
+
+   if(b==2 && year(y)==1)
+      x++;
+   }
+   
+
+    for(c=1;c        x++;
+
+   k = x%7;
+
+  if(k<2)
+      k+=5;
+   else
+      k-=2;
+   return k;               
+
+}                                  
+
+      //입력받은 년,월,일 의 요일을 리턴하는 함수 
+
+
+void main()
+{
+   int y,m,j,k=1;
+   int mon[]={31,28,31,30,31,30,31,31,30,31,30,31};
+
+   scanf("%d %d",&y,&m);
+
+   printf("%d %d\n",y,m);
+   printf("일 월 화 수 목 금 토\n");
+
+
+   if(year(y)==1)
+      mon[1]=29;                          //입력한 해가 윤년일 경우 2월을 29일로 만듬
+   for(j=0;j printf("0 ");                  //입력한 년,월의 1일의 요일이 될때까지 '0' 출력 
+      j++;
+   for(;k<=mon[m-1];j++)
+   {
+   printf("%d ",k);
+       k++;
+
+      if(j==7)
+      {
+         printf("\n");
+         j=0;
+      }
+   }                                                             //한 줄에 7개씩 숫자 출력 
+   
+
+  for(j=weekday(y,m,mon[m-1]);j<6;j++)
+      printf("0 ");                                      //마지막 날의 요일부터 마지막요일까지 '0'출력
+   printf("\n");< br>
+}
+
+ 
+
+-->

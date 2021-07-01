@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/lib/common.css" />
+
+    <script src="/controller/menuinfo.js"></script>
+    <script data-main="/lib/app" src="/lib/require.js"></script>
+
+</head>
+<body>
+    <div id="pagemenuinfo" data-role="page">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div><!--//menu-->
+
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div>
+                <ul id="listmenuinfo" data-role="listview" data-theme="c" data-filter="true" data-filter-placeholder="메뉴명" data-filter-theme="b">
+                    <li data-role="list-divider" data-theme="f"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="pagemenuinfoDetail" data-role="page">
+        <div data-role="header">
+			<a href="#pagemenuinfo" data-icon="back">목록</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div class="ui-field-contain">
+                              
+                <label for="txtID_FORM">화면아이디:</label>
+                <input type="text" id="txtID_FORM" readonly="readonly" class="ui-readonly" />
+                <label for="txtDS_FORM">화면명:</label>
+                <input type="text" id="txtDS_FORM"  />
+                <label for="txtPATH">경로:</label>
+                <input type="text" id="txtPATH" readonly="readonly" />
+                
+                <label for="cboYN_USE">사용유무:</label>
+                <div class="divView ui-controlgroup-controls">
+                    <input type="text" id="txtYN_USE" readonly="readonly" />
+                </div>
+                <div class="divEdit" style="display:none;"> 
+                <select id="cboYN_USE" data-mini="true" data-theme="b">
+                        <option value="Y" selected="selected">사용</option>
+                        <option value="N">미사용</option>
+                 </select>
+                 </div>
+                 
+                 <label for="cboYN_MENU">폴더유무:</label>
+                 <div class="divView ui-controlgroup-controls">
+                    <input type="text" id="txtYN_MENU" readonly="readonly" />
+                </div>
+                <div class="divEdit" style="display:none;"> 
+                 <select id="cboYN_MENU" data-mini="true" data-theme="b">
+                        <option value="Y" selected="selected">Y</option>
+                        <option value="N">N</option>
+                 </select>
+                 </div>
+                 
+                 <label for="txtSN_NO">순번:</label>
+                 <input type="text" id="txtSN_NO" readonly="readonly" class="ui-readonly" />
+                 
+                 <label for="cboNO_LEVEL">레벨:</label>
+                 <div class="divView ui-controlgroup-controls">
+                    <input type="text" id="txtNO_LEVEL" readonly="readonly" />
+                </div>
+                 <div class="divEdit" style="display:none;"> 
+                 <select id="cboNO_LEVEL" data-mini="true" data-theme="b">
+                        <option value="0" selected="selected">0</option>
+                        <option value="1">1</option>
+                 </select>
+                 </div>
+                 
+                 <label for="txtDS_ICON">아이콘명:</label>
+                 <input type="text" id="txtDS_ICON" readonly="readonly"  />
+            </div>
+           <div class="divView">
+                <div class="ui-grid-a">
+                    <div class="ui-block-a">
+                        <input type="button" id="btnEdit" value="수정하기" data-theme="f" data-icon="edit" />
+                    </div>
+                    <div class="ui-block-b">
+                        <input type="button" id="btnDelete" value="삭제하기" data-theme="d" data-icon="delete" />
+                    </div>
+                </div>
+            </div>
+            <div class="divEdit" style="display:none;">
+                <div class="ui-grid-a"> 
+                    <div class="ui-block-a">
+                        <input type="button" id="btnSave" value="저장" data-theme="d" data-icon="check" />
+                    </div>
+                    <div class="ui-block-b">
+                        <input type="button" id="btnCancel" value="취소" data-theme="b" data-icon="delete" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

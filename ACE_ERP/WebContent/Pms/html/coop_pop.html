@@ -1,0 +1,242 @@
+<!--
+/*--------------------------------------------------------------------------------
++ 시스템명 : 신규업체 등록 
++ 프로그램ID : coop_pop.HTML
++ 기능정의 : 
++ 작 성 자 : 이 동 훈 
++ 작성일자 : 2010.08.12
+----------------------------------------------------------------------------------
++ 수정내용 :
++ 수 정 자 : 
++ 수정일자 :
+----------------------------------------------------------------------------------
++ 서블릿명 : 
+------------------------------------------------------------------------------>
+
+
+<html>
+	<head>
+	<title> 신규 업체 등록 </title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+
+	get_cookdata();       //읽기
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(){
+
+	gcds_data.DataID = "/ks_com_pop_s1?v_str1="+txt_empno.value+"&v_str2="+txt_empnmk.value; 
+	
+	gcds_data.Reset();
+	
+}
+
+ 
+/******************************************************************************
+	Description : 창닫기
+******************************************************************************/
+function ln_Save(){
+
+
+		if(gcds_data.countrow<1) 
+		{
+			alert("선택하실 대상이 없습니다.");
+		}
+
+		else
+		{
+
+			var row = gcds_data.rowposition;
+
+			window.returnValue = gcds_data.namevalue(row,"EMPNO") + ";" + gcds_data.namevalue(row,"EMPNMK");										 
+			window.close();
+		}
+
+
+}
+
+/******************************************************************************
+	Description : 창닫기
+******************************************************************************/
+function ln_Close(){
+		window.close();
+}
+
+</script>
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__">
+<OBJECT id=gcds_data classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+</comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcds_data" event="OnLoadStarted()">
+			window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+			document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language="javascript" for="gcds_data" event="onloadCompleted(row,colid)">
+			window.status="조회가 완료 되었습니다.";
+			document.all.LowerFrame.style.visibility="hidden";
+			ft_cnt1.innerText = "조회건수 : " + row + " 건";
+			if (row <1) {
+			alert("검색된 데이터가 없습니다.");
+			}
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcgd_disp" event="OnDblClick(row,colid)">
+
+	if (row<1) return;
+
+	ln_Close('A');
+
+</script>
+
+<script language="javascript" for="gcgd_disp" event="OnEnter(row,colid)">
+
+	if (row<1) return;
+
+	ln_Close('A');
+
+</script>
+
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+
+
+<table border="0" cellpadding="0" cellspacing="0" style="position:relative;left:5px;top:5px;width:360px;border:0 solid #c5c5c5">
+	<tr>
+		<td class="tab_a0111" style="width:90px;height:30px;">업체명</td>
+		<td class="tab_b0111" width="250px">
+		  <input type="text" class="txt_a01" id="txt_coop_nm" style="width:150px;height:24px;position:relative;left:3px;top:1px;" maxlength="20" onkeydown="if(event.keyCode==13) ln_Query();">
+
+		</td>
+	</tr>
+
+
+	<tr>
+		<td class="tab_a0111" style="width:90px;height:30px;">사업자등록번호</td>
+		<td class="tab_b0111" width="250px">
+		  <input type="text" class="txt_a01" id="txt_coop_cert" style="width:150px;height:24px;position:relative;left:3px;top:1px;" maxlength="20">
+		</td>
+	</tr>
+
+
+
+	<tr>
+		<td class="tab_a0111" style="width:90px;height:30px;">대표자</td>
+		<td class="tab_b0111" width="250px">
+		  <input type="text" class="txt_a01" id="txt_coop_direct" style="width:150px;height:24px;position:relative;left:3px;top:1px;" maxlength="20">
+		</td>
+	</tr>
+
+
+
+	<tr>
+		<td class="tab_a0111" style="width:90px;height:30px;">소재지</td>
+		<td class="tab_b0111" width="250px">
+		  <input type="text" class="txt_a01" id="txt_coop_address" style="width:150px;height:24px;position:relative;left:3px;top:1px;" maxlength="20">
+		</td>
+	</tr>
+
+
+
+
+	<tr>
+		<td class="tab_a0111" style="width:90px;height:30px;">업종</td>
+		<td class="tab_b0111" width="250px">
+		  <input type="text" class="txt_a01" id="txt_coop_style" style="width:150px;height:24px;position:relative;left:3px;top:1px;" maxlength="20" >
+		</td>
+	</tr>
+
+
+	<tr>
+		<td class="tab_a0111" style="width:90px;height:30px;">설립일</td>
+		<td class="tab_b0111" width="250px">
+		  <input type="text" class="txt_a01" id="txt_creat_dt" style="width:150px;height:24px;position:relative;left:3px;top:1px;" maxlength="20" >
+
+		</td>
+	</tr>
+
+
+	<tr>
+		<td class="tab_a0111" style="width:90px;height:30px;">전화</td>
+		<td class="tab_b0111" width="250px">
+		  <input type="text" class="txt_a01" id="txt_vd_telno" style="width:150px;height:24px;position:relative;left:3px;top:1px;" maxlength="20" >
+
+		</td>
+	</tr>
+
+	<tr>
+		<td class="tab_a0111" style="width:90px;height:30px;">팩스</td>
+		<td class="tab_b0111" width="250px">
+		  <input type="text" class="txt_a01" id="txt_vd_faxno" style="width:150px;height:24px;position:relative;left:3px;top:1px;" maxlength="20" >
+		</td>
+	</tr>
+</table>
+
+<table cellpadding="0" cellspacing="0" border="0" style="position:relative;left:5px;top:10px">
+	<tr>
+		<td height="30px" width="360px" align="center">
+			<img name="btn_select" border="0" src="../img/btn/com_b_save.gif" style="cursor:hand" onClick="ln_Save()">
+			<img name="btn_close" border="0" src="../img/btn/com_b_close.gif" style="cursor:hand" onClick="ln_Close()">
+		</td>
+	</tr>
+</table>
+
+
+</body>
+</html>

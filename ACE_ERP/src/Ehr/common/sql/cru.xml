@@ -1,0 +1,1033 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 학자금 신청서관리 -->
+<!--
+***********************************************************************
+* @UseCase     : CRUA010
+* @description : 입사지원서 출력
+***********************************************************************
+* 2007/01/02      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 입사지원서 내역을 조회 한다. -->
+    <sql name="CRUA010_SHR">
+        <description>입사지원 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT A.REG_NO, REPLACE(A.ENO_NM,' ','') AS ENO_NM, A.SEXGU,
+                    A.BIRYMD, A.ACPSTAT, B.TOEIC, B.TOEFL,
+                    SUBSTR(NVL(C.GSYMD, NVL(C.UYMD, NVL(C.CYMD, C.HYMD))),1,4)||'-'||
+                      SUBSTR(NVL(C.GSYMD, NVL(C.UYMD, NVL(C.CYMD, C.HYMD))),5,2) AS SCH_YMD,
+                    DECODE(C.GSNAME1, NULL, DECODE(C.UNAME1, NULL,
+                      DECODE(C.CNAME, NULL, C.HNAME,
+                        SF_GET_COMMNAME('01', 'E3', C.CNAME)||'대학'),
+                          SF_GET_COMMNAME('01', 'E4', C.UNAME1)||'대학교'),
+                            SF_GET_COMMNAME('01', 'E5', C.GSNAME2)||'대학원') AS SCH_NM,
+                    DECODE(C.GSMAJOR1, NULL, DECODE(C.UMAJOR, NULL,
+                      DECODE(C.CMAJOR, NULL, C.HMAJOR,
+                        SF_GET_COMMNAME('01', 'E6', C.CMAJOR)),
+                          SF_GET_COMMNAME('01', 'E6', C.UMAJOR)),
+                            SF_GET_COMMNAME('01', 'E6', C.GSMAJOR1)) AS SCH_MAJOR,
+                    DECODE(C.GSGRDYN, NULL, DECODE(C.UGRDYN, NULL,
+                      DECODE(C.CGRDYN, NULL, C.HGRDYN,
+                        SF_GET_COMMNAME('01', 'E7', C.CGRDYN)),
+                          SF_GET_COMMNAME('01', 'E7', C.UGRDYN)),
+                            SF_GET_COMMNAME('01', 'E7', C.GSGRDYN)) AS SCH_GRDYN,
+                    NVL(TO_CHAR(UAVE,'0.0'),TO_CHAR(GSAVE,'0.0'))||'/4.5' AS AVE
+             FROM   T_RC_MASTER A, T_RC_PERSON B, T_RC_SCHOOL C, T_RC_ADDPOINT D
+             WHERE  A.REG_NO = B.REG_NO(+)
+             AND    A.REG_NO = C.REG_NO(+)
+             [1]
+             AND    A.REGYY = ?
+             AND    A.REGCH = ?
+             AND    A.SPLIT_FLAG = ?
+             [2]
+             [3]
+             [4]
+             ORDER BY A.REG_NO
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 입사지원서 출력 -->
+<!--
+***********************************************************************
+* @UseCase     : CRUA010_MAIN
+* @description : 입사지원서 출력
+***********************************************************************
+* 2007/03/24      방석호       최초작성
+***********************************************************************
+-->
+
+    <!-- 입사지원서 내역을 조회 한다. -->
+    <sql name="CRUA010_MAIN">
+        <description>입사지원 정보 조회</description>
+        <query>
+            <![CDATA[
+
+           SELECT A.REG_NO,(A.JUMIN1 || '-' || A.JUMIN2) AS JUMIN,A.REGYY,A.REGCH,A.REGAPP,A.REGSEQ,A.ENO_NM,A.NAM_ENG,A.NAM_CHI,A.SEXGU,A.BIRYMD,A.BIRTAG,A.ORGADDR,A.WJOB1,A.WJOB2,A.WJOB3,A.MILYN,A.MILFREE,A.MILNO,A.MILSEC,A.MILGRD,A.MILPART,(A.MILFYMD || A.MILTYMD) AS MILTERM,A.BDHEI,A.BDWEI,A.EYEL,A.EYER,A.HOBBOY,A.SKILL,A.RELSEC,A.AWDYN,A.POST,A.SIKUKN,A.ADDR,   A.TEL1, A.TEL2, A.TEL3,
+			   A.HTEL1, A.HTEL2 , A.HTEL3, A.REGYMD,A.EMAIL,A.ACPSTAT,A.AGE,A.MILYY,A.MILMM,A.PASSTAG,A.PASSTAG1,A.PASSTAG2,A.PASSTAG3,A.PASSTAG4,A.PASSTAG5,A.PASSEND1,A.PASSEND2,A.PASSEND3,A.PASSEND4,A.PASSEND5,A.SPLIT_FLAG,A.EMP_PIC,A.WANT_DPT1,A.WANT_DPT2,A.WANT_DPT3,A.FIN_DPT,A.ORGAREA,A.PAY,A.BLOOD,A.LIVE,A.MOVPOR,A.IMOVPOR,A.PHOTO,A.PASSWORD,A.SUBMITFG,
+                 B.LANGNM1,B.LANGLEV1,B.LANGNM2,B.LANGLEV2,B.LANGNM3,B.LANGLEV3,B.TOEIC,B.TOEFL,B.TESTNM,B.TESTGRD,B.TESTTGRD,B.PCTOOL1,B.PCABLE1,B.PCTOOL2,B.PCABLE2,B.PCTOOL3,B.PCABLE3,B.LICENCE1,B.LICENCE2,B.LICENCE3,B.LICENCE4,B.AWDNM1,B.AWDCO1,B.AWDYMD1,B.AWDRGD1,B.AWDNM2,B.AWDCO2,B.AWDYMD2,B.AWDRGD2,B.AWDNM3,B.AWDCO3,B.AWDYMD3,B.AWDRGD3,B.SOCFYMD1,B.SOCTYMD1,B.SOCACT1,B.SOCFYMD2,B.SOCTYMD2,B.SOCACT2,B.CLUBNM1,B.CLUBFOR1,B.CLUBACT1,B.CLUBNM2,B.CLUBFOR2,B.CLUBACT2,B.TRAVELNM1,B.TRAVELFYMD1,B.TRAVELTYMD1,B.TRAVELFOR1,B.TRAVELNM2,B.TRAVELFYMD2,B.TRAVELTYMD2,B.TRAVELFOR2,B.MYSTRY,B.MYCHAR,B.MYEMOT,B.MYVISION,B.COMCR,B.LANGMAN1,B.LANGJUM1,B.LANGMAN2,B.LANGJUM2,B.LANGMAN3,B.LANGJUM3,B.LANGMAN4,B.LANGJUM4,B.TOEICLEV,B.TOEFLLEV,B.LICYMD1,B.LICYMD2,B.LICYMD3,B.LICYMD4,B.TESTNM2,B.TESTNM3,B.PCTOOL4,B.PCABLE4,
+				 C.PYMD,C.PNAME,C.PAREA,C.MYMD,C.MNAME,C.MAREA,C.HYMD,C.HNAME,C.HMAJOR,C.HGRDYN,C.CYMD,C.CNAME,C.CMAJOR,C.CGRDYN,C.EUYMD,C.EUNAME1,C.EUMAJOR,C.EUSEC,C.UYMD,C.UNAME1,C.UMAJOR,C.UGRDYN,C.GSYMD,C.GSNAME1,C.GSNAME2,C.GSMAJOR1,C.GSMAJOR2,C.GSGRDYN,C.AVE1,C.AVE2,C.AVE3,C.AVE4,C.TAVE,C.TALL,C.GRD1,C.GRD2,C.GRD3,C.TGRD,C.UAVE,C.GSAVE,C.UHAK,C.GSHAK
+             FROM   T_RC_MASTER A, T_RC_PERSON B, T_RC_SCHOOL C
+             WHERE  A.REG_NO = B.REG_NO
+             AND    A.REG_NO = C.REG_NO
+             AND A.REG_NO = ?
+             ORDER BY A.REG_NO
+            ]]>
+        </query>
+    </sql>
+
+<!-- 입사지원서 출력 -->
+<!--
+***********************************************************************
+* @UseCase     : CRUA010_FAMILY
+* @description : 입사지원서 출력
+***********************************************************************
+* 2007/03/24      방석호       최초작성
+***********************************************************************
+-->
+    <!-- 입사지원서 가족내역을 조회 한다. -->
+    <sql name="CRUA010_FAMILY">
+        <description>입사지원 가족정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				REG_NO,SEQ_NO,REG_ENO_NM,	FREL,FENO_NM,
+				FAGE,FSCH,	FJOB,FJOBNM,	FJOBPST,
+				DECODE(FJOBSEC, '1', '동거','') AS LIVEIN
+			FROM T_RC_FAMILY
+ 			WHERE REG_NO=?
+			AND	ROWNUM< 6
+			ORDER BY SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 입사지원서 출력 -->
+<!--
+***********************************************************************
+* @UseCase     : CRUA010_PR01
+* @description : 입사지원서 출력
+***********************************************************************
+* 2007/05/18     이승욱       최초작성
+***********************************************************************
+-->
+
+    <!-- 입사지원서 기본정보 조회 -->
+    <sql name="CRUA010_PR01">
+        <description>입사지원 기본정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT M.REG_NO                                                                                     -- 수험번호
+                 , SF_GET_COMMNAME('01','Z1',M.REGAPP)                                              as REGAPP   -- 응시분야
+                 , M.SPLIT_FLAG
+                 , REPLACE(M.ENO_NM,' ','') AS ENO_NM                                                                                   -- 성명
+                 , M.NAM_ENG
+                 , M.NAM_CHI
+                 , M.JUMIN1||'-'||M.JUMIN2                                                          as JUMIN_NO
+                 , TO_CHAR(TO_DATE(M.BIRYMD,'YYYYMMDD'),'YYYY.MM.DD')                               as BIRYMD   -- 생년월일
+                 , CASE WHEN M.BIRTAG = '1' THEN '○　'
+                        WHEN M.BIRTAG = '2' THEN '　○'
+                   END                                                                              as BIRTAG   -- 양력음력구분
+                 , SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),1,4) - SUBSTR(M.BIRYMD,1,4)                   as AGE      -- 만나이
+                 , M.ORGADDR                                                                                    -- 본적지주소
+                 , SF_GET_COMMNAME('01','Z3',M.WJOB1)                                               as WJOB1    -- 희망업무1
+                 , SF_GET_COMMNAME('01','Z3',M.WJOB2)                                               as WJOB2    -- 희망업무2
+                 , SF_GET_COMMNAME('01','Z3',M.WJOB3)                                               as WJOB3    -- 희망업무3
+                 , SF_GET_COMMNAME('01','Z4',WPLACE )                                               as WPLACE   -- 희망근무지
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(S.HYMD,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.HYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.HYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                        WHEN LENGTH(REPLACE(REPLACE(REPLACE(S.HYMD,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.HYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.HYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                   END                                                                              as HYM      -- 고등학교졸업연월
+                 , S.HNAME                                                                          as HNAME    -- 고등학교이름
+                 , S.HPLACE                                                                                     -- 고등학교소재지
+                 , CASE WHEN S.CGRDYN = 'A' AND LENGTH(REPLACE(REPLACE(REPLACE(S.CYMD,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.CYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.CYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                        WHEN S.CGRDYN = 'A' AND LENGTH(REPLACE(REPLACE(REPLACE(S.CYMD,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.CYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.CYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                        WHEN S.CGRDYN = 'A' THEN S.CYMD
+                   END                                                                              as CYM      -- 전문대졸업연월
+                 , CASE WHEN S.CGRDYN = 'A' THEN SF_GET_COMMNAME('01','E3',S.CNAME)  END as CNAME               -- 전문대이름
+                 , CASE WHEN S.CGRDYN = 'A' THEN SF_GET_COMMNAME('01','E6',S.CMAJOR) END as CMAJOR              -- 전문대전공
+                 , S.CPLACE                                                                                     -- 전문대소재지
+                 , CASE WHEN S.EUSEC IN ('G','I') AND LENGTH(REPLACE(REPLACE(REPLACE(S.EUYMD,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.EUYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.EUYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                        WHEN S.EUSEC IN ('G','I') AND LENGTH(REPLACE(REPLACE(REPLACE(S.EUYMD,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.EUYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.EUYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                        WHEN S.EUSEC IN ('G','I') THEN S.EUYMD
+                   END                                                                              as EUYM     -- 대학교입학연월
+                 , SF_GET_COMMNAME('01','E4',S.EUNAME1)                                             as EUNAME   -- 대학교이름
+                 , SF_GET_COMMNAME('01','E6',S.EUMAJOR)                                             as EUMAJOR  -- 대학교전공
+                 , CASE WHEN S.EUSEC = 'G' THEN '○ 　'
+                        WHEN S.EUSEC = 'I' THEN '　 ○'
+                   END                                                                              as EUSEC    -- 대학교입학편입여부
+                 , S.EUCGE                                                                                      -- 대학(학부)
+                 , S.EUPLACE                                                                                    -- 대학교소재지
+                 , CASE WHEN S.UGRDYN IN ('A','K','L','O','P','J','M','N','Q','R')
+                         AND LENGTH(REPLACE(REPLACE(REPLACE(S.UYMD,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.UYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.UYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                        WHEN S.UGRDYN IN ('A','K','L','O','P','J','M','N','Q','R')
+                         AND LENGTH(REPLACE(REPLACE(REPLACE(S.UYMD,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.UYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.UYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                        WHEN S.UGRDYN IN ('A','K','L','O','P','J','M','N','Q','R') THEN S.EUYMD
+                   END                                                                              as UMYM     -- 대학교졸업연월
+                 , SF_GET_COMMNAME('01','E4',S.UNAME1)                                              as UNAME    -- 대학교이름
+                 , SF_GET_COMMNAME('01','E6',S.UMAJOR)                                              as UMAJOR   -- 대학교전공
+                 , CASE WHEN S.UGRDYN IN ('A','K','L','O','P') THEN '○　　'
+                        WHEN S.UGRDYN IN ('J','M','N','Q','R') THEN '　　○'
+                   END                                                                              as UGRDYN   -- 대학교졸업여부
+                 , S.UCGE                                                                                       -- 대학(학부 )
+                 , S.UPLACE                                                                                     -- 대학교소재지
+                 , CASE WHEN S.GSGRDYN IN ('F','J','E','D')
+                         AND LENGTH(REPLACE(REPLACE(REPLACE(S.GSYMD,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.GSYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.GSYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                        WHEN S.GSGRDYN IN ('F','J','E','D')
+                         AND LENGTH(REPLACE(REPLACE(REPLACE(S.GSYMD,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(REPLACE(S.GSYMD,'.',NULL),'/',NULL),'-',NULL),1,4)||'년 '
+                          || SUBSTR(REPLACE(REPLACE(REPLACE(S.GSYMD,'.',NULL),'/',NULL),'-',NULL),5,2)||'월'
+                        WHEN S.GSGRDYN IN ('F','J','E','D')           THEN S.GSYMD
+                   END                                                                              as GSYM     -- 대학원졸업연도
+                 , SF_GET_COMMNAME('01','E4',S.GSNAME1)                                             as GSNAME1  -- 대학교이름
+                 , SF_GET_COMMNAME('01','E5',S.GSNAME2)                                             as GSNAME2  -- 대학원이름
+                 , SF_GET_COMMNAME('01','E6',S.GSMAJOR1)                                            as GSMAJOR1 -- 대학원학과
+                 , CASE WHEN S.GSMAJOR2='1' THEN '박사'
+                        WHEN S.GSMAJOR2='2' THEN '석사'
+                   END                                                                              as GSMAJOR2 -- 대학원과정
+                 , CASE WHEN S.GSGRDYN IN ('F') THEN '○　　 　　'                                              -- 학위취득
+                        WHEN S.GSGRDYN IN ('J') THEN '　 　 ○ 　　'                                            -- 취득예정
+                        WHEN S.GSGRDYN IN ('E') THEN '　　　    ○　'                                          -- 수료
+                        WHEN S.GSGRDYN IN ('D') THEN '　           ○'                                       -- 중퇴
+                   END                                                                              as GSGRDYN  -- 대학원졸업여부
+                 , S.GSCGE                                                                                      -- 대학원(학부)
+                 , S.GSPLACE                                                                                    -- 대학원소재지
+                 , S.UAVE                                                                                       -- 대학교평점
+                 , S.UHAK                                                                                       -- 대학교 총취득학점
+                 , S.GSAVE                                                                                      -- 대학원평점
+                 , S.GSHAK                                                                                      -- 대학원 총취득학점
+                 , M.BDHEI                                                                                      -- 신장
+                 , M.BDWEI                                                                                      -- 체중
+                 , M.EYEL                                                                                       -- 좌시력
+                 , M.EYER                                                                                       -- 우시력
+                 , M.C_EYEL                                                                                     --교정좌시력
+                 , M.C_EYER                                                                                     --교정우시력
+                 , M.BLOOD                                                                                      -- 혈액형
+                 , CASE WHEN M.AWDYN = 'Y' THEN '○　　'                                                        -- 대상
+                        WHEN M.AWDYN = 'N' THEN '　　○'                                                        -- 비대상
+                   END                                                                              as AWDYN    -- 보훈대상여부
+                 , M.SIKUKN                                                                                     -- 주소(시군)
+                 , M.ADDR                                                                                       -- 상세주소
+                 , SUBSTR(M.POST,1,3)                                                               as LPOST    -- 우편번호좌
+                 , SUBSTR(M.POST,4)                                                                 as RPOST    -- 우편번호우
+                 , M.TEL1                                                                                       -- 전화번호1
+                 , M.TEL2                                                                                       -- 전화번호2
+                 , M.TEL3                                                                                       -- 전화번호3
+                 , M.HTEL1                                                                                      -- 핸드폰번호1
+                 , M.HTEL2                                                                                      -- 핸드폰번호2
+                 , M.HTEL3                                                                                      -- 핸드폰번호3
+                 , M.EMAIL                                                                                      -- E-MAIL
+                 , P.LANGNM1                                                                                    -- 외국어명
+                 , P.LANGNM2                                                                                    -- 외국어명
+                 , P.LANGNM3                                                                                    -- 외국어명
+                 , P.TOEIC                                                                                      -- 토익점수
+                 , P.TOEFL                                                                                      -- 토플점수
+                 , P.LANGJUM1                                                                                   -- 외국어1점수
+                 , P.LANGMAN2                                                                                   -- 외국어2만점
+                 , P.LANGJUM2                                                                                   -- 외국어2점수
+                 , P.LANGMAN3                                                                                   -- 외국어3만점
+                 , P.LANGJUM3                                                                                   -- 외국어3점수
+                 , P.TESTNM                                                                                     --외국어 시험명
+                 , P.TESTNM2                                                                                    --외국어 시험명2
+                 , P.TESTNM3                                                                                    --외국어 시험명3
+                 , P.LICENCE1                                                                                   -- 자격면허
+                 , P.LICENCE2                                                                                   -- 자격면허
+                 , P.LICENCE3                                                                                   -- 자격면허
+                 , TO_CHAR(TO_DATE(P.LICYMD1,'YYYYMMDD'),'YYYY/MM/DD') LICYMD1                                  --자격면허취득일1
+                 , TO_CHAR(TO_DATE(P.LICYMD2,'YYYYMMDD'),'YYYY/MM/DD') LICYMD2                                  --자격면허취득일1
+                 , TO_CHAR(TO_DATE(P.LICYMD3,'YYYYMMDD'),'YYYY/MM/DD') LICYMD3                                  --자격면허취득일1
+                 , P.AWDNM1                                                                                     -- 시상명칭
+                 , P.AWDCO1                                                                                     -- 시상단체
+                 , TO_CHAR(TO_DATE(P.AWDYMD1,'YYYYMMDD'),'YYYY/MM/DD') AWDYMD1                                  -- 시상일자                                             -- 시상일자
+                 , P.AWDNM2                                                                                     -- 시상명칭
+                 , P.AWDCO2                                                                                     -- 시상단체
+                 , TO_CHAR(TO_DATE(P.AWDYMD2,'YYYYMMDD'),'YYYY/MM/DD') AWDYMD2                                  -- 시상일자
+                 , P.AWDNM3                                                                                     -- 시상명칭
+                 , P.AWDCO3                                                                                     -- 시상단체
+                 , TO_CHAR(TO_DATE(P.AWDYMD3,'YYYYMMDD'),'YYYY/MM/DD') AWDYMD3                                  -- 시상일자
+                 , SF_GET_COMMNAME('01','F1',M.MILYN)                                               as MILYN    -- 군필여부
+                 , SF_GET_COMMNAME('01','F5',M.MILFREE )                                            as MILFREE  -- 면제사유
+                 , SF_GET_COMMNAME('01','F4',M.MILSEC)                                              as MILSEC  -- 군별
+                 , SF_GET_COMMNAME('01','F6',M.MILGRD)                                              as MILGRD  -- 계급
+                 , SF_GET_COMMNAME('01','F7',M.MILPART)                                             as MILPART  -- 병과
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(M.MILFYMD,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(M.MILFYMD,'/',NULL),'-',NULL),1,4)||'.'
+                          || SUBSTR(REPLACE(REPLACE(M.MILFYMD,'/',NULL),'-',NULL),5,2)||'.'
+                          || SUBSTR(REPLACE(REPLACE(M.MILFYMD,'/',NULL),'-',NULL),7,2)
+                        ELSE REPLACE(REPLACE(M.MILFYMD,'/','.'),'-','.')
+                   END                                                                              as MILFYMD  -- 복무기간시작
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(M.MILTYMD,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(M.MILTYMD,'/',NULL),'-',NULL),1,4)||'.'
+                          || SUBSTR(REPLACE(REPLACE(M.MILTYMD,'/',NULL),'-',NULL),5,2)||'.'
+                          || SUBSTR(REPLACE(REPLACE(M.MILTYMD,'/',NULL),'-',NULL),7,2)
+                        ELSE REPLACE(REPLACE(M.MILTYMD,'/','.'),'-','.')
+                   END                                                                              as MILTYMD  -- 복무기간종료
+                 , M.HOBBY                                                                                      -- 취미
+                 , M.SKILL                                                                                      -- 특기
+                 , SF_GET_COMMNAME('01','D2',M.RELSEC)                                              as RELSEC   -- 종교
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.SOCFYMD1,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(P.SOCFYMD1,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCFYMD1,'.',NULL),'-',NULL),5,2)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCFYMD1,'.',NULL),'-',NULL),7,2)
+                        WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.SOCFYMD1,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(P.SOCFYMD1,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCFYMD1,'.',NULL),'-',NULL),5,2)
+                        ELSE REPLACE(REPLACE(P.SOCFYMD1,'.','/'),'-','/')
+                   END                                                                              as SOCFYMD1    -- 사회봉사기간Fr
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.SOCTYMD1,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(P.SOCTYMD1,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCTYMD1,'.',NULL),'-',NULL),5,2)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCTYMD1,'.',NULL),'-',NULL),7,2)
+                        WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.SOCTYMD1,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(P.SOCTYMD1,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCTYMD1,'.',NULL),'-',NULL),5,2)
+                        ELSE REPLACE(REPLACE(P.SOCTYMD1,'.','/'),'-','/')
+                   END                                                                              as SOCTYMD1    -- 사회봉사기간To
+                 , P.SOCACT1                                                                                       -- 사회봉사활동
+                 , P.SOCFELL1                                                                                      -- 사회봉사느낀점
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.SOCFYMD2,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(P.SOCFYMD2,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCFYMD2,'.',NULL),'-',NULL),5,2)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCFYMD2,'.',NULL),'-',NULL),7,2)
+                        WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.SOCFYMD2,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(P.SOCFYMD2,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCFYMD2,'.',NULL),'-',NULL),5,2)
+                        ELSE REPLACE(REPLACE(P.SOCFYMD2,'.','/'),'-','/')
+                   END                                                                              as SOCFYMD2    -- 사회봉사기간Fr
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.SOCTYMD2,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(P.SOCTYMD2,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCTYMD2,'.',NULL),'-',NULL),5,2)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCTYMD2,'.',NULL),'-',NULL),7,2)
+                        WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.SOCTYMD2,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(P.SOCTYMD2,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.SOCTYMD2,'.',NULL),'-',NULL),5,2)
+                        ELSE REPLACE(REPLACE(P.SOCTYMD2,'.','/'),'-','/')
+                   END                                                                              as SOCTYMD2    -- 사회봉사기간To
+                 , P.SOCACT2                                                                                       -- 사회봉사활동
+                 , P.SOCFELL2                                                                                      -- 사회봉사느낀점
+                 , P.CLUBNM1                                                                                       -- 동아리이름
+                 , P.CLUBFOR1                                                                                      -- 동아리성격
+                 , P.CLUBACT1                                                                                      -- 교내서클활동내용
+                 , P.CLUB_OBJ1                                                                                     -- 동아리 가입목적
+                 , P.CLUBNM2                                                                                       -- 동아리이름
+                 , P.CLUBFOR2                                                                                      -- 동아리성격
+                 , P.CLUBACT2                                                                                      -- 동아리활동내용
+                 , P.CLUB_OBJ2                                                                                     -- 동아리 가입목적
+                 , P.TRAVELNM1                                                                                     -- 해외여행국가명
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.TRAVELFYMD1,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD1,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD1,'.',NULL),'-',NULL),5,2)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD1,'.',NULL),'-',NULL),7,2)
+                        WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.TRAVELFYMD1,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD1,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD1,'.',NULL),'-',NULL),5,2)
+                        ELSE REPLACE(REPLACE(P.TRAVELFYMD1,'.','/'),'-','/')
+                   END                                                                              as TRAVELFYMD1 -- 해외여행기간Fr
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.TRAVELTYMD1,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD1,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD1,'.',NULL),'-',NULL),5,2)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD1,'.',NULL),'-',NULL),7,2)
+                        WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.TRAVELTYMD1,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD1,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD1,'.',NULL),'-',NULL),5,2)
+                        ELSE REPLACE(REPLACE(P.TRAVELTYMD1,'.','/'),'-','/')
+                   END                                                                              as TRAVELTYMD1 -- 해외여행기간To
+                 , P.TRAVELFOR1                                                                                    -- 해외여행내용
+                 , P.TRAVEL_RESULT1                                                                                -- 해외여행연수결과
+                 , P.TRAVELNM2                                                                                     -- 해외여행국가명
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.TRAVELFYMD2,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD2,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD2,'.',NULL),'-',NULL),5,2)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD2,'.',NULL),'-',NULL),7,2)
+                        WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.TRAVELFYMD2,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD2,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELFYMD2,'.',NULL),'-',NULL),5,2)
+                        ELSE REPLACE(REPLACE(P.TRAVELFYMD2,'.','/'),'-','/')
+                   END                                                                              as TRAVELFYMD2 -- 해외여행기간Fr
+                 , CASE WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.TRAVELTYMD2,'.',NULL),'/',NULL),'-',NULL)) = 8
+                        THEN SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD2,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD2,'.',NULL),'-',NULL),5,2)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD2,'.',NULL),'-',NULL),7,2)
+                        WHEN LENGTH(REPLACE(REPLACE(REPLACE(P.TRAVELTYMD2,'.',NULL),'/',NULL),'-',NULL)) = 6
+                        THEN SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD2,'.',NULL),'-',NULL),1,4)||'/'
+                          || SUBSTR(REPLACE(REPLACE(P.TRAVELTYMD2,'.',NULL),'-',NULL),5,2)
+                        ELSE REPLACE(REPLACE(P.TRAVELTYMD2,'.','/'),'-','/')
+                   END                                                                              as TRAVELTYMD2 -- 해외여행기간To
+                 , P.TRAVELFOR2                                                                                    -- 해외여행내용
+                 , P.TRAVEL_RESULT2                                                                                -- 해외여행연수결과
+                 , P.MYSTRY                                                                                        -- 성장과정
+                 , P.MYCHAR                                                                                        -- 성격 및 생활신조
+                 , P.MYINNO                                                                                        -- 창조적 사고와 추진력
+                 , P.MYEMOT                                                                                        -- 지원동기
+                 , P.MYVISION                                                                                      -- 입사후포부
+                 , P.COMCR                                                                                         -- 경력사항
+                 , M.PHOTO
+                 , TO_CHAR(SYSDATE,'YYYYMMDD')                                                      as PR_DATE
+                 , S.F_MAJOR
+                 , S.S_MAJOR
+                 , S.DET_MAJOR
+                 , S.PAPER
+              FROM T_RC_MASTER M, T_RC_PERSON P, T_RC_SCHOOL S
+             WHERE M.REG_NO     = P.REG_NO(+)
+               AND M.REG_NO     = S.REG_NO(+)
+               AND M.REGYY      = ?
+               AND M.REGCH      = ?
+               AND M.SPLIT_FLAG = ?
+               [1]
+               [2]
+               [3]
+               [4]
+             ORDER BY M.REG_NO
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 입사지원서 가족사항 조회 -->
+    <sql name="CRUA010_PR02">
+        <description>입사지원 가족사항 조회</description>
+        <query>
+            <![CDATA[
+             SELECT F.REG_NO                                       -- 수험번호
+                 , F.SEQ_NO                                       -- 일련번호
+                 , F.REG_ENO_NM                                   -- 지원자성명
+                 , SF_GET_COMMNAME('01','G1',F.FREL) as FREL      -- 가족관계
+                 , F.FENO_NM                                      -- 성명
+                 , F.FAGE                                         -- 나이
+                 , SF_GET_COMMNAME('01','E1',F.FSCH) as FSCH      -- 학력구분
+                 , F.FJOB                                         -- 직업
+                 , F.FJOBNM                                       -- 직장명
+                 , F.FJOBPST                                      -- 직급
+                 , CASE WHEN F.FJOBSEC  = 'Y' THEN '○ 　'
+                        WHEN F.FJOBSEC != 'Y' THEN '　 ○'
+                   END                               as FJOBSEC   -- 동거여부
+              FROM T_RC_FAMILY F
+                 , (SELECT M.REG_NO
+                      FROM T_RC_MASTER M, T_RC_SCHOOL S
+                     WHERE M.REG_NO = S.REG_NO
+                       AND M.REGYY      = ?
+                       AND M.REGCH      = ?
+                       AND M.SPLIT_FLAG = ?
+                       [1]
+                       [2]
+                       [3]
+                       [4]
+                    )          M
+             WHERE M.REG_NO  = F.REG_NO
+               AND F.FENO_NM IS NOT NULL
+               AND F.SEQ_NO <= '04'
+             ORDER BY M.REG_NO, F.SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 입사지원서 경력사항 조회 -->
+    <sql name="CRUA010_PRO3">
+        <description>입사지원 경력사항 조회</description>
+        <query>
+            <![CDATA[
+             SELECT REG_NO,
+                    GBN_TAG,
+                    TO_CHAR(TO_DATE(STR_YMD,'YYYYMMDD'),'YYYY/MM/DD') || ' ~ ' ||TO_CHAR(TO_DATE(END_YMD,'YYYYMMDD'),'YYYY/MM/DD') STR_END_YMD,
+                    FLOOR(MONTHS_BETWEEN(TO_DATE(END_YMD,'YYYYMMDD'), TO_DATE(STR_YMD,'YYYYMMDD'))/12) ||'년 ' ||
+                    FLOOR(MOD(MONTHS_BETWEEN(TO_DATE(END_YMD,'YYYYMMDD'), TO_DATE(STR_YMD,'YYYYMMDD')),12)) || '개월' AS MONTHS,
+                    ' '||CMP_NAM AS CMP_NAM,
+                    ' '||CHG_JOB AS CHG_JOB,
+                    JOB_CD,
+                    ' '||RET_REASON AS RET_REASON,
+                     CHR(13)||CHR(10)||CAREER_RECORD AS CAREER_RECORD,
+                    EDU_TITLE
+             FROM T_RC_BHISTORY
+             WHERE REG_NO = ?
+             AND GBN_TAG ='A'
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 입사지원서 전문교육 조회 -->
+    <sql name="CRUA010_PRO4">
+         <description>입사지원서 전문교육 조회</description>
+         <query>
+              <![CDATA[
+              SELECT REG_NO,
+                     EDU_TITLE,
+                     TO_CHAR(TO_DATE(STR_YMD,'YYYYMMDD'),'YYYY/MM/DD') || ' ~ ' ||TO_CHAR(TO_DATE(END_YMD,'YYYYMMDD'),'YYYY/MM/DD') STR_END_YMD,
+                     CMP_NAM
+              FROM T_RC_BHISTORY
+              WHERE REG_NO = ?
+              AND GBN_TAG ='B'
+
+              ]]>
+         </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : CRUA020
+* @description : 입사지원현황
+***********************************************************************
+* 2007/01/03      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 입사지원현황을 조회 한다. -->
+    <sql name="CRUA020_SHR">
+        <description>입사지원 현황 조회</description>
+        <query>
+            <![CDATA[
+             SELECT A.REG_NO, REPLACE(A.ENO_NM,' ','') AS ENO_NM, A.SEXGU, A.BIRYMD, A.ACPSTAT,
+                 --   SF_GET_DPTNAME('01', 'A4', A.WANT_DPT1) AS WANT_DPT1,
+                 --   SF_GET_DPTNAME('01', 'A4', A.WANT_DPT2) AS WANT_DPT2,
+                 --   SF_GET_DPTNAME('01', 'A4', A.WANT_DPT3) AS WANT_DPT3,
+                    SF_GET_COMMNAME('01','Z3',A.WJOB1)   AS WANT_DPT1,
+                    SF_GET_COMMNAME('01','Z3',A.WJOB2)  AS WANT_DPT2,
+                    SF_GET_COMMNAME('01','Z3',A.WJOB3)  AS WANT_DPT3,
+                    SF_GET_DPTNAME('01', 'A4', A.FIN_DPT) AS FIN_DPT,
+                    'TOEIC: '||B.TOEIC||'점' AS TOEIC, 'TOEFL: '||B.TOEFL||'점' AS TOEFL,
+                    B.LICENCE1, B.LICENCE2, B.LICENCE3, B.LICENCE4,
+                    SUBSTR(NVL(C.GSYMD, NVL(C.UYMD, NVL(C.CYMD, C.HYMD))),1,4)||'-'||
+                      SUBSTR(NVL(C.GSYMD, NVL(C.UYMD, NVL(C.CYMD, C.HYMD))),5,2) AS SCH_YMD,
+                    DECODE(C.GSNAME1, NULL, DECODE(C.UNAME1, NULL,
+                      DECODE(C.CNAME, NULL, C.HNAME,
+                        SF_GET_COMMNAME('01', 'E3', C.CNAME)||'대학'),
+                          SF_GET_COMMNAME('01', 'E4', C.UNAME1)||'대학교'),
+                            SF_GET_COMMNAME('01', 'E5', C.GSNAME2)||'대학원') AS SCH_NM,
+                    DECODE(C.GSMAJOR1, NULL, DECODE(C.UMAJOR, NULL,
+                      DECODE(C.CMAJOR, NULL, C.HMAJOR,
+                        SF_GET_COMMNAME('01', 'E6', C.CMAJOR)),
+                          SF_GET_COMMNAME('01', 'E6', C.UMAJOR)),
+                            SF_GET_COMMNAME('01', 'E6', C.GSMAJOR1)) AS SCH_MAJOR,
+                    DECODE(C.GSGRDYN, NULL, DECODE(C.UGRDYN, NULL,
+                      DECODE(C.CGRDYN, NULL, C.HGRDYN,
+                        SF_GET_COMMNAME('01', 'E7', C.CGRDYN)),
+                          SF_GET_COMMNAME('01', 'E7', C.UGRDYN)),
+                            SF_GET_COMMNAME('01', 'E7', C.GSGRDYN)) AS SCH_GRDYN,
+                    NVL(TO_CHAR(UAVE,'0.0'),TO_CHAR(GSAVE,'0.0'))||'/4.5' AS AVE,
+                    '1지망' AS TXT_WANT1, '2지망' AS TXT_WANT2, '3지망' AS TXT_WANT3
+             FROM   T_RC_MASTER A, T_RC_PERSON B, T_RC_SCHOOL C, T_RC_ADDPOINT D
+             WHERE  A.REG_NO = B.REG_NO(+)
+             AND    A.REG_NO = C.REG_NO(+)
+             [1]
+             AND    A.REGYY = ?
+             AND    A.REGCH = ?
+             AND    A.SPLIT_FLAG = ?
+             [2]
+             [3]
+             [4]
+             ORDER BY A.REG_NO
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : CRUA030
+* @description : 합격자등록
+***********************************************************************
+* 2007/01/04      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 입사지원서 내역을 조회 한다. -->
+    <sql name="CRUA030_SHR">
+        <description>입사지원 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.REG_NO
+                 , A.REGYY
+                 , A.REGCH
+                 , REPLACE(A.ENO_NM,' ','') AS ENO_NM
+                 , A.SEXGU
+                 , A.BIRYMD
+                 , DECODE(A.ACPSTAT,'N','','Y','Y') AS ACPSTAT
+                 , DECODE(A.PASSTAG,'N','','Y','Y') AS PASSTAG
+                 , DECODE(A.PASSTAG1,'N','','Y','Y') AS PASSTAG1
+                 , DECODE(A.PASSTAG2,'N','','Y','Y') AS PASSTAG2
+                 , DECODE(A.PASSTAG3,'N','','Y','Y') AS PASSTAG3
+                 , DECODE(A.PASSTAG4,'N','','Y','Y') AS PASSTAG4
+                 , DECODE(A.FINAL_PASS,'N','','Y','Y') AS FINAL_PASS
+                 , SUBSTR(REPLACE(REPLACE(REPLACE(NVL(B.GSYMD, NVL(B.UYMD, NVL(B.CYMD, B.HYMD))), '-', ''), '.', ''), '/', ''), 1, 6) AS SCH_YMD
+                 , NVL2( B.GSNAME1
+                       , SF_GET_COMMNAME('01', 'E5', B.GSNAME2)||'대학원'
+                       , NVL2( B.UNAME1
+                             , SF_GET_COMMNAME('01', 'E4', B.UNAME1)||'대학교'
+                             , NVL2( B.CNAME
+                                   , SF_GET_COMMNAME('01', 'E3', B.CNAME)||'대학'
+                                   , B.HNAME
+                                     )
+                               )
+                         ) AS SCH_NM
+
+                 , SF_GET_COMMNAME( '01'
+                                  , 'E6'
+                                  , NVL(B.GSMAJOR1, NVL(B.UMAJOR, NVL(B.CMAJOR, B.HMAJOR)))
+                                    ) AS SCH_MAJOR
+
+                 , SF_GET_COMMNAME( '01'
+                                  , 'E7'
+                                  , NVL(B.GSGRDYN, NVL(B.UGRDYN, NVL(B.CGRDYN, B.HGRDYN)))
+                                    ) AS SCH_GRDYN
+
+                 , NVL(C.TOTAL_PNT, 0) AS TOTAL_PNT
+                 , NVL(C.TOTAL_COV, 0) AS TOTAL_COV
+                 , NVL(C.TOTAL_PNT, 0)+NVL(C.TOTAL_COV, 0) AS TOTAL_SUM
+              FROM T_RC_MASTER A
+                 , T_RC_SCHOOL B
+                 , T_RC_ADDPOINT C
+             WHERE A.REG_NO     = B.REG_NO(+)
+               AND A.REGYY      = C.PIS_YY(+)
+               AND A.REGCH      = C.SEQ_NO(+)
+               AND A.REG_NO     = C.REG_NO(+)
+               AND A.REGYY      = ?
+               AND A.REGCH      = ?
+               AND A.SPLIT_FLAG = ?
+               [1]
+               [2]
+               [3]
+          ORDER BY A.REG_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 입사지원서 내역을 수정 한다. -->
+    <sql name="CRUA030_UPT">
+        <description>합격자등록</description>
+        <query>
+            <![CDATA[
+            UPDATE T_RC_MASTER
+               SET PASSTAG    = ?
+                 , PASSTAG1   = ?
+                 , PASSTAG2   = ?
+                 , PASSTAG3   = ?
+                 , PASSTAG4   = ?
+                 , FINAL_PASS = ?
+             WHERE REG_NO     = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : CRUA040
+* @description : 채용일정관리
+***********************************************************************
+* 2007/01/04      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 채용차수 및 진행단계를 조회 한다. -->
+    <sql name="CRUA040_SHR">
+        <description>채용일정 조회</description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YY
+                 , SEQ_NO
+                 , PRO_GBN
+                 , PRO_STS
+                 , GBN_TAG
+                 , DECODE( PRO_STS
+                         , '1', '작업오픈'
+                         , '2', '서류심사기준관리완료'
+                         , '3', '가산점관리완료'
+                         , '4', '1차면접완료'
+                         , '5', '2차면접완료'
+                         , '6', '3차면접완료'
+                         , '7', '신체검사완료'
+                         , '8', '작업 CLOSE'
+                           ) AS PRO_STS_MSG
+                 , TO_CHAR(TO_DATE(APP_STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS APP_STR_YMD
+                 , TO_CHAR(TO_DATE(APP_END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS APP_END_YMD
+                 , TO_CHAR(TO_DATE(FST_STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS FST_STR_YMD
+                 , TO_CHAR(TO_DATE(FST_END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS FST_END_YMD
+                 , TO_CHAR(TO_DATE(SND_STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS SND_STR_YMD
+                 , TO_CHAR(TO_DATE(SND_END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS SND_END_YMD
+                 , TO_CHAR(TO_DATE(TRD_STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS TRD_STR_YMD
+                 , TO_CHAR(TO_DATE(TRD_END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS TRD_END_YMD
+                 , TO_CHAR(TO_DATE(BDY_STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS BDY_STR_YMD
+                 , TO_CHAR(TO_DATE(BDY_END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS BDY_END_YMD
+                 , TO_CHAR(TO_DATE(PAS_STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS PAS_STR_YMD
+                 , TO_CHAR(TO_DATE(PAS_END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')     AS PAS_END_YMD
+                 , ITV11_ENO_NO
+                 , ITV12_ENO_NO
+                 , ITV13_ENO_NO
+                 , ITV14_ENO_NO
+                 , ITV15_ENO_NO
+                 , ITV21_ENO_NO
+                 , ITV22_ENO_NO
+                 , ITV23_ENO_NO
+                 , ITV24_ENO_NO
+                 , ITV25_ENO_NO
+                 , ITV31_ENO_NO
+                 , ITV32_ENO_NO
+                 , ITV33_ENO_NO
+                 , ITV34_ENO_NO
+                 , ITV35_ENO_NO
+                 , SF_GET_ENONAME('01',ITV11_ENO_NO)                           AS ITV11_ENO_NM
+                 , SF_GET_ENONAME('01',ITV12_ENO_NO)                           AS ITV12_ENO_NM
+                 , SF_GET_ENONAME('01',ITV13_ENO_NO)                           AS ITV13_ENO_NM
+                 , SF_GET_ENONAME('01',ITV14_ENO_NO)                           AS ITV14_ENO_NM
+                 , SF_GET_ENONAME('01',ITV15_ENO_NO)                           AS ITV15_ENO_NM
+                 , SF_GET_ENONAME('01',ITV21_ENO_NO)                           AS ITV21_ENO_NM
+                 , SF_GET_ENONAME('01',ITV22_ENO_NO)                           AS ITV22_ENO_NM
+                 , SF_GET_ENONAME('01',ITV23_ENO_NO)                           AS ITV23_ENO_NM
+                 , SF_GET_ENONAME('01',ITV24_ENO_NO)                           AS ITV24_ENO_NM
+                 , SF_GET_ENONAME('01',ITV25_ENO_NO)                           AS ITV25_ENO_NM
+                 , SF_GET_ENONAME('01',ITV31_ENO_NO)                           AS ITV31_ENO_NM
+                 , SF_GET_ENONAME('01',ITV32_ENO_NO)                           AS ITV32_ENO_NM
+                 , SF_GET_ENONAME('01',ITV33_ENO_NO)                           AS ITV33_ENO_NM
+                 , SF_GET_ENONAME('01',ITV34_ENO_NO)                           AS ITV34_ENO_NM
+                 , SF_GET_ENONAME('01',ITV35_ENO_NO)                           AS ITV35_ENO_NM
+              FROM T_RC_HISTORY
+             WHERE PIS_YY  = ?
+               AND SEQ_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 채용차수 및 진행단계를 조회 한다. -->
+    <sql name="CRUA040_SHR2">
+        <description>채용일정 조회2</description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YY
+                 , SEQ_NO
+                 , PRO_GBN
+                 , PRO_STS
+                 , GBN_TAG
+                 , DECODE( PRO_STS
+                         , '1', '작업오픈'
+                         , '2', '서류심사기준관리완료'
+                         , '3', '가산점관리완료'
+                         , '4', '1차면접완료'
+                         , '5', '2차면접완료'
+                         , '6', '3차면접완료'
+                         , '7', '신체검사완료'
+                         , '8', '작업 CLOSE'
+                           ) AS PRO_STS_MSG
+              FROM T_RC_HISTORY
+             WHERE PIS_YY  = ?
+               AND SEQ_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : CRUA050
+* @description : 서류심사기준관리
+***********************************************************************
+* 2007/01/05      오대성       최초작성
+* 2007/02/08      오대성       수정
+***********************************************************************
+-->
+
+    <!-- 서류심사기준을 조회 한다. -->
+    <sql name="CRUA050_SHR">
+        <description>서류심사기준 조회</description>
+        <query>
+            <![CDATA[
+             SELECT CD_GBN, TO_DATE(STR_YMD, 'YYYY-MM-DD') AS STR_YMD,
+                    TO_DATE(END_YMD, 'YYYY-MM-DD') AS END_YMD, WORK_GBN,
+                    SEQ_NO, BASE_CNT, BASE_CD, FULL_CNT, THAN_TAG, ADD_CNT,
+                    DECODE(CD_GBN, 'UGRDYN', SF_GET_COMMNAME('01', 'E7', BASE_CD),
+                                 'UMAJOR', SF_GET_COMMNAME('01', 'E6', BASE_CD),
+                                 'LICENSE', SF_GET_COMMNAME('01', 'H1', BASE_CD),
+                                 'MILYN', SF_GET_COMMNAME('01', 'F1', BASE_CD)) AS BASE_NM
+             FROM   T_RC_JUDGESTD
+             WHERE  CD_GBN LIKE '%'||?||'%'
+             AND    WORK_GBN LIKE '%'||?||'%'
+             [1]
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 서류심사기준을 저장 한다. -->
+    <sql name="CRUA050_INS">
+        <description>서류심사기준 등록</description>
+        <query>
+            <![CDATA[
+             INSERT INTO T_RC_JUDGESTD
+             ( CD_GBN, STR_YMD, END_YMD, WORK_GBN, SEQ_NO,
+               BASE_CNT, BASE_CD, FULL_CNT, THAN_TAG, ADD_CNT,
+               IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+             VALUES
+             ( ?     , ?     , ?       , ?       , (SELECT NVL(MAX(SEQ_NO),'0')+1
+                                                    FROM   T_RC_JUDGESTD
+                                                    WHERE  CD_GBN=?
+                                                    AND    STR_YMD=?
+                                                    AND    WORK_GBN=?
+                                                   )     ,
+               ?       , ?      , ?       , ?       , ?      ,
+               ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 서류심사기준을 수정 한다. -->
+    <sql name="CRUA050_UPT">
+        <description>서류심사기준 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_RC_JUDGESTD
+             SET    END_YMD = ?,			--종료일
+                    BASE_CNT = ?,			--기준점
+                    BASE_CD = ?,			--기준코드
+                    FULL_CNT = ?,			--환산만점
+                    THAN_TAG = ?,			--구분
+                    ADD_CNT = ?,			--가산점
+                    UPT_MAN = ?,			--수정자
+                    UPT_YMD = sysdate
+             WHERE  CD_GBN = ?				--기준항목
+             AND    STR_YMD = ?				--시작일
+             AND    WORK_GBN = ?			--적용항목
+             AND    SEQ_NO = ?				--순서
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 서류심사기준을 삭제 한다. -->
+    <sql name="CRUA050_DEL">
+        <description>서류심사기준 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE T_RC_JUDGESTD
+             WHERE  CD_GBN = ?				--기준항목
+             AND    STR_YMD = ?				--시작일
+             AND    WORK_GBN = ?			--적용항목
+             AND    SEQ_NO = ?				--순서
+
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : CRUA060
+* @description : 가산점관리
+***********************************************************************
+* 2007/02/13      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 입사지원자의 가산점을 조회 한다. -->
+    <sql name="CRUA060_SHR">
+        <description>가산점 조회</description>
+        <query>
+            <![CDATA[
+             SELECT ? AS PIS_YY
+                  , ? AS SEQ_NO
+                  , A.REG_NO
+                  , REPLACE(A.ENO_NM,' ','') AS ENO_NM
+                  , NVL(B.SCH_PNT       ,0) AS SCH_PNT
+                  , NVL(B.UYMD_PNT      ,0) AS UYMD_PNT
+                  , NVL(B.TAVE_PNT      ,0) AS TAVE_PNT
+                  , NVL(B.AWDYN_PNT     ,0) AS AWDYN_PNT
+                  , NVL(B.TOEIC_PNT     ,0) AS TOEIC_PNT
+                  , NVL(B.HSK_PNT       ,0) AS HSK_PNT
+                  , NVL(B.JPT_PNT       ,0) AS JPT_PNT
+                  , NVL(B.LICENCE_PNT   ,0) AS LICENCE_PNT
+                  , NVL(B.MILYN_PNT     ,0) AS MILYN_PNT
+                  , NVL(B.ETC_PNT       ,0) AS ETC_PNT
+                  , NVL(B.TOTAL_PNT     ,0) AS TOTAL_PNT
+               FROM T_RC_MASTER A
+                  , T_RC_ADDPOINT B
+              WHERE A.REGYY     = ?
+                AND A.REGCH     = ?
+                AND A.REGYY     = B.PIS_YY
+                AND A.REGCH     = B.SEQ_NO
+                AND A.REG_NO    = B.REG_NO
+                AND A.REG_NO LIKE '%'||?||'%'
+                AND NVL(A.ENO_NM, ' ') LIKE '%'||?||'%'
+                [1]
+           ORDER BY REG_NO
+
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 입사지원자의 가산점을 수정 한다. -->
+    <sql name="CRUA060_UPT">
+        <description>가산점 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_RC_ADDPOINT
+             SET    SCH_PNT = ?,			--학력가산점
+                    UYMD_PNT = ?,			--졸업년월가산점
+                    TAVE_PNT = ?,			--학점가산점
+                    AWDYN_PNT = ?,			--보훈대상가산점
+                    TOEIC_PNT = ?,			--토익가산점
+                    HSK_PNT = ?,			--HSK 가산점
+                    JPT_PNT = ?,			--JPT 가산점
+                    LICENCE_PNT = ?,		--자격증 가산점
+                    MILYN_PNT = ?,			--병역 가산점
+                    ETC_PNT = ?,			--기타 가산점
+                    TOTAL_PNT = ?,			--가산점 총합
+                    UPT_MAN = ?,			--수정자
+                    UPT_YMD = sysdate
+             WHERE  PIS_YY = ?				--채용년도
+             AND    SEQ_NO = ?				--차수
+             AND    REG_NO = ?				--수험번호
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : CRUA070
+* @description : ID, 비밀번호 생성
+***********************************************************************
+* 2007/01/05      오대성       최초작성
+* 2007/02/08      오대성       수정
+***********************************************************************
+-->
+
+	<!-- 채용차수별 아이디와 비밀번호를 조회 한다. -->
+    <sql name="CRUA070_SHR">
+        <description>채용차수별 아이디와 비밀번호 조회</description>
+        <query>
+            <![CDATA[
+             SELECT PIS_YY, SEQ_NO, ID_TAG, PW_TAG, SCH_TAG, REMARK
+             FROM   T_RC_IDENTITY
+             WHERE  PIS_YY = ?
+             AND    SEQ_NO = ?
+             AND    NVL(ID_TAG,' ') LIKE '%'||?||'%'
+             AND    NVL(SCH_TAG,' ') LIKE '%'||?||'%'
+             ORDER BY SCH_TAG
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 채용차수별 아이디와 비밀번호를 저장 한다. -->
+    <sql name="CRUA070_INS">
+        <description>채용차수별 아이디와 비밀번호 등록</description>
+        <query>
+            <![CDATA[
+             INSERT INTO T_RC_IDENTITY
+             ( PIS_YY, SEQ_NO, ID_TAG, PW_TAG, SCH_TAG, REMARK,
+               IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+             VALUES
+             ( ?     , ?     , ?     , ?     , ?      , ?     ,
+               ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 채용차수별 아이디와 비밀번호를 수정 한다. -->
+    <sql name="CRUA070_UPT">
+        <description>채용차수별 아이디와 비밀번호 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_RC_IDENTITY
+             SET    SCH_TAG = ?,			--학교
+                    REMARK = ?,				--비고
+                    UPT_MAN = ?,			--수정자
+                    UPT_YMD = sysdate
+             WHERE  PIS_YY = ?				--채용년도
+             AND    SEQ_NO = ?				--차수
+             AND    ID_TAG = ?				--아이디
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 채용차수별 아이디와 비밀번호를 삭제 한다. -->
+    <sql name="CRUA070_DEL">
+        <description>채용차수별 아이디와 비밀번호 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE T_RC_IDENTITY
+             WHERE  PIS_YY = ?				--채용년도
+             AND    SEQ_NO = ?				--차수
+             AND    ID_TAG = ?				--아이디
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : CRUA020_RPT
+* @description : 입사지원현황
+***********************************************************************
+* 2007/01/03      방석호       최초작성
+***********************************************************************
+-->
+
+    <!-- 입사지원현황을 조회 한다. -->
+    <sql name="CRUA020_PRT">
+        <description>입사지원 현황 조회</description>
+        <query>
+            <![CDATA[
+             SELECT A.REG_NO, REPLACE(A.ENO_NM,' ','') AS ENO_NM, A.SEXGU, A.BIRYMD , A.ACPSTAT,
+                --    SF_GET_DPTNAME('01', 'A4', A.WANT_DPT1) AS WANT_DPT1,
+                --    SF_GET_DPTNAME('01', 'A4', A.WANT_DPT2) AS WANT_DPT2,
+                --    SF_GET_DPTNAME('01', 'A4', A.WANT_DPT3) AS WANT_DPT3,
+                      SF_GET_COMMNAME('01','Z3',A.WJOB1)   AS WANT_DPT1,
+                      SF_GET_COMMNAME('01','Z3',A.WJOB2)  AS WANT_DPT2,
+                      SF_GET_COMMNAME('01','Z3',A.WJOB3)  AS WANT_DPT3,
+                      SF_GET_DPTNAME('01', 'A4', A.FIN_DPT) AS FIN_DPT,
+                    'TOEIC: '||B.TOEIC||'점'  || chr(13) || 'TOEFL: '||B.TOEFL||'점'  as TOEICTOFEL,
+                    B.LICENCE1  || chr(13) || B.LICENCE2  || chr(13) || B.LICENCE3  || chr(13) || B.LICENCE4 as LICENCE,
+                    SUBSTR(NVL(C.GSYMD, NVL(C.UYMD, NVL(C.CYMD, C.HYMD))),1,4)||'-'||
+                      SUBSTR(NVL(C.GSYMD, NVL(C.UYMD, NVL(C.CYMD, C.HYMD))),5,2) AS SCH_YMD,
+                    DECODE(C.GSNAME1, NULL, DECODE(C.UNAME1, NULL,
+                      DECODE(C.CNAME, NULL, C.HNAME,
+                        SF_GET_COMMNAME('01', 'E3', C.CNAME)||'대학'),
+                          SF_GET_COMMNAME('01', 'E4', C.UNAME1)||'대학교'),
+                            SF_GET_COMMNAME('01', 'E5', C.GSNAME2)||'대학원') AS SCH_NM,
+                    DECODE(C.GSMAJOR1, NULL, DECODE(C.UMAJOR, NULL,
+                      DECODE(C.CMAJOR, NULL, C.HMAJOR,
+                        SF_GET_COMMNAME('01', 'E6', C.CMAJOR)),
+                          SF_GET_COMMNAME('01', 'E6', C.UMAJOR)),
+                            SF_GET_COMMNAME('01', 'E6', C.GSMAJOR1)) AS SCH_MAJOR,
+                    DECODE(C.GSGRDYN, NULL, DECODE(C.UGRDYN, NULL,
+                      DECODE(C.CGRDYN, NULL, C.HGRDYN,
+                        SF_GET_COMMNAME('01', 'E7', C.CGRDYN)),
+                          SF_GET_COMMNAME('01', 'E7', C.UGRDYN)),
+                            SF_GET_COMMNAME('01', 'E7', C.GSGRDYN)) AS SCH_GRDYN,
+                    NVL(TO_CHAR(UAVE,'0.0'),TO_CHAR(GSAVE,'0.0'))||'/4.5' AS AVE,
+                    '1지망' AS TXT_WANT1, '2지망' AS TXT_WANT2, '3지망' AS TXT_WANT3
+             FROM   T_RC_MASTER A, T_RC_PERSON B, T_RC_SCHOOL C
+             WHERE  A.REG_NO = B.REG_NO(+)
+             AND    A.REG_NO = C.REG_NO(+)
+             AND    A.REGYY = ?
+             AND    A.REGCH = ?
+             AND    A.SPLIT_FLAG = ?
+             [1]
+             [2]
+             [3]
+             ORDER BY A.REG_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+</sqls>

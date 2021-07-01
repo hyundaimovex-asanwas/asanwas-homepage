@@ -1,0 +1,653 @@
+<!--
+/*--------------------------------------------------------------------------------
++ 시스템명 : 공종별 입찰현황
++ 프로그램ID : thms302.HTML
++ 기능정의 : 
++ 작 성 자 : 이 동 훈 
++ 작성일자 : 2010.12.07
+----------------------------------------------------------------------------------
++ 수정내용 :
++ 수 정 자 : 
++ 수정일자 :
+----------------------------------------------------------------------------------
++ 서블릿명 : thms_302_s1.java
+------------------------------------------------------------------------------>
+<html>
+<head>
+<title>기간별 입찰현황</title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+
+	get_cookdata();       //읽기
+
+	var gs_date = gcurdate.substring(0,10);
+
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+
+	ln_Before();		//선조회 조건
+
+
+
+}
+
+
+/******************************************************************************
+	Description : 선조회 조건
+******************************************************************************/
+function ln_Before(){
+
+
+	//업체
+	gcds_coop.DataID="/services/servlet/THMS.thms_site_s?v_str1=0003";
+	gcds_coop.Reset();
+
+
+	//입찰구분
+	gcds_bid_gb.DataID="/services/servlet/THMS.thms_site_s?v_str1=0007";
+	gcds_bid_gb.Reset();
+
+  	gcem_bidate_fr.text =  "20100101";
+  	gcem_bidate_to.text = gs_date;
+
+	 ln_SetDataHeader00();
+
+}
+
+
+/******************************************************************************
+	Description : 기본조회
+******************************************************************************/
+function ln_Query(){
+
+	gcds_data00.DataID = "/services/servlet/THMS.thms_302_s1?"	 		
+											 + "v_str1="														//업체명
+											 + "&v_str2="+gcem_bidate_fr.Text					//입찰일자fr
+											 + "&v_str3="+gcem_bidate_to.Text				//입찰일자to
+											 + "&v_str4="+gclx_bid_gb.bindcolval;				//입찰구분
+
+	//prompt(this, gcds_data00.DataID);
+
+	gcds_data00.Reset(); 
+
+
+}
+
+
+
+/******************************************************************************
+	Description : 데이타 셋 헤드 설정
+******************************************************************************/
+function ln_SetDataHeader00(){
+	if (gcds_data00.countrow<1){
+				var s_temp = "BID_NUM:STRING(20),"			
+									+"BID_STYLE:STRING(3),"   
+									+"BID_NM:STRING(30),"	
+									+"SITE_CD:STRING(10),"    											
+									+"SITE_NM:STRING(30),"		
+									+"CNST_CD:STRING(10),"    											
+									+"CNST_NM:STRING(30),"	
+									+"SEQ:STRING(1),"		
+									+"BID_COM:STRING(10),"		
+									+"BID_COM_NM:STRING(30)," 	
+									+"BID_AMT1:DECIMAL(12,0)," 	
+									+"BID_DAY:STRING(10)," 	
+									+"ORDER_CD:STRING(10)," 										
+									+"ACT_AMT:DECIMAL(12,0),"
+									+"START_DT:STRING(10),"	
+									+"END_DT:STRING(10),"	
+									+"ACT_AMT_HA:DECIMAL(12,0),"
+									+"START_DT_HA:STRING(10),"	
+									+"END_DT_HA:STRING(10),"	
+									+"RESULT_AMT:DECIMAL(12,0),"
+									+"RECO_NM:STRING(10),"
+									+"REMARK:STRING(50)"
+
+			gcds_data00.SetDataHeader(s_temp);
+	}
+	
+}
+
+
+
+/******************************************************************************
+	Description : 데이타 셋 헤드 설정
+******************************************************************************/
+function ln_SetPrintDataHeader(){
+
+	if (gcds_report00.countrow<1){
+
+				var s_temp =  "COOP_CD:STRING(10),"		
+									+"COOP_NM:STRING(50)," 			
+									+"COOP_YYMM:STRING(10)," 		
+									+"COOP_VGB:STRING(1)," 										
+									+"COOP_CERT:STRING(15),"	
+									+"COOP_DIRECT:STRING(20),"    											
+									+"ADDRESS:STRING(20),"		
+									+"COOP_STYLE:STRING(20),"
+									+"CREAT_DT:STRING(10),"							
+									+"LICENSE1:STRING(30),"			
+									+"CON_CAPA1:DECIMAL(15,0),"   												
+									+"LICENSE2:STRING(30),"	
+									+"CON_CAPA2:DECIMAL(15,0),"  											
+									+"LICENSE3:STRING(30),"	
+									+"CON_CAPA3:DECIMAL(15,0),"  												
+									+"DEBT_2008:STRING(20),"
+									+"DEBT_2009:STRING(20),"
+									+"DEBT_2010:STRING(20),"
+									+"DEBT_2011:STRING(20),"
+									+"CASH_2008:STRING(20),"
+									+"CASH_2009:STRING(20),"
+									+"CASH_2010:STRING(20),"
+									+"CASH_2011:STRING(20),"
+									+"CREDIT_2008:STRING(20),"
+									+"CREDIT_2009:STRING(20),"
+									+"CREDIT_2010:STRING(20),"
+									+"CREDIT_2011:STRING(20),"
+									+"DEFAULT:STRING(50),"			
+									+"PATENT:STRING(50),"		
+									+"RECOMMEND:STRING(50),"											
+									+"VD_TELNO:STRING(15),"			
+									+"VD_FAXNO:STRING(15),"		
+									+"REMARK:STRING(100)"			
+
+			gcds_report00.SetDataHeader(s_temp);
+	}
+	
+}
+
+
+/******************************************************************************
+	Description : 데이타 셋 헤드 설정
+******************************************************************************/
+function ln_SetPrintDataHeader2(){
+
+	if (gcds_report01.countrow<1){
+
+				var s_temp = "BID_NUM:STRING(20),"			
+									+"BID_STYLE:STRING(3),"   
+									+"BID_NM:STRING(30),"		
+									+"SITE_CD:STRING(10),"    											
+									+"SITE_NM:STRING(30),"		
+									+"CNST_CD:STRING(10),"    											
+									+"CNST_NM:STRING(30),"	
+									+"SEQ:STRING(1),"		
+									+"BID_COM:STRING(10),"		
+									+"BID_COM_NM:STRING(30)," 	
+									+"BID_AMT1:DECIMAL(12)," 	
+									+"BID_DAY:STRING(10)," 	
+									+"ORDER_CD:STRING(10)," 										
+									+"ACT_AMT:DECIMAL(12),"
+									+"START_DT:STRING(10),"	
+									+"END_DT:STRING(10),"	
+									+"ACT_AMT_HA:DECIMAL(12),"
+									+"START_DT_HA:STRING(10),"	
+									+"END_DT_HA:STRING(10),"	
+									+"RESULT_AMT:DECIMAL(12),"
+									+"RECO_NM:STRING(20),"
+									+"REMARK:STRING(50)";	
+
+			gcds_report01.SetDataHeader(s_temp);
+	}
+	
+}
+
+ 
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+		if (gcds_data00.countrow<1) {
+			alert("출력하실 정보가 없습니다");
+		} else {
+
+		gcds_report00.ClearAll();
+
+		ln_SetPrintDataHeader();
+
+		gcds_report00.Addrow();
+
+		for (var k=1;k<=gcds_data01.countcolumn;k++) {
+		 gcds_report00.namevalue(1,gcds_data01.columnid(k)) = gcds_data01.namevalue(gcds_data01.rowposition,gcds_data01.columnid(k));
+		}
+
+
+		gcds_report01.ClearAll();
+
+		ln_SetPrintDataHeader2();
+
+		for (var j=1;j<=gcds_data00.countrow;j++) {
+					gcds_report01.Addrow();
+					for (var k=1;k<=gcds_data00.countcolumn;k++) {
+					 gcds_report01.namevalue(j,gcds_data00.columnid(k)) = gcds_data00.namevalue(j,gcds_data00.columnid(k));
+					}
+
+		}
+
+
+		ln_RptFormat();		
+
+		ReportID.Preview();
+
+		}
+
+}
+
+
+/******************************************************************************
+		Description :  출력물 포멧 작성
+******************************************************************************/
+function ln_RptFormat(){
+		
+	var ls_for = "";
+	
+	ls_for += "<B>id=FHeader ,left=0,top=0 ,right=2000 ,bottom= 250 ,face='Tahoma' ,size=10 ,penwidth=1";
+	ls_for += "<I>id='../img/4t.jpg' ,left=50 ,top=0 ,right=299 ,bottom=220</I>";
+	ls_for += "<T>id='일자별 입찰이력관리' ,left=468 ,top=150 ,right=1426 ,bottom=235 ,face='Tahoma' ,size=18 ,bold=true ,underline=true ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>";
+	ls_for += "</B>";
+
+	ls_for += "<B>id=Footer ,left=0 ,top=2748 ,right=2000 ,bottom=2870 ,face='Tahoma' ,size=10 ,penwidth=1";
+	ls_for += "<I>id='../img/icon.jpg' ,left=1603 ,top=21 ,right=1953 ,bottom=103</I>";
+	ls_for += "</B>";
+
+	ReportID.format = ls_for + ReportID.format ;
+}
+
+
+/******************************************************************************
+		Description :  억지 Binding
+******************************************************************************/
+function ln_Query_Co(row,colid){
+	
+	var bid_com = gcds_data00.namevalue(row,"BID_COM");
+
+	gcds_data01.DataID = "/services/servlet/THMS.thms_303_s3?"	 		
+											 + "v_str1="+bid_com;						//업체코드
+	gcds_data01.Reset(); 
+}
+
+
+</script>
+
+<script language="javascript"  for="gcgd_disp" event="OnClick(row,colid)">
+	
+    //alert("Occur OnClick Event :" + "<ROW :" + row +">"+ "<Colid :" + colid + ">" )
+</script>
+
+
+<!-- 현장명  -->
+<script language="javascript" 	for="gcds_site" event="onloadCompleted(row,colid)">
+	gcds_site.insertrow(1);
+	gcds_site.namevalue(1,"COM_CODE") = "";
+	gcds_site.namevalue(1,"COM_SNAME") = "전체";
+	gclx_site.index = 0;
+</script>
+
+
+<!-- 공종명  -->
+<script language="javascript" 	for="gcds_cnst" event="onloadCompleted(row,colid)">
+	gcds_cnst.insertrow(1);
+	gcds_cnst.namevalue(1,"COM_CODE") = "";
+	gcds_cnst.namevalue(1,"COM_SNAME") = "전체";
+	gclx_cnst.index = 0;
+</script>
+
+<!-- 업체명  
+<script language="javascript" 	for="gcds_coop" event="onloadCompleted(row,colid)">
+	gcds_coop.insertrow(1);
+	gcds_coop.namevalue(1,"COM_CODE") = "";
+	gcds_coop.namevalue(1,"COM_SNAME") = "전체";
+	gclx_coop.index = 0;
+</script>
+-->
+<!-- 추천부서  -->
+<script language="javascript" 	for="gcds_reco_div" event="onloadCompleted(row,colid)">
+	gcds_reco_div.insertrow(1);
+	gcds_reco_div.namevalue(1,"COM_CODE") = "";
+	gcds_reco_div.namevalue(1,"COM_SNAME") = "전체";
+	gclx_reco_div.index = 0;
+</script>
+
+<!-- 입찰구분  -->
+<script language="javascript" 	for="gcds_bid_gb" event="onloadCompleted(row,colid)">
+	gcds_bid_gb.insertrow(1);
+	gcds_bid_gb.namevalue(1,"COM_CODE") = "";
+	gcds_bid_gb.namevalue(1,"COM_SNAME") = "전체";
+	gclx_bid_gb.index = 0;
+</script>
+
+
+
+
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<comment id="__NSID__">
+<OBJECT id=gcds_data00 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</OBJECT>
+</comment><script>__ws__(__NSID__);</script>
+
+
+<comment id="__NSID__">
+<OBJECT id=gcds_data01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</OBJECT>
+</comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__">
+<OBJECT id=gcds_site classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+</comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__">
+<OBJECT id=gcds_cnst classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+</comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__">
+<OBJECT id=gcds_coop classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+</comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__">
+<OBJECT id=gcds_reco_div classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+</comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__">
+<OBJECT id=gcds_bid_gb classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+</comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__">
+<object  id=gcds_report00 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 > 
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object>
+</comment><script>__ws__(__NSID__);</script> 
+
+<comment id="__NSID__">
+<object  id=gcds_report01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 > 
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object>
+</comment><script>__ws__(__NSID__);</script> 
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<comment id="__NSID__">
+<object id=gctr_data00 classid="clsid:0A2233AD-E771-11D2-973D-00104B15E56F" VIEWASTEXT>
+	<PARAM NAME="KeyName"		VALUE="toinb_dataid4">
+</object>
+</comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<!-- 업체 조회 -->
+<script language="javascript" for="gcds_data00" event="OnLoadStarted()">
+			window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+			document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language="javascript" for="gcds_data00" event="onloadCompleted(row,colid)">
+			window.status="조회가 완료 되었습니다.";
+			document.all.LowerFrame.style.visibility="hidden";
+			ft_cnt1.innerText = "조회건수 : " + row + " 건";
+			if (row <1) {
+			alert("검색된 데이터가 없습니다.");
+			}
+	ln_Query_Co(row,colid);	
+</script>
+
+<script language=JavaScript for=gctr_data00 event=OnFail()>
+	alert("Error Code : " + gctr_data00.ErrorCode + "\n" + "Error Message : " + gctr_data00.ErrorMsg + "\n");
+</script>
+
+<script language=JavaScript for=gctr_data00 event=OnSuccess()>
+    alert("저장에 성공하였습니다");
+	ln_Query();		
+</script>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+</head>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+<!--------------------------------- 코딩 부분 시작 ------------------------------->	
+<table width="876" cellpadding="0" cellspacing="0" border="0" style="position:relative;left:3px" height="47" background="../img/com_t_bg.gif">
+<tr> 
+			<td width="876" height = "30" align="right" background="../img/com_t_bg.gif">
+						<img src="../img/btn/com_b_excel.gif" style="position:relative;top:3px;cursor:hand" onclick="ln_Excel()">		
+						<img src="../img/btn/com_b_query.gif" style="position:relative;top:3px;cursor:hand" onclick="ln_Query()">								
+						<img src="../img/btn/com_b_print.gif" style="position:relative;top:3px;cursor:hand" onclick="ln_Print()">&nbsp;
+			</td>
+</tr>
+</table>
+
+<table  cellpadding="0" cellspacing="0" border="1"  style='position:relative;;left:7px;width:870px;height:30px;font-size:9pt;background-color:#ffffff;BORDER-LEFT-WIDTH:1px;border:1 solid #708090'>
+		<tr> 
+				<td class="tab12" style="height:30px;width:70px;" bgcolor="#eeeeee">입찰일자</td>
+				<td class="tab23">
+							<comment id="__NSID__">
+							<OBJECT id=gcem_bidate_fr classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  tabindex="1" style="position:relative; left:8px;top:1px; width:70px; height:20px; font-family:굴림; font-size:9pt;z-index:2; " class=objclsEme1>
+										<param name=Alignment			value=0>
+										<param name=Border	      value=true>
+										<param name=Format	      value="YYYY/MM/DD">
+										<param name=PromptChar	  value="_">
+							</OBJECT>
+							</comment><script>__ws__(__NSID__);</script>							
+							<img src="../img/btn/com_btn_calender.gif" style="position:relative;left:10px;cursor:hand" onclick="__GetCallCalendar('gcem_bidate_fr', 'Text');">
+							<span style="position:relative;left:0px;top:-4px;">&nbsp;~</span>								
+							<comment id="__NSID__">
+							<OBJECT id=gcem_bidate_to classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  tabindex="1" style="position:relative; left:0px;top:1px; width:67px; height:20px; font-family:굴림; font-size:9pt;z-index:2; " >
+										<param name=Alignment			value=0>
+										<param name=Border	      value=true>
+										<param name=Format	      value="YYYY/MM/DD">
+										<param name=PromptChar	  value="_">								
+							</OBJECT>
+							</comment><script>__ws__(__NSID__);</script>							
+							<img src="../img/btn/com_btn_calender.gif" style="position:relative;left:2px;cursor:hand" onclick="__GetCallCalendar('gcem_bidate_to', 'Text');">		
+				</td>
+
+				<td class="tab12" style="height:30px;width:70px;" bgcolor="#eeeeee">입찰구분</td>
+				<td class="tab23">
+				<comment id="__NSID__">
+				<object id="gclx_bid_gb" classid="clsid:60109D65-70C0-425C-B3A4-4CB001513C69" style="position: relative; left: 5px; top: 1px; font-size: 12px; width: 180px">
+										<param name="ComboDataID" value="gcds_bid_gb" />
+										<param name="CBDataColumns" value="COM_CODE, COM_SNAME" />
+										<param name="SearchColumn" value="COM_SNAME" />
+										<param name="Sort" value="false" />
+										<param name="Index" value="0" />
+										<param name="ListExprFormat" value="COM_SNAME^0^100" />
+										<param name="BindColumn" value="COM_CODE" />
+				</object>
+				</comment><script>__ws__(__NSID__);</script>
+				</td>	
+
+	</tr>
+</table>
+
+
+
+
+<table style ="position:relative" border="0" cellpadding="0" cellspacing="0" width="0">
+	<tr>
+		<td valign="top" bgcolor="#FFFFFF"style="padding-top:3px;">
+			<table border = "0" cellpadding=0 cellspacing=0 style="width:870px;height:450px;float:left;left:3px;top:-1px">
+				<tr height="1"><td></td></tr>
+				<tr>
+						<td width="0" style="padding-left:3px;">
+										<comment id="__NSID__">
+										<OBJECT classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_disp
+										width="870" height="450" style="border:1 solid #708090" >
+										<PARAM NAME="DataID"            VALUE="gcds_data00">
+										<PARAM NAME="BorderStyle" VALUE="0">
+										<PARAM NAME="Indwidth"      VALUE="0">
+										<PARAM NAME="Fillarea"      VALUE="true">
+										<PARAM NAME="Colsizing"     VALUE="true">
+										<param name="editable"      value="false">
+										<PARAM NAME="TitleHeight"   VALUE=30>
+										<param name="sortview"     value=left>
+										<PARAM NAME="Format"            VALUE="
+										<F> Name=NO               ID={CurRow}         HeadAlign=Center   HeadBgColor=#B9D4DC Width=35,  align=center </F>
+										<FC>Name=입찰번호,       ID=BID_NUM                    HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=150, align=center, sort = true  show=false</FC>
+										<FC>Name=일자,      ID=BID_DAY                   HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=70,align=center sort = true,  Mask='XXXX/XX/XX' suppress=2</FC>		
+										<FC>Name=현장명,       ID=SITE_NM                    HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=170,align=left, valign=center, sort = true  suppress=5</FC>										
+										<FC>Name=공종명,       ID=CNST_NM                    HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=100,align=center, sort = true  suppress=4</FC>
+										<C>Name=공사업체명,       ID=BID_COM_NM                    HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=120,align=center, sort = true  </C>
+
+
+										<C>Name=구분,      ID=BID_STYLE                   HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=80,align=center sort = true EditStyle=Combo		Data='01:본사입찰,02:본사견적대비,03:현장견적대비,04:수의계약' suppress=3</C>
+
+										<C>Name=당사예산,   ID=ACT_AMT              HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=90,align=center,  sort = true   suppress=1</C>
+
+
+										<C>Name=입찰금액,   ID=BID_AMT1              HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=90,align=center,  sort = true</C>
+
+										<C>Name=최종입찰금액,   ID=RESULT_AMT              HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=100,align=center,  sort = true   BgColor=#CCFF99</C>
+										<C>Name=추천부서,   ID=RECO_NM              HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=80,align=center,  sort = true </C>
+
+										<C>Name=비고,   ID=REMARK              HeadBgColor=#B9D4DC, bgcolor=#ffffff, width=100,align=center,  sort = true   </C>
+										">
+										</OBJECT>
+										</comment><script>__ws__(__NSID__);</script>
+										<fieldset style="width:870;height:25px;border:1 solid #708090;border-top-width:1px;text-align:left;">&nbsp;
+										<font id=ft_cnt1 style="position:relative;top:4px;"></font>
+										</fieldset>
+						</td>
+			</tr>
+</table>
+
+
+
+<!-----------------------------------------------------------------------------
+	  레포트 데이타쉣더퍽   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__">
+	<object id=ReportID classid=CLSID:37D13B2F-E5EB-11D2-973D-00104B15E56F>
+		<param name="MasterDataID"		value="gcds_report00">
+		<param name="PaperSize"			value="A4">
+		<param name="LandScape"			value="false" >
+		<param name="PrintSetupDlgFlag" value="true" />
+		<param name="ImagSyncFlag"     value="true">
+		<param name="PreviewZoom"		value="120" >
+		<param name="Format"				value="  
+
+<A>id=Area1 ,left=0,top=0 ,right=2000 ,bottom=200
+	<R>id='Bid.sbt' ,left=0 ,top=20 ,right=2000 ,bottom=200, DetailDataID=gcds_report01
+<B>id=DHeader ,left=0,top=0 ,right=2000 ,bottom=130 ,face='Tahoma' ,size=10 ,penwidth=1
+	<T>id='1. 입찰 및 견적 이력' ,left=19 ,top=3 ,right=794 ,bottom=69 ,align='left' ,face='Tahoma' ,size=12 ,bold=true ,underline=true ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>
+	<T>id='일자' ,left=19 ,top=66 ,right=200 ,bottom=130 ,face='Tahoma' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=3 ,pencolor=#000000</T>
+	<T>id='현장명' ,left=200 ,top=66 ,right=570 ,bottom=130 ,face='Tahoma' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=3 ,pencolor=#000000</T>
+	<T>id='구분' ,left=570 ,top=66 ,right=720 ,bottom=130 ,face='Tahoma' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=3 ,pencolor=#000000</T>
+	<T>id='공종명' ,left=720 ,top=66 ,right=1000 ,bottom=130 ,face='Tahoma' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=3 ,pencolor=#000000</T>
+	<T>id='업체명' ,left=1000 ,top=66 ,right=1330 ,bottom=130 ,face='Tahoma' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=3 ,pencolor=#000000</T>
+	<T>id='추천부서' ,left=1330 ,top=66 ,right=1500 ,bottom=130 ,face='Tahoma' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=3 ,pencolor=#000000</T>
+	<T>id='예산' ,left=1500 ,top=66 ,right=1680 ,bottom=130 ,face='Tahoma' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=3 ,pencolor=#000000</T>
+	<T>id='최종입찰금액' ,left=1680 ,top=66 ,right=1860 ,bottom=130 ,face='Tahoma' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=3 ,pencolor=#000000</T>
+	<T>id='등수' ,left=1860 ,top=66 ,right=1965 ,bottom=130 ,face='Tahoma' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=3 ,pencolor=#000000</T>
+</B>
+<B>id=default ,left=0,top=0 ,right=2000 ,bottom=61 ,face='Tahoma' ,size=10 ,penwidth=1
+	<C>id='BID_DAY', left=19, top=0, right=200, bottom=61, border=true, penstyle=solid, penwidth=1, pencolor=#000000</C>
+	<C>id='SITE_NM', left=200, top=0, right=570, bottom=61, border=true, penstyle=solid, penwidth=1, pencolor=#000000</C>
+	<C>id='BID_NM', left=570, top=0, right=720, bottom=61, border=true, penstyle=solid, penwidth=1, pencolor=#000000</C>
+	<C>id='CNST_NM', left=720, top=0, right=1000, bottom=61, border=true, penstyle=solid, penwidth=1, pencolor=#000000</C>
+	<C>id='BID_COM_NM', left=1000, top=0, right=1330, bottom=61, border=true, penstyle=solid, penwidth=1, pencolor=#000000</C>
+	<C>id='RECO_NM', left=1330, top=0, right=1500, bottom=61, border=true, penstyle=solid, penwidth=1, pencolor=#000000</C>
+	<C>id='ACT_AMT', left=1500, top=0, right=1680, bottom=61, border=true, penstyle=solid, penwidth=1, pencolor=#000000</C>
+	<C>id='{decode(RESULT_AMT,0,,RESULT_AMT)}', left=1680, top=0, right=1860, bottom=61,  border=true, penstyle=solid, penwidth=1, pencolor=#000000</C>
+	<C>id='SEQ', left=1860, top=0, right=1965, bottom=61, border=true, penstyle=solid, penwidth=1, pencolor=#000000</C>
+		</B>
+	</R>
+</A>
+
+
+"/>
+
+</object>
+</comment><script>__ws__(__NSID__);</script>
+
+
+
+
+	<!-- 기본탭 -->
+<comment id="__NSID__">
+	<OBJECT id=gcbn_data00 classid=clsid:9C9AB433-EA85-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+		<PARAM NAME="DataID"				VALUE="gcds_data01">
+		<PARAM NAME="ActiveBind"		VALUE="true">
+		<PARAM NAME="BindInfo"			VALUE="
+			<C>Col=COOP_NM,				Ctrl=gcem_coopnm      						Param=Text</C>
+			<C>Col=COOP_STYLE,			Ctrl=gcem_coopstyle      						Param=Text</C>
+			<C>Col=COOP_CD,				Ctrl=gcem_coopcd		      					Param=Text</C>
+			<C>Col=COOP_CERT,			Ctrl=gcem_coopcert      		  				Param=Text</C>
+			<C>Col=ADDRESS,				Ctrl=gcem_coopaddress      					Param=Text</C>
+			<C>Col=COOP_DIRECT,		Ctrl=gcem_coopdirect	      					Param=Text</C>
+			<C>Col=DEBT_2008,			Ctrl=gcem_coopdebt_2008      				Param=Text</C>
+			<C>Col=DEBT_2009,			Ctrl=gcem_coopdebt_2009      				Param=Text</C>
+			<C>Col=DEBT_2010,			Ctrl=gcem_coopdebt_2010      				Param=Text</C>
+			<C>Col=CASH_2008,			Ctrl=gcem_coopcash_2008      		 	Param=Text</C>
+			<C>Col=CASH_2009,			Ctrl=gcem_coopcash_2009      		  	Param=Text</C>
+			<C>Col=CASH_2010,			Ctrl=gcem_coopcash_2010      		  	Param=Text</C>
+			<C>Col=CREDIT_2008,	    Ctrl=gcem_coopcredit_2008      		  	Param=Text</C>
+			<C>Col=CREDIT_2009,		Ctrl=gcem_coopcredit_2009      		  	Param=Text</C>
+			<C>Col=CREDIT_2010,    	Ctrl=gcem_coopcredit_2010      		  	Param=Text</C>
+			<C>Col=LICENSE1,	  			Ctrl=gcem_cooplicense1      		  			Param=Text</C>	
+			<C>Col=LICENSE2,	  			Ctrl=gcem_cooplicense2      		  			Param=Text</C>		
+			<C>Col=LICENSE3,	  			Ctrl=gcem_cooplicense3      		  			Param=Text</C>	
+			<C>Col=CON_CAPA1,	  		Ctrl=gcem_coopcapa1	      		  			Param=Text</C>	
+			<C>Col=CON_CAPA2,	  		Ctrl=gcem_coopcapa2      		  			Param=Text</C>	
+			<C>Col=CON_CAPA3,			Ctrl=gcem_coopcapa3      		  	  		Param=Text</C>	
+			<C>Col=DEFAULT,				Ctrl=gcem_coopdefault	       					Param=Text</C>
+			<C>Col=PATENT,	 	 			Ctrl=gcem_cooppatent      		  			Param=Text</C>
+			<C>Col=RECOMMEND,	 	 	Ctrl=gcem_recommend      		  			Param=Text</C>
+			<C>Col=REMARK,	 	 			Ctrl=gcem_coopremark      		  			Param=Text</C>
+		">
+	</OBJECT>
+	</comment><script>__ws__(__NSID__);</script>
+
+
+
+<!--------------------------------- 코딩 부분 끝 -------------------------------->
+<comment id="__NSID__"><object id=gcbn_date classid=CLSID:9C9AB433-EA85-11D2-A4F9-00608CEBEE49> 
+	<param name=DataID    value=gcds_data>
+	<param name=BindInfo  value='
+	'>
+</object></comment><script>__ws__(__NSID__);</script>
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:280px; top:220px;" FrameBorder="0" src="../../common/img/flash/loading.swf" width="320px" height="42px"> </iframe> 
+</body>
+</html>

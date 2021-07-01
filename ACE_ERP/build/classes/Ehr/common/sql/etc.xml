@@ -1,0 +1,942 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 기타 -->
+<!--
+***********************************************************************
+* @UseCase     : ETCA010
+* @description : 프로그램 사용 로그 정보
+***********************************************************************
+* 2007/02/13      오대성       최초작성
+***********************************************************************
+-->
+    <!-- 프로그램 사용 로그 정보를 조회 한다. -->
+    <sql name="ETCA010_SHR">
+        <description>프로그램 사용 로그 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SUBSTR(ACCESS_TIME,1,19) ACCESS_TIME, A.PROG_ID, C.MENU_NM,
+                   SF_GET_DPTNAME(B.GUBUN,'A4',A.DPT_CD) DPT_NM, SF_GET_COMMNAME(B.GUBUN,'A2',A.JOB_CD) JOB_NM, A.ENO_NO, B.NAME
+              FROM T_CM_ACCESSLOG A, T_CM_EMPLIST B, T_CM_MENULST C
+             WHERE A.ENO_NO = B.ENO_NO
+               AND A.ACT_GBN = 'O'
+               AND A.ENO_NO LIKE '%'||?||'%'
+               AND B.DPT_CD LIKE ?
+               AND A.PROG_ID = C.MENU_ID
+               [1]
+          ORDER BY SUBSTR(ACCESS_TIME,1,19) DESC
+              ]]>
+        </query>
+    </sql>
+
+      <!-- 처음 개발 프로그램 변경
+
+            SELECT SUBSTR(A.ACCESS_TIME, 0, 19) AS ACCESS_TIME,
+                   A.PROG_ID, A.ENO_NO, A.IPADDRESS,
+                   SUBSTR(B.CLOSE_TIME, 0, 19) AS CLOSE_TIME,
+                   C.ENO_NM, C.DPT_NM,
+                   DECODE(CLOSE_TIME,NULL,'',
+                      LPAD(TRUNC((TO_DATE(SUBSTR(B.CLOSE_TIME,0,19),'YYYY-MM-DD HH24:MI:SS')
+                                   -TO_DATE(SUBSTR(A.ACCESS_TIME, 0, 19),'YYYY-MM-DD HH24:MI:SS'))*24*60),2,'0')
+                            ||':'|| LPAD(MOD((TO_DATE(SUBSTR(B.CLOSE_TIME,0,19),'YYYY-MM-DD HH24:MI:SS')
+                                          -TO_DATE(SUBSTR(A.ACCESS_TIME, 0, 19),'YYYY-MM-DD HH24:MI:SS'))*24*60*60,60),2,'0')) AS USE_TIME
+            FROM   T_CM_ACCESSLOG A,
+                   ( SELECT BB.ACCESS_TIME, AA.SESS_ID, AA.PROG_ID, AA.ACCESS_TIME AS CLOSE_TIME
+                      FROM  T_CM_ACCESSLOG AA,
+                            T_CM_ACCESSLOG BB
+                      WHERE AA.ACT_GBN = 'C'
+                      AND   BB.ACT_GBN = 'O'
+                      AND   AA.SESS_ID = BB.SESS_ID
+                      AND   AA.PROG_ID = BB.PROG_ID
+                      AND   BB.ACCESS_TIME = (SELECT MAX(ACCESS_TIME)
+                                             FROM T_CM_ACCESSLOG
+                                             WHERE SESS_ID = AA.SESS_ID
+                                             AND   PROG_ID = AA.PROG_ID
+                                             AND   ACT_GBN = BB.ACT_GBN
+                                             AND   ACCESS_TIME < AA.ACCESS_TIME) ) B,
+                   VI_T_CM_PERSON C
+            WHERE  A.ACT_GBN ='O'
+            AND    A.ENO_NO LIKE '%'||?||'%'
+            AND    A.ACCESS_TIME = B.ACCESS_TIME(+)
+            AND    A.SESS_ID = B.SESS_ID(+)
+            AND    A.PROG_ID = B.PROG_ID(+)
+            AND    A.ENO_NO = C.ENO_NO
+            [1]
+            ORDER BY ACCESS_TIME  -->
+
+
+<!--
+***********************************************************************
+* @UseCase     : ETCA020
+* @description : 업무별 담당자
+***********************************************************************
+* 2007/02/14      오대성       최초작성
+***********************************************************************
+-->
+    <!-- 업무별 담당자를 조회 한다. -->
+    <sql name="ETCA020_SHR">
+        <description>업무별 담당자 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.SEQ_NO, A.SVC_TAG, A.ENO_NO, A.PHN_NO,
+                   A.REMARK, B.ENO_NM, B.DPT_NM,
+                   CASE WHEN B.JOB_CD IN ('40', '4A', '4B', '50', '5A', '5B') THEN '사원'
+                   ELSE B.JOB_NM END JOB_NM
+            FROM   T_CM_SVCHARGE A, VI_T_CM_PERSON B
+            WHERE  A.ENO_NO = B.ENO_NO
+            ORDER BY TO_NUMBER(SEQ_NO)
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 업무별 담당자를 저장 한다. -->
+    <sql name="ETCA020_INS">
+        <description>업무별 담당자 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CM_SVCHARGE
+            ( SEQ_NO, SVC_TAG, ENO_NO, PHN_NO, REMARK,
+              IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+            ( ?     , ?      , ?     , ?     , ?     ,
+              ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 업무별 담당자 정보를 수정 한다. -->
+    <sql name="ETCA020_UPT">
+        <description>업무별 담당자 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_CM_SVCHARGE
+             SET    SVC_TAG = ?,			--담당업무
+                    ENO_NO = ?,				--담당사원
+                    PHN_NO = ?,				--전화번호
+                    REMARK = ?,				--비고
+                    UPT_MAN = ?,			--수정자
+                    UPT_YMD = sysdate
+             WHERE  SEQ_NO = ?				--일련번호
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 업무별 담당자 정보를 삭제 한다. -->
+    <sql name="ETCA020_DEL">
+        <description>업무별 담당자 정보 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE T_CM_SVCHARGE
+             WHERE  SEQ_NO = ?				--일련번호
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 권한 조회 -->
+    <sql name="ETCA020_SHR_01">
+        <description>권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT COMM_CD, ROLE_CD
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : ETCA030
+* @description : 우편번호검색
+***********************************************************************
+* 2007/02/14      오대성       최초작성
+***********************************************************************
+-->
+    <!-- 우편번호를 조회 한다. -->
+    <sql name="ETCA030_SHR">
+        <description>우편번호검색</description>
+        <query>
+            <![CDATA[
+            SELECT ZIPCODE,
+                   (SIDO || ' ' || GUGUN || ' ' || DONG || ' ' || BUNJI) AS ADDRESS_TOT,
+                   (SIDO || ' ' || GUGUN || ' ' || DONG)                 AS ADDRESS_ORG,
+                   (SIDO || ' ' || GUGUN)								  AS ADDRESS_GU
+            FROM    T_CM_POST
+            WHERE   DONG LIKE ?||'%'
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : ETCB010
+* @description : 통합결재현황
+***********************************************************************
+* 2007/10/07      한학현       최초작성
+***********************************************************************
+-->
+    <!-- 통합결재현황 조회 -->
+    <sql name="ETCB010_SHR">
+        <description>통합결재현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT APP_GBN, APP_GBN_NM, APP_TITLE, APP_YMD, PENO_NM, REQ_NO, GUN_YMD, GUN_DPT, ENO_NO, GUN_GBN, APP_TIME, APP_STATUS, APP_CMT, PENO_NO, SEQ_NO
+              FROM (
+					SELECT '0'  AS APP_GBN    -- 결재구분(0:일일근태,1:근태변경,2:익월근태,3:연차촉진제)
+					   ,'일일근태' AS APP_GBN_NM
+					   ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM   --상신자
+					  ,TO_CHAR(IPT_YMD,'YYYY/MM/DD')||' '||SF_GET_DPTNAME('01','A4',GUN_DPT) AS APP_TITLE
+					  ,TO_CHAR(IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+					                      , A.REQ_NO, GUN_YMD, GUN_DPT
+					  ,ENO_NO
+					  , GUN_GBN, APP_TIME
+					  ,'' AS APP_STATUS
+					  ,'' AS APP_CMT
+					  ,PENO_NO
+					  ,SEQ_NO
+					FROM T_DI_APPROVAL A,
+						 (SELECT REQ_NO,END_TAG FROM T_DI_DILIGENCE_IND GROUP BY REQ_NO,END_TAG ) B
+					WHERE 1=1
+					AND    A.REQ_NO = B.REQ_NO
+					AND    GUN_GBN = 'C'
+					AND    APP_YN IS NULL    AND END_TAG IS NULL
+					AND    ENO_NO = ?
+					AND    A.REQ_NO IS NOT NULL
+					AND    A.REQ_NO NOT IN (SELECT C.REQ_NO 
+														FROM T_DI_APPROVAL C
+														 WHERE C.REQ_NO = A.REQ_NO 
+														 AND C.SEQ_NO < A.SEQ_NO 
+														 AND C.GUN_GBN = 'C' 
+														 AND (C.APP_YN IS NULL OR C.APP_YN != 'Y'))					
+					UNION ALL
+					SELECT '1'  AS APP_GBN    -- 결재구분(0:일일근태,1:근태변경,2:익월근태,3:연차촉진제)
+						,'변경근태' AS APP_GBN_NM
+						,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM   --상신자
+						,TO_CHAR(IPT_YMD,'YYYY/MM/DD')||' '||SF_GET_DPTNAME('01','A4',GUN_DPT) AS APP_TITLE
+						,TO_CHAR(IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+						, A.REQ_NO, GUN_YMD, GUN_DPT
+						,ENO_NO
+						, GUN_GBN, APP_TIME
+						,'' AS APP_STATUS
+						,'' AS APP_CMT
+						,PENO_NO
+						,SEQ_NO
+					FROM T_DI_APPROVAL A,
+					     (SELECT REQ_NO,END_TAG FROM T_DI_CHANGE GROUP BY REQ_NO,END_TAG ) B
+					WHERE A.REQ_NO = B.REQ_NO
+					AND    GUN_GBN = 'U'
+					AND    APP_YN IS NULL   AND END_TAG IS NULL
+					AND    ENO_NO = ?
+					AND    A.REQ_NO IS NOT NULL
+					UNION ALL
+					SELECT  '2' AS APP_GBN    -- 결재구분(0:일일근태,1:근태변경,2:익월근태,3:연차촉진제)
+					       ,'익월근태' AS APP_GBN_NM
+					       ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM   --상신자
+					       ,TO_CHAR(TO_DATE(SUBSTR(A.REQ_NO,1,8),'YYYYMMDD'),'YYYY/MM/DD')||' '||SF_GET_DPTNAME('01','A4',GUN_DPT) AS APP_TITLE
+					       ,TO_CHAR(IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+					       , A.REQ_NO, GUN_YMD, GUN_DPT
+					       , A.ENO_NO
+					       , GUN_GBN, APP_TIME
+                           ,'' AS APP_STATUS
+                           ,'' AS APP_CMT
+                           ,PENO_NO
+                           ,SEQ_NO
+					FROM T_DI_APPROVAL A ,
+							(SELECT REQ_NO,END_TAG FROM T_DI_PLAN GROUP BY REQ_NO,END_TAG ) B
+					WHERE  A.REQ_NO = B.REQ_NO
+					AND    GUN_GBN = 'P'
+					AND    APP_YN IS NULL   AND END_TAG IS NULL
+					AND    A.ENO_NO = ?
+					-- AND    SUBSTR(REQ_NO, 1, 6) >= to_char(sysdate,'yyyymm')
+					UNION ALL
+					SELECT  '3' AS APP_GBN    -- 결재구분(0:일일근태,1:근태변경,2:익월근태,3:연차촉진제)
+					       ,'연차촉진제' AS APP_GBN_NM
+					       ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM   --상신자
+					       ,TO_CHAR(TO_DATE(SUBSTR(A.REQ_NO,1,8),'YYYYMMDD'),'YYYY/MM/DD')||' '||SF_GET_DPTNAME('01','A4',GUN_DPT) AS APP_TITLE
+					       ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+					       , A.REQ_NO, GUN_YMD, GUN_DPT
+					       , A.ENO_NO
+					       , GUN_GBN, APP_TIME
+                           ,'' AS APP_STATUS
+                           ,'' AS APP_CMT
+                           ,PENO_NO
+                           ,SEQ_NO
+					FROM T_DI_APPROVAL A ,
+							(SELECT REQ_NO,END_TAG FROM T_DI_ACCELERATE GROUP BY REQ_NO,END_TAG ) B
+					WHERE  A.REQ_NO = B.REQ_NO
+					AND    GUN_GBN = 'A'
+					AND    APP_YN IS NULL   AND END_TAG = 'R'
+					AND    A.ENO_NO = ?
+					AND    SUBSTR(A.REQ_NO, 1, 4) = TO_CHAR(SYSDATE, 'YYYY')
+				UNION ALL
+                   SELECT '4'  AS APP_GBN    -- 결재구분(0:일일근태,1:근태변경,2:익월근태,3:연차촉진제,4:파견관리)
+                      ,'파견관리' AS APP_GBN_NM
+                      ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM   --상신자
+                      ,TO_CHAR(TO_DATE(B.DIS_FR_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' ('||DIS_DAY||'일) '||B.DIS_OBJ AS APP_TITLE
+                     ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+                     , A.REQ_NO, GUN_YMD, GUN_DPT
+                     ,A.ENO_NO
+                     , GUN_GBN, APP_TIME
+					 ,B.APP_STATUS
+					 ,B.APP_CMT AS APP_CMT
+					 ,A.PENO_NO
+                     ,SEQ_NO
+                   FROM T_DI_APPROVAL A,
+                        T_DI_DISPATCH B
+                   WHERE 1=1
+                   AND    A.REQ_NO = B.ORD_NO
+                   AND    GUN_GBN = 'D'
+                   AND    APP_YN  = 'R'
+                   AND    A.ENO_NO = ?
+                   AND    A.REQ_NO IS NOT NULL
+                   AND    B.APP_STATUS IN ('2', '3')
+                   UNION ALL
+			       SELECT '5'  AS APP_GBN    -- 결재구분(5:해외출장)
+			          ,'해외출장' AS APP_GBN_NM
+			          ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM   --상신자
+			          ,TO_CHAR(TO_DATE(B.BUT_FR_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' ('||BUT_DAY||'일) '||B.BUT_OBJ AS APP_TITLE
+			         ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+			         , A.REQ_NO, GUN_YMD, GUN_DPT
+			         ,A.ENO_NO
+			         , GUN_GBN, APP_TIME
+					   ,B.APP_STATUS
+					   ,B.APP_CMT AS APP_CMT
+					   ,A.PENO_NO
+			         ,SEQ_NO
+			       FROM T_DI_APPROVAL A,
+			            T_DI_OVERSEASTRIP B
+			       WHERE 1=1
+			       AND    A.REQ_NO = B.ORD_NO
+			       AND    GUN_GBN = 'E'
+			       AND    APP_YN  = 'R'
+			       AND    A.ENO_NO = ?
+			       AND    A.REQ_NO IS NOT NULL
+			       AND    B.APP_STATUS IN ('2', '3')    -- 상신, 결재중
+                 UNION ALL
+					SELECT	'6'	AS APP_GBN    -- 결재구분(6:휴일수당정산,7:휴일근무신청,8:휴일결과보고)
+							,'휴일수당정산' AS APP_GBN_NM
+                            ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM
+                            ,SUBSTR(GUN_YMD,1,4) ||'/' || SUBSTR(GUN_YMD,5,6) || ' 휴일근무수당 급여 반영'   AS APP_TITLE
+							,TO_CHAR(IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+							, REQ_NO, GUN_YMD, GUN_DPT
+							,''
+							,''
+							,''
+							,'' AS APP_STATUS
+							,'' AS APP_CMT
+							,'' AS PENO_NO
+							,'' AS SEQ_NO
+					FROM	T_DI_APPROVAL
+					WHERE   GUN_GBN = 'J'
+					  AND	APP_YN = 'R'
+					  AND	ENO_NO = ?
+					UNION ALL
+					SELECT  DISTINCT  '7'     AS APP_GBN    -- 결재구분(6:휴일수당정산,7:휴일근무신청,8:휴일결과보고)
+							,'휴일근무신청' AS APP_GBN_NM
+							,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM
+							,TO_CHAR(TO_DATE(GUN_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' '||SF_GET_DPTNAME('01','A4',SUBSTR(REQ_NO,10)) AS APP_TITLE
+							,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+							, REQ_NO, GUN_YMD, GUN_DPT
+							,''
+							,''
+							,''
+							,'' AS APP_STATUS
+							,'' AS APP_CMT
+							,'' AS PENO_NO
+							,'' AS SEQ_NO
+					FROM	T_DI_APPROVAL A , T_DI_HOLIDAYWORK B
+					WHERE  A.GUN_YMD = B.HOL_YMD
+					  AND   SUBSTR(A.REQ_NO,10) = B.DPT_CD
+					  AND   GUN_GBN = 'R'
+					  AND   APP_YN is null    AND   B.END_TAG = 'R'  --신청 상신상태만
+					  AND   GUN_YMD > TO_CHAR(SYSDATE-55, 'YYYYMMDD')
+					  AND   A.ENO_NO = ?
+					UNION ALL
+					SELECT	 DISTINCT '8'	AS APP_GBN    -- 결재구분(6:휴일수당정산,7:휴일근무신청,8:휴일결과보고)
+							,'휴일결과보고' AS APP_GBN_NM
+							,SF_GET_ENONAME('01',A.PENO_NO) AS PENO_NM
+							,TO_CHAR(TO_DATE(A.GUN_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' '||SF_GET_DPTNAME('01','A4',SUBSTR(A.REQ_NO,10)) AS APP_TITLE
+							,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+							, A.REQ_NO, A.GUN_YMD, A.GUN_DPT
+							,''
+							,''
+							,''
+						,'' AS APP_STATUS
+						,'' AS APP_CMT
+						,'' AS PENO_NO
+						,'' AS SEQ_NO
+					FROM	T_DI_APPROVAL A , T_DI_HOLIDAYWORK B
+					WHERE  A.GUN_YMD = B.HOL_YMD
+					  AND  SUBSTR(A.REQ_NO,10) = B.DPT_CD
+					  AND    A.GUN_GBN = 'H'
+					  AND	A.APP_YN is null		AND   B.SIGN_TAG = 'R'  --결과 상신상태만
+					  AND   A.GUN_YMD BETWEEN TO_CHAR(SYSDATE-55,'YYYYMMDD') AND TO_CHAR(SYSDATE+30,'YYYYMMDD')  -- +30 삭제
+					  AND	A.ENO_NO = ?
+                 UNION ALL
+                    SELECT '9'         AS APP_GBN,
+                          '국내출장' AS APP_GBN_NM
+                          ,SF_GET_ENONAME('01',A.PENO_NO)   AS PENO_NM
+                          ,TO_CHAR(TO_DATE(C.BUT_FR_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' ('||BUT_DAY||'일) '||C.BUT_OBJ AS APP_TITLE
+                          ,TO_CHAR(C.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+                          , A.REQ_NO , A.GUN_YMD, A.GUN_DPT
+                          ,''    ,''   ,''
+                           ,B.APP_STATUS
+                           ,B.APP_CMT AS APP_CMT
+                          ,B.ENO_NO PENO_NO
+                          ,'' AS SEQ_NO
+                     FROM T_DI_APPROVAL A, T_DI_BUSINESSTRIP_STATE B, T_DI_BUSINESSTRIP C
+                    WHERE A.GUN_GBN  ='B'
+                      AND A.APP_YN IS NULL
+		              AND A.REQ_NO NOT IN ( SELECT D.REQ_NO FROM T_DI_APPROVAL D
+		              WHERE   ((SUBSTR(D.SEQ_NO,0,1) != '9' AND D.SEQ_NO = A.SEQ_NO) 
+		              OR (SUBSTR(A.SEQ_NO,0,1) = '9' AND D.SEQ_NO < A.SEQ_NO))
+		              AND D.ENO_NO != ?
+		              AND (D.APP_YN IS NULL OR D.APP_YN NOT IN ('Y'))
+		              AND D.REQ_NO =A.REQ_NO
+			          GROUP BY D.REQ_NO HAVING D.REQ_NO NOT IN (SELECT E.REQ_NO FROM T_DI_APPROVAL E
+				          WHERE   ((SUBSTR(E.SEQ_NO,0,1) != '9' AND E.SEQ_NO > A.SEQ_NO))
+				          AND E.ENO_NO != ?
+				          AND (E.APP_YN IS NULL OR E.APP_YN NOT IN ('Y'))
+				          AND E.REQ_NO =A.REQ_NO
+				          GROUP BY E.REQ_NO))
+                      AND A.REQ_NO = C.ORD_NO
+                      AND A.REQ_NO = B.ORD_NO
+                      AND B.APP_CMT = '상신'
+                      AND A.eno_no = ?
+                 UNION ALL
+                    SELECT '10'   AS APP_GBN,
+                           '경공조금' AS APP_GBN_NM
+                           ,SF_GET_ENONAME('01',B.ENO_NO) AS PENO_NM
+                           ,TO_CHAR(TO_DATE(AID_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' '||SF_GET_COMMNAME('01','R1',B.AID_CD) AS APP_TITLE
+                           ,TO_CHAR(B.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+                           , ORD_NO AS REQ_NO , '' AS GUN_YMD, A.DPT_CD  AS GUN_DPT
+							,''
+							,''
+							,''
+						,'' AS APP_STATUS
+						,'' AS APP_CMT
+						,'' AS PENO_NO
+						,'' AS SEQ_NO
+                      FROM T_AD_DECISION A, T_AD_AIDAPP B
+                     WHERE A.CK_TAG = 'K'
+         --              AND AUTHO_CD = 'A2'
+                       AND A.ORD_NO = B.REQ_NO
+                       AND A.APP_YN = 'N'
+                       AND B.AID_STS <> 'A'
+                       AND B.REQ_YMD >= TO_CHAR(SYSDATE-90,'YYYYMMDD')
+                       AND A.ENO_NO = ?
+                 UNION ALL
+                 	SELECT    '11'    AS APP_GBN    -- 결재구분(11.교육신청,12.연간교육신청,13.교육결과보고,14.OJT)
+                            ,'교육신청' AS APP_GBN_NM
+                            ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM
+                            ,TO_CHAR(TO_DATE(B.STR_YMD,'YYYYMMDD'),'YYYY/MM/DD')||'~'||TO_CHAR(TO_DATE(B.END_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' ['||B.EDU_NM||']' AS APP_TITLE
+                            ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+                            , A.REQ_NO, GUN_YMD, GUN_DPT
+                            ,A.ENO_NO
+                            ,A.GUN_GBN
+                            ,''
+                        ,'' AS APP_STATUS
+                        ,'' AS APP_CMT
+                        ,A.PENO_NO   AS PENO_NO
+                        ,A.SEQ_NO    AS SEQ_NO
+                    FROM    T_DI_APPROVAL A, T_CM_EDUCATION B
+                    WHERE   A.REQ_NO = B.REQ_NO
+                      AND   GUN_GBN = 'M'
+                      AND   APP_YN IS NULL AND B.DECISION_CD = 'A'  --교육신청결재상태 Q4
+                      AND   A.ENO_NO = ?
+                      
+                        AND A.REQ_NO NOT IN ( SELECT D.REQ_NO FROM T_DI_APPROVAL D
+                       WHERE   ((SUBSTR(D.SEQ_NO,0,1) != '9' AND D.SEQ_NO = A.SEQ_NO)
+                       OR (SUBSTR(A.SEQ_NO,0,1) = '9' AND D.SEQ_NO < A.SEQ_NO))
+                       AND D.ENO_NO !=?
+                       AND (D.APP_YN IS NULL OR D.APP_YN NOT IN ('Y'))
+                       AND D.REQ_NO =A.REQ_NO
+                           GROUP BY D.REQ_NO HAVING D.REQ_NO NOT IN (SELECT E.REQ_NO FROM T_DI_APPROVAL E
+                                   WHERE   ((SUBSTR(E.SEQ_NO,0,1) != '9' AND E.SEQ_NO > A.SEQ_NO))
+                                   AND E.ENO_NO !=?
+                                   AND (E.APP_YN IS NULL OR E.APP_YN NOT IN ('Y'))
+                                   AND E.REQ_NO =A.REQ_NO
+                                   GROUP BY E.REQ_NO))                         
+                      
+                      AND NOT EXISTS (SELECT 'x' FROM T_ED_YEARPLAN WHERE TO_CHAR(SYSDATE,'YYYYMMDD') BETWEEN APP_STR_YMD AND APP_END_YMD)
+                 UNION ALL
+                 	SELECT    '12'    AS APP_GBN    -- 결재구분(11.교육신청,12.연간교육신청,13.교육결과보고,14.OJT)
+                            ,'연간교육신청' AS APP_GBN_NM
+                            ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM
+                            ,TO_CHAR(TO_DATE(B.STR_YMD,'YYYYMMDD'),'YYYY/MM/DD')||'~'||TO_CHAR(TO_DATE(B.END_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' ['||B.EDU_NM||']' AS APP_TITLE
+                            ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+                            , A.REQ_NO, GUN_YMD, GUN_DPT
+                            ,A.ENO_NO
+                            ,A.GUN_GBN
+                            ,''
+                        ,'' AS APP_STATUS
+                        ,'' AS APP_CMT
+                        ,A.PENO_NO   AS PENO_NO
+                        ,A.SEQ_NO    AS SEQ_NO
+                    FROM    T_DI_APPROVAL A, T_CM_EDUCATION B
+                    WHERE   A.REQ_NO = B.REQ_NO
+                      AND GUN_GBN = 'M'
+                      AND    APP_YN IS NULL
+                      AND    A.ENO_NO = ?
+                      AND EXISTS (SELECT 'x' FROM T_ED_YEARPLAN WHERE TO_CHAR(SYSDATE,'YYYYMMDD') BETWEEN APP_STR_YMD AND APP_END_YMD)
+                 UNION ALL
+                 	SELECT    '13'    AS APP_GBN    -- 결재구분(11.교육신청,12.연간교육신청,13.교육결과보고,14.OJT)
+                            ,'교육결과보고' AS APP_GBN_NM
+                            ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM
+                            ,TO_CHAR(TO_DATE(B.STR_YMD,'YYYYMMDD'),'YYYY/MM/DD')||'~'||TO_CHAR(TO_DATE(B.END_YMD,'YYYYMMDD'),'YYYY/MM/DD')||' ['||B.EDU_NM||']' AS APP_TITLE
+                            ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+                            , A.REQ_NO, GUN_YMD, GUN_DPT
+                            ,A.ENO_NO
+                            ,A.GUN_GBN
+                            ,''
+                        ,'' AS APP_STATUS
+                        ,'' AS APP_CMT
+                        ,A.PENO_NO   AS PENO_NO
+                        ,A.SEQ_NO    AS SEQ_NO
+                    FROM    T_DI_APPROVAL A, T_CM_EDUCATION B
+                    WHERE   A.REQ_NO = B.RPT_REQ_NO
+                      AND GUN_GBN = 'N'
+                      AND    APP_YN IS NULL
+                      AND    A.ENO_NO = ?
+                 UNION ALL
+                 	SELECT    '14'    AS APP_GBN    -- 결재구분(11.교육신청,12.연간교육신청,13.교육결과보고,14.OJT)
+                            ,'신입사원OJT' AS APP_GBN_NM
+                            ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM
+                            ,SF_GET_ENONAME('01',B.ENO_NO)||' ['||SF_GET_DPTNAME('01','A4',TRA_DPT_CD)||']' AS APP_TITLE
+                            ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+                            , A.REQ_NO, GUN_YMD, GUN_DPT
+                            ,A.ENO_NO
+                            ,A.GUN_GBN
+                            ,''
+                        ,'' AS APP_STATUS
+                        ,'' AS APP_CMT
+                        ,A.PENO_NO   AS PENO_NO
+                        ,A.SEQ_NO    AS SEQ_NO
+                    FROM    T_DI_APPROVAL A, T_CD_OJTMST B
+                    WHERE   A.REQ_NO = B.REQ_NO
+                      AND GUN_GBN = 'L'
+                      AND    APP_YN IS NULL
+                      AND    A.ENO_NO = ?
+
+                 UNION ALL
+                 	SELECT    '15'    AS APP_GBN    -- 결재구분(15.도서구입)
+                            ,'도서구입' AS APP_GBN_NM
+                            ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM
+                            ,TO_CHAR(B.IPT_YMD,'YYYY/MM/DD') ||' ' ||SF_GET_ENONAME('01',B.IPT_MAN)||'  ' ||C.BOOK_NM||' / 용도:'|| B.RQST_REMARK AS APP_TITLE
+                            ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+                            , A.REQ_NO, GUN_YMD, GUN_DPT
+                            ,A.ENO_NO
+                            ,A.GUN_GBN
+                            ,''
+                        ,'' AS APP_STATUS
+                        ,'' AS APP_CMT
+                        ,A.PENO_NO   AS PENO_NO
+                        ,A.SEQ_NO    AS SEQ_NO
+                    FROM    T_DI_APPROVAL A, T_ED_BOOKM B, T_ED_BOOKD C
+                    WHERE   A.REQ_NO = B.RQST_NO AND B.RQST_NO = C.RQST_NO AND C.RQST_SEQ = '1'
+                      AND GUN_GBN = 'Q'
+                      AND (APP_YN IS NULL OR APP_YN = 'A')
+					  AND A.ENO_NO = ?
+                       AND A.REQ_NO NOT IN ( SELECT D.REQ_NO FROM T_DI_APPROVAL D
+                       WHERE   ((SUBSTR(D.SEQ_NO,0,1) != '9' AND D.SEQ_NO = A.SEQ_NO)
+                       OR (SUBSTR(A.SEQ_NO,0,1) = '9' AND D.SEQ_NO < A.SEQ_NO))
+                       AND D.ENO_NO != ?
+                       AND (D.APP_YN IS NULL OR D.APP_YN NOT IN ('Y'))
+                       AND D.REQ_NO =A.REQ_NO
+                           GROUP BY D.REQ_NO HAVING D.REQ_NO NOT IN (SELECT E.REQ_NO FROM T_DI_APPROVAL E
+                                   WHERE   ((SUBSTR(E.SEQ_NO,0,1) != '9' AND E.SEQ_NO > A.SEQ_NO))
+                                   AND E.ENO_NO !=  ?
+                                   AND (E.APP_YN IS NULL OR E.APP_YN NOT IN ('Y'))
+                                   AND E.REQ_NO =A.REQ_NO
+                                   GROUP BY E.REQ_NO))
+
+                      AND B.END_TAG NOT IN ('N')
+                      AND A.ENO_NO = ?
+
+                 UNION ALL
+		         SELECT    '16'    AS APP_GBN    
+		             ,'일용직노무비' AS APP_GBN_NM
+		             ,SF_GET_ENONAME('01',PENO_NO) AS PENO_NM
+		             ,TO_CHAR(IPT_YMD,'YYYY/MM/DD')||' '||SF_GET_COMMNAME('01', 'AY', SUBSTR(REQ_NO,7,4))||' '
+		             ||SUBSTR(REQ_NO,1,4)||'년도 '||SUBSTR(REQ_NO,5,2)||'월 '||' 일용직 노무비' AS  APP_TITLE
+		             ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS APP_YMD
+		             , A.REQ_NO, GUN_YMD, GUN_DPT
+		             ,A.ENO_NO
+		             ,A.GUN_GBN
+		             ,''
+		         ,'' AS APP_STATUS
+		         ,'' AS APP_CMT
+		         ,A.PENO_NO   AS PENO_NO
+		         ,A.SEQ_NO    AS SEQ_NO
+		         FROM T_DI_APPROVAL A
+		         WHERE   
+		          A.GUN_GBN = 'K'    
+                  AND A.ENO_NO = ?
+				  AND (A.APP_YN IS NULL OR A.APP_YN = 'R')
+                  )
+                  
+       WHERE [1]
+    ORDER BY APP_YMD
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : ETCB013
+* @description : 통합결재목록
+***********************************************************************
+* 2010/02/02      임종태       최초작성
+***********************************************************************
+-->
+    <!-- 통합결재현황 조회 -->
+    <sql name="ETCB013_SHR">
+        <description>통합결재현황 조회</description>
+        <query>
+            <![CDATA[
+SELECT *
+FROM
+(
+	SELECT  ( CASE WHEN GUN_GBN = 'C' THEN '일일근태'
+                   WHEN GUN_GBN = 'U' THEN '변경근태'
+                       WHEN GUN_GBN = 'P' THEN '익월근태'
+                       WHEN GUN_GBN = 'A' THEN '연차촉진제'
+					   WHEN GUN_GBN = 'R' THEN '휴일신청'
+                       WHEN GUN_GBN = 'H' THEN '휴일결과보고'
+                       WHEN GUN_GBN = 'J' THEN '휴일수당정산'
+                       WHEN GUN_GBN = 'Q' THEN '도서구입'
+                       WHEN GUN_GBN = 'B' THEN '출장신청'
+				   ELSE ''
+			  END
+			)
+			GBN_NM	-- 근태구분
+				   ,PENO_NO
+				   ,ENO_NO
+		   ,SF_GET_JOBNAME('01',A.PENO_NO)||' '|| SF_GET_ENONAME('01',A.PENO_NO)   AS PENO_NM
+		   ,SF_GET_JOBNAME('01',A.ENO_NO)||' '|| SF_GET_ENONAME('01',A.ENO_NO)   AS ENO_NM
+		   ,(CASE WHEN APP_YN = 'Y' THEN '결재'
+		          WHEN APP_YN = 'N' THEN '부결'
+				  WHEN APP_YN = 'R' THEN '미결'
+				  ELSE '미결'
+			 END)
+			 APP_YN  -- 결재여부
+			 ,IPT_YMD
+	FROM T_DI_APPROVAL A
+	WHERE TO_CHAR(IPT_YMD, 'YYYYMMDD') >= ?
+	AND	  TO_CHAR(IPT_YMD, 'YYYYMMDD') <= ?
+	AND   ENO_NO LIKE ? || '%'
+	UNION ALL
+	SELECT  '국내출장'	AS GBN_NM	-- 구분
+					   ,B.ENO_NO
+				   ,A.ENO_NO
+		   ,SF_GET_JOBNAME('01',B.ENO_NO)||' '|| SF_GET_ENONAME('01',B.ENO_NO)   AS PENO_NM
+		   ,SF_GET_JOBNAME('01',A.ENO_NO)||' '|| SF_GET_ENONAME('01',A.ENO_NO)   AS ENO_NM
+		   ,(CASE WHEN APP_YN = 'Y' THEN '결재'
+		          WHEN APP_YN = 'N' THEN '부결'
+				  WHEN APP_YN = 'R' THEN '미결'
+				  ELSE '미결'
+			 END)
+			 APP_YN  -- 결재여부
+			 ,A.IPT_YMD
+	FROM T_AD_DECISION A, T_DI_BUSINESSTRIP_STATE B
+	WHERE A.ORD_NO = B.ORD_NO
+	AND   CK_TAG = 'C'
+	AND   TO_CHAR(A.IPT_YMD, 'YYYYMMDD') >= ?
+	AND	  TO_CHAR(A.IPT_YMD, 'YYYYMMDD') <= ?
+	AND   A.ENO_NO LIKE ? || '%'
+	UNION ALL
+	SELECT  '경공조금' AS GBN_NM	-- 구분
+				   ,B.ENO_NO
+				   ,A.ENO_NO
+		   ,SF_GET_JOBNAME('01',B.ENO_NO)||' '|| SF_GET_ENONAME('01',B.ENO_NO)   AS PENO_NM
+		   ,SF_GET_JOBNAME('01',A.ENO_NO)||' '|| SF_GET_ENONAME('01',A.ENO_NO)   AS ENO_NM
+		   ,(CASE WHEN APP_YN = 'Y' THEN '결재'
+		          WHEN APP_YN = 'N' THEN '부결'
+				  WHEN APP_YN = 'R' THEN '미결'
+				  ELSE '미결'
+			 END)
+			 APP_YN  -- 결재여부
+			 ,A.IPT_YMD
+	FROM T_AD_DECISION A, T_AD_AIDAPP B
+	WHERE A.ORD_NO = B.REQ_NO
+	AND   CK_TAG = 'K'
+	AND   TO_CHAR(A.IPT_YMD, 'YYYYMMDD') >= ?
+	AND	  TO_CHAR(A.IPT_YMD, 'YYYYMMDD') <= ?
+	AND   A.ENO_NO LIKE ? || '%'
+)
+WHERE APP_YN LIKE ? || '%'
+ORDER BY IPT_YMD
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : ETCB070
+* @description : 근태현황 결재처리목록
+***********************************************************************
+* 2009/10/20     임종태        최초작성.
+***********************************************************************
+-->
+    <!-- 근태현황 결재처리 조회 -->
+    <sql name="ETCB070_SHR">
+        <description>근태현황 결재처리 조회</description>
+        <query>
+            <![CDATA[
+			SELECT  A.GUN_YMD -- 근태일
+			       ,A.GUN_DPT -- 근태부서
+				   ,SF_GET_DPTNAME('01','A4',A.GUN_DPT)    AS DPT_NM -- 근태부서
+				   ,A.PENO_NO -- 상신자
+				   ,SF_GET_JOBNAME('01',A.PENO_NO)||' '|| SF_GET_ENONAME('01',A.PENO_NO)   AS PENO_NM
+				   ,A.ENO_NO -- 결재자
+				   ,SF_GET_JOBNAME('01',A.ENO_NO)||' '|| SF_GET_ENONAME('01',A.ENO_NO)   AS ENO_NM
+				   ,GUN_GBN  -- 결재구분
+				   ,DECODE(GUN_GBN, 'C', '일일근태', 'U', '변경신청', 'R', '대체근무', '일일근태') GUN_GBN_NM -- 결재구분명
+				   ,APP_YN
+				   ,DECODE(APP_YN,'Y','결재','N','부결','미결') APP_YN_NM -- 결재여부
+				   ,APP_TIME
+				   ,REQ_NO	-- 등록번호
+				   ,SEQ_NO  -- 결재선
+			FROM T_DI_APPROVAL A, VI_T_CM_PERSON B
+			WHERE A.ENO_NO = B.ENO_NO
+			AND   A.GUN_GBN <> 'R'
+			AND   (A.ENO_NO  =  ? OR A.PENO_NO = ?) -- 결재자사번,상신자사번
+			AND   A.GUN_DPT LIKE ? || '%'
+			AND   A.REQ_NO IN
+				    (
+				  	SELECT REQ_NO
+					FROM T_DI_DILIGENCE_IND
+					WHERE 1 = 1
+					AND  PIS_YYMMDD >= ?
+					AND  PIS_YYMMDD <= ?
+					GROUP BY REQ_NO
+					 UNION ALL
+					 SELECT REQ_NO
+					 FROM T_DI_CHANGE
+					 WHERE CHN_YMD >= ?
+					 AND   CHN_YMD <= ?
+					 GROUP BY REQ_NO
+					)
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : ETCB071
+* @description : 근태현황 결재처리 - 결재세부사항
+***********************************************************************
+* 2009/10/20     임종태        최초작성.
+***********************************************************************
+-->
+    <!-- 결재세부사항 조회(변경신청) -->
+    <sql name="ETCB071_SHR_01">
+        <description>결재세부사항 조회(변경신청)</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO,
+                   SF_GET_COMMNAME('01', 'H4',A.BF_GUN_CD)||'('||A.BF_GUN_CD||')' as BF_GUN_CD,
+                   A.BF_REMARK,
+                   SF_GET_COMMNAME('01', 'H4',A.GUN_CD)||'('||A.GUN_CD||')' as GUN_CD,
+                   A.REMARK,
+                   A.REASON,
+                   A.REQ_YMD,
+                   A.CHN_YMD,
+                   B.DPT_NM,
+                   B.JOB_NM,
+                   B.ENO_NM
+            FROM   T_DI_CHANGE A, VI_T_CM_EMPLIST B
+            WHERE  A.REQ_NO = ?
+            AND    A.ENO_NO = B.ENO_NO
+            ORDER BY A.REQ_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재세부사항 조회(일일근태) -->
+    <sql name="ETCB071_SHR_02">
+        <description>결재세부사항 조회(일일근태)</description>
+        <query>
+            <![CDATA[
+			SELECT
+			        B.ENO_NM
+				   ,B.DPT_NM
+				   ,B.JOB_NM
+				   ,A.ENO_NO
+				   ,SF_GET_COMMNAME('01', 'H4', A.GUN_CD) || '(' || A.GUN_CD || ')' AS GUN_CD
+				   ,A.PIS_YYMMDD
+				   ,A.REMARK
+			FROM T_DI_DILIGENCE_IND A, VI_T_CM_PERSON B
+			WHERE 1 = 1
+			AND A.ENO_NO = B.ENO_NO
+			AND A.REQ_NO = ?	-- 등록번호
+			ORDER BY A.PIS_YYMMDD
+            ]]>
+        </query>
+    </sql>
+
+  <!-- 결재처리 -->
+    <sql name="ETCB071_UPT">
+        <description>결재정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_DI_APPROVAL
+            SET    APP_YN = ?,
+                   APP_TIME = TO_CHAR(sysdate,'HH24:MI'),
+                   UPT_MAN = ?,
+                   UPT_YMD = sysdate
+            WHERE  1=1
+            AND    SEQ_NO  = ?
+            AND    REQ_NO  = ?
+            AND    GUN_GBN = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+  <!-- 결재한개수 세기 -->
+    <sql name="ETCB071_CNT">
+        <description>결재정보개수세기</description>
+        <query>
+            <![CDATA[
+			SELECT APP_YN
+			FROM T_DI_APPROVAL
+			WHERE  REQ_NO  = ?
+			AND    GUN_GBN = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 일일 근태정보 수정 한다. -->
+    <sql name="ETCB071_UPT_01">
+        <description>일일근태 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_DI_DILIGENCE
+             SET     [1]
+                     UPT_MAN = ?,
+                     UPT_YMD = sysdate
+             WHERE   PIS_YY  = ?
+             AND     PIS_MM  = ?
+             AND     ENO_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 일일 근태정보 수정 임시데이터 조회. -->
+    <sql name="ETCB071_SHR_03">
+        <description>일일근태 정보 임시데이터 조회</description>
+        <query>
+            <![CDATA[
+			SELECT REQ_NO,
+				   PIS_YYMMDD,
+				   ENO_NO,
+				   GUN_CD,
+				   REMARK
+			FROM T_DI_DILIGENCE_IND
+			WHERE 1 = 1
+			AND   REQ_NO = ? -- 등록번호
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 일일 근태정보 수정 임시데이터 조회(변경). -->
+    <sql name="ETCB071_SHR_05">
+        <description>일일근태 정보 임시데이터 조회(변경)</description>
+        <query>
+            <![CDATA[
+			SELECT  REQ_NO,
+					ENO_NO,
+					REQ_YMD,
+					CHN_YMD,
+					GUN_CD,
+					REMARK,
+					REASON,
+					END_TAG,
+					BF_GUN_CD
+			FROM T_DI_CHANGE
+			WHERE REQ_NO = ?
+			AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+  <!-- 근태변경신청 처리내용을 근태변경신청에 반영 -->
+    <sql name="ETCB071_UPT_04">
+        <description>근태변경신청 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_DI_CHANGE
+            SET    END_TAG = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD = sysdate
+            WHERE  REQ_NO = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+  <!-- 개인별근태신청에 반영 -->
+    <sql name="ETCB071_INS_01">
+        <description>근태변경신청 정보 수정</description>
+        <query>
+            <![CDATA[
+		INSERT INTO T_DI_DILIGENCE (
+			PIS_YY, PIS_MM, ENO_NO, OCC_CD, DPT_CD, MD_DSP,
+			ATT_A, ATT_B, ATT_C, ATT_D, ATT_E, ATT_F, ATT_G, ATT_H, ATT_I, ATT_J, ATT_K, ATT_L, ATT_M, ATT_N, ATT_O, ATT_P, ATT_Q, ATT_R, ATT_S, ATT_U, ATT_V, ATT_X, ATT_Z, ATW_CNT, HOL_CNT, HOW_CNT,
+			IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+		SELECT  ?, LV, ?, 'A', 'I1', SUBSTR(TO_CHAR(LAST_DAY(TO_DATE(?||LV||'01')),'YYYYMMDD'),7),
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,
+			?, SYSDATE, ?, SYSDATE
+		FROM
+			(SELECT PIS_YY, PIS_MM, ENO_NO
+			FROM T_DI_DILIGENCE
+			WHERE PIS_YY = ?
+			AND   ENO_NO = ?) A,
+			(SELECT DECODE(LENGTH(LEVEL), 1, '0'||LEVEL, LEVEL) LV FROM DUAL CONNECT BY LEVEL <= 12) B
+		WHERE B.LV = A.PIS_MM (+)
+		AND   PIS_MM IS NULL
+            ]]>
+        </query>
+    </sql>
+
+  <!-- 개인별근태신청상세에 반영 -->
+    <sql name="ETCB071_INS_02">
+        <description>근태변경신청 정보 상세에 반영</description>
+        <query>
+            <![CDATA[
+			MERGE INTO T_DI_DILIGENCE_DTL A
+			USING
+			(SELECT ? AS PIS_YY, ? AS PIS_MM, ? AS PIS_DD, ? AS ENO_NO
+			 FROM DUAL) B
+			   ON (   A.PIS_YY = B.PIS_YY
+			      AND A.PIS_MM = B.PIS_MM
+				  AND A.PIS_DD = B.PIS_DD
+				  AND A.ENO_NO = B.ENO_NO)
+			WHEN MATCHED THEN
+			UPDATE SET A.REMARK  = ?,
+			           A.UPT_YMD = SYSDATE,
+					   A.UPT_MAN = ?
+			 WHEN NOT MATCHED THEN
+			INSERT ( PIS_YY, PIS_MM, PIS_DD, ENO_NO, REMARK, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES ( ?, ?, ?, ?, ?, ?, SYSDATE, ?, SYSDATE)
+			            ]]>
+        </query>
+    </sql>
+
+
+</sqls>

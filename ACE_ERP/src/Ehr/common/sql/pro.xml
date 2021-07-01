@@ -1,0 +1,2434 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 인사관리/승진 -->
+<!--
+***********************************************************************
+* @UseCase     : PROA010
+* @description : 승진사항관리
+***********************************************************************
+* 2007/01/17      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 작업 LOG 등록 자료 변경 -->
+    <sql name="PROA010_UPT_LOG">
+        <description>작업 LOG 등록 자료 변경</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_WORKLOG
+               SET PRO_STS = ?
+                  ,UPT_MAN = ?
+                  ,UPT_YMD = SYSDATE
+             WHERE SAL_GBN  = 'T'
+               AND PAY_YMD  = ?
+               AND SEQ      = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 승진사항 정보를 조회 한다. -->
+    <sql name="PROA010_SHR">
+        <description>승진사항 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT OCC_CD , PMT_YY , PMT_GBN, ENO_NO , ENO_NM , HEAD_CD, DPT_CD  , JOB_CD , PJOB_CD, PR_SEQ
+                   ,EDGR_CD, GRD_CD , SCH_CD , SCH_NM , MAJ_CD1, MAJ_CD2, GROUP_NM, JPR_YY , JPR_MM , GOG_YY5
+                   ,GOG_Y51, GOG_Y52, GOG_Y53, GOG_YY4, GOG_Y41, GOG_Y42, GOG_Y43 , GOG_YY3, GOG_Y31, GOG_Y32
+                   ,GOG_Y33, GOG_YY2, GOG_Y21, GOG_Y22, GOG_Y23, GOG_YY1, GOG_Y11 , GOG_Y12, GOG_Y13, GOG_CNT
+                   ,GOG_TOT, GOG_GAV, GOG_HTT, GUN_GTB, GUN_GTC, GUN_GTT, EDU_YY1 , EDU_KN1, EDU_YY2, EDU_KN2
+                   ,EDU_YY3, EDU_KN3, EDU_SCR, SAN_YY1, SAN_RM1, SAN_YY2, SAN_RM2 , SAN_YY3, SAN_RM3, SAN_SCR
+                   ,EXM_YY1, EXM_SC1, EXM_PNT1,EXM_YY2, EXM_SC2, EXM_PNT2,EXM_YY3 , EXM_SC3, EXM_PNT3,EXM_TIC
+                   ,CEN_OCC, CEN_ENO
+                   ,CEN_SCR, SPC_TOT, EXP_CD , EST_CD , REMARK , EXM_CMP
+                   ,DECODE(EST_CD, 'Y', 'T', 'F') AS EST_CD_CK
+                   ,(SELECT DPT_NM FROM T_CM_DEPT WHERE DPT_LBL = '2' AND DPT_CD = A.HEAD_CD) AS HEAD_NM
+                   ,SF_GET_COMMNAME('01', 'A1', OCC_CD) AS OCC_NM
+                   ,SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                   ,SF_GET_DPTNAME('01', 'A4', DPT_CD) AS DPT_NM
+                   ,TO_CHAR(TO_DATE(JPR_YMD) ,'YYYY-MM-DD') AS JPR_YMD
+                   ,TO_CHAR(TO_DATE(BIR_YMD) ,'YYYY-MM-DD') AS BIR_YMD
+                   ,TO_CHAR(TO_DATE(GUR_YMD) ,'YYYY-MM-DD') AS GUR_YMD
+                   ,TO_CHAR(TO_DATE(HIR_YMD) ,'YYYY-MM-DD') AS HIR_YMD
+                   ,TO_CHAR(TO_DATE(HIRG_YMD),'YYYY-MM-DD') AS HIRG_YMD
+                   ,(SELECT TO_CHAR(TO_DATE(RET_YMD),'YYYY-MM-DD') FROM T_CM_PERSON WHERE ENO_NO = A.ENO_NO) AS RET_YMD
+                   ,(SELECT ENO_NM FROM VI_T_CM_PERSON WHERE ENO_NO = A.CEN_ENO) AS CEN_ENM
+                   ,FLOOR(MONTHS_BETWEEN(SYSDATE, JPR_YMD)/12)||'.'||FLOOR(MOD(MONTHS_BETWEEN(SYSDATE, JPR_YMD),12)) AS JPR_CON
+                   ,FLOOR(MONTHS_BETWEEN(SYSDATE, HIR_YMD)/12)||'.'||FLOOR(MOD(MONTHS_BETWEEN(SYSDATE, HIR_YMD),12)) AS HIR_CON
+                   ,SF_GET_COMMNAME('01', 'Q1', EDU_KN1)AS EDU_KN1_NM
+                   ,SF_GET_COMMNAME('01', 'Q1', EDU_KN2)AS EDU_KN2_NM
+                   ,SF_GET_COMMNAME('01', 'Q1', EDU_KN3)AS EDU_KN3_NM
+             FROM   T_PM_PROMOTION A
+             WHERE  PMT_YY = ? AND JOB_CD != 'Z1'
+             [1]
+             ORDER BY SF_GET_DPTSEQ('01', 'A4', DPT_CD),
+                      SF_GET_COMMSEQ('01', 'A2', JOB_CD),
+                      --SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC,
+                      HIRG_YMD, ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 추천자 정보를 조회 한다. -->
+    <sql name="PROA010_SHR_01">
+        <description>추천자 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  PMT_YY, PMT_GBN, ENO_NO, PENO_NO, PENO_NO2, PMT_TAG, PMT_LBL_TAG, PMT_LBL_CNT
+                    ,SF_GET_ENONAME2('01', PENO_NO) AS PENO_NM
+                    ,SF_GET_ENONAME2('01', PENO_NO2) AS PENO_NM2
+             FROM    T_PM_RECOMMAND
+             WHERE   PMT_YY = ?
+             AND     ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승진사항 정보를 수정 한다. -->
+    <sql name="PROA010_UPT">
+        <description>승진사항 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_PROMOTION
+             SET    GOG_YY5         = ?       -- 5차년도
+                   ,GOG_Y51         = ?       -- 상반기 고과
+                   ,GOG_Y52         = ?       -- 하반기 고과
+                   ,GOG_YY4         = ?       -- 4차년도
+                   ,GOG_Y41         = ?       -- 상반기 고과
+                   ,GOG_Y42         = ?       -- 하반기 고과
+                   ,GOG_YY3         = ?       -- 3차년도
+                   ,GOG_Y31         = ?       -- 상반기 고과
+                   ,GOG_Y32         = ?       -- 하반기 고과
+                   ,GOG_YY2         = ?       -- 2차년도
+                   ,GOG_Y21         = ?       -- 상반기 고과
+                   ,GOG_Y22         = ?       -- 하반기 고과
+                   ,GOG_YY1         = ?       -- 1차년도
+                   ,GOG_Y11         = ?       -- 상반기 고과
+                   ,GOG_Y12         = ?       -- 하반기 고과
+                   ,GOG_CNT         = ?       -- 고과횟수
+                   ,GOG_TOT         = ?       -- 고과총점
+                   ,GOG_GAV         = ?       -- 고과점수
+                   ,GOG_HTT         = ?       -- 경력
+                   ,GUN_GTB         = ?       -- 무결횟수
+                   ,GUN_GTC         = ?       -- 지각횟수
+                   ,GUN_GTT         = ?       -- 근태점수
+                   ,EDU_YY1         = ?       -- 교육년도1
+                   ,EDU_KN1         = ?       -- 교육종류1
+                   ,EDU_YY2         = ?       -- 교육년도2
+                   ,EDU_KN2         = ?       -- 교육종류2
+                   ,EDU_YY3         = ?       -- 교육년도3
+                   ,EDU_KN3         = ?       -- 교육종류3
+                   ,EDU_SCR         = ?       -- 교육점수
+                   ,SAN_YY1         = ?       -- 상벌년도1
+                   ,SAN_RM1         = ?       -- 비고
+                   ,SAN_YY2         = ?       -- 상벌년도2
+                   ,SAN_RM2         = ?       -- 비고
+                   ,SAN_YY3         = ?       -- 상벌년도3
+                   ,SAN_RM3         = ?       -- 비고
+                   ,SAN_SCR         = ?       -- 포상점수
+                   ,EXM_SC1         = ?       -- 시험1
+                   ,EXM_SC2         = ?       -- 시험2
+                   ,EXM_TIC         = ?       -- 토익
+                   ,CEN_SCR         = ?       -- 추천점수
+                   ,SPC_TOT         = ?       -- 총점
+                   ,EXP_CD          = ?       -- 제외코드
+                   ,EST_CD          = ?       -- 판정코드
+                   ,REMARK          = ?       -- 비고
+                   ,EXM_CMP         = ?       -- 전산시험성적
+                   ,UPT_MAN         = ?       -- 최종수정자
+                   ,UPT_YMD         = sysdate
+             WHERE  OCC_CD          = ?       -- 직종
+             AND    PMT_YY          = ?       -- 승진예정년도
+             AND    PMT_GBN         = ?       -- 정기,특별
+             AND    ENO_NO          = ?       -- 사번
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : PROA020
+* @description : 승진배점관리
+***********************************************************************
+* 2007/01/29      채갑병       최초작성
+***********************************************************************
+-->
+     <!-- 승진배점 기준 정보를 조회 한다. -->
+    <sql name="PROA020_SHR">
+        <description>승진배점 기준 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT OCC_CD 
+                 , PJOB_CD
+                 , FJOB_CD
+                 , BAS_YY
+                 , GOG_PNT
+                 , JPT_PNT
+                 , EDU_PNT
+                 , GUN_PNT
+                 , CEN_PNT
+                 , SUM_PNT
+                 , SAN_PNT
+                 , TO_CHAR(TO_DATE(STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS STR_YMD
+                 , TO_CHAR(TO_DATE(END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS END_YMD
+                 , SF_GET_COMMNAME('01', 'A1', OCC_CD)                  AS OCC_NM
+                 , SF_GET_COMMNAME('01', 'A2', PJOB_CD)                 AS PJOB_NM
+                 , SF_GET_COMMNAME('01', 'A2', FJOB_CD)                 AS FJOB_NM
+              FROM T_PM_PMTALLOT
+             WHERE 1=1
+               [1]
+          ORDER BY OCC_CD
+                 , SF_GET_COMMSEQ('01', 'A2', PJOB_CD)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승진배점 기준정보를 저장 한다. -->
+    <sql name="PROA020_INS">
+        <description>승진배점 기준 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT  
+              INTO T_PM_PMTALLOT
+                 ( OCC_CD 
+                 , PJOB_CD
+                 , FJOB_CD
+                 , STR_YMD
+                 , END_YMD
+                 , BAS_YY
+                 , GOG_PNT
+                 , JPT_PNT
+                 , EDU_PNT
+                 , GUN_PNT
+                 , CEN_PNT
+                 , SUM_PNT
+                 , SAN_PNT
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , sysdate
+                 , ?
+                 , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승진배점 기준정보를 수정 한다. -->
+    <sql name="PROA020_UPT">
+        <description>승진배점 기준 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_PMTALLOT
+             SET    FJOB_CD         = ?       -- 승진직위
+                   ,END_YMD         = ?       -- 종료일
+                   ,BAS_YY          = ?       -- 승진기준년도
+                   ,GOG_PNT         = ?       -- 인사고과 배점
+                   ,JPT_PNT         = ?       -- 근속기간 배점
+                   ,EDU_PNT         = ?       -- 교육점수 배점
+                   ,GUN_PNT         = ?       -- 근태점수 배점
+                   ,CEN_PNT         = ?       -- 추천점수 배점
+                   ,SUM_PNT         = ?       -- 총점
+                   ,SAN_PNT         = ?       -- 상벌점수 배점
+                   ,UPT_MAN         = ?       -- 최종 수정자
+                   ,UPT_YMD         = sysdate
+             WHERE  OCC_CD          = ?       -- 직종
+             AND    PJOB_CD         = ?       -- 현직위
+             AND    STR_YMD         = ?       -- 시작일
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승진배점 기준정보를 삭제 한다. -->
+    <sql name="PROA020_DEL">
+        <description>승진배점 기준 정보 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE T_PM_PMTALLOT
+             WHERE  OCC_CD  = ?
+             AND    PJOB_CD = ?
+             AND    STR_YMD = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : PROA030
+* @description : 승진대상자선정
+***********************************************************************
+* 2007/01/17      채갑병       최초작성
+* 2007/04/15      김학수       보고서추가
+* 2007/04/28      조정호       대상자 선정 저장부분 변경
+***********************************************************************
+-->
+    <!-- 승진대상자 정보를 조회 한다. -->
+    <sql name="PROA030_SHR">
+        <description>승진대상자 정보 조회</description>
+        <query>
+            <![CDATA[
+             --주의:컬럼 순서대로 데이터 가져오게 되어있음 
+             SELECT A.OCC_CD       --0 직종
+                   ,? AS PMT_YY    --1 승진예정년도
+                   ,? AS PMT_GBN   --2 정기특별구분
+                   ,A.ENO_NO       --3 사번
+                   ,A.ENO_NM       --4 성명
+                   ,A.HEAD_CD      --5 본부
+                   ,A.DPT_CD       --6 소속
+                   ,A.JOB_CD       --7 현직위
+                   ,A.JOB_NM       --8 현직위명
+                   ,SF_GET_COMMSEQ('01','A2',A.JOB_CD) AS JOB_SEQ --9 직위SEQ
+                   ,(CASE WHEN SUBSTR(A.JOB_CD,0,1) >= '2' AND SUBSTR(A.JOB_CD,0,1) <= '5' THEN H.PJOB_CD ELSE A.JOB_CD END) AS PJOB_CD --10 승진심사직급코드
+                   ,'1' AS PR_SEQ  --11 출력순서
+                   ,A.BIR_YMD      --12 생일
+                   ,A.EDGR_CD      --13 최종학력코드
+                   ,A.GRD_CD       --14 최종학력졸업구분
+                   ,A.GUR_YMD      --15 최종학력졸업일
+                   ,A.SCH_CD       --16 최종학교코드
+                   ,SUBSTR(A.SCH_NM ,1,7) AS SCH_NM  --17 최종학교코드명
+                   ,A.MAJ_CD1      --18 최종학과(전공코드)
+                   ,SUBSTR(A.MAJ_CD2,1,7) AS MAJ_CD2 --19 최종전공(전공코드명)
+                   ,A.HIR_YMD      --20 입사일
+                   ,A.HIRG_YMD     --21 그룹입사일자
+                   ,A.GROUP_NM     --22 그룹사명
+                   ,A.JPR_YMD      --23 현직승진일
+                   ,A.JPR_AL       --24 현직승직일에서 현재까지의 총개월수 
+                   ,A.JPR_YY       --25 현직기간년
+                   ,A.JPR_MM       --26 현직기간월
+                   ,A.HIR_CD       --27 채용구분(신입(A1)  - 5사/4사)
+                   ,A.HIR_YY       --28 근속년수(주임/반장 - 주임/반장)
+                   ,B.GOG_YY5      --29 5차년도
+                   ,B.GOG_Y51      --30 역량평가
+                   ,B.GOG_Y52      --31 업적평가 상
+                   ,B.GOG_Y53      --32 업적평가 하
+                   ,B.GOG_YY4      --33 4차년도
+                   ,B.GOG_Y41      --34 역량평가
+                   ,B.GOG_Y42      --35 업적평가 상
+                   ,B.GOG_Y43      --36 업적평가 하
+                   ,B.GOG_YY3      --37 3차년도
+                   ,B.GOG_Y31      --38 역량평가
+                   ,B.GOG_Y32      --39 업적평가 상
+                   ,B.GOG_Y33      --40 업적평가 하
+                   ,B.GOG_YY2      --41 2차년도
+                   ,B.GOG_Y21      --42 역량평가
+                   ,B.GOG_Y22      --43 업적평가 상
+                   ,B.GOG_Y23      --44 업적평가 하
+                   ,B.GOG_YY1      --45 1차년도
+                   ,B.GOG_Y11      --46 역량평가
+                   ,B.GOG_Y12      --47 업적평가 상
+                   ,B.GOG_Y13      --48 업적평가 하
+                   ,B.GOG_CNT      --49 고과횟수
+                   ,B.GOG_TOT      --50 고과총점
+                   ,B.GOG_GAV      --51 고과점수(고과점수를 넣을 빈값)
+                   ,H.JPT_PNT AS GOG_HTT  --52 경력(기본값을 H.JPT_PNT로 초기화)
+                   ,NVL(C.GUN_GTB,'0') AS GUN_GTB --53 무결횟수 
+                   ,NVL(C.GUN_GTC,'0') AS GUN_GTC --54 지각횟수
+                   ,C.GUN_GTT      --55 근태점수(근태점수를 넣을 빈값)
+                   ,D.EDU_YY1      --56 교육년도1
+                   ,D.EDU_KN1      --57 교육종류1
+                   ,D.EDU_YY2      --58 교육년도2
+                   ,D.EDU_KN2      --59 교육종류2
+                   ,D.EDU_YY3      --60 교육년도3
+                   ,D.EDU_KN3      --61 교육종류3
+                   ,(CASE WHEN D.EDU_SCR > H.EDU_PNT THEN H.EDU_PNT ELSE D.EDU_SCR END) AS EDU_SCR--62 교육점수 
+                   ,E.SAN_YY1      --63 상벌년도1
+                   ,E.SAN_RM1      --64 비고
+                   ,E.SAN_YY2      --65 상벌년도2
+                   ,E.SAN_RM2      --66 비고
+                   ,E.SAN_YY3      --67 상벌년도3
+                   ,E.SAN_RM3      --68 비고
+                   ,0 AS SAN_SCR   --69 상벌점수(상벌점수를 넣을 빈값)
+                   ,F.EXM_SC1      --70 시험1
+                   ,F.EXM_SC2      --71 시험2
+                   ,F.EXM_TIC      --72 시험점수(무조건 0으로 초기값준다.)
+                   ,'' AS EXP_CD   --73 제외코드(미사용) 
+                   
+                   --시험사항 나머지는 뒤에(컬럼순서 주의해야 함)
+                    
+                   ,'' AS CEN_OCC  --74 추천자 직종(미사용)
+                   ,'' AS CEN_ENO  --75 추천자 사번(미사용)
+                   ,0  AS CEN_SCR  --76 추천점수
+                   ,0  AS SPC_TOT  --77 총점
+                   ,'N' AS EST_CD  --78 승진여부
+                   ,'' AS REMARK   --79 비고
+                   ,'' AS EXM_CMP  --80 전산시험 성적(미사용)
+                   ,H.GOG_PNT      --81 인사고과 배점
+                   ,H.JPT_PNT      --82 근속기간 배점
+                   ,H.EDU_PNT      --83 교육점수 배점
+                   ,H.GUN_PNT      --84 근태점수 배점
+                   ,H.CEN_PNT      --85 추천점수 배점
+                   ,H.SAN_PNT      --86 상벌점수 배점
+                   ,E.H_CNT        --87 상벌점수에 사용(포상) 
+                   ,E.P1_CNT       --88 상벌점수에 사용(견책)
+                   ,E.P2_CNT       --89 상벌점수에 사용(출근정지이상)
+                   ,F.EXM_SC3      --90 시험3
+                   ,F.EXM_YY1      --91 시험년수1
+                   ,F.EXM_YY2      --92 시험년수2
+                   ,F.EXM_YY3      --93 시험년수3
+                   ,F.EXM_PNT1     --94 시험점수1
+                   ,F.EXM_PNT2     --95 시험점수2
+                   ,F.EXM_PNT3     --96 시험점수3
+                   
+             FROM  (
+                    SELECT OCC_CD, ENO_NO, ENO_NM, HEAD_CD, DPT_CD, JOB_CD, JOB_NM, EDGR_CD, GRD_CD, SCH_CD, SCH_NM, MAJ_CD AS MAJ_CD1, MAJ_NM AS MAJ_CD2, GROUP_NM AS GROUP_NM
+                          ,TO_CHAR(HIR_YMD ,'YYYYMMDD') AS HIR_YMD
+                          ,TO_CHAR(HIRG_YMD,'YYYYMMDD') AS HIRG_YMD
+                          ,TO_CHAR(BIR_YMD ,'YYYYMMDD') AS BIR_YMD
+                          ,TO_CHAR(GUR_YMD ,'YYYYMMDD') AS GUR_YMD
+                          ,TO_CHAR(JPR_YMD ,'YYYYMMDD') AS JPR_YMD
+                          ,FLOOR(MONTHS_BETWEEN(SYSDATE, JPR_YMD)) AS JPR_AL
+                          ,FLOOR(MONTHS_BETWEEN(SYSDATE, JPR_YMD)/12) AS JPR_YY
+                          ,FLOOR(MONTHS_BETWEEN(SYSDATE, HIR_YMD)/12) AS HIR_YY
+                          ,FLOOR(MOD(MONTHS_BETWEEN(SYSDATE, JPR_YMD),12)) AS JPR_MM
+                          ,HIR_CD
+                    FROM   VI_T_CM_PERSON S
+                    WHERE  EXISTS (SELECT SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS JOB_NM
+                                   FROM   T_PM_PMTALLOT
+                                   WHERE  STR_YMD <= ?
+                                   AND   (END_YMD >  ? OR   END_YMD IS NULL)
+                                   AND    SF_GET_COMMNAME('01', 'A2', PJOB_CD) = S.JOB_NM )
+                    ) A,
+                   (
+                    SELECT ENO_NO
+                           ,MAX(DECODE(RN, 1, GOG_YY,  '')) AS GOG_YY1
+                           ,MAX(DECODE(RN, 1, GOG_Y01, '')) AS GOG_Y11
+                           ,MAX(DECODE(RN, 1, GOG_Y02, '')) AS GOG_Y12
+                           ,MAX(DECODE(RN, 1, GOG_Y03, '')) AS GOG_Y13
+                           ,MAX(DECODE(RN, 2, GOG_YY,  '')) AS GOG_YY2
+                           ,MAX(DECODE(RN, 2, GOG_Y01, '')) AS GOG_Y21
+                           ,MAX(DECODE(RN, 2, GOG_Y02, '')) AS GOG_Y22
+                           ,MAX(DECODE(RN, 2, GOG_Y03, '')) AS GOG_Y23
+                           ,MAX(DECODE(RN, 3, GOG_YY,  '')) AS GOG_YY3
+                           ,MAX(DECODE(RN, 3, GOG_Y01, '')) AS GOG_Y31
+                           ,MAX(DECODE(RN, 3, GOG_Y02, '')) AS GOG_Y32
+                           ,MAX(DECODE(RN, 3, GOG_Y03, '')) AS GOG_Y33
+                           ,MAX(DECODE(RN, 4, GOG_YY,  '')) AS GOG_YY4
+                           ,MAX(DECODE(RN, 4, GOG_Y01, '')) AS GOG_Y41
+                           ,MAX(DECODE(RN, 4, GOG_Y02, '')) AS GOG_Y42
+                           ,MAX(DECODE(RN, 4, GOG_Y03, '')) AS GOG_Y43
+                           ,MAX(DECODE(RN, 5, GOG_YY,  '')) AS GOG_YY5
+                           ,MAX(DECODE(RN, 5, GOG_Y01, '')) AS GOG_Y51
+                           ,MAX(DECODE(RN, 5, GOG_Y02, '')) AS GOG_Y52
+                           ,MAX(DECODE(RN, 5, GOG_Y03, '')) AS GOG_Y53
+                           ,SUM(NVL(DECODE(GOG_Y01, 'S', 50, 'A', 45, 'B', 35, 'C', 25, 'D', 20),0)
+                               +NVL(DECODE(GOG_Y02, 'S', 50, 'A', 45, 'B', 35, 'C', 25, 'D', 20),0)
+                               +NVL(DECODE(GOG_Y03, 'S', 50, 'A', 45, 'B', 35, 'C', 25, 'D', 20),0)
+                             ) AS GOG_TOT
+                           ,SUM(DECODE(GOG_Y01,NULL,0,1)+DECODE(GOG_Y02,NULL,0,1)+DECODE(GOG_Y03,NULL,0,1)
+                             ) AS GOG_CNT
+                           ,'' AS GOG_GAV
+                    FROM ( SELECT  AA.ENO_NO
+                                  ,AA.EVL_YY AS GOG_YY
+                                  ,MAX((CASE WHEN AA.EVL_GBN = '1'
+                                             THEN AA.FINAL_GRD END)) AS GOG_Y01
+                                  ,MAX((CASE WHEN AA.EVL_GBN = '2' AND AA.EVL_FRQ = 1
+                                             THEN AA.FINAL_GRD END)) AS GOG_Y02
+                                  ,MAX((CASE WHEN AA.EVL_GBN = '2' AND AA.EVL_FRQ = 2
+                                             THEN AA.FINAL_GRD END)) AS GOG_Y03
+                                  ,ROW_NUMBER() OVER(PARTITION BY AA.ENO_NO ORDER BY AA.EVL_YY DESC) AS RN
+                           FROM   (SELECT ENO_NO, EVL_YY, EVL_GBN, EVL_FRQ, FINAL_GRD
+                                   FROM   T_EV_ABLRST
+                                   ORDER  BY ENO_NO, EVL_GBN ASC, EVL_FRQ ASC
+                                   ) AA
+                                 ,(SELECT ENO_NO, JPR_YMD, HIR_YMD
+                                   FROM   T_CM_PERSON
+                                   WHERE  RET_YMD IS NULL
+                                   ) BB
+                           WHERE   AA.ENO_NO = BB.ENO_NO
+                           AND     AA.EVL_YY >= (CASE WHEN BB.JPR_YMD IS NULL
+                                                      THEN TO_CHAR(BB.HIR_YMD,'YYYY')
+                                                      ELSE TO_CHAR(BB.JPR_YMD,'YYYY')
+                                                 END)
+                           GROUP   BY AA.ENO_NO, AA.EVL_YY
+                           )
+                    GROUP BY ENO_NO
+                    ) B,  -- 고과
+                   (
+                    SELECT ENO_NO, PIS_YY, SUM(ATT_A) AS GUN_GTB, SUM(ATT_C) AS GUN_GTC, 0 AS GUN_GTT
+                    FROM   T_DI_DILIGENCE
+                           GROUP  BY ENO_NO, PIS_YY
+                           HAVING PIS_YY = ?
+                           ORDER  BY ENO_NO, PIS_YY ASC
+                    ) C,  -- 근태
+                   (
+                    SELECT  A.ENO_NO                                                                                                                          
+                           ,MAX(DECODE(RN, 1, DECODE(A.EDU_CD, NULL, '',  SUBSTR(A.STR_YMD,0,4)))) AS EDU_YY1                                                 
+                           ,MAX(DECODE(RN, 1, DECODE(A.EDU_CD, NULL, '',  A.EDU_CD))) AS EDU_KN1                                                              
+                           ,MAX(DECODE(RN, 2, DECODE(A.EDU_CD, NULL, '',  SUBSTR(A.STR_YMD,0,4)))) AS EDU_YY2                                                 
+                           ,MAX(DECODE(RN, 2, DECODE(A.EDU_CD, NULL, '',  A.EDU_CD))) AS EDU_KN2                                                              
+                           ,MAX(DECODE(RN, 3, DECODE(A.EDU_CD, NULL, '',  SUBSTR(A.STR_YMD,0,4)))) AS EDU_YY3                                                 
+                           ,MAX(DECODE(RN, 3, DECODE(A.EDU_CD, NULL, '',  A.EDU_CD))) AS EDU_KN3                                                              
+                           ,SUM(NVL(A.CPT_PNT,0)) AS EDU_SCR                                                                                                         
+                    FROM   (SELECT ENO_NO, EDU_CD, CPT_PNT, STR_YMD, ROW_NUMBER() OVER(PARTITION BY ENO_NO ORDER BY STR_YMD DESC) AS RN FROM T_CM_EDUCATION) A
+                          ,(SELECT ENO_NO, JPR_YMD, HIR_YMD FROM T_CM_PERSON) B                                                                            
+                    WHERE  A.ENO_NO = B.ENO_NO                                                                                                                
+                    AND    TO_DATE(A.STR_YMD,'YYYYMMDD') >= (CASE WHEN B.JPR_YMD IS NOT NULL THEN B.JPR_YMD ELSE B.HIR_YMD END)                               
+                    GROUP  BY A.ENO_NO                                                                                                                        
+                    ) D,  -- 교육
+                   (
+                    SELECT  AA.ENO_NO, AA.SAN_YY1, AA.SAN_RM1, AA.SAN_YY2, AA.SAN_RM2, AA.SAN_YY3, AA.SAN_RM3
+                           ,BB.H_CNT , BB.P1_CNT , BB.P2_CNT
+                    FROM  (
+                            SELECT  A.ENO_NO
+                                   ,MAX(DECODE(RN, 1, DECODE(A.REPU_CD, NULL, '',  SUBSTR(A.REPU_YMD,0,4)))) AS SAN_YY1
+                                   ,MAX(DECODE(RN, 1, DECODE(A.REPU_CD, NULL, '',  SF_GET_COMMNAME('01',DECODE(A.REPU_CD, 'H', 'K1', 'P', 'K2'), A.REPU_TAG)))) AS SAN_RM1
+                                   ,MAX(DECODE(RN, 2, DECODE(A.REPU_CD, NULL, '',  SUBSTR(A.REPU_YMD,0,4)))) AS SAN_YY2
+                                   ,MAX(DECODE(RN, 2, DECODE(A.REPU_CD, NULL, '',  SF_GET_COMMNAME('01',DECODE(A.REPU_CD, 'H', 'K1', 'P', 'K2'), A.REPU_TAG)))) AS SAN_RM2
+                                   ,MAX(DECODE(RN, 3, DECODE(A.REPU_CD, NULL, '',  SUBSTR(A.REPU_YMD,0,4)))) AS SAN_YY3
+                                   ,MAX(DECODE(RN, 3, DECODE(A.REPU_CD, NULL, '',  SF_GET_COMMNAME('01',DECODE(A.REPU_CD, 'H', 'K1', 'P', 'K2'), A.REPU_TAG)))) AS SAN_RM3
+                            FROM   (SELECT ENO_NO, REPU_TAG, REPU_CD, REPU_YMD, ROW_NUMBER() OVER(PARTITION BY ENO_NO ORDER BY REPU_YMD DESC) AS RN FROM T_CM_REWARD) A
+                                  ,(SELECT ENO_NO, JPR_YMD, HIR_YMD FROM T_CM_PERSON) B
+                            WHERE  A.ENO_NO = B.ENO_NO
+                            AND    TO_DATE(A.REPU_YMD,'YYYYMMDD') >= (CASE WHEN B.JPR_YMD IS NOT NULL THEN B.JPR_YMD ELSE B.HIR_YMD END)
+                            GROUP  BY A.ENO_NO
+                            ) AA
+                          ,(SELECT  A.PMT_YY, A.ENO_NO, B.H_CNT, B.P1_CNT, B.P2_CNT
+                            FROM   (SELECT  PMT_YY, ENO_NO
+                                    FROM    T_PM_PROMOTION
+                                    WHERE   PMT_YY = ?
+                                    ) A
+                                  ,(SELECT  ENO_NO
+                                           ,SUM(CASE WHEN REPU_TAG IN(SELECT REPU_TAG FROM T_PM_REWARD WHERE REPU_CD = 'H') THEN 1 ELSE 0 END) AS H_CNT  -- 사장,국무위원,서울특별시장 이상 표창
+                                           ,SUM(CASE WHEN REPU_CD = 'P' AND REPU_TAG  = 'K1' THEN 1 ELSE 0 END) AS P1_CNT  -- 견책
+                                           ,SUM(CASE WHEN REPU_CD = 'P' AND REPU_TAG != 'K1' THEN 1 ELSE 0 END) AS P2_CNT  -- 출근정지이상
+                                    FROM    T_CM_REWARD
+                                    GROUP   BY ENO_NO
+                                    ) B
+                            WHERE A.ENO_NO = B.ENO_NO
+                            ) BB
+                    WHERE AA.ENO_NO = BB.ENO_NO
+                    ) E,  -- 상벌
+                   (SELECT A.ENO_NO
+                          ,0 AS EXM_TIC
+                          ,MAX(DECODE(RN, 1, DECODE(A.SBJ_CD, NULL, '',  SF_GET_COMMNAME('01','M1', A.SBJ_CD)))) AS EXM_SC1
+                          ,MAX(DECODE(RN, 2, DECODE(A.SBJ_CD, NULL, '',  SF_GET_COMMNAME('01','M1', A.SBJ_CD)))) AS EXM_SC2
+                          ,MAX(DECODE(RN, 3, DECODE(A.SBJ_CD, NULL, '',  SF_GET_COMMNAME('01','M1', A.SBJ_CD)))) AS EXM_SC3
+                          ,MAX(DECODE(RN, 1, DECODE(A.SBJ_CD, NULL, '',  SUBSTR(A.PRO_YMD,0,4)))) AS EXM_YY1
+                          ,MAX(DECODE(RN, 2, DECODE(A.SBJ_CD, NULL, '',  SUBSTR(A.PRO_YMD,0,4)))) AS EXM_YY2
+                          ,MAX(DECODE(RN, 3, DECODE(A.SBJ_CD, NULL, '',  SUBSTR(A.PRO_YMD,0,4)))) AS EXM_YY3
+                          ,MAX(DECODE(RN, 1, DECODE(A.SBJ_CD, NULL, '',  A.TTL_AVR))) AS EXM_PNT1
+                          ,MAX(DECODE(RN, 2, DECODE(A.SBJ_CD, NULL, '',  A.TTL_AVR))) AS EXM_PNT2
+                          ,MAX(DECODE(RN, 3, DECODE(A.SBJ_CD, NULL, '',  A.TTL_AVR))) AS EXM_PNT3
+                    FROM   (SELECT ENO_NO, PRO_YMD, TTL_AVR, SBJ_CD, ROW_NUMBER() OVER(PARTITION BY ENO_NO ORDER BY PRO_YMD DESC) AS RN
+                            FROM   T_CM_EXAMINATION) A
+                          ,(SELECT ENO_NO, JPR_YMD, HIR_YMD 
+                            FROM   T_CM_PERSON) B                                                                            
+                    WHERE  A.ENO_NO = B.ENO_NO
+                    AND    TO_DATE(A.PRO_YMD,'YYYYMMDD') >= (CASE WHEN B.JPR_YMD IS NOT NULL THEN B.JPR_YMD ELSE B.HIR_YMD END)
+                    GROUP  BY A.ENO_NO
+                    ) F,  -- 어학
+                    (SELECT PJOB_CD, FJOB_CD, SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS JOB_NM, GOG_PNT, JPT_PNT, EDU_PNT, GUN_PNT, CEN_PNT, SAN_PNT
+                     FROM   T_PM_PMTALLOT
+                    ) H
+             WHERE  A.ENO_NO = B.ENO_NO(+)
+             AND    A.ENO_NO = C.ENO_NO(+)
+             AND    A.ENO_NO = D.ENO_NO(+)
+             AND    A.ENO_NO = E.ENO_NO(+)
+             AND    A.ENO_NO = F.ENO_NO(+)
+             AND    A.JOB_NM = H.JOB_NM(+)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승진대상자 처리여부를 조회 한다.(당해년도 데이터 입력여부) -->
+    <sql name="PROA030_SHR_01">
+        <description>승진대상자 처리여부 조회</description>
+        <query>
+            <![CDATA[
+             SELECT ENO_NO
+             FROM   T_PM_PROMOTION
+             WHERE  PMT_YY = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 07-04-29 : 승진대상자 정보를 전부 삭제한다.(조정호) -->
+    <sql name="PROA030_DEL">
+        <description>승진대상자 정보를 전부 삭제한다.</description>
+        <query>
+            <![CDATA[
+             DELETE
+               FROM T_PM_PROMOTION
+              WHERE PMT_YY  = ?
+                AND JOB_CD != 'Z1'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승진대상자 정보를 저장 한다. -->
+    <sql name="PROA030_INS">
+        <description>승진대상자 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT INTO T_PM_PROMOTION
+                   (OCC_CD  , PMT_YY , PMT_GBN, ENO_NO , ENO_NM , HEAD_CD, DPT_CD , JOB_CD , PJOB_CD, PR_SEQ
+                   ,BIR_YMD , EDGR_CD, GRD_CD , GUR_YMD, SCH_CD , SCH_NM , MAJ_CD1, MAJ_CD2, HIR_YMD, HIRG_YMD
+                   ,GROUP_NM, JPR_YMD, JPR_YY , JPR_MM , GOG_YY5, GOG_Y51, GOG_Y52, GOG_Y53, GOG_YY4, GOG_Y41
+                   ,GOG_Y42 , GOG_Y43, GOG_YY3, GOG_Y31, GOG_Y32, GOG_Y33, GOG_YY2, GOG_Y21, GOG_Y22, GOG_Y23
+                   ,GOG_YY1 , GOG_Y11, GOG_Y12, GOG_Y13, GOG_CNT, GOG_TOT, GOG_GAV, GOG_HTT, GUN_GTB, GUN_GTC
+                   ,GUN_GTT , EDU_YY1, EDU_KN1, EDU_YY2, EDU_KN2, EDU_YY3, EDU_KN3, EDU_SCR, SAN_YY1, SAN_RM1
+                   ,SAN_YY2 , SAN_RM2, SAN_YY3, SAN_RM3, SAN_SCR, EXM_SC1, EXM_SC2, EXM_TIC, CEN_OCC, CEN_ENO
+                   ,CEN_SCR , SPC_TOT, EXP_CD , EST_CD , REMARK,  EXM_CMP, EXM_SC3, EXM_YY1, EXM_YY2, EXM_YY3
+                   ,EXM_PNT1, EXM_PNT2,EXM_PNT3
+                   ,IPT_MAN , IPT_YMD, UPT_MAN, UPT_YMD)
+             VALUES
+                  (        ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?
+                   ,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?
+                   ,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?
+                   ,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?
+                   ,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?
+                   ,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?
+                   ,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?
+                   ,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?
+                   ,       ?,       ?,       ?
+                   ,       ?, sysdate,       ?, sysdate
+                   )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 07-04-29 : 겸직자 정보 내역을 전부 삭제  (조정호) -->
+    <sql name="PROA030_DEL_01">
+        <description>추천자 내용을  전부 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE
+               FROM T_PM_PROPOSER
+              WHERE PMT_YY = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 추천자 정보를 저장 한다.(과장이상) -->
+    <sql name="PROA030_INS_01">
+        <description>추천자 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT
+               INTO T_PM_PROPOSER
+                   (PMT_YY
+                   ,PMT_GBN
+                   ,ENO_NO
+                   ,PENO_NO2 --본부장 사번(과장이상은 본부장이외에 추천자가 없다.)
+                   ,PDPT_CD2 --본부장 소속
+                   ,PJOB_CD2 --본부장 직위
+                   ,IPT_MAN
+                   ,IPT_YMD
+                   ,UPT_MAN
+                   ,UPT_YMD)
+
+             SELECT ?
+                   ,?
+                   ,A.ENO_NO
+                   ,b.ENO_NO
+                   ,b.DPT_CD
+                   ,b.JOB_CD
+                   ,?
+                   ,SYSDATE
+                   ,?
+                   ,SYSDATE
+             FROM  (SELECT * FROM T_CM_PERSON WHERE ENO_NO = ?) A,
+                   (SELECT PERSON.ENO_NO
+                          ,PERSON.HEAD_CD
+                          ,PERSON.DPT_CD
+                          ,PERSON.JOB_CD
+                          ,PERSON.DUTY_CD
+                    FROM  (SELECT *
+                           FROM   T_CM_DEPT
+                           WHERE  CD_GBN='B2'
+                           AND    (END_YMD IS NULL OR  END_YMD >= SYSDATE)
+                           AND    DPT_CD NOT IN ('Z')) DEPT
+                    LEFT JOIN (SELECT ENO_NO
+                                     ,HEAD_CD
+                                     ,DPT_CD
+                                     ,JOB_CD
+                                     ,DUTY_CD
+                               FROM  (SELECT ENO_NO
+                                            ,HEAD_CD
+                                            ,DPT_CD
+                                            ,JOB_CD
+                                            ,DUTY_CD
+                                      FROM   VI_T_CM_PERSON
+                                      UNION
+                                      SELECT PERSON.ENO_NO
+                                            ,(SELECT DPT_CD
+                                              FROM T_CM_DEPT
+                                              WHERE COUNT_REM = SUBSTR(DEPT.COUNT_REM,1,6)) AS HEAD_CD
+                                            ,JOB.DPT_CD
+                                            ,PERSON.JOB_CD
+                                            ,JOB.DUTY_CD
+                                      FROM   T_CM_ADDJOB JOB
+                                      INNER JOIN T_CM_DEPT DEPT
+                                      ON         JOB.DPT_CD = DEPT.DPT_CD
+                                      AND        DEPT.CD_GBN = 'A4'
+                                      INNER JOIN T_CM_PERSON PERSON
+                                      ON         JOB.ENO_NO = PERSON.ENO_NO
+                                      WHERE  SYSDATE BETWEEN JOB.STR_YMD AND NVL(JOB.END_YMD, SYSDATE+1)
+                                     )
+                               WHERE DUTY_CD = 'L3') PERSON
+                    ON     PERSON.HEAD_CD = DEPT.DPT_CD
+                    --WHERE  ENO_NO IS NOT NULL
+                    --ORDER BY SF_GET_DPTSEQ( '01', 'A4', PERSON.DPT_CD)
+                    --        ,SF_GET_COMMSEQ('01', 'A2', PERSON.JOB_CD)
+                    --        ,ENO_NO
+                    ) B
+             WHERE A.HEAD_CD=B.HEAD_CD(+)
+             --AND   SF_GET_COMMSEQ('01','A2',A.JOB_CD) < SF_GET_COMMSEQ('01','A2','30')--과장이상
+            ]]>
+        </query>
+    </sql>             
+    
+    <!-- 추천자 정보를 저장 한다. (대리이하, 추천자를 INSERT)-->
+    <sql name="PROA030_INS_02">
+        <description>추천자 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT
+               INTO T_PM_PROPOSER
+                   (PMT_YY
+                   ,PMT_GBN
+                   ,ENO_NO
+                   ,PENO_NO --추천자 사번
+                   ,PDPT_CD --추천자 소속
+                   ,PJOB_CD --추천자 직위
+                   ,IPT_MAN
+                   ,IPT_YMD
+                   ,UPT_MAN
+                   ,UPT_YMD)
+
+             SELECT ?
+                   ,?
+                   ,A.ENO_NO
+                   ,B.ENO_NO
+                   ,B.DPT_CD
+                   ,B.JOB_CD
+                   ,?
+                   ,SYSDATE
+                   ,?
+                   ,SYSDATE
+             FROM  (SELECT * FROM T_CM_PERSON WHERE ENO_NO = ?) A,
+                   (SELECT PERSON.ENO_NO
+                          ,PERSON.HEAD_CD
+                          ,PERSON.DPT_CD
+                          ,PERSON.JOB_CD
+                          ,PERSON.DUTY_CD
+                    FROM  (SELECT *
+                           FROM   T_CM_DEPT
+                           WHERE  CD_GBN='A4'
+                           AND    (END_YMD IS NULL OR  END_YMD >= SYSDATE)
+                           AND DPT_CD NOT IN ('AA', 'AV')) DEPT
+                    LEFT JOIN (SELECT ENO_NO
+                                     ,HEAD_CD
+                                     ,DPT_CD
+                                     ,JOB_CD
+                                     ,DUTY_CD
+                               FROM  (SELECT ENO_NO
+                                            ,HEAD_CD
+                                            ,DPT_CD
+                                            ,JOB_CD
+                                            ,DUTY_CD
+                                      FROM   VI_T_CM_PERSON
+                                      UNION
+                                      SELECT PERSON.ENO_NO
+                                            ,(SELECT DPT_CD
+                                              FROM T_CM_DEPT
+                                              WHERE COUNT_REM = SUBSTR(DEPT.COUNT_REM,1,6)) AS HEAD_CD
+                                            ,JOB.DPT_CD
+                                            ,PERSON.JOB_CD
+                                            ,JOB.DUTY_CD
+                                      FROM   T_CM_ADDJOB JOB
+                                      INNER JOIN T_CM_DEPT DEPT
+                                      ON         JOB.DPT_CD = DEPT.DPT_CD
+                                      AND        DEPT.CD_GBN = 'A4'
+                                      INNER JOIN T_CM_PERSON PERSON
+                                      ON         JOB.ENO_NO = PERSON.ENO_NO
+                                      WHERE  SYSDATE BETWEEN JOB.STR_YMD AND NVL(JOB.END_YMD, SYSDATE+1)
+                                     )
+                               WHERE DUTY_CD IN ('L4','JS','SM','OF')
+                              ) PERSON
+                    ON     PERSON.DPT_CD = DEPT.DPT_CD
+                    --WHERE  ENO_NO IS NOT NULL
+                    --ORDER BY SF_GET_DPTSEQ( '01', 'A4', PERSON.DPT_CD)
+                    --        ,SF_GET_COMMSEQ('01', 'A2', PERSON.JOB_CD)
+                    --        ,ENO_NO
+                    ) B
+             WHERE A.DPT_CD=B.DPT_CD(+)
+             --AND   SF_GET_COMMSEQ('01','A2',A.JOB_CD) >= SF_GET_COMMSEQ('01','A2','30')--대리이하
+            ]]>
+        </query>
+    </sql>
+    
+    <!-- 추천자 정보를 저장 한다. (대리이하, 본부장을 UPDATE)-->
+    <sql name="PROA030_UPT_01">
+        <description>추천자 정보 저장</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_PROPOSER SET
+             
+             (PENO_NO2, 
+              PDPT_CD2, 
+              PJOB_CD2, 
+              UPT_MAN, 
+              UPT_YMD) = 
+             (
+             
+             SELECT B.ENO_NO
+                   ,B.DPT_CD
+                   ,B.JOB_CD
+                   ,?
+                   ,SYSDATE
+             FROM  (SELECT * FROM T_CM_PERSON WHERE ENO_NO = ?) A,
+                   (SELECT PERSON.ENO_NO
+                          ,PERSON.HEAD_CD
+                          ,PERSON.DPT_CD
+                          ,PERSON.JOB_CD
+                          ,PERSON.DUTY_CD
+                    FROM  (SELECT *
+                           FROM   T_CM_DEPT
+                           WHERE  CD_GBN='B2'
+                           AND    (END_YMD IS NULL OR  END_YMD >= SYSDATE)
+                           AND    DPT_CD NOT IN ('Z')) DEPT
+                    LEFT JOIN (SELECT ENO_NO
+                                     ,HEAD_CD
+                                     ,DPT_CD
+                                     ,JOB_CD
+                                     ,DUTY_CD
+                               FROM  (SELECT ENO_NO
+                                            ,HEAD_CD
+                                            ,DPT_CD
+                                            ,JOB_CD
+                                            ,DUTY_CD
+                                      FROM   VI_T_CM_PERSON
+                                      UNION
+                                      SELECT PERSON.ENO_NO
+                                            ,(SELECT DPT_CD
+                                              FROM T_CM_DEPT
+                                              WHERE COUNT_REM = SUBSTR(DEPT.COUNT_REM,1,6)) AS HEAD_CD
+                                            ,JOB.DPT_CD
+                                            ,PERSON.JOB_CD
+                                            ,JOB.DUTY_CD
+                                      FROM   T_CM_ADDJOB JOB
+                                      INNER JOIN T_CM_DEPT DEPT
+                                      ON         JOB.DPT_CD = DEPT.DPT_CD
+                                      AND        DEPT.CD_GBN = 'A4'
+                                      INNER JOIN T_CM_PERSON PERSON
+                                      ON         JOB.ENO_NO = PERSON.ENO_NO
+                                      WHERE  SYSDATE BETWEEN JOB.STR_YMD AND NVL(JOB.END_YMD, SYSDATE+1)
+                                     )
+                               WHERE DUTY_CD = 'L3') PERSON
+                    ON     PERSON.HEAD_CD = DEPT.DPT_CD
+                    --WHERE  ENO_NO IS NOT NULL
+                    --ORDER BY SF_GET_DPTSEQ( '01', 'A4', PERSON.DPT_CD)
+                    --       ,SF_GET_COMMSEQ('01', 'A2', PERSON.JOB_CD)
+                    --        ,ENO_NO
+                    ) B
+             WHERE A.HEAD_CD=B.HEAD_CD(+)
+             --AND   SF_GET_COMMSEQ('01','A2',A.JOB_CD) >= SF_GET_COMMSEQ('01','A2','30')--대리이하
+             
+             )
+             WHERE PMT_YY = ?
+             AND   PMT_GBN = ?
+             AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 작업 LOG 등록 -->
+    <sql name="PROA030_INS_LOG">
+        <description>작업 LOG 등록</description>
+        <query>
+            <![CDATA[
+              INSERT
+                INTO T_CP_WORKLOG
+                    (PIS_YY
+                    ,PIS_MM
+                    ,SEQ
+                    ,OCC_CD
+                    ,SAL_GBN
+                    ,PRO_STS
+                    ,PAY_YMD
+                    ,APY_YMD
+                    ,PRO_CNT
+                    ,ERR_CNT
+                    ,IPT_MAN
+                    ,IPT_YMD
+                    ,UPT_MAN
+                    ,UPT_YMD)
+              VALUES(?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,SYSDATE
+                    ,?
+                    ,SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 작업 LOG가 등록 되었는지 여부 검증 -->
+    <sql name="PROA030_SHR_LOG_CHK">
+        <description>작업 LOG가 등록 되었는지</description>
+        <query>
+            <![CDATA[
+            SELECT PRO_STS
+                  ,PRO_CNT
+                  ,ERR_CNT
+              FROM T_CP_WORKLOG
+             WHERE SAL_GBN  = ?
+               AND PAY_YMD  = ?
+               AND SEQ      = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+    <!-- 승진대상자 정보 조회(보고서) -->
+    <sql name="PROA030_SHR_02">
+        <description>승진대상자 정보 조회(보고서)</description>
+        <query>
+            <![CDATA[
+			SELECT PR.JOB_NM					--직위
+			     , S.FJOB_NM
+				 , PR.JOB_NM||'→'||S.FJOB_NM                       JOB_TITLE
+		--		 , PR.JOB_NM||'→'||S.FJOB_NM||' '||JPR_YY||'년'    JOB_TITLE
+				 , RANK() OVER (PARTITION BY PR.JOB_NM ORDER BY JPR_YY DESC, PR.DPT_CD, PR.ENO_NO)    CNT   --직위별
+        -------------------> 년수별 조회일경우(직위별로만 수정)
+		--		 , RANK() OVER (PARTITION BY PR.JOB_NM, JPR_YY ORDER BY PR.DPT_CD, PR.ENO_NO)    CNT   --직위별,년수별 명수
+				 , COL_NAME
+				 , S.OCC_CD						--직종
+				 , TO_NUMBER(JPR_YY)            --직위sort번호
+				 , JPR_YY						--현직기간년
+				 , PR.DPT_NM					--소속
+				 , PR.ENO_NM					--사원명
+				 , PR.ENO_NO					--사번
+				 , PE.BIR_YMD					--생년월일
+				 , DECODE(PE.RHI_YMD,NULL,PE.HIR_YMD,PE.RHI_YMD)      HIR_YMD		--입사일
+				 , PE.HIRG_YMD														--그룹입사일
+				 , CASE WHEN PE.EDGR_CD = '2' THEN SF_GET_COMMNAME('01', 'E8', PE.SCH_CD)
+						WHEN PE.EDGR_CD = '3' THEN SF_GET_COMMNAME('01', 'E2', PE.SCH_CD)
+						WHEN PE.EDGR_CD = '4' THEN SF_GET_COMMNAME('01', 'E3', PE.SCH_CD)
+						WHEN PE.EDGR_CD = '5' THEN SF_GET_COMMNAME('01', 'E4', PE.SCH_CD)
+						WHEN PE.EDGR_CD = '6' THEN SF_GET_COMMNAME('01', 'E5', PE.SCH_CD)
+						WHEN PE.EDGR_CD = '7' THEN SF_GET_COMMNAME('01', 'E5', PE.SCH_CD)
+						WHEN PE.EDGR_CD = '8' THEN SF_GET_COMMNAME('01', 'E5', PE.SCH_CD)
+						ELSE ''
+				   END  AS SCH_NM	                                       -- 학교명
+				 , SF_GET_COMMNAME('01', 'E6', PE.MAJ_CD)   AS MAJ_NM      -- 학과명
+				 , To_Char(to_date(JPR_YMD,'yyyy/mm/dd'),'yyyy/mm/dd') JPR_YMD					  --현직위승진일
+				 , PR.JPR_VAL				  --현직기간
+
+				 , PR.GOG_VAL			      --인사고과
+				 , PR.GOG_TOT	 			  --고과점수
+				 , PR.GOG_HTT				  --근속
+				 , PR.GUN_GTT				  --근태
+				 , PR.EDU_SCR				  --교육
+				 , PR.SAN_SCR				  --상벌
+				 , PR.CEN_SCR				  --추천
+				 , PR.SPC_TOT				  --총점
+				 , ''			SSS		      --확정
+				 , PR.EXM_TIC				  --어학
+				 , PR.EXM_CMP				  --전산
+				 , PR.REMARK				  --비고
+			  FROM (SELECT SF_GET_ENONAME('01', ENO_NO)					ENO_NM
+						 , SF_GET_COMMNAME('01', 'A2', DECODE(SUBSTR(JOB_CD,2,1),'A',REPLACE(JOB_CD,'A','0'),'B',REPLACE(JOB_CD,'B','0')))			JOB_NM
+						 , ENO_NO										ENO_NO
+						 , DPT_CD
+						 , SF_GET_DPTNAME('01', 'A4', DPT_CD)			DPT_NM
+						 , SF_GET_DPTNAME('01', 'B2', HEAD_CD)			HEAD_NM
+						 , JPR_YMD									--현직위승진일
+						 , TO_NUMBER(JPR_YY)						JPR_YY
+						 , JPR_YY||'/'||JPR_MM						JPR_VAL
+						 , DECODE(JPR_YY,1,DECODE(GOG_Y11,NULL,' ',GOG_Y11)
+						                ,2,DECODE(GOG_Y11,NULL,' ',GOG_Y11)||'  '||DECODE(GOG_Y21,NULL,' ',GOG_Y21)
+						 				,3,DECODE(GOG_Y11,NULL,' ',GOG_Y11)||'  '||DECODE(GOG_Y21,NULL,' ',GOG_Y21)||'  '||DECODE(GOG_Y31,NULL,' ',GOG_Y31)
+										,4,DECODE(GOG_Y11,NULL,' ',GOG_Y11)||'  '||DECODE(GOG_Y21,NULL,' ',GOG_Y21)||'  '||DECODE(GOG_Y31,NULL,' ',GOG_Y31)
+										                                   ||'  '||DECODE(GOG_Y41,NULL,' ',GOG_Y41)
+										,  DECODE(GOG_Y11,NULL,' ',GOG_Y11)||'  '||DECODE(GOG_Y21,NULL,' ',GOG_Y21)||'  '||DECODE(GOG_Y31,NULL,' ',GOG_Y31)
+										                                   ||'  '||DECODE(GOG_Y41,NULL,' ',GOG_Y41)||'  '||DECODE(GOG_Y51,NULL,' ',GOG_Y51))     GOG_VAL
+						 [1]
+						 , GOG_TOT	 			  -- 고과점수
+						 , GOG_HTT				  --근속
+						 , GUN_GTT				  --근태
+						 , EDU_SCR				  --교육
+						 , SAN_SCR				  --상벌
+						 , CEN_SCR				  --추천
+						 , SPC_TOT				  --총점
+						 , ''					  --확정
+						 , EXM_TIC				  --어학
+						 , EXM_CMP				  --전산
+						 , REMARK				  --비고
+					  FROM T_PM_PROMOTION
+					 WHERE PMT_YY = ?
+					   AND PMT_GBN = ?
+					   [2]
+					   [3]
+					   [4]
+				   ) PR,
+				   (SELECT ENO_NO
+				         , TO_CHAR(HIR_YMD,'YYYY-MM-DD')      HIR_YMD
+				         , TO_CHAR(RHI_YMD,'YYYY-MM-DD')      RHI_YMD
+						 , TO_CHAR(HIRG_YMD,'YYYY-MM-DD')     HIRG_YMD
+				         , TO_CHAR(BIR_YMD,'YYYY-MM-DD')      BIR_YMD
+						 , EDGR_CD, SCH_CD, MAJ_CD
+					  FROM T_CM_PERSON
+				   ) PE,
+				   (SELECT P.OCC_CD, C.PJOB_NM, C.FJOB_NM
+						 , RANK() OVER (PARTITION BY P.OCC_CD ORDER BY C.SORT_NO DESC)    R
+					  FROM (
+							SELECT OCC_CD
+								  ,SF_GET_COMMNAME('01','A2',PJOB_CD) AS PJOB_NM
+							  FROM T_PM_PROMOTION
+							 WHERE PMT_YY <= ? AND PMT_YY >'2002'
+							 GROUP BY OCC_CD, SF_GET_COMMNAME('01','A2',PJOB_CD)
+
+						   ) P,
+						   (SELECT A.PJOB_NM, A.FJOB_NM, B.SORT_NO
+							FROM   (SELECT PJOB_CD
+										  ,SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS PJOB_NM
+										  ,SF_GET_COMMNAME('01', 'A2', FJOB_CD) AS FJOB_NM
+									FROM   T_PM_PMTALLOT
+									) A,
+								   (SELECT COMM_CD, COMM_NM, SORT_NO
+									FROM   T_CM_COMMON
+									WHERE  CD_GBN='A2'
+									) B
+							WHERE A.PJOB_CD = B.COMM_CD
+						   ) C
+					WHERE P.PJOB_NM = C.PJOB_NM
+					ORDER BY C.SORT_NO
+				  ) S
+			 WHERE PR.ENO_NO = PE.ENO_NO
+			   AND PR.JOB_NM = S.PJOB_NM
+			 ORDER BY OCC_CD, R, TO_NUMBER(JPR_YY), CNT DESC
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : PROA040
+* @description : 부서장추천서관리
+***********************************************************************
+* 2007/02/02      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 추천서 작성 여부를 조회 한다. -->
+    <sql name="PROA040_SHR">
+        <description>추천서 작성여부 조회</description>
+        <query>
+            <![CDATA[
+             SELECT A.PMT_YY, A.PMT_GBN, A.PENO_NO, A.PENO_NO2, A.ENO_NO, A.PMT_TAG, A.PMT_LBL_TAG, A.PMT_LBL_CNT
+                   ,SF_GET_COMMNAME('01', 'A2', A.PMT_JOB_CD) AS PMT_JOB_CD
+                   ,A.ITEM1_TAG, A.ITEM2_TAG, A.ITEM3_TAG, A.ITEM4_TAG, A.ITEM5_TAG, A.ITEM6_TAG
+                   ,A.ASGN1_TAG ,A.ASGN2_TAG ,A.ASGN3_TAG ,A.ASGN4_TAG, A.HEALTH_GBN, A.HEALTH_TAG, A.RECOMM_TAG
+                   ,B.JOB_CD
+                   ,C.ENO_NM, C.DPT_NM, C.JOB_NM, C.SCH_NM, C.HIR_YMD, C.BIR_YMD, C.JPR_YMD
+                   ,A.UPT_MAN
+             FROM   T_PM_RECOMMAND A
+                   ,(SELECT ENO_NO, PJOB_CD AS JOB_CD FROM T_PM_PROMOTION WHERE PMT_YY = ?) B
+                   ,(SELECT ENO_NO, DPT_NM, JOB_NM, ENO_NM, SCH_NM
+                           ,TO_CHAR(HIR_YMD,'YYYY-MM-DD') AS HIR_YMD
+                           ,TO_CHAR(BIR_YMD,'YYYY-MM-DD') AS BIR_YMD
+                           ,TO_CHAR(JPR_YMD,'YYYY-MM-DD') AS JPR_YMD
+				     FROM VI_T_CM_PERSON) C
+             WHERE  A.ENO_NO IN ( SELECT ENO_NO
+                                  FROM   T_PM_PROPOSER
+                                  WHERE  PMT_YY  = ?   -- 검색 년도
+                                  [1]
+                                  AND    ENO_NO  =  A.ENO_NO
+                                  )
+             AND    A.ENO_NO = B.ENO_NO
+             AND    A.ENO_NO = C.ENO_NO
+             AND    A.PMT_YY = ?
+             [2]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기본 추천서작성을 위한 조회 한다. -->
+    <sql name="PROA040_SHR_01">
+        <description>기본 추천서 작성 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT ENO_NO, PMT_YY, PMT_GBN
+                   ,(SELECT FJOB_CD FROM T_PM_PMTALLOT WHERE PJOB_CD = A.PJOB_CD) AS FJOB_CD
+             FROM   T_PM_PROMOTION A
+             WHERE  ENO_NO IN ( SELECT ENO_NO
+                                FROM   T_PM_PROPOSER
+                                WHERE  PMT_YY  = ?     -- 검색 년도
+                                [1]
+                                AND    ENO_NO = A.ENO_NO
+                                )
+             AND   PMT_YY = ?
+             AND   [2]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 추천 대상자 존재여부를 조회 한다. -->
+    <sql name="PROA040_SHR_02">
+        <description>추천 대상자 존재여부 조회</description>
+        <query>
+            <![CDATA[
+             SELECT AA.ENO_NO, AA.JOB_CD
+             FROM  (SELECT ENO_NO
+                          ,PMT_YY
+                          ,PMT_GBN
+                          ,(SELECT PJOB_CD FROM T_PM_PROMOTION WHERE ENO_NO = A.ENO_NO AND PMT_YY = ?) AS JOB_CD
+                    FROM   T_PM_PROPOSER A
+                    WHERE  PMT_YY  = ? -- 검색 년도
+                    [1]
+                   ) AA,
+                   T_PM_RECOMMAND BB
+             WHERE AA.ENO_NO = BB.ENO_NO(+)
+             AND   AA.PMT_YY = BB.PMT_YY(+)
+             AND   AA.PMT_GBN = BB.PMT_GBN(+)
+             [2]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기본 추천서를 저장 한다. -->
+    <sql name="PROA040_INS">
+        <description>기본추천서 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO T_PM_RECOMMAND
+                   ( PMT_YY, PMT_GBN, ENO_NO
+                    ,PENO_NO 
+                    ,PENO_NO2 
+                    ,PMT_TAG
+                    ,PMT_JOB_CD
+                    ,IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+             VALUES (      ?,       ?,       ?
+                    ,(SELECT PENO_NO  FROM T_PM_PROPOSER WHERE PMT_YY = ? AND PMT_GBN = ? AND ENO_NO = ?)
+                    ,(SELECT PENO_NO2 FROM T_PM_PROPOSER WHERE PMT_YY = ? AND PMT_GBN = ? AND ENO_NO = ?)
+                    ,?
+                    ,?
+                    ,      ?, sysdate,       ?, sysdate )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 추천서 정보를 수정 한다. -->
+    <sql name="PROA040_UPT">
+        <description>추천서 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_RECOMMAND
+             SET    PMT_LBL_TAG         = ?       -- 추천등급
+                   ,PMT_LBL_CNT         = ?       -- 추천등급 점수
+                   ,ITEM1_TAG           = ?       -- 직무지식
+                   ,ITEM2_TAG           = ?       -- 근면성
+                   ,ITEM3_TAG           = ?       -- 책임감
+                   ,ITEM4_TAG           = ?       -- 적극성
+                   ,ITEM5_TAG           = ?       -- 개선의욕
+                   ,ITEM6_TAG           = ?       -- 지도력
+                   ,ASGN1_TAG           = ?       -- 승진후 보직내용 1
+                   ,ASGN2_TAG           = ?       -- 승진후 보직내용 2
+                   ,ASGN3_TAG           = ?       -- 승진후 보직내용 3
+                   ,ASGN4_TAG           = ?       -- 승진후 보직내용 4
+                   ,HEALTH_GBN          = ?       -- 건강상태
+                   ,HEALTH_TAG          = ?       -- 선강상태 사유
+                   ,RECOMM_TAG          = ?       -- 추천사유
+                   ,UPT_MAN             = ?       -- 최종 수정자
+                   ,UPT_YMD             = sysdate
+             WHERE  PMT_YY              = ?       -- 승진예정년도
+             AND    PMT_GBN             = ?       -- 정기,특별
+             AND    ENO_NO              = ?       -- 사번
+             [1]
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 대상자 테이블의 추천점수 총점을 수정 한다. -->
+    <sql name="PROA040_UPT_01">
+        <description>추천점수 총점 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_PROMOTION
+             SET    CEN_SCR             = NVL((SELECT (CASE WHEN B.CEN_PNT <> '10' THEN ROUND( B.CEN_PNT*(A.CEN_SCR) /10) ELSE A.CEN_SCR END)
+                                               FROM   (SELECT SF_GET_COMMNAME('01', 'A2', PMT_JOB_CD) AS JOB_NM, SUM(PMT_LBL_CNT)/COUNT(ENO_NO) AS CEN_SCR, ENO_NO
+                                                       FROM   T_PM_RECOMMAND
+                                                       WHERE  PMT_LBL_CNT IS NOT NULL
+                                                       AND    ENO_NO = ?
+                                                       AND    PMT_YY = ?
+                                                       GROUP BY ENO_NO, PMT_JOB_CD
+                                                       ) A
+		                                             ,(SELECT SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS JOB_NM, CEN_PNT FROM T_PM_PMTALLOT) B
+                                               WHERE  A.JOB_NM = B.JOB_NM),0)
+                   ,SPC_TOT             = NVL(GOG_GAV,0)+NVL(GOG_HTT,0)+NVL(EDU_SCR,0)+NVL(GUN_GTT,0)+NVL(SAN_SCR,0)
+                                        + NVL((SELECT (CASE WHEN B.CEN_PNT <> '10' THEN ROUND( B.CEN_PNT*(A.CEN_SCR) /10) ELSE A.CEN_SCR END)
+                                               FROM   (SELECT SF_GET_COMMNAME('01', 'A2', PMT_JOB_CD) AS JOB_NM, SUM(PMT_LBL_CNT)/COUNT(ENO_NO) AS CEN_SCR, ENO_NO
+                                                       FROM   T_PM_RECOMMAND
+                                                       WHERE  PMT_LBL_CNT IS NOT NULL
+                                                       AND    ENO_NO = ?
+                                                       AND    PMT_YY = ?
+                                                       GROUP BY ENO_NO, PMT_JOB_CD
+                                                       ) A
+		                                             ,(SELECT SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS JOB_NM, CEN_PNT FROM T_PM_PMTALLOT) B
+                                               WHERE  A.JOB_NM = B.JOB_NM),0)
+                   ,UPT_MAN             = ?       -- 최종 수정자
+                   ,UPT_YMD             = sysdate
+             WHERE  PMT_YY              = ?       -- 승진예정년도
+             AND    PMT_GBN             = '1'     -- 정기승진만 추천
+             AND    ENO_NO              = ?       -- 사번
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 추천서를 삭제 한다. -->
+    <sql name="PROA040_DEL">
+        <description>추천서 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE FROM T_PM_RECOMMAND
+             WHERE  PMT_YY  = ?
+             AND    PMT_GBN = ?
+             AND    ENO_NO  = ?
+             AND    PENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : PROA050
+* @description : 최근 5년 승진현황
+***********************************************************************
+* 2007/01/17      채갑병       최초작성
+***********************************************************************
+-->
+<!-- PROA050DAO 에서 직접 생성  -->
+
+<!--
+***********************************************************************
+* @UseCase     : PROA060
+* @description : 정기승진 대상자 현황
+***********************************************************************
+* 2007/04/05      김학수       최초작성
+***********************************************************************
+-->
+    <!-- 해당기간내의 직위 현황을 가져온다 -->
+    <sql name="PROA060_SHR_01">
+        <description>다이나믹 쿼리사용을 위한 직위 가져오는 부분</description>
+        <query>
+            <![CDATA[
+            SELECT P.OCC_CD,
+                   C.PJOB_NM,
+                   C.FJOB_NM,
+                   RANK() OVER (PARTITION BY P.OCC_CD ORDER BY C.SORT_NO DESC) R
+            FROM  (SELECT OCC_CD,
+                          COMM_NM AS PJOB_NM
+                   FROM   T_CM_COMMON
+                   WHERE  CD_GBN='A2'
+                   AND   (END_YMD >  ?||'1231' OR END_YMD IS NULL)
+                   AND   COMM_CD IN ('1D','1E','20','30','40','BJ','JY','8D')
+                   
+                   UNION ALL
+                   
+                   SELECT 'A'  AS OCC_CD,
+                          '남' AS PJOB_NM
+                   FROM   T_CM_COMMON
+                   WHERE  CD_GBN='A2'
+                   AND    COMM_CD = '5A'
+                   
+                   UNION ALL
+                   
+                   SELECT 'A'  AS OCC_CD,
+                          '여' AS PJOB_NM
+                   FROM   T_CM_COMMON
+                   WHERE  CD_GBN='A2'
+                   AND    COMM_CD = '5B'
+                  ) P,
+                  (SELECT A.PJOB_NM,
+                          A.FJOB_NM,
+                          B.SORT_NO
+                   FROM  (SELECT PJOB_CD,
+                                 SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS PJOB_NM,
+                                 SF_GET_COMMNAME('01', 'A2', FJOB_CD) AS FJOB_NM
+                          FROM   T_PM_PMTALLOT
+                         ) A,
+                         (SELECT COMM_CD,
+                                 COMM_NM,
+                                 SORT_NO
+                          FROM   T_CM_COMMON
+                          WHERE  CD_GBN='A2'
+                         ) B
+                   WHERE  A.PJOB_CD = B.COMM_CD
+                   
+                   UNION ALL
+                   
+                   SELECT '남'        AS PJOB_NM,
+                          '4사'       AS FJOB_NM,
+                          SORT_NO - 1 AS SORT_NO
+                   FROM   T_CM_COMMON
+                   WHERE  CD_GBN='A2'
+                   AND    COMM_CD = '50'
+                   
+                   UNION ALL
+                   
+                   SELECT '여'           PJOB_NM,
+                          '4사'          FJOB_NM,
+                          SORT_NO - 2 AS SORT_NO
+                   FROM   T_CM_COMMON
+                   WHERE  CD_GBN='A2'
+                   AND    COMM_CD = '50'
+                  ) C
+            WHERE P.PJOB_NM = C.PJOB_NM
+            ORDER BY P.OCC_CD, C.SORT_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 정기승진 대상자 현황조회 -->
+    <sql name="PROA060_SHR_02">
+        <description>정기승진 대상자 현황</description>
+        <query>
+            <![CDATA[
+            SELECT DECODE(INT,1,'99',HEAD_SORT)                                AS HEAD_SORT
+                  ,DECODE(INT,1,'계',HEAD_NM)                                  AS HEAD_NM
+                  ,'현재원'                                                    AS TITLE_NOW
+                  ,'대상'                                                      AS TITLE_PTM
+                  ,'%'                                                         AS TITLE_PER
+                 
+                  -------------------------------------------------------------------사무직
+[1]
+                  ,SUM(DECODE(OCC_CD,'A',DECODE(R,99,NOW_CNT)))                AS A_99_NOW
+                  ,SUM(DECODE(OCC_CD,'A',DECODE(R,99,PMT_CNT)))                AS A_99_PMT
+                  ,ROUND(SUM(DECODE(OCC_CD,'A',DECODE(R,99,PMT_CNT)))
+                        /SUM(DECODE(OCC_CD,'A',DECODE(R,99,NOW_CNT)))*100)     AS A_99_PER   --사무직소계
+                        
+                  -------------------------------------------------------------------택배직
+[2]
+                  ,SUM(DECODE(OCC_CD,'M',DECODE(R,99,NOW_CNT)))                AS M_99_NOW
+                  ,SUM(DECODE(OCC_CD,'M',DECODE(R,99,PMT_CNT)))                AS M_99_PMT
+                  ,ROUND(SUM(DECODE(OCC_CD,'M',DECODE(R,99,PMT_CNT)))
+                        /SUM(DECODE(OCC_CD,'M',DECODE(R,99,NOW_CNT)))*100)     AS M_99_PER   --택배직소계
+
+                  ,SUM(DECODE(OCC_CD,'총계',DECODE(R,999,NOW_CNT)))            AS AM_999_NOW
+                  ,SUM(DECODE(OCC_CD,'총계',DECODE(R,999,PMT_CNT)))            AS AM_999_PMT
+                  ,ROUND(SUM(DECODE(OCC_CD,'총계',DECODE(R,999,PMT_CNT)))
+                        /SUM(DECODE(OCC_CD,'총계',DECODE(R,999,NOW_CNT)))*100) AS AM_999_PER --총계
+
+                  ------------------------------------------------- 5사일경우 남,여 합계 부분---------------------------------->
+                  ,DECODE(NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,1,NOW_CNT))),0) + NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,2,NOW_CNT))),0),0,'',
+                          NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,1,NOW_CNT))),0) + NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,2,NOW_CNT))),0))       as A_88_NOW
+                  ,DECODE(NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,1,PMT_CNT))),0) + NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,2,PMT_CNT))),0),0,'',
+                          NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,1,PMT_CNT))),0) + NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,2,PMT_CNT))),0))       as A_88_PMT
+                  ,DECODE(NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,1,PMT_CNT))),0) + NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,2,PMT_CNT))),0),0,'',
+                         ROUND((NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,1,PMT_CNT))),0) + NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,2,PMT_CNT))),0)) /
+                         (NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,1,NOW_CNT))),0) + NVL(SUM(DECODE(OCC_CD,'A',DECODE(R,2,NOW_CNT))),0))*100)) as A_88_PER
+                  ------------------------------------------------------------------------------------------------------------->
+                  
+            FROM  (SELECT DECODE(INT,1,'총계',A.OCC_CD)                                                   AS OCC_CD
+                         ,A.COMM_CD                                                                       AS HEAD_CD
+                         ,A.COMM_NM                                                                       AS HEAD_NM
+                         ,A.HEAD_SORT                                                                     AS HEAD_SORT
+                         ,DECODE(INT,1,'총계',2,'소계',A.PJOB_NM||' → '||A.FJOB_NM)                      AS JOB_NM
+                         ,DECODE(INT,1,'999',2,'99',A.R)                                                  AS R
+                         ,DECODE(SUM(C.PMT_CNT),0,'',SUM(C.PMT_CNT))                                      AS PMT_CNT
+                         ,DECODE(SUM(C.NOW_CNT),0,'',SUM(C.NOW_CNT))                                      AS NOW_CNT
+                         ,DECODE(SUM(C.PMT_CNT),0,'',ROUND(SUM(C.PMT_CNT) / NVL(SUM(C.NOW_CNT),0) * 100)) AS PER
+                   FROM  (-------------------- OUTJOIN 에 사용될 기본코드 구성
+                          SELECT P.COMM_CD
+                                ,P.COMM_NM
+                                ,HEAD_SORT
+                                ,H.OCC_CD
+                                ,H.PJOB_NM
+                                ,H.FJOB_NM
+                                ,H.R
+                          FROM  (SELECT COMM_CD
+                                       ,COMM_NM
+                                       ,ROWNUM HEAD_SORT
+                                 FROM  (SELECT MAX(B.COMM_CD) AS COMM_CD
+                                              ,MAX(B.COMM_NM) AS COMM_NM
+                                        FROM  (SELECT UPDPT_CD AS HEAD_CD
+                                               FROM   T_CM_DEPT
+                                               WHERE  CD_GBN = 'A4'
+                                               AND    GBN2_TAG = '1'
+                                               [3]
+                                              ) A,
+                                              (SELECT DPT_CD AS COMM_CD
+                                                     ,DPT_NM AS COMM_NM
+                                               FROM   T_CM_DEPT
+                                               WHERE  CD_GBN = 'B2'
+                                              ) B
+                                        WHERE A.HEAD_CD = B.COMM_CD
+                                        GROUP BY HEAD_CD
+                                        ORDER BY COMM_CD
+                                       )
+                                ) P,
+                                (SELECT P.OCC_CD
+                                       ,C.PJOB_NM
+                                       ,C.FJOB_NM
+                                       ,RANK() OVER (PARTITION BY P.OCC_CD ORDER BY C.SORT_NO DESC) AS R
+                                 FROM  (SELECT OCC_CD
+                                              ,SF_GET_COMMNAME('01','A2',PJOB_CD) AS PJOB_NM
+                                        FROM   T_PM_PROMOTION
+                                        WHERE  PMT_YY <= ? AND PMT_YY >?
+                                        AND    PJOB_CD NOT IN('50')
+                                        GROUP  BY OCC_CD, SF_GET_COMMNAME('01','A2',PJOB_CD)
+                                        
+                                        UNION ALL
+                                 
+                                        SELECT 'A'  AS OCC_CD
+                                              ,'남' AS PJOB_NM
+                                        FROM   T_CM_COMMON
+                                        WHERE  CD_GBN='A2'
+                                        AND    COMM_CD = '5A'
+                                 
+                                        UNION ALL
+                                 
+                                        SELECT 'A'  AS OCC_CD
+                                              ,'여' AS PJOB_NM
+                                        FROM   T_CM_COMMON
+                                        WHERE  CD_GBN='A2'
+                                        AND    COMM_CD = '5B'
+                                       ) P,
+                                       (SELECT A.PJOB_NM
+                                              ,A.FJOB_NM
+                                              ,B.SORT_NO
+                                        FROM  (SELECT PJOB_CD
+                                                     ,SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS PJOB_NM
+                                                     ,SF_GET_COMMNAME('01', 'A2', FJOB_CD) AS FJOB_NM
+                                               FROM   T_PM_PMTALLOT
+                                              ) A,
+                                              (SELECT COMM_CD
+                                                     ,COMM_NM
+                                                     ,SORT_NO
+                                               FROM   T_CM_COMMON
+                                               WHERE  CD_GBN='A2'
+                                              ) B
+                                        WHERE  A.PJOB_CD = B.COMM_CD
+                                        
+                                        UNION ALL
+                                        
+                                        SELECT '남'        AS PJOB_NM
+                                              ,'4사'       AS FJOB_NM
+                                              ,SORT_NO - 1 AS SORT_NO
+                                        FROM   T_CM_COMMON
+                                        WHERE  CD_GBN='A2'
+                                        AND    COMM_CD = '50'
+                                        
+                                        UNION ALL
+                                 
+                                        SELECT '여'        AS PJOB_NM
+                                              ,'4사'       AS FJOB_NM
+                                              ,SORT_NO - 2 AS SORT_NO
+                                        FROM   T_CM_COMMON
+                                        WHERE  CD_GBN='A2'
+                                        AND    COMM_CD = '50'
+                                       ) C
+                                 WHERE  P.PJOB_NM = C.PJOB_NM
+                                 ORDER BY C.SORT_NO
+                                ) H
+                         ) A,
+                  
+                         (----------------------------------------실데이타 가져오는 부분------
+                          SELECT OCC_CD
+                                ,HEAD_CD
+                                ,PMT_YY
+                                ,PJOB_NM
+                                ,MAX(PMT_CNT) AS PMT_CNT
+                                ,MAX(NOW_CNT) AS NOW_CNT
+                          FROM  (SELECT OCC_CD
+                                       ,HEAD_CD
+                                       ,PMT_YY --현재원
+                                       ,DECODE(PJOB_CD,'5A','남','5B','여',SF_GET_COMMNAME('01','A2',PJOB_CD)) AS PJOB_NM
+                                       ,COUNT(*) AS PMT_CNT
+                                       ,0        AS NOW_CNT
+                                 FROM  (SELECT OCC_CD
+                                              ,HEAD_CD
+                                              ,PMT_YY
+                                              ,DECODE(PJOB_CD,'50'
+                                                      ,(SELECT JOB_CD FROM T_CM_PERSON WHERE ENO_NO = P.ENO_NO)
+                                                      ,PJOB_CD) AS PJOB_CD
+                                        FROM   T_PM_PROMOTION P
+                                        WHERE  PMT_YY = ?
+                                       )
+                                 GROUP BY OCC_CD, HEAD_CD, PMT_YY
+                                         ,DECODE(PJOB_CD,'5A','남','5B','여',SF_GET_COMMNAME('01','A2',PJOB_CD))
+                                 
+                                 UNION ALL
+                                 
+                                 SELECT OCC_CD
+                                       ,HEAD_CD
+                                       ,? AS PMT_YY --대상인원
+                                       ,DECODE(JOB_CD,'5A','남','5B','여',SF_GET_COMMNAME('01','A2',JOB_CD)) AS JOB_NM
+                                       ,0        AS PMT_CNT
+                                       ,COUNT(*) AS NOW_CNT
+                                 FROM   T_CM_PERSON
+                                 WHERE  TO_CHAR(HIR_YMD,'YYYYMMDD') <= ?
+                                 AND   (TO_CHAR(RET_YMD,'YYYYMMDD') > ? OR RET_YMD IS NULL)
+                                 GROUP BY OCC_CD, HEAD_CD, ?
+                                         ,DECODE(JOB_CD,'5A','남','5B','여',SF_GET_COMMNAME('01','A2',JOB_CD))
+                                ) C
+                          GROUP BY OCC_CD, HEAD_CD, PMT_YY, PJOB_NM
+                         ) C,
+                         
+                         (SELECT ROWNUM INT
+                          FROM   DICT
+                          WHERE  ROWNUM <= 3
+                         ) COPYT
+                   WHERE  A.OCC_CD = C.OCC_CD(+)
+                   AND    A.COMM_CD = C.HEAD_CD(+)
+                   AND    A.PJOB_NM = C.PJOB_NM(+)
+                   GROUP BY DECODE(INT,1,'총계',A.OCC_CD)
+                           ,A.COMM_CD
+                           ,A.COMM_NM
+                           ,A.HEAD_SORT
+                           ,DECODE(INT,1,'총계',2,'소계',A.PJOB_NM||' → '||A.FJOB_NM)
+                           ,DECODE(INT,1,'999',2,'99',A.R)
+                   ORDER BY DECODE(INT,1,'총계',A.OCC_CD)
+                           ,A.HEAD_SORT
+                           ,DECODE(INT,1,'999',2,'99',A.R)
+                  ) A,
+                  (SELECT ROWNUM INT
+                   FROM   DICT
+                   WHERE  ROWNUM <= 2
+                  ) COPYT
+            GROUP BY DECODE(INT,1,'99',HEAD_SORT)
+                    ,DECODE(INT,1,'계',HEAD_NM)
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : PROA070
+* @description : 정기승진 대상자 명단
+***********************************************************************
+* 2007/01/18      채갑병       최초작성
+* 2007/03/30      김학수       보고서양식으로 수정
+***********************************************************************
+-->
+    <!-- 승진 대상자 명단을 조회 한다. -->
+    <sql name="PROA070_SHR">
+        <description>승진 대상자 명단 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  C.PJOB_NM ||'→'||C.FJOB_NM AS JOB_NM
+                    ,ROW_NUMBER() OVER (PARTITION BY C.PJOB_NM ORDER BY DPT_NM DESC) AS R
+                    ,C.SORT_NO
+                    ,B.OCC_NM
+                    ,B.DPT_NM
+                    ,B.HOB_NM
+                    ,B.SCH_NM
+                    ,B.MAJ_NM
+                    ,A.PMT_GBN
+                    ,A.ENO_NM
+                    ,A.ENO_NO
+                    ,A.BIR_YMD
+                    ,A.HIR_YMD
+                    ,A.HIRG_YMD
+                    ,A.JPR_YMD
+                    ,TRUNC(A.JPR_CON) AS JPR_CON
+                    ,A.HIR_CON
+                    ,A.REMARK
+             FROM   (SELECT ENO_NO 
+                           ,ENO_NM
+                           ,SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS PJOB_NM 
+                           ,PMT_GBN 
+                           ,REMARK
+                           ,TO_CHAR(TO_DATE(BIR_YMD),'YYYY-MM-DD')  AS BIR_YMD
+                           ,TO_CHAR(TO_DATE(HIR_YMD),'YYYY-MM-DD')  AS HIR_YMD
+                           ,TO_CHAR(TO_DATE(HIRG_YMD),'YYYY-MM-DD') AS HIRG_YMD
+                           ,TO_CHAR(TO_DATE(JPR_YMD),'YYYY-MM-DD')  AS JPR_YMD
+                           ,FLOOR(MONTHS_BETWEEN(SYSDATE, JPR_YMD)/12)||'.'||FLOOR(MOD(MONTHS_BETWEEN(SYSDATE, JPR_YMD),12)) AS JPR_CON
+                           ,FLOOR(MONTHS_BETWEEN(SYSDATE, HIR_YMD)/12)||'.'||FLOOR(MOD(MONTHS_BETWEEN(SYSDATE, HIR_YMD),12)) AS HIR_CON
+                     FROM   T_PM_PROMOTION
+                     WHERE  PMT_YY = ?
+                    ) A,
+                    (SELECT ENO_NO
+                           ,OCC_NM
+                           ,DPT_NM
+                           ,HOB_NM
+                           ,SCH_NM
+                           ,MAJ_NM
+                     FROM   VI_T_CM_PERSON
+                     [1]
+                    ) B,
+                    (SELECT A.PJOB_NM
+                           ,A.FJOB_NM
+                           ,B.SORT_NO
+                     FROM  (SELECT PJOB_CD
+                                  ,SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS PJOB_NM
+                                  ,SF_GET_COMMNAME('01', 'A2', FJOB_CD) AS FJOB_NM
+                            FROM   T_PM_PMTALLOT
+                           ) A,
+                           (SELECT COMM_CD
+                                  ,COMM_NM
+                                  ,SORT_NO
+                            FROM   T_CM_COMMON
+                            WHERE  CD_GBN='A2'
+                           ) B
+                     WHERE  A.PJOB_CD = B.COMM_CD
+                    ) C
+              WHERE A.ENO_NO  = B.ENO_NO
+                AND A.PJOB_NM = C.PJOB_NM(+)
+              ORDER BY C.SORT_NO
+                      ,DPT_NM
+                      ,ROW_NUMBER() OVER (PARTITION BY C.PJOB_NM ORDER BY DPT_NM DESC) DESC
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : PROA080
+* @description : 사원별 추천자 관리
+***********************************************************************
+* 2007/02/02      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 사원별 추천자 조회 한다. -->
+    <sql name="PROA080_SHR">
+        <description>사원별 추천자 조회</description>
+        <query>
+            <![CDATA[
+             SELECT B.PMT_YY, A.ENO_NO, A.ENO_NM, A.DPT_NM, A.JOB_NM, C.FJOB_NM, B.PMT_GBN 
+                   ,B.PENO_NO, B.PDPT_CD, B.PJOB_CD
+                   ,SF_GET_ENONAME('01', B.PENO_NO) AS PENO_NM
+                   ,SF_GET_DPTNAME('01', 'A4', B.PDPT_CD) AS PDPT_NM
+                   ,SF_GET_COMMNAME('01', 'A2', B.PJOB_CD) AS PJOB_NM
+                   ,B.PENO_NO2, B.PDPT_CD2, B.PJOB_CD2
+                   ,SF_GET_ENONAME('01', B.PENO_NO2) AS PENO_NM2
+                   ,SF_GET_DPTNAME('01', 'A4', B.PDPT_CD2) AS PDPT_NM2
+                   ,SF_GET_COMMNAME('01', 'A2', B.PJOB_CD2) AS PJOB_NM2
+                   ,A.JOB_SEQ
+             FROM   (SELECT ENO_NO, ENO_NM, DPT_NM, JOB_NM, JOB_CD, DPT_SEQ, JOB_SEQ, HOB_SEQ, HIR_YMD FROM VI_T_CM_PERSON) A
+                   ,(SELECT PMT_YY, PMT_GBN, ENO_NO 
+                           ,PENO_NO, PDPT_CD, PJOB_CD 
+                           ,PENO_NO2, PDPT_CD2, PJOB_CD2 
+                     FROM T_PM_PROPOSER WHERE PMT_YY = ?) B
+                   ,(SELECT SF_GET_COMMNAME('01','A2',PJOB_CD) AS PJOB_NM, SF_GET_COMMNAME('01','A2',FJOB_CD) AS FJOB_NM FROM T_PM_PMTALLOT) C
+             WHERE  A.ENO_NO = B.ENO_NO
+             AND    A.JOB_NM = C.PJOB_NM
+             [1]
+             ORDER BY A.DPT_SEQ, A.JOB_SEQ, A.HOB_SEQ DESC, A.HIR_YMD, A.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승진대상자 존재여부를 조회 한다. -->
+    <sql name="PROA080_SHR_01">
+        <description>승진 대상자 존재여부 조회</description>
+        <query>
+            <![CDATA[
+             SELECT PMT_YY, PMT_GBN, ENO_NO
+             FROM   T_PM_PROMOTION
+             WHERE  PMT_YY  = ?
+             AND    PMT_GBN = '1'   -- 2차개발 현재 정기승진 대상자만 검색
+             AND    ENO_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 추천자 정보를 저장 한다. -->
+    <sql name="PROA080_INS">
+        <description>추천자 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT INTO T_PM_PROPOSER
+                   (PMT_YY , PMT_GBN, ENO_NO , PENO_NO, PDPT_CD, PJOB_CD
+                   ,IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+             VALUES
+                   (      ?,       ?,       ?,       ?, (SELECT DPT_CD FROM T_CM_PERSON WHERE ENO_NO = ? ), (SELECT JOB_CD FROM T_CM_PERSON WHERE ENO_NO = ? )
+                   ,      ?, sysdate,       ?, sysdate)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 추천자 정보를 수정 한다. -->
+    <sql name="PROA080_UPT">
+        <description>추천자 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_PROPOSER
+             SET    PENO_NO             = ?       -- 추천자 사번1
+                   ,PDPT_CD             = (SELECT DPT_CD FROM T_CM_PERSON WHERE ENO_NO = ? )       -- 추천자 소속1
+                   ,PJOB_CD             = (SELECT JOB_CD FROM T_CM_PERSON WHERE ENO_NO = ? )       -- 추천자 직위1
+                   ,PENO_NO2            = ?       -- 추천자 사번2
+                   ,PDPT_CD2            = (SELECT DPT_CD FROM T_CM_PERSON WHERE ENO_NO = ? )       -- 추천자 소속2
+                   ,PJOB_CD2            = (SELECT JOB_CD FROM T_CM_PERSON WHERE ENO_NO = ? )       -- 추천자 직위2
+                   ,UPT_MAN             = ?       -- 최종 수정자
+                   ,UPT_YMD             = sysdate
+             WHERE  PMT_YY              = ?       -- 승진예정년도
+             AND    PMT_GBN             = ?       -- 정기,특별
+             AND    ENO_NO              = ?       -- 사번
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 추천자를 삭제 한다. -->
+    <sql name="PROA080_DEL">
+        <description>추천자 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE FROM T_PM_PROPOSER
+             WHERE  PMT_YY  = ?
+             AND    PMT_GBN = ?
+             AND    ENO_NO  = ?
+             AND    PENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : PROA090
+* @description : 특별승진 현황
+***********************************************************************
+* 2007/01/18      채갑병       최초작성
+***********************************************************************
+-->
+
+<!--
+***********************************************************************
+* @UseCase     : PROA100
+* @description : 정기승진 현황
+***********************************************************************
+* 2007/04/01      김학수       최초작성
+***********************************************************************
+-->
+    <!-- 구분값을 조회한다. -->
+    <sql name="PROA100_SHR_01">
+        <description>구분값 조회</description>
+        <query>
+            <![CDATA[
+			SELECT MAX(B.COMM_CD)      COMM_CD
+				  ,MAX(B.COMM_NM)      COMM_NM
+			  FROM
+				  (
+				  SELECT UPDPT_CD AS HEAD_CD
+					FROM T_CM_DEPT
+				   WHERE CD_GBN = 'A4'
+					 AND GBN2_TAG = '1'
+					 AND  STR_YMD <= TO_CHAR(LAST_DAY(TO_DATE(?||'1201','YYYYMMDD')),'YYYYMMDD')
+					 AND (END_YMD >= TO_CHAR(LAST_DAY(TO_DATE(?||'1201','YYYYMMDD')),'YYYYMMDD') OR END_YMD IS NULL)
+				  ) A,
+				  (
+				  SELECT DPT_CD AS COMM_CD
+					   , DPT_NM AS COMM_NM
+					FROM T_CM_DEPT
+				   WHERE CD_GBN = 'B2'
+				  ) B
+			WHERE A.HEAD_CD = B.COMM_CD
+			GROUP BY HEAD_CD
+			ORDER BY HEAD_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 정기승진 현황. -->
+    <sql name="PROA100_SHR_02">
+        <description>정기승진 현황</description>
+        <query>
+            <![CDATA[
+                SELECT DECODE(INT,1,'Z',2,D.OCC_CD||'Z',D.OCC_CD)
+                      ,DECODE(INT,1,'계',2,DECODE(D.OCC_CD,'A','사무직소계','M','영업사원소계'),D.PJOB_NM||' → '||D.FJOB_NM)   JOB_NM
+                      ,MIN(JOB_NO)
+                      ,SUM(AA.PMT_CNT99)                                        PMT_CNT99
+                      ,SUM(AA.PRO_CNT99)                                        PRO_CNT99
+                      ,ROUND(SUM(AA.PRO_CNT99)/SUM(AA.PMT_CNT99)*100, 1)        PRO_RAT99
+                      [1]
+                  FROM (SELECT PJOB_NM
+                             , MAX(DECODE(HEAD_SORT,'99',PMT_CNT))             PMT_CNT99
+                             , MAX(DECODE(HEAD_SORT,'99',PRO_CNT))             PRO_CNT99
+                             , MAX(DECODE(HEAD_SORT,'99',PRO_RAT))             PRO_RAT99
+                             [2]
+
+                          FROM (SELECT C.OCC_CD                                      OCC_CD
+                                     , C.PMT_YY                                      REC_YMD
+                                     , DECODE(INT,1,'',A.HEAD_CD)                    HEAD_CD
+                                     , DECODE(INT,1,'99',A.HEAD_SORT)                HEAD_SORT
+                                     , DECODE(INT,1,'',A.COMM_NM)                    COMM_NM
+                                     , C.PJOB_NM                                     PJOB_NM
+                                     , SUM(C.PMT_CNT)                                PMT_CNT
+                                     , SUM(C.PRO_CNT)                                PRO_CNT
+                                     , ROUND(SUM(C.PRO_CNT)/SUM(C.PMT_CNT)*100, 1)   PRO_RAT
+                                  FROM (
+                                        SELECT P.HEAD_CD, H.HEAD_SORT, H.COMM_NM, P.JOB_NM
+                                          FROM (SELECT HEAD_CD, SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM
+                                                  FROM T_CM_PERSON
+                                                 WHERE TO_CHAR(HIR_YMD,'YYYYMMDD') <= ?
+                                                   AND (TO_CHAR(RET_YMD,'YYYYMMDD') > ? OR RET_YMD IS NULL)
+                                                 GROUP BY HEAD_CD, SF_GET_COMMNAME('01','A2',JOB_CD)
+                                                ) P,
+                                                (
+                                                 SELECT COMM_CD, COMM_NM, ROWNUM HEAD_SORT
+                                                   FROM (SELECT MAX(B.COMM_CD)      COMM_CD
+                                                               ,MAX(B.COMM_NM)      COMM_NM
+                                                           FROM
+                                                               (
+                                                               SELECT UPDPT_CD AS HEAD_CD
+                                                                 FROM T_CM_DEPT
+                                                                WHERE CD_GBN = 'A4'
+                                                                  AND GBN2_TAG = '1'
+                                                                  AND  STR_YMD <= TO_CHAR(LAST_DAY(TO_DATE(?||'01','YYYYMMDD')),'YYYYMMDD')
+                                                                  AND (END_YMD >= TO_CHAR(LAST_DAY(TO_DATE(?||'01','YYYYMMDD')),'YYYYMMDD') OR END_YMD IS NULL)
+                                                                  ) A,
+                                                               (
+                                                               SELECT DPT_CD AS COMM_CD
+                                                                    , DPT_NM AS COMM_NM
+                                                                 FROM T_CM_DEPT
+                                                                WHERE CD_GBN = 'B2'
+                                                               ) B
+                                                         WHERE A.HEAD_CD = B.COMM_CD
+                                                         GROUP BY HEAD_CD
+                                                         ORDER BY COMM_CD
+                                                         )
+                                                ) H
+                                         WHERE P.HEAD_CD = H.COMM_CD
+                                        ) A, ---- 현재인원
+                                        (
+                                            SELECT OCC_CD, HEAD_CD, PMT_YY, PJOB_NM, MAX(PMT_CNT) PMT_CNT, MAX(PRO_CNT) PRO_CNT
+                                              FROM    (SELECT OCC_CD, HEAD_CD, PMT_YY, SF_GET_COMMNAME('01','A2',PJOB_CD) AS PJOB_NM
+                                                             , COUNT(*) AS PMT_CNT, 0 PRO_CNT
+                                                        FROM   T_PM_PROMOTION
+                                                        WHERE  PMT_YY = ?
+                                                        GROUP  BY HEAD_CD, SF_GET_COMMNAME('01','A2',PJOB_CD), PMT_YY, OCC_CD
+                                                  UNION ALL
+                                                        SELECT OCC_CD, HEAD_CD, PMT_YY, SF_GET_COMMNAME('01','A2',PJOB_CD) AS PJOB_NM
+                                                             , 0 PMT_CNT, COUNT(*) AS PRO_CNT
+                                                        FROM   T_PM_PROMOTION
+                                                        WHERE  PMT_YY = ?
+                                                        [3]
+                                                        GROUP  BY HEAD_CD, SF_GET_COMMNAME('01','A2',PJOB_CD), PMT_YY, EST_CD, OCC_CD
+                                                    ) C  ---- 승진인원
+                                             GROUP BY OCC_CD, HEAD_CD, PMT_YY, PJOB_NM
+                                        ) C,  ---- 승진인원
+                                        (
+                                         SELECT ROWNUM INT
+                                           FROM DICT
+                                          WHERE ROWNUM <= 2
+                                        ) COPYT
+                                 WHERE A.JOB_NM = C.PJOB_NM
+                                   AND A.HEAD_CD = C.HEAD_CD
+                                 GROUP BY C.OCC_CD, C.PMT_YY, C.PJOB_NM, DECODE(INT,1,'',A.HEAD_CD), DECODE(INT,1,'99',A.HEAD_SORT), DECODE(INT,1,'',A.COMM_NM)
+                               )
+                        GROUP BY PJOB_NM
+                       ) AA,
+                       (SELECT P.OCC_CD, C.PJOB_NM, C.FJOB_NM, ROWNUM JOB_NO
+                          FROM (SELECT OCC_CD, SF_GET_COMMNAME('01','A2',PJOB_CD) AS PJOB_NM
+                                FROM   T_PM_PROMOTION
+                                WHERE  PMT_YY <= ? AND PMT_YY >?
+                                GROUP  BY OCC_CD, SF_GET_COMMNAME('01','A2',PJOB_CD)
+                                ) P,
+                               (SELECT A.PJOB_NM, A.FJOB_NM, B.SORT_NO
+                                FROM   (SELECT PJOB_CD
+                                              ,SF_GET_COMMNAME('01', 'A2', PJOB_CD) AS PJOB_NM
+                                              ,SF_GET_COMMNAME('01', 'A2', FJOB_CD) AS FJOB_NM
+                                        FROM   T_PM_PMTALLOT
+                                        ) A,
+                                       (SELECT COMM_CD, COMM_NM, SORT_NO
+                                        FROM   T_CM_COMMON
+                                        WHERE CD_GBN='A2'
+                                        ) B
+                                WHERE A.PJOB_CD = B.COMM_CD
+                                ORDER BY SORT_NO DESC
+                               ) C
+                        WHERE P.PJOB_NM = C.PJOB_NM
+                        ORDER BY C.SORT_NO
+                       ) D,
+                       (
+                        SELECT ROWNUM INT
+                          FROM DICT
+                         WHERE ROWNUM <=3
+                        ) COPYT
+                WHERE AA.PJOB_NM(+) = D.PJOB_NM
+                GROUP BY DECODE(INT,1,'Z',2,D.OCC_CD||'Z',D.OCC_CD)
+                        ,DECODE(INT,1,'계',2,DECODE(D.OCC_CD,'A','사무직소계','M','영업사원소계'),D.PJOB_NM||' → '||D.FJOB_NM)
+                ORDER BY MIN(JOB_NO) DESC
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : PROA110
+* @description : 정기승진 인건비 인상 현황
+***********************************************************************
+* 2007/01/18      채갑병       최초작성
+***********************************************************************
+-->
+
+<!--
+***********************************************************************
+* @UseCase     : PROA120
+* @description : 계약직 승진대상자 명단
+***********************************************************************
+* 2007/04/20      김학수       최초작성
+***********************************************************************
+-->
+    <!-- 계약직 승진대상자명단을 조회 한다. -->
+    <sql name="PROA120_SHR">
+        <description>계약직 승진대상자명단 조회</description>
+        <query>
+            <![CDATA[
+			SELECT DPT_NM														DPT_NM								--부서
+				 , ENO_NM														ENO_NM								--성명
+				 , ENO_NO														ENO_NO								--사번
+				 , HIR_YMD														HIR_YMD 							--입사일
+				 , TO_CHAR(TO_DATE(H_DPT_YMD,'YYYY-MM-DD'),'YYYY-MM-DD')		H_DPT_YMD 							--현부서 발령일
+				 , DECODE(TRUNC(MONTHS_BETWEEN (?, H_DPT_YMD) / 12),'','',0,''
+						 ,TRUNC(MONTHS_BETWEEN (?, H_DPT_YMD) / 12) || '년')
+					  ||
+				   DECODE(TRUNC (MONTHS_BETWEEN (?, ADD_MONTHS (H_DPT_YMD, 12 * TRUNC (MONTHS_BETWEEN (?, H_DPT_YMD) / 12)))),'','',0,''
+						 ,TRUNC (MONTHS_BETWEEN (?, ADD_MONTHS (H_DPT_YMD, 12 * TRUNC (MONTHS_BETWEEN (?, H_DPT_YMD) / 12))))|| '월')    H_YMD_VAL		 --현부서 기간
+				 , SCH_NM														SCH_NM				   				--학교
+				 , MAJ_NM2														MAJ_NM2								--전공
+				 , GUR_YMD														GUR_YMD                             --졸업년도
+				 , GOG_Y41, GOG_Y42, GOG_Y43
+				 , GOG_Y31, GOG_Y32, GOG_Y33
+				 , GOG_Y21, GOG_Y22, GOG_Y23
+				 , GOG_Y11, GOG_Y12, GOG_Y13
+				 , SAN_RM														SAN_RM								--포상,징계
+				 , EST_CD														EST_CD								--승진대상
+			  FROM (
+					 SELECT SF_GET_DPTNAME('01', 'A4', DPT_CD)       DPT_NM
+						   ,ENO_NM
+						   ,ENO_NO
+						   ,TO_CHAR(TO_DATE(HIR_YMD),'YYYY-MM-DD') AS  HIR_YMD
+						   ,SF_GET_DPTSTRYMD(P.ENO_NO,?)               H_DPT_YMD
+						   ,CASE WHEN EDGR_CD = '2' THEN SF_GET_COMMNAME('01', 'E8', SCH_CD)
+								 WHEN EDGR_CD = '3' THEN SF_GET_COMMNAME('01', 'E2', SCH_CD)
+								 WHEN EDGR_CD = '4' THEN SF_GET_COMMNAME('01', 'E3', SCH_CD)
+								 WHEN EDGR_CD = '5' THEN SF_GET_COMMNAME('01', 'E4', SCH_CD)
+								 WHEN EDGR_CD = '6' THEN SF_GET_COMMNAME('01', 'E5', SCH_CD)
+								 WHEN EDGR_CD = '7' THEN SF_GET_COMMNAME('01', 'E5', SCH_CD)
+								 WHEN EDGR_CD = '8' THEN SF_GET_COMMNAME('01', 'E5', SCH_CD)
+								 ELSE ''
+							END  AS SCH_NM	                                       -- 학교명
+						   ,SF_GET_DPTNAME('01', 'E6', MAJ_CD2)       MAJ_NM2
+						   ,TO_CHAR(TO_DATE(GUR_YMD,'YYYY-MM-DD'),'YYYY-MM-DD')             GUR_YMD
+						   ,GOG_Y41, GOG_Y42, GOG_Y43
+						   ,GOG_Y31, GOG_Y32, GOG_Y33
+						   ,GOG_Y21, GOG_Y22, GOG_Y23
+						   ,GOG_Y11, GOG_Y12, GOG_Y13
+						   ,SAN_RM1||DECODE(SAN_RM1,',','')||SAN_RM2||DECODE(SAN_RM1,',','')||SAN_RM3   	  SAN_RM
+						   ,DECODE(EST_CD,'Y','○','N','X','T','○','F','X')     EST_CD
+					   FROM T_PM_PROMOTION P
+					  WHERE PMT_YY = ?
+							AND JOB_CD = 'Z1'
+					)
+            ]]>
+        </query>
+    </sql>
+-->
+
+<!--
+***********************************************************************
+* @UseCase     : PROA130
+* @description : 상벌점수관리
+***********************************************************************
+* 2007/01/29      채갑병       최초작성
+***********************************************************************
+-->
+     <!-- 상벌점수 기준 정보를 조회 한다. -->
+    <sql name="PROA130_SHR">
+        <description>상벌점수 기준 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT REPU_CD, REPU_TAG, ANS_TAG, ANS_CNT
+                   ,(SELECT COMM_NM FROM T_CM_COMMON WHERE COMM_CD = A.REPU_TAG AND CD_GBN = DECODE(A.REPU_CD, 'H','K1','P','K2')) AS REPU_TAG_NM
+                   ,TO_CHAR(TO_DATE(STR_YMD),'YYYY-MM-DD') AS STR_YMD
+                   ,TO_CHAR(TO_DATE(END_YMD),'YYYY-MM-DD') AS END_YMD
+                   ,DECODE(REPU_CD, 'H','포상','P','징계') AS REPU_NM
+             FROM   T_PM_REWARD A
+             WHERE  SUBSTR(STR_YMD,1,4) <=  ?
+             AND   (SUBSTR(END_YMD,1,4) >=  ? OR END_YMD IS NULL)
+             ORDER  BY REPU_CD, REPU_TAG DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상벌점수 기준정보를 저장 한다. -->
+    <sql name="PROA130_INS">
+        <description>상벌점수 기준 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO T_PM_REWARD
+                     ( REPU_CD, REPU_TAG, STR_YMD, END_YMD, ANS_TAG, ANS_CNT, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+             VALUES  (       ?,        ?,       ?,       ?,       ?,       ?,       ?, sysdate,       ?, sysdate )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상벌점수 기준정보를 수정 한다. -->
+    <sql name="PROA130_UPT">
+        <description>상벌점수 기준 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_REWARD
+             SET    END_YMD         = ?       -- 종료일
+                   ,ANS_TAG         = ?       -- 가감 구분
+                   ,ANS_CNT         = ?       -- 근속기간 배점
+                   ,UPT_MAN         = ?       -- 최종 수정자
+                   ,UPT_YMD         = sysdate
+             WHERE  REPU_CD         = ?       -- 상벌구분 코드
+             AND    REPU_TAG        = ?       -- 상벌종류 코드
+             AND    STR_YMD         = ?       -- 시작일
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상벌점수 기준정보를 삭제 한다. -->
+    <sql name="PROA130_DEL">
+        <description>상벌점수 기준 정보 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE T_PM_REWARD
+             WHERE  REPU_CD  = ?
+             AND    REPU_TAG = ?
+             AND    STR_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : PROA150
+* @description : 승진대상자선정
+***********************************************************************
+* 2007/04/13      김학수       최초작성
+***********************************************************************
+-->
+    <!-- 승진대상자 처리여부를 조회 한다.(당해년도 데이터 입력여부) -->
+    <sql name="PROA150_SHR_01">
+        <description>승진대상자 처리여부 조회</description>
+        <query>
+            <![CDATA[
+             SELECT ENO_NO
+             FROM   T_PM_PROMOTION
+             WHERE  PMT_YY = ?  AND JOB_CD = 'Z1' AND PMT_GBN = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승진대상자 정보를 조회 한다. -->
+    <sql name="PROA150_SHR">
+        <description>승진대상자 정보 조회</description>
+        <query>
+            <![CDATA[
+              SELECT A.OCC_CD, ? AS PMT_YY, ? AS PMT_GBN, A.ENO_NO, A.ENO_NM, A.HEAD_CD, A.DPT_CD, A.JOB_CD, A.JOB_NM
+                   ,  DECODE(A.MF_TAG, 'M', '4A', '4B') AS  PJOB_CD, '1' AS PR_SEQ
+                   --,(CASE WHEN SUBSTR(A.JOB_CD,0,1) >= '2' AND SUBSTR(A.JOB_CD,0,1) <= '5' THEN H.PJOB_CD ELSE A.JOB_CD END) AS PJOB_CD, '1' AS PR_SEQ
+                   ,A.BIR_YMD ,A.EDGR_CD,  A.GRD_CD,   A.GUR_YMD, A.SCH_CD, SUBSTR(A.SCH_NM,0,14) AS SCH_NM, A.MAJ_CD1, A.MAJ_CD2
+                   ,A.HIR_YMD, A.HIRG_YMD ,A.GROUP_NM, A.JPR_YMD, A.JPR_AL, A.JPR_YY, A.JPR_MM , A.HIR_CD, A.HIR_YY
+                   ,B.GOG_YY5, B.GOG_Y51, B.GOG_Y52, B.GOG_Y53
+                   ,B.GOG_YY4, B.GOG_Y41, B.GOG_Y42, B.GOG_Y43
+                   ,B.GOG_YY3, B.GOG_Y31, B.GOG_Y32, B.GOG_Y33
+                   ,B.GOG_YY2, B.GOG_Y21, B.GOG_Y22, B.GOG_Y23
+                   ,B.GOG_YY1, B.GOG_Y11, B.GOG_Y12, B.GOG_Y13
+                   ,B.GOG_CNT, B.GOG_TOT, B.GOG_GAV, '25' AS GOG_HTT
+                   ,NVL(C.GUN_GTB,'0') AS GUN_GTB, NVL(C.GUN_GTC,'0') AS GUN_GTC, C.GUN_GTT
+                   ,D.EDU_YY1, D.EDU_KN1, D.EDU_YY2, D.EDU_KN2, D.EDU_YY3, D.EDU_KN3
+                   ,E.SAN_YY1, E.SAN_RM1, E.SAN_YY2, E.SAN_RM2, E.SAN_YY3, E.SAN_RM3, '' AS SAN_SCR
+                   ,F.EXM_SC1, F.EXM_SC2, F.EXM_TIC, (CASE WHEN F.EXM_TIC < 550 OR F.EXM_TIC IS NULL THEN 'A' ELSE '' END) AS EXP_CD
+                   ,G.CEN_OCC, G.CEN_ENO, G.CEN_SCR, G.SPC_TOT
+                   ,'N' AS EST_CD, '' AS REMARK, '' AS EXM_CMP
+                   ,E.H_CNT  , E.P1_CNT , E.P2_CNT
+             FROM  (
+                    SELECT OCC_CD, ENO_NO, ENO_NM, HEAD_CD, DPT_CD, JOB_CD, JOB_NM, EDGR_CD, GRD_CD, SCH_CD, SCH_NM, MAJ_CD AS MAJ_CD1,  '' AS MAJ_CD2, GROUP_NM, MF_TAG
+                          ,TO_CHAR(HIR_YMD ,'YYYYMMDD') AS HIR_YMD
+                          ,TO_CHAR(HIRG_YMD,'YYYYMMDD') AS HIRG_YMD
+                          ,TO_CHAR(BIR_YMD ,'YYYYMMDD') AS BIR_YMD
+                          ,TO_CHAR(GUR_YMD ,'YYYYMMDD') AS GUR_YMD
+                          ,TO_CHAR(JPR_YMD ,'YYYYMMDD') AS JPR_YMD
+                          ,FLOOR(MONTHS_BETWEEN(SYSDATE, JPR_YMD)) AS JPR_AL
+                          ,FLOOR(MONTHS_BETWEEN(SYSDATE, JPR_YMD)/12) AS JPR_YY
+                          ,FLOOR(MONTHS_BETWEEN(SYSDATE, HIR_YMD)/12) AS HIR_YY
+                          ,FLOOR(MOD(MONTHS_BETWEEN(SYSDATE, JPR_YMD),12)) AS JPR_MM
+                          ,HIR_CD
+                    FROM   VI_T_CM_PERSON S
+                    WHERE    RET_YMD IS NULL
+                           AND JOB_CD='Z1'  -- 계약직
+                           AND FLOOR(MONTHS_BETWEEN(SYSDATE, HIR_YMD)/12)>=2  -- 당사 근속년수 2년 이상
+                           AND (
+                                 (EDGR_CD='3' AND FLOOR(MONTHS_BETWEEN(SYSDATE, JPR_YMD)/12)>=5)
+                                 OR
+                                 (EDGR_CD>='4' AND FLOOR(MONTHS_BETWEEN(SYSDATE, JPR_YMD)/12)>=3)
+                               ) -- 고졸은 5년이상, 전졸이상은 3년 이상 근속자
+                    ) A,
+                   (
+                    SELECT ENO_NO
+                           ,MAX(DECODE(RN, 1, GOG_YY,  '')) AS GOG_YY1
+                           ,MAX(DECODE(RN, 1, GOG_Y01, '')) AS GOG_Y11
+                           ,MAX(DECODE(RN, 1, GOG_Y02, '')) AS GOG_Y12
+                           ,MAX(DECODE(RN, 1, GOG_Y03, '')) AS GOG_Y13
+                           ,MAX(DECODE(RN, 2, GOG_YY,  '')) AS GOG_YY2
+                           ,MAX(DECODE(RN, 2, GOG_Y01, '')) AS GOG_Y21
+                           ,MAX(DECODE(RN, 2, GOG_Y02, '')) AS GOG_Y22
+                           ,MAX(DECODE(RN, 2, GOG_Y03, '')) AS GOG_Y23
+                           ,MAX(DECODE(RN, 3, GOG_YY,  '')) AS GOG_YY3
+                           ,MAX(DECODE(RN, 3, GOG_Y01, '')) AS GOG_Y31
+                           ,MAX(DECODE(RN, 3, GOG_Y02, '')) AS GOG_Y32
+                           ,MAX(DECODE(RN, 3, GOG_Y03, '')) AS GOG_Y33
+                           ,MAX(DECODE(RN, 4, GOG_YY,  '')) AS GOG_YY4
+                           ,MAX(DECODE(RN, 4, GOG_Y01, '')) AS GOG_Y41
+                           ,MAX(DECODE(RN, 4, GOG_Y02, '')) AS GOG_Y42
+                           ,MAX(DECODE(RN, 4, GOG_Y03, '')) AS GOG_Y43
+                           ,MAX(DECODE(RN, 5, GOG_YY,  '')) AS GOG_YY5
+                           ,MAX(DECODE(RN, 5, GOG_Y01, '')) AS GOG_Y51
+                           ,MAX(DECODE(RN, 5, GOG_Y02, '')) AS GOG_Y52
+                           ,MAX(DECODE(RN, 5, GOG_Y03, '')) AS GOG_Y53
+                           ,SUM(NVL(DECODE(GOG_Y01, 'S', 50, 'A', 45, 'B', 35, 'C', 25, 'D', 20),0)
+                               +NVL(DECODE(GOG_Y02, 'S', 50, 'A', 45, 'B', 35, 'C', 25, 'D', 20),0)
+                               +NVL(DECODE(GOG_Y03, 'S', 50, 'A', 45, 'B', 35, 'C', 25, 'D', 20),0)
+                             ) AS GOG_TOT
+                           ,SUM(DECODE(GOG_Y01,NULL,0,1)+DECODE(GOG_Y02,NULL,0,1)+DECODE(GOG_Y03,NULL,0,1)
+                             ) AS GOG_CNT
+                           ,0 AS GOG_GAV
+                    FROM ( SELECT  AA.ENO_NO
+                                  ,AA.EVL_YY AS GOG_YY
+                                  ,MAX((CASE WHEN AA.EVL_GBN = '1'
+                                             THEN AA.FINAL_GRD END)) AS GOG_Y01
+                                  ,MAX((CASE WHEN AA.EVL_GBN = '2' AND AA.EVL_FRQ = 1
+                                             THEN AA.FINAL_GRD END)) AS GOG_Y02
+                                  ,MAX((CASE WHEN AA.EVL_GBN = '2' AND AA.EVL_FRQ = 2
+                                             THEN AA.FINAL_GRD END)) AS GOG_Y03
+                                  ,ROW_NUMBER() OVER(PARTITION BY AA.ENO_NO ORDER BY AA.EVL_YY DESC) AS RN
+                           FROM   (SELECT ENO_NO, EVL_YY, EVL_GBN, EVL_FRQ, FINAL_GRD
+                                   FROM   T_EV_ABLRST
+                                   ORDER  BY ENO_NO, EVL_GBN ASC, EVL_FRQ ASC
+                                   ) AA
+                                 ,(SELECT ENO_NO, JPR_YMD, HIR_YMD
+                                   FROM   T_CM_PERSON
+                                   WHERE  RET_YMD IS NULL
+                                   ) BB
+                           WHERE   AA.ENO_NO = BB.ENO_NO
+                           AND     AA.EVL_YY >= (CASE WHEN BB.JPR_YMD IS NULL
+                                                      THEN TO_CHAR(BB.HIR_YMD,'YYYY')
+                                                      ELSE TO_CHAR(BB.JPR_YMD,'YYYY')
+                                                 END)
+                           GROUP   BY AA.ENO_NO, AA.EVL_YY
+                           )
+                    GROUP BY ENO_NO
+                    ) B,  -- 고과
+                   (
+                    SELECT ENO_NO, PIS_YY, SUM(ATT_A) AS GUN_GTB, SUM(ATT_C) AS GUN_GTC, '' AS GUN_GTT
+                    FROM   T_DI_DILIGENCE
+                           GROUP  BY ENO_NO, PIS_YY
+                           HAVING PIS_YY = ?
+                           ORDER  BY ENO_NO, PIS_YY ASC
+                    ) C,  -- 근태
+                   (
+                    SELECT  A.ENO_NO
+                           ,MAX(DECODE(RN, 1, DECODE(A.SBJ_CD, NULL, '',  SUBSTR(A.STR_YMD,0,4)))) AS EDU_YY1
+                           ,MAX(DECODE(RN, 1, DECODE(A.SBJ_CD, NULL, '',  A.SBJ_CD))) AS EDU_KN1
+                           ,MAX(DECODE(RN, 2, DECODE(A.SBJ_CD, NULL, '',  SUBSTR(A.STR_YMD,0,4)))) AS EDU_YY2
+                           ,MAX(DECODE(RN, 2, DECODE(A.SBJ_CD, NULL, '',  A.SBJ_CD))) AS EDU_KN2
+                           ,MAX(DECODE(RN, 3, DECODE(A.SBJ_CD, NULL, '',  SUBSTR(A.STR_YMD,0,4)))) AS EDU_YY3
+                           ,MAX(DECODE(RN, 3, DECODE(A.SBJ_CD, NULL, '',  A.SBJ_CD))) AS EDU_KN3
+                           ,SUM(A.CPT_NO) AS EDU_SCR
+                    FROM   (SELECT ENO_NO, SBJ_CD, CPT_NO, STR_YMD, ROW_NUMBER() OVER(PARTITION BY ENO_NO ORDER BY STR_YMD DESC) AS RN FROM T_CM_EDUCATION) A
+                          ,(SELECT ENO_NO, JPR_YMD, HIR_YMD FROM VI_T_CM_PERSON) B
+                    WHERE  A.ENO_NO = B.ENO_NO
+                    AND    TO_DATE(A.STR_YMD,'YYYYMMDD') >= (CASE WHEN B.JPR_YMD IS NOT NULL THEN B.JPR_YMD ELSE B.HIR_YMD END)
+                    GROUP  BY A.ENO_NO
+                    ) D,  -- 교육
+                   (
+                    SELECT  AA.ENO_NO, AA.SAN_YY1, AA.SAN_RM1, AA.SAN_YY2, AA.SAN_RM2, AA.SAN_YY3, AA.SAN_RM3
+                           ,BB.H_CNT , BB.P1_CNT , BB.P2_CNT
+                    FROM  (
+                            SELECT  A.ENO_NO
+                                   ,MAX(DECODE(RN, 1, DECODE(A.REPU_CD, NULL, '',  SUBSTR(A.REPU_YMD,0,4)))) AS SAN_YY1
+                                   ,MAX(DECODE(RN, 1, DECODE(A.REPU_CD, NULL, '',  SF_GET_COMMNAME('01',DECODE(A.REPU_CD, 'H', 'K1', 'P', 'K2'), A.REPU_TAG)))) AS SAN_RM1
+                                   ,MAX(DECODE(RN, 2, DECODE(A.REPU_CD, NULL, '',  SUBSTR(A.REPU_YMD,0,4)))) AS SAN_YY2
+                                   ,MAX(DECODE(RN, 2, DECODE(A.REPU_CD, NULL, '',  SF_GET_COMMNAME('01',DECODE(A.REPU_CD, 'H', 'K1', 'P', 'K2'), A.REPU_TAG)))) AS SAN_RM2
+                                   ,MAX(DECODE(RN, 3, DECODE(A.REPU_CD, NULL, '',  SUBSTR(A.REPU_YMD,0,4)))) AS SAN_YY3
+                                   ,MAX(DECODE(RN, 3, DECODE(A.REPU_CD, NULL, '',  SF_GET_COMMNAME('01',DECODE(A.REPU_CD, 'H', 'K1', 'P', 'K2'), A.REPU_TAG)))) AS SAN_RM3
+                            FROM   (SELECT ENO_NO, REPU_TAG, REPU_CD, REPU_YMD, ROW_NUMBER() OVER(PARTITION BY ENO_NO ORDER BY REPU_YMD DESC) AS RN FROM T_CM_REWARD) A
+                                  ,(SELECT ENO_NO, JPR_YMD, HIR_YMD FROM VI_T_CM_PERSON) B
+                            WHERE  A.ENO_NO = B.ENO_NO
+                            AND    TO_DATE(A.REPU_YMD,'YYYYMMDD') >= (CASE WHEN B.JPR_YMD IS NOT NULL THEN B.JPR_YMD ELSE B.HIR_YMD END)
+                            GROUP  BY A.ENO_NO
+                            ) AA
+                          ,(SELECT  A.PMT_YY, A.ENO_NO, B.H_CNT, B.P1_CNT, B.P2_CNT
+                            FROM   (SELECT  PMT_YY, ENO_NO
+                                    FROM    T_PM_PROMOTION
+                                    WHERE   PMT_YY = ? -1
+                                    ) A
+                                  ,(SELECT  ENO_NO
+                                           ,SUM(CASE WHEN REPU_TAG IN(SELECT REPU_TAG FROM T_PM_REWARD WHERE REPU_CD = 'H') THEN 1 ELSE 0 END) AS H_CNT  -- 사장,국무위원,서울특별시장 이상 표창
+                                           ,SUM(CASE WHEN REPU_CD = 'P' AND REPU_TAG  = 'K1' THEN 1 ELSE 0 END) AS P1_CNT  -- 견책
+                                           ,SUM(CASE WHEN REPU_CD = 'P' AND REPU_TAG != 'K1' THEN 1 ELSE 0 END) AS P2_CNT  -- 출근정지이상
+                                    FROM    T_CM_REWARD
+                                    GROUP   BY ENO_NO
+                                    ) B
+                            WHERE A.ENO_NO = B.ENO_NO
+                            ) BB
+                    WHERE AA.ENO_NO = BB.ENO_NO
+                    ) E,  -- 상벌
+                   (
+                    SELECT PRO_YMD, ENO_NO, TTL_AVR AS EXM_TIC, '' AS EXM_SC1, '' AS EXM_SC2
+                    FROM (
+                           SELECT PRO_YMD, ENO_NO, TTL_AVR, ROW_NUMBER() OVER(PARTITION BY ENO_NO ORDER BY TTL_AVR DESC) AS RN
+                                 ,'' AS EXM_SC1, '' AS EXM_SC2, '' AS EXM_TIC
+                           FROM   T_CM_EXAMINATION
+                           WHERE  SBJ_CD = 'E2' -- TOEIC
+                           )
+                    WHERE RN=1
+                    ) F,  -- 어학
+                   (
+                    SELECT DPT_CD, OCC_CD AS CEN_OCC, ENO_NO AS CEN_ENO, '' AS CEN_SCR, '' AS SPC_TOT
+                    FROM (
+                          SELECT DPT_CD, JOB_SEQ, OCC_CD, ENO_NO, ROW_NUMBER() OVER(PARTITION BY DPT_CD ORDER BY JOB_SEQ ASC) AS RN
+                          FROM   VI_T_CM_PERSON
+                          GROUP BY DPT_CD, JOB_SEQ, OCC_CD, ENO_NO
+                          ORDER BY DPT_CD ASC, JOB_SEQ ASC
+                          )
+                    WHERE RN = 1
+                    ) G  -- 추천인
+             WHERE  A.ENO_NO = B.ENO_NO(+)
+             AND    A.ENO_NO = C.ENO_NO(+)
+             AND    A.ENO_NO = D.ENO_NO(+)
+             AND    A.ENO_NO = E.ENO_NO(+)
+             AND    A.ENO_NO = F.ENO_NO(+)
+             AND    A.DPT_CD = G.DPT_CD(+)
+--             AND    A.JOB_NM = H.JOB_NM(+)
+             AND (GOG_Y11='S' OR GOG_Y11='A')
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승진대상자 정보를 저장 한다. -->
+    <sql name="PROA150_INS">
+        <description>승진대상자 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT INTO T_PM_PROMOTION
+                 (
+				OCC_CD, PMT_YY, PMT_GBN, ENO_NO, ENO_NM,
+				HEAD_CD, DPT_CD, JOB_CD, PJOB_CD, PR_SEQ,
+				BIR_YMD, EDGR_CD, GRD_CD, GUR_YMD, SCH_CD,
+				SCH_NM, MAJ_CD1, MAJ_CD2, HIR_YMD, HIRG_YMD,
+				GROUP_NM, JPR_YMD, JPR_YY, JPR_MM, GOG_YY5,
+				GOG_Y51, GOG_Y52, GOG_Y53, GOG_YY4, GOG_Y41,
+				GOG_Y42, GOG_Y43, GOG_YY3, GOG_Y31, GOG_Y32,
+				GOG_Y33, GOG_YY2, GOG_Y21, GOG_Y22, GOG_Y23,
+				GOG_YY1, GOG_Y11, GOG_Y12, GOG_Y13, GOG_CNT,
+				GOG_TOT, GOG_GAV, GOG_HTT, GUN_GTB, GUN_GTC,
+				GUN_GTT, EDU_YY1, EDU_KN1, EDU_YY2, EDU_KN2,
+				EDU_YY3, EDU_KN3, SAN_YY1, SAN_RM1, SAN_YY2,
+				SAN_RM2, SAN_YY3, SAN_RM3, SAN_SCR, EXM_SC1,
+				EXM_SC2, EXM_TIC, CEN_OCC, CEN_ENO, CEN_SCR,
+				SPC_TOT, EXP_CD, EST_CD, REMARK, EXM_CMP,
+				IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+             VALUES
+                  (        ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?,       ?,       ?,       ?,       ?,
+                           ?, sysdate,       ?, sysdate
+                   )
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : PROA160
+* @description : 계약직승진대상자처리
+***********************************************************************
+* 2007/04/18      김학수       최초작성
+***********************************************************************
+-->
+    <!-- 승진대상자 처리여부를 조회 한다. -->
+    <sql name="PROA160_SHR">
+        <description>승진대상자 조회</description>
+        <query>
+            <![CDATA[
+             SELECT OCC_CD , PMT_YY , PMT_GBN, ENO_NO , ENO_NM , HEAD_CD, DPT_CD  , JOB_CD , PJOB_CD, PR_SEQ
+                   ,EDGR_CD, GRD_CD , SCH_CD , SCH_NM , MAJ_CD1, MAJ_CD2, GROUP_NM, JPR_YY , JPR_MM , GOG_YY5
+                   ,GOG_Y51, GOG_Y52, GOG_Y53, GOG_YY4, GOG_Y41, GOG_Y42, GOG_Y43 , GOG_YY3, GOG_Y31, GOG_Y32
+                   ,GOG_Y33, GOG_YY2, GOG_Y21, GOG_Y22, GOG_Y23, GOG_YY1, GOG_Y11 , GOG_Y12, GOG_Y13, GOG_CNT
+                   ,GOG_TOT, GOG_GAV, GOG_HTT, GUN_GTB, GUN_GTC, GUN_GTT, EDU_YY1 , EDU_KN1, EDU_YY2, EDU_KN2
+                   ,EDU_YY3, EDU_KN3, EDU_SCR, SAN_YY1, SAN_RM1, SAN_YY2, SAN_RM2 , SAN_YY3, SAN_RM3, SAN_SCR
+                   ,EXM_SC1, EXM_SC2, EXM_TIC, CEN_OCC, CEN_ENO
+                   ,CEN_SCR, SPC_TOT, EXP_CD , EST_CD , REMARK , EXM_CMP
+                   ,DECODE(EST_CD, 'Y', 'T', 'F') AS EST_CD_CK
+                   ,(SELECT DPT_NM FROM T_CM_DEPT WHERE DPT_LBL = '2' AND DPT_CD = A.HEAD_CD) AS HEAD_NM
+                   ,SF_GET_COMMNAME('01', 'A1', OCC_CD) AS OCC_NM
+                   ,SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                   ,SF_GET_DPTNAME('01', 'A4', DPT_CD) AS DPT_NM
+                   ,TO_CHAR(TO_DATE(JPR_YMD) ,'YYYY-MM-DD') AS JPR_YMD
+                   ,TO_CHAR(TO_DATE(BIR_YMD) ,'YYYY-MM-DD') AS BIR_YMD
+                   ,TO_CHAR(TO_DATE(GUR_YMD) ,'YYYY') AS GUR_YY
+                   ,TO_CHAR(TO_DATE(HIR_YMD) ,'YYYY-MM-DD') AS HIR_YMD
+                   ,TO_CHAR(TO_DATE(HIRG_YMD),'YYYY-MM-DD') AS HIRG_YMD
+                   ,(SELECT TO_CHAR(TO_DATE(RET_YMD),'YYYY-MM-DD') FROM T_CM_PERSON WHERE ENO_NO = A.ENO_NO) AS RET_YMD
+                   ,(SELECT ENO_NM FROM VI_T_CM_PERSON WHERE ENO_NO = A.CEN_ENO) AS CEN_ENM
+                   ,FLOOR(MONTHS_BETWEEN(SYSDATE, JPR_YMD)/12)||'.'||FLOOR(MOD(MONTHS_BETWEEN(SYSDATE, JPR_YMD),12)) AS JPR_CON
+                   ,FLOOR(MONTHS_BETWEEN(SYSDATE, HIR_YMD)/12)||'.'||FLOOR(MOD(MONTHS_BETWEEN(SYSDATE, HIR_YMD),12)) AS HIR_CON
+                   ,(SELECT COMM_NM FROM T_CM_COMMON WHERE CD_GBN='E6' AND COMM_CD=MAJ_CD1) AS MAJ_NM1
+             FROM   T_PM_PROMOTION A
+             WHERE  PMT_YY = ? AND JOB_CD='Z1'
+             [1]
+             ORDER  BY ENO_NM
+            ]]>
+        </query>
+    </sql>
+
+
+   <!-- 승진사항 정보를 수정 한다. -->
+    <sql name="PROA160_UPT">
+        <description>승진사항 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_PROMOTION
+             SET    GOG_YY5         = ?       -- 5차년도
+                   ,GOG_Y51         = ?       -- 상반기 고과
+                   ,GOG_Y52         = ?       -- 하반기 고과
+                   ,GOG_YY4         = ?       -- 4차년도
+                   ,GOG_Y41         = ?       -- 상반기 고과
+                   ,GOG_Y42         = ?       -- 하반기 고과
+                   ,GOG_YY3         = ?       -- 3차년도
+                   ,GOG_Y31         = ?       -- 상반기 고과
+                   ,GOG_Y32         = ?       -- 하반기 고과
+                   ,GOG_YY2         = ?       -- 2차년도
+                   ,GOG_Y21         = ?       -- 상반기 고과
+                   ,GOG_Y22         = ?       -- 하반기 고과
+                   ,GOG_YY1         = ?       -- 1차년도
+                   ,GOG_Y11         = ?       -- 상반기 고과
+                   ,GOG_Y12         = ?       -- 하반기 고과
+                   ,GOG_CNT         = ?       -- 고과횟수
+                   ,GOG_TOT         = ?       -- 고과총점
+                   ,GOG_GAV         = ?       -- 고과점수
+                   ,GOG_HTT         = ?       -- 경력
+                   ,GUN_GTB         = ?       -- 무결횟수
+                   ,GUN_GTC         = ?       -- 지각횟수
+                   ,GUN_GTT         = ?       -- 근태점수
+                   ,EDU_YY1         = ?       -- 교육년도1
+                   ,EDU_KN1         = ?       -- 교육종류1
+                   ,EDU_YY2         = ?       -- 교육년도2
+                   ,EDU_KN2         = ?       -- 교육종류2
+                   ,EDU_YY3         = ?       -- 교육년도3
+                   ,EDU_KN3         = ?       -- 교육종류3
+                   ,EDU_SCR         = ?       -- 교육점수
+                   ,SAN_YY1         = ?       -- 상벌년도1
+                   ,SAN_RM1         = ?       -- 비고
+                   ,SAN_YY2         = ?       -- 상벌년도2
+                   ,SAN_RM2         = ?       -- 비고
+                   ,SAN_YY3         = ?       -- 상벌년도3
+                   ,SAN_RM3         = ?       -- 비고
+                   ,SAN_SCR         = ?       -- 포상점수
+                   ,EXM_SC1         = ?       -- 시험1
+                   ,EXM_SC2         = ?       -- 시험2
+                   ,EXM_TIC         = ?       -- 토익
+                   ,CEN_SCR         = ?       -- 추천점수
+                   ,SPC_TOT         = ?       -- 총점
+                   ,EXP_CD          = ?       -- 제외코드
+                   ,EST_CD          = ?       -- 판정코드
+                   ,REMARK          = ?       -- 비고
+                   ,EXM_CMP         = ?       -- 전산시험성적
+                   ,UPT_MAN         = ?       -- 최종수정자
+                   ,UPT_YMD         = sysdate
+             WHERE  OCC_CD          = ?       -- 직종
+             AND    PMT_YY          = ?       -- 승진예정년도
+             AND    PMT_GBN         = ?       -- 정기,특별
+             AND    ENO_NO          = ?       -- 사번
+            ]]>
+        </query>
+    </sql>
+
+   <!-- 승진사항 정보를 수정 한다. -->
+    <sql name="PROA160_UPT_01">
+        <description>승진사항 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_PROMOTION
+             SET    GOG_YY5         = ?       -- 5차년도
+                   ,GOG_Y51         = ?       -- 상반기 고과
+                   ,GOG_Y52         = ?       -- 하반기 고과
+                   ,GOG_YY4         = ?       -- 4차년도
+                   ,GOG_Y41         = ?       -- 상반기 고과
+                   ,GOG_Y42         = ?       -- 하반기 고과
+                   ,GOG_YY3         = ?       -- 3차년도
+                   ,GOG_Y31         = ?       -- 상반기 고과
+                   ,GOG_Y32         = ?       -- 하반기 고과
+                   ,GOG_YY2         = ?       -- 2차년도
+                   ,GOG_Y21         = ?       -- 상반기 고과
+                   ,GOG_Y22         = ?       -- 하반기 고과
+                   ,GOG_YY1         = ?       -- 1차년도
+                   ,GOG_Y11         = ?       -- 상반기 고과
+                   ,GOG_Y12         = ?       -- 하반기 고과
+                   ,GOG_CNT         = ?       -- 고과횟수
+                   ,GOG_TOT         = ?       -- 고과총점
+                   ,GOG_GAV         = ?       -- 고과점수
+                   ,GOG_HTT         = ?       -- 경력
+                   ,GUN_GTB         = ?       -- 무결횟수
+                   ,GUN_GTC         = ?       -- 지각횟수
+                   ,GUN_GTT         = ?       -- 근태점수
+                   ,EDU_YY1         = ?       -- 교육년도1
+                   ,EDU_KN1         = ?       -- 교육종류1
+                   ,EDU_YY2         = ?       -- 교육년도2
+                   ,EDU_KN2         = ?       -- 교육종류2
+                   ,EDU_YY3         = ?       -- 교육년도3
+                   ,EDU_KN3         = ?       -- 교육종류3
+                   ,EDU_SCR         = ?       -- 교육점수
+                   ,SAN_YY1         = ?       -- 상벌년도1
+                   ,SAN_RM1         = ?       -- 비고
+                   ,SAN_YY2         = ?       -- 상벌년도2
+                   ,SAN_RM2         = ?       -- 비고
+                   ,SAN_YY3         = ?       -- 상벌년도3
+                   ,SAN_RM3         = ?       -- 비고
+                   ,SAN_SCR         = ?       -- 포상점수
+                   ,EXM_SC1         = ?       -- 시험1
+                   ,EXM_SC2         = ?       -- 시험2
+                   ,EXM_TIC         = ?       -- 토익
+                   ,CEN_SCR         = ?       -- 추천점수
+                   ,SPC_TOT         = ?       -- 총점
+                   ,EXP_CD          = ?       -- 제외코드
+                   ,EST_CD          = ?       -- 판정코드
+                   ,REMARK          = ?       -- 비고
+                   ,EXM_CMP         = ?       -- 전산시험성적
+                   ,UPT_MAN         = ?       -- 최종수정자
+                   ,UPT_YMD         = sysdate
+             WHERE  OCC_CD          = ?       -- 직종
+             AND    PMT_YY          = ?       -- 승진예정년도
+             AND    PMT_GBN         = ?       -- 정기,특별
+             AND    ENO_NO          = ?       -- 사번
+            ]]>
+        </query>
+    </sql>
+
+
+</sqls>

@@ -1,0 +1,202 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	인사
++ 프로그램 ID	: h050001_popup.HTML
++ 기 능 정 의	: 일별근태신청
++ 변 경 이 력	: 
++ 서 블 릿 명	: h050001_s2
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title>결재자 검색</title>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+.tab11 {border:0 solid #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:1px;text-align:center;height:25px;}
+.tab12 {border:0 solid #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:0px;text-align:center;height:25px;}
+.tab21 {border:0 solid #708090;border-left-width:0px;border-right-width:1px;border-top-width:0px;border-bottom-width:1px;}
+.tab22 {border:0 solid #708090;border-left-width:0px;border-right-width:0px;border-top-width:0px;border-bottom-width:1px;}
+
+.txt11 {position:relative;left:8px;top:2px;font-family:굴림;font-size:9pt;border:0 solid #708090;height:17px;}
+.txt31 {position:relative;left:8px;top:1px;font-family:굴림;font-size:9pt;border:0 solid #708090;height:17px;background-color:#f1f1f1;}
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+get_cookdata();
+lfn_init();
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(){
+//	if (txt_EMPNMK.value.length<1) {
+//		alert("조회를 원하시는 동을 입력해 주세요");
+//	} else {						
+		gcds_data.DataID = "/services/servlet/Person.h050001_pop_s1?"
+									 + "v_str1=" + txt_EMPNMK.value;
+		gcds_data.Reset();
+//	}
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save(){
+
+}
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+/******************************************************************************
+	Description : 창닫기
+******************************************************************************/
+function ln_Close(){
+	window.close();
+}
+
+/******************************************************************************
+	Description : 주소선택
+******************************************************************************/
+function ln_Ok(){
+	if (gcds_data.countrow<1) {
+		alert("선택하실 주소가 없습니다");
+	} else {
+		var row = gcds_data.rowposition;
+		var pam1 = gcds_data.namevalue(row,"EMPNO");
+		var pam2 = gcds_data.namevalue(row,"EMPNMK");
+		var pam3 = gcds_data.namevalue(row,"DEPTNM");
+		var pam4 = gcds_data.namevalue(row,"MINORNM");
+
+		window.returnValue = pam1 + ";" + pam2 + ";" + pam3 + ";" + pam4 + ";" ;
+		window.close();
+	}
+}
+</script>
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><OBJECT id=gcds_data classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcgd_data"	event="onClick()">
+	ln_Ok();
+</script>
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()" onunload = "ln_Close();">
+<table border="0" cellspacing="0" cellpadding="0" style="position:relative;left:5px;top:5px;width:390;border:1 solid #708090">
+  <tr>
+    <td class="tab12" width="100" bgcolor="#eeeeee">성명</td>
+		<td width="120px"><input type=text id=txt_EMPNMK class="txt31" style="width:100px"></td>
+		<td width="150"><img src="../../common/img/btn/com_b_search.gif" style="position:relative;top:0px;left:0px;cursor:hand" onclick="ln_Query()"></td>
+  </tr>
+</table>
+
+<table border="0" cellspacing="0" cellpadding="0" style="position:relative;left:5px;top:10px;width:390;">
+  <tr>
+    <td colspan=3 align="left">
+			<comment id="__NSID__"><object classid="clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49" style="height:300;width:390;border:1 solid #708090" id="gcgd_data">
+          <param name="DataID" 					value="gcds_data">
+          <param name="fillarea" 				value="true">
+          <param name="BorderStyle"			value="0">
+		      <param name="FontSize"     		value="9">
+					<param name="sortview"     value=left>
+          <param name="Format" value='
+            <C>id=EMPNO,		name=사원번호,			width=60,	 	align=center,	headBgcolor=#EDEDDA,	 sumbgcolor=#FFEFEF, sort = true</C>
+            <C>id=EMPNMK,		name=이름,					width=75,		align=left,		headBgcolor=#EDEDDA,	 sumbgcolor=#FFEFEF, sort = true</C>
+						<C>id=DEPTNM,		name=직위,					width=75,		align=left,		headBgcolor=#EDEDDA,	 sumbgcolor=#FFEFEF, sort = true</C>
+						<C>id=MINORNM,	name=소속명,				width=148,	align=left,		headBgcolor=#EDEDDA,	 sumbgcolor=#FFEFEF , sort = true</C>
+					'>
+			</object></comment><script>__ws__(__NSID__);</script>
+    </td>
+  </tr>
+	<tr><td height="10px"></td></tr>
+   <tr>
+    <td colspan=3 align="center">
+			<img src="../../common/img/btn/com_b_select.gif" style="position:relative;top:0px;left:0px;cursor:hand" onclick="ln_Ok()">
+			<img src="../../common/img/btn/com_b_close.gif" style="position:relative;top:0px;left:0px;cursor:hand" onclick="ln_Close()">
+    </td>
+   </tr>
+</table>
+
+</body>
+</html>

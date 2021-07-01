@@ -1,0 +1,2847 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 파견사원 -->
+<!--
+***********************************************************************
+* @UseCase     : mema010
+* @description : 인사기록정보
+***********************************************************************
+* 2007/01/16      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 인사기록정보 데이터 조회 -->
+    <sql name="MEMA010_SHR">
+        <description>인사기록정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                 -- 사번
+                   ENO_NM,                                                                 -- 성명
+                   NAM_CHI,                                                                -- 한문성명
+                   TO_CHAR(BIR_YMD, 'YYYY-MM-DD')               AS BIR_YMD,                -- 생년월일
+                   CEIL(MONTHS_BETWEEN(SYSDATE, BIR_YMD)/12)-1  AGE,                       -- 나이
+                   BIR_TAG,                                                                -- 양력구분
+                   NAM_ENG,                                                                -- 영문성명
+                   CET_NO,                                                                 -- 주민번호
+                   MF_TAG,                                                                 -- 남녀구분
+                   TO_CHAR(HIR_YMD, 'YYYY-MM-DD')               AS HIR_YMD,                -- 입사일
+                   HEAD_CD,                                                                -- 본부코드
+                   SF_GET_DPTNAME('01', 'B2', HEAD_CD)         AS HEAD_NM,                -- 본부명
+                   OCC_CD,                                                                 -- 직종코드
+                   SF_GET_COMMNAME('01', 'A1', OCC_CD)          AS OCC_NM,                 -- 직종명
+                   TO_CHAR(TERM1_YMD, 'YYYY-MM-DD')             AS TERM1_YMD,              -- 1차계약기간
+                   TO_CHAR(TERM2_YMD, 'YYYY-MM-DD')             AS TERM2_YMD,              -- 2차계약기간
+                   DPT_CD,                                                                 -- 소속코드
+                   SF_GET_DPTNAME('01', 'A4', DPT_CD)           AS DPT_NM,                 -- 소속명
+                   JOB_CD,                                                                 -- 직위코드
+                   SF_GET_COMMNAME('01', 'A2', JOB_CD)          AS JOB_NM,                 -- 직위명
+                   TEAM_CD,                                                                -- 팀코드
+                   SF_GET_DPTNAME('01', 'A6', TEAM_CD)         AS TEAM_NM,                -- 팀명
+                   DUTY_CD,                                                                -- 직책코드
+                   SF_GET_COMMNAME('01', 'A7', DUTY_CD)         AS DUTY_NM,                -- 직책명
+                   REG_CD,                                                                 -- 지역구분
+                   SF_GET_COMMNAME('01', 'B3', REG_CD)          AS REG_NM                  -- 지역구분명
+            FROM   T_ME_PERSON
+            WHERE (ENO_NO = ?
+            OR     ENO_NM = ?)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 인사기록정보 데이터 생성 -->
+    <sql name="MEMA010_INS">
+        <description>인사기록정보 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_PERSON
+                  (ENO_NO,   OCC_CD,   ENO_NM,  NAM_ENG, NAM_CHI, MF_TAG,  BIR_YMD,   BIR_TAG,   CET_NO,   HEAD_CD,   GBN_CD,
+                   REG_CD,   DPT_CD,   JOB_CD,  DUTY_CD, TEAM_CD, HIR_YMD, TERM1_YMD, TERM2_YMD, IPT_MAN,  IPT_YMD,   UPT_MAN, UPT_YMD
+                  )
+            VALUES
+                  (?,        ?,        ?,       ?,       ?,       ?,       ?,         ?,         ?,        ?,         (SELECT GBN_CD FROM T_CM_DEPT WHERE GUBUN = '01' AND CD_GBN = 'A4' AND DPT_CD = ?),
+                   ?,        ?,        ?,       ?,       ?,       ?,       ?,         ?,         ?,        SYSDATE,   ?,       SYSDATE
+                  )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 인사기록정보 데이터 수정 -->
+    <sql name="MEMA010_UPT">
+        <description>인사기록정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_PERSON
+            SET    OCC_CD    = ?,
+                   ENO_NM    = ?,
+                   NAM_ENG   = ?,
+                   NAM_CHI   = ?,
+                   MF_TAG    = ?,
+                   BIR_YMD   = ?,
+                   BIR_TAG   = ?,
+                   CET_NO    = ?,
+                   HEAD_CD   = ?,
+                   GBN_CD    = (SELECT GBN_CD FROM T_CM_DEPT WHERE GUBUN = '01' AND CD_GBN = 'A4' AND DPT_CD = ?),
+                   REG_CD    = ?,
+                   DPT_CD    = ?,
+                   JOB_CD    = ?,
+                   DUTY_CD   = ?,
+                   TEAM_CD   = ?,
+                   HIR_YMD   = ?,
+                   TERM1_YMD = ?,
+                   TERM2_YMD = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : mema011
+* @description : 인사기본2
+***********************************************************************
+* 2007/01/17      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 인사기록정보 데이터 조회 -->
+    <sql name="MEMA011_SHR">
+        <description>인사기본2 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO,                                                                 -- 사번
+                   A.HIR_CD,                                                                 -- 채용구분코드
+                   A.HIR_TAG,                                                                -- 채용사유
+                   SF_GET_COMMNAME('01',  'C1', A.HIR_CD)                  AS HIR_NM,        -- 채용구분
+                   TO_CHAR(A.RHI_YMD, 'YYYY-MM-DD')                        AS RHI_YMD,       -- 재입사일
+                   TO_CHAR(A.TERM2_YMD, 'YYYY-MM-DD')                      AS TERM2_YMD,     -- 2차계약기간
+                   --A.DISCOMP_CD,                                                             -- 파견업체코드
+                   --SF_GET_COMMNAME('01',  'CA', A.DISCOMP_CD)              AS DISCOMP_NM,    -- 파견업체
+                   A.OK_ENO,                                                                 -- 추천인사번
+                   SF_GET_ENONAME2('01',  A.OK_ENO)                        AS OK_MAN,        -- 추천인명
+                   A.DISJOB_CD,                                                              -- 근로자파견대상업무코드
+                   SF_GET_COMMNAME('01',  'C8', A.DISJOB_CD)               AS DISJOB_NM,     -- 근로자파견대상업무
+                   A.DISDPT_CD,                                                              -- 파견사원업무구분별코드
+                   SF_GET_COMMNAME('01',  'C9', A.DISDPT_CD)               AS DISDPT_NM,     -- 파견사원업무구분
+                   A.JOB_TAG,                                                                -- 담당업무
+                   A.EDGR_CD,                                                                -- 학력구분코드
+                   SF_GET_COMMNAME('01',  'E1', A.EDGR_CD)                 AS EDGR_NM,       -- 학력구분
+                   A.SCH_CD,                                                                 -- 학교코드
+                   CASE WHEN EDGR_CD = '2' THEN SF_GET_COMMNAME('01',  'E8', A.SCH_CD)
+                        WHEN EDGR_CD = '3' THEN SF_GET_COMMNAME('01',  'E2', A.SCH_CD)
+                        WHEN EDGR_CD = '4' THEN SF_GET_COMMNAME('01',  'E3', A.SCH_CD)
+                        WHEN EDGR_CD = '5' THEN SF_GET_COMMNAME('01',  'E4', A.SCH_CD)
+                        WHEN EDGR_CD = '6' THEN SF_GET_COMMNAME('01',  'E5', A.SCH_CD)
+                        WHEN EDGR_CD = '7' THEN SF_GET_COMMNAME('01',  'E5', A.SCH_CD)
+                        WHEN EDGR_CD = '8' THEN SF_GET_COMMNAME('01',  'E5', A.SCH_CD)
+                        ELSE ''
+                   END  AS SCH_NM,                                                           -- 학교명
+                   A.MAJ_CD,                                                                 -- 학과코드
+                   SF_GET_COMMNAME('01',  'E6', A.MAJ_CD)                  AS MAJ_NM,        -- 학과명
+                   A.GRD_CD,                                                                 -- 졸업구분코드
+                   SF_GET_COMMNAME('01',  'E7', A.GRD_CD)                  AS GRD_NM,        -- 졸업구분
+                   TO_CHAR(A.GUR_YMD, 'YYYY-MM-DD')                        AS GUR_YMD,       -- 졸업일
+                   RET_CD,                                               -- 퇴직사유코드
+                   SF_GET_COMMNAME('01',  'C2', RET_CD)    AS RET_NM,    -- 퇴직사유
+                   TO_CHAR(RET_YMD, 'YYYY-MM-DD')          AS RET_YMD,   -- 퇴사일
+                   TO_CHAR(CHNG_YMD, 'YYYY-MM-DD')         AS CHNG_YMD,  -- 계약직전환일
+                   COC_NAM,                                              -- 전직처
+                   REMARK,                                               -- 비고
+                   --A.BCT_CD,                                                                 -- 출신도코드
+                   --SF_GET_COMMNAME('01',  'B4', A.BCT_CD)                  AS BCT_NM,        -- 출신도
+                   --A.HF_NAM,                                                                 -- 호주
+                   --A.HFRE_CD,                                                                -- 호주와의관계코드
+                   --SF_GET_COMMNAME('01',  'G1', A.HFRE_CD)                 AS HFRE_NM,       -- 호주와의관계
+                   --A.PER_ADR,                                                                 -- 본적
+                   B.DISCOMP_NM,
+                   B.CONS_YMD,
+                   B.CONE_YMD,
+                   C.BAS_AMT,
+                   C.LSEV_AMT1,
+                   C.LSEV_AMT2,
+                   C.LSEV_AMT3,
+                   C.WEL_AMT
+            FROM   T_ME_PERSON A,
+                  (select eno_no, DISCOMP_NM, CONS_YMD, CONE_YMD
+                   from  (select eno_no,
+                                 SF_GET_COMMNAME('01', 'CA', DISCOMP_CD) AS DISCOMP_NM,
+                                 TO_CHAR(TO_DATE(CONS_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS CONS_YMD,    -- 계약시작일자
+                                 TO_CHAR(TO_DATE(CONE_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS CONE_YMD    -- 계약종료일자
+                          from   T_ME_CONTRACT
+                          where  eno_no=?
+                          ORDER BY  CON_YMD DESC
+                         )
+                   where ROWNUM = 1
+                  ) B,
+                  (select eno_no, BAS_AMT, LSEV_AMT1, LSEV_AMT2, LSEV_AMT3, WEL_AMT
+                   from  (select eno_no,
+                                 BAS_AMT,
+                                 LSEV_AMT1,
+                                 LSEV_AMT2,
+                                 LSEV_AMT3,
+                                 WEL_AMT
+                          from   T_ME_APY
+                          where  eno_no=?
+                          ORDER BY  CHN_YMD DESC, SEQ_NO DESC
+                         )
+                   where ROWNUM = 1
+                  ) C
+            WHERE  A.ENO_NO = ?
+            AND    A.ENO_NO = B.ENO_NO(+)
+            AND    A.ENO_NO = C.ENO_NO(+)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 인사기본2 데이터 수정 -->
+    <sql name="MEMA011_UPT">
+        <description>인사기본2 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_PERSON
+            SET    HIR_CD     = ?,
+                   HIR_TAG    = ?,
+                   RHI_YMD    = ?,
+                   TERM2_YMD  = ?,
+                   OK_ENO     = ?,
+                   DISJOB_CD  = ?,
+                   DISDPT_CD  = ?,
+                   JOB_TAG    = ?,
+                   EDGR_CD    = ?,
+                   SCH_CD     = ?,
+                   MAJ_CD     = ?,
+                   GRD_CD     = ?,
+                   GUR_YMD    = ?,
+                   RET_CD      = ?,
+                   RET_YMD     = ?,
+                   CHNG_YMD    = ?,
+                   COC_NAM     = ?,
+                   REMARK      = ?,
+                   --BCT_CD     = '',
+                   --HF_NAM     = '',
+                   --HFRE_CD    = '',
+                   --PER_ADR    = '',
+                   UPT_MAN    = ?,
+                   UPT_YMD    = SYSDATE
+            WHERE  ENO_NO     = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : mema012
+* @description : 인사기본3
+***********************************************************************
+* 2007/01/17      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 인사기본3 데이터 조회 -->
+    <sql name="MEMA012_SHR">
+        <description>인사기본3 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                            -- 사번
+                   DECODE(ZIP_NO,NULL,'',SUBSTR(ZIP_NO,1,3)||'-'||SUBSTR(ZIP_NO,4,3))
+                                                                         AS ZIP_NO,   -- 등본상우편번호
+                   ADDRESS,                                                           -- 등본상주소1
+                   ADR_CT,                                                            -- 등본상주소2
+                   DECODE(RZI_NO,NULL,'',SUBSTR(RZI_NO,1,3)||'-'||SUBSTR(RZI_NO,4,3))
+                                                                         AS RZI_NO,   -- 실거주지우편번호
+                   RADR,                                                              -- 실거주지주소1
+                   RADR_CT,                                                           -- 실거주지주소2
+                   PHN_NO,                                                            -- 전화번호
+                   EM_PHN_NO,                                                         -- 휴대폰
+                   E_MAIL,                                                            -- E-mail
+                   TO_CHAR(TO_DATE(PRO_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS PRO_YMD,  -- 실시일자
+                   TO_CHAR(EYE_LEF, '0.0')                               AS EYE_LEF,  -- 좌시력
+                   TO_CHAR(EYE_RHT, '0.0')                               AS EYE_RHT,  -- 우시력
+                   HEIGHT,                                                            -- 신장
+                   WEIGHT,                                                            -- 체중
+                   AB_HGT,                                                            -- 흉위
+                   CBLD_CD,                                                           -- 색맹코드
+                   SF_GET_COMMNAME('01', 'D4', CBLD_CD)                  AS CBLD_NM,  -- 색맹
+                   BLD_TYP,                                                           -- 혈액형
+                   XRY_RMK,                                                           -- X선소견
+                   BLD_PRE,                                                           -- 혈압
+                   BLD_DAN,                                                           -- 혈당
+                   PH,                                                                -- 뇨검사 pH
+                   EXM_HSP,                                                           -- 검사병원
+                   DECISION,                                                          -- 판정
+                   SPEC,                                                              -- 비고
+
+                   HOBBY,                                                             -- 취미
+                   SPEC_CD,                                                           -- 특기코드
+                   SF_GET_COMMNAME('01',  'D1', SPEC_CD)   AS SPEC_NM,                -- 특기
+                   TO_CHAR(WED_YMD, 'YYYY-MM-DD')          AS WED_YMD,                -- 결혼일
+                   REL_CD,                                                            -- 종교코드
+                   SF_GET_COMMNAME('01',  'D2', REL_CD)    AS REL_NM                  -- 종교
+            FROM   T_ME_PERSON
+            WHERE  ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 인사기본3 데이터 수정 -->
+    <sql name="MEMA012_UPT">
+        <description>인사기본3 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_PERSON
+            SET    ZIP_NO    = ?,
+                   ADDRESS   = ?,
+                   ADR_CT    = ?,
+                   RZI_NO    = ?,
+                   RADR      = ?,
+                   RADR_CT   = ?,
+                   PHN_NO    = ?,
+                   EM_PHN_NO = ?,
+                   E_MAIL    = ?,
+                   PRO_YMD   = ?,
+                   EYE_LEF   = ?,
+                   EYE_RHT   = ?,
+                   HEIGHT    = ?,
+                   WEIGHT    = ?,
+                   AB_HGT    = ?,
+                   CBLD_CD   = ?,
+                   BLD_TYP   = ?,
+                   XRY_RMK   = ?,
+                   BLD_PRE   = ?,
+                   BLD_DAN   = ?,
+                   PH        = ?,
+                   EXM_HSP   = ?,
+                   DECISION  = ?,
+                   SPEC      = ?,
+
+                   HOBBY       = ?,
+                   SPEC_CD     = ?,
+                   WED_YMD     = ?,
+                   REL_CD      = ?,
+
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--  인사기본3 EMPLIST 수정 -->
+    <sql name="MEMA012_UPT_01">
+         <description> 인사기본3 EMPLIST 수정</description>
+         <query>
+             <![CDATA[
+              UPDATE T_CM_EMPLIST
+              SET    RZI_NO    = ? ,
+                     RADR      = ? ,
+                     RADR_CT   = ? ,
+                     EM_PHN_NO = ? ,
+                     E_MAIL    = ? ,
+                     UPT_MAN   = ? ,
+                     UPT_YMD   = SYSDATE
+              WHERE  ENO_NO = ?
+
+             ]]>
+         </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : mema013
+* @description : 인사기본4
+***********************************************************************
+* 2007/01/17      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 인사기본4 데이터 조회 -->
+    <sql name="MEMA013_SHR">
+        <description>인사기본4 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO,                                               -- 사번
+                   HOBBY,                                                -- 취미
+                   SPEC_CD,                                              -- 특기코드
+                   SF_GET_COMMNAME('01',  'D1', SPEC_CD)   AS SPEC_NM,   -- 특기
+                   PART_CD,                                              -- 부문코드
+                   SF_GET_COMMNAME('01',  'B1', PART_CD)   AS PART_NM,   -- 부문
+                   TO_CHAR(WED_YMD, 'YYYY-MM-DD')          AS WED_YMD,   -- 결혼일
+                   REL_CD,                                               -- 종교코드
+                   SF_GET_COMMNAME('01',  'D2', REL_CD)    AS REL_NM,    -- 종교
+                   NAT_CD,                                               -- 국가코드
+                   SF_GET_COMMNAME('01',  'L2', NAT_CD)    AS NAT_NM,    -- 국가
+                   COM_PHN_NO,                                           -- 회사전화
+                   COM_PHN_IN,                                           -- 내선전화
+                   TO_CHAR(DPA_YMD, 'YYYY-MM-DD')          AS DPA_YMD,   -- 현소속발령일
+                   B.CLU_CD1,                                            -- 사내활동코드
+                   SF_GET_COMMNAME('01', 'H6', B.CLU_CD1) AS CLU_NM1,    -- 사내활동
+                   B.CLU_CD2,                                            -- 사내활동코드
+                   SF_GET_COMMNAME('01', 'H6', B.CLU_CD2) AS CLU_NM2,    -- 사내활동
+                   B.CLU_CD3,                                            -- 사내활동코드
+                   SF_GET_COMMNAME('01', 'H6', B.CLU_CD3) AS CLU_NM3     -- 사내활동
+            FROM   T_ME_PERSON A,
+                 ( SELECT ENO_NO,
+                          MAX(DECODE(NO, 1, CLUB_CD, '')) AS CLU_CD1,
+                          MAX(DECODE(NO, 2, CLUB_CD, '')) AS CLU_CD2,
+                          MAX(DECODE(NO, 3, CLUB_CD, '')) AS CLU_CD3
+                   FROM
+                   (
+                   SELECT ROWNUM NO, ENO_NO, CLUB_CD
+                   FROM   T_WL_CLUBLIST
+                   WHERE  ENO_NO = ?
+                   AND    END_YMD IS NULL
+                   )
+                   GROUP BY ENO_NO
+                 ) B
+            WHERE  A.ENO_NO = ?
+            AND    A.ENO_NO = B.ENO_NO(+)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 인사기본4 데이터 수정 -->
+    <sql name="MEMA013_UPT">
+        <description>인사기본4 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_PERSON
+            SET    HOBBY       = ?,
+                   SPEC_CD     = ?,
+                   PART_CD     = ?,
+                   WED_YMD     = ?,
+                   REL_CD      = ?,
+                   NAT_CD      = ?,
+                   COM_PHN_NO  = ?,
+                   COM_PHN_IN  = ?,
+                   DPA_YMD     = ?,
+                   UPT_MAN     = ?,
+                   UPT_YMD     = SYSDATE
+            WHERE  ENO_NO      = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : mema014
+* @description : 학력사항
+***********************************************************************
+* 2007/01/17      박인이        최초작성.
+***********************************************************************
+-->
+<!-- 학력사항 데이터 조회 -->
+    <sql name="MEMA014_SHR">
+        <description>학력사항 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                               -- 사번
+                   EDGR_CD,                                                              -- 학력구분코드
+                   EDGR_NM,                                                              -- 학력구분
+                   GURS_YMD,                                                             -- 입학일자
+                   GURE_YMD,                                                             -- 졸업일자
+                   SCH_CD,                                                               -- 학교코드
+                   SCH_NAM,                                                              -- 학교
+                   MAJ_CD,                                                               -- 전공코드
+                   MAJ_NM,                                                               -- 전공
+                   GRD_CD,                                                               -- 졸업코드
+                   GRD_NM,                                                               -- 졸업
+                   DECODE(GRD_SEQ, 0, 999, GRD_SEQ)         AS GRD_SEQ                   -- 졸업SEQ
+            FROM ( SELECT ENO_NO,
+                          EDGR_CD,
+                          SF_GET_COMMNAME('01', 'E1', EDGR_CD)                   AS EDGR_NM,
+                          TO_CHAR(TO_DATE(GURS_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS GURS_YMD,
+                          TO_CHAR(TO_DATE(GURE_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS GURE_YMD,
+                          SCH_CD,
+                          CASE WHEN SCH_NAM IS NOT NULL THEN  SCH_NAM
+                               WHEN EDGR_CD = '2' THEN SF_GET_COMMNAME('01', 'E8', SCH_CD)
+                               WHEN EDGR_CD = '3' THEN SF_GET_COMMNAME('01', 'E2', SCH_CD)
+                               WHEN EDGR_CD = '4' THEN SF_GET_COMMNAME('01', 'E3', SCH_CD)
+                               WHEN EDGR_CD = '5' THEN SF_GET_COMMNAME('01', 'E4', SCH_CD)
+                               WHEN EDGR_CD = '6' THEN SF_GET_COMMNAME('01', 'E5', SCH_CD)
+                               WHEN EDGR_CD = '7' THEN SF_GET_COMMNAME('01', 'E5', SCH_CD)
+                               WHEN EDGR_CD = '8' THEN SF_GET_COMMNAME('01', 'E5', SCH_CD)
+                               ELSE ''
+                          END  AS SCH_NAM,
+                          MAJ_CD,
+                          SF_GET_COMMNAME('01', 'E6', MAJ_CD)      AS MAJ_NM,
+                          GRD_CD,
+                          SF_GET_COMMNAME('01', 'E7', GRD_CD)      AS GRD_NM,
+                          SF_GET_COMMSEQ('01', 'E7', GRD_CD)       AS GRD_SEQ
+                   FROM   T_ME_SCHOOL
+                   WHERE  ENO_NO   = ?
+                 )
+             ORDER BY ENO_NO, EDGR_CD, DECODE(GRD_SEQ, 0, 999, GRD_SEQ), GURS_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학력사항 데이터 생성 -->
+    <sql name="MEMA014_INS">
+        <description>학력사항 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_SCHOOL
+                 ( ENO_NO,   EDGR_CD,  GURS_YMD,  GURE_YMD, SCH_CD, SCH_NAM, MAJ_CD, GRD_CD, IPT_MAN,  IPT_YMD,  UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,        ?,        ?,         ?,        ?,      ?,       ?,      ?,      ?,        SYSDATE,  ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학력사항 데이터 수정 -->
+    <sql name="MEMA014_UPT">
+        <description>학력사항 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_SCHOOL
+            SET    GURS_YMD = ?,
+                   GURE_YMD = ?,
+                   SCH_CD   = ?,
+                   SCH_NAM  = ?,
+                   MAJ_CD   = ?,
+                   GRD_CD   = ?,
+                   UPT_MAN  = ?,
+                   UPT_YMD  = SYSDATE
+            WHERE  ENO_NO   = ?
+            AND    EDGR_CD  = ?
+            AND    GURS_YMD = ?
+            AND    GRD_CD   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 인사마스터에 최종학력사항 반영 -->
+    <sql name="MEMA014_UPT_02">
+        <description>인사마스터에 최종학력사항 반영</description>
+        <query>
+            <![CDATA[
+            DECLARE
+                oMSG      VARCHAR2(10);
+                vEDGR_CD  VARCHAR2(1);
+                vGUR_YMD  DATE;
+                vSCH_CD   VARCHAR2(3);
+                vMAJ_CD   VARCHAR2(3);
+                vGRD_CD   VARCHAR2(1);
+
+            BEGIN
+
+                oMSG := '';
+
+                BEGIN
+
+                    SELECT EDGR_CD, TO_DATE(GURE_YMD, 'YYYY-MM-DD'), SCH_CD, MAJ_CD, GRD_CD
+                    INTO   vEDGR_CD, vGUR_YMD, vSCH_CD, vMAJ_CD, vGRD_CD
+                    FROM ( SELECT ENO_NO, EDGR_CD, GURE_YMD, SCH_CD, MAJ_CD, GRD_CD
+                           FROM   T_ME_SCHOOL A
+                           WHERE  ENO_NO = ?
+                           AND    GRD_CD NOT IN ('I', 'G')
+                           AND    GURE_YMD = (SELECT MAX(GURE_YMD)
+                                              FROM   T_ME_SCHOOL
+                                              WHERE  ENO_NO = A.ENO_NO
+                                              AND    GRD_CD NOT IN ('I','G'))
+                         );
+
+                    UPDATE T_ME_PERSON
+                    SET    EDGR_CD = vEDGR_CD,
+                           GUR_YMD = vGUR_YMD,
+                           SCH_CD  = vSCH_CD,
+                           MAJ_CD  = vMAJ_CD,
+                           GRD_CD  = vGRD_CD,
+                           UPT_MAN = ?,
+                           UPT_YMD = SYSDATE
+                    WHERE  ENO_NO = ?;
+
+                EXCEPTION WHEN NO_DATA_FOUND THEN
+
+                    -- 데이터 미존재시 오류 발생시키지 않기 위함
+                    oMSG := 'NOT FOUND';
+
+                    UPDATE T_ME_PERSON
+                    SET    EDGR_CD = NULL,
+                           GUR_YMD = NULL,
+                           SCH_CD  = NULL,
+                           MAJ_CD  = NULL,
+                           GRD_CD  = NULL,
+                           UPT_MAN = ?,
+                           UPT_YMD = SYSDATE
+                    WHERE  ENO_NO = ?;
+
+                END;
+
+            END;
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학력사항 데이터 삭제 -->
+    <sql name="MEMA014_DEL">
+        <description>학력사항 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_SCHOOL
+            WHERE  ENO_NO   = ?
+            AND    EDGR_CD  = ?
+            AND    GURS_YMD = ?
+            AND    GRD_CD   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : mema015
+* @description : 병무사항
+***********************************************************************
+* 2007/01/17      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 병무사항 데이터 조회 -->
+    <sql name="MEMA015_SHR">
+        <description>병무사항 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                            -- 사번
+                   GUB_CD,                                                            -- 병무구분코드
+                   SF_GET_COMMNAME('01', 'F1', GUB_CD)                   AS GUB_NM,   -- 병무구분
+                   MIC_CD,                                                            -- 역종코드
+                   SF_GET_COMMNAME('01', 'F2', MIC_CD)                   AS MIC_NM,   -- 역종
+                   LOC_CD,                                                            -- 병무청코드
+                   SF_GET_COMMNAME('01', 'F3', LOC_CD)                   AS LOC_NM,   -- 병무청
+                   MIL_CD,                                                            -- 군별코드
+                   SF_GET_COMMNAME('01', 'F4', MIL_CD)                   AS MIL_NM,   -- 군별
+                   TO_CHAR(TO_DATE(ENL_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS ENL_YMD,  -- 복무기간(FROM)
+                   TO_CHAR(TO_DATE(MIL_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS MIL_YMD,  -- 복무기간(TO)
+                   YSE_CD,                                                            -- 전역사유코드
+                   SF_GET_COMMNAME('01', 'F5', YSE_CD)                   AS YSE_NM,   -- 전역사유
+                   GRADE,                                                             -- 계급코드
+                   SF_GET_COMMNAME('01', 'F6', GRADE)                    AS GRADE_NM, -- 계급
+                   MIL_NO,                                                            -- 군번
+                   MBK_CD,                                                            -- 병과코드
+                   SF_GET_COMMNAME('01', 'F7', MBK_CD)                   AS MBK_NM,   -- 병과
+                   MIL_DES,                                                           -- 전역구분
+                   REMARK                                                             -- 기타사항
+            FROM   T_ME_ARMY
+            WHERE  ENO_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 병무사항 데이터 생성 -->
+    <sql name="MEMA015_INS">
+        <description>병무사항 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_ARMY
+                 ( ENO_NO, GUB_CD, MIC_CD, LOC_CD, MIL_CD, ENL_YMD, MIL_YMD, YSE_CD, GRADE, MIL_NO, MBK_CD, MIL_DES, REMARK, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,      ?,      ?,      ?,      ?,      ?,       ?,       ?,      ?,     ?,      ?,      ?,       ?,      ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 병무사항 데이터 수정 -->
+    <sql name="MEMA015_UPT">
+        <description>병무사항 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_ARMY
+            SET    GUB_CD   = ?,
+                   MIC_CD   = ?,
+                   LOC_CD   = ?,
+                   MIL_CD   = ?,
+                   ENL_YMD  = ?,
+                   MIL_YMD  = ?,
+                   YSE_CD   = ?,
+                   GRADE    = ?,
+                   MIL_NO   = ?,
+                   MBK_CD   = ?,
+                   MIL_DES  = ?,
+                   REMARK   = ?,
+                   UPT_MAN  = ?,
+                   UPT_YMD  = SYSDATE
+            WHERE  ENO_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 병무사항 데이터 삭제 -->
+    <sql name="MEMA015_DEL">
+        <description>병무사항 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_ARMY
+            WHERE  ENO_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : mema016
+* @description : 가족사항
+***********************************************************************
+* 2007/01/17      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 가족사항 데이터 조회 -->
+    <sql name="MEMA016_SHR">
+        <description>가족사항 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                            -- 사번
+                   REL_CD,                                                            -- 가족관계코드
+                   SF_GET_COMMNAME('01', 'G1', REL_CD)                   AS REL_NM,   -- 가족관계
+                   ENO_NM,                                                            -- 성명
+                   BIR_YMD,                                                           -- 생년월일
+                   EDGR_CD,                                                           -- 학력구분코드
+                   SF_GET_COMMNAME('01', 'E1', EDGR_CD)                  AS EDGR_NM,  -- 학력구분
+                   OCC_NAM,                                                           -- 근무처
+                   JOB_CD                                                             -- 직위
+            FROM   T_ME_FAMILY
+            WHERE  ENO_NO   = ?
+            ORDER BY SF_GET_COMMSEQ('01', 'G1', REL_CD), BIR_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 가족사항 데이터 생성 -->
+    <sql name="MEMA016_INS">
+        <description>가족사항 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_FAMILY
+                 ( ENO_NO,   REL_CD,  ENO_NM,  BIR_YMD, EDGR_CD, OCC_NAM, JOB_CD,  IPT_MAN,  IPT_YMD,  UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,        ?,       ?,       ?,       ?,       ?,       ?,       ?,        SYSDATE,  ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 가족사항 데이터 수정 -->
+    <sql name="MEMA016_UPT">
+        <description>가족사항 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_FAMILY
+            SET    BIR_YMD  = ?,
+                   EDGR_CD  = ?,
+                   OCC_NAM  = ?,
+                   JOB_CD   = ?,
+                   UPT_MAN  = ?,
+                   UPT_YMD  = SYSDATE
+            WHERE  ENO_NO   = ?
+            AND    REL_CD   = ?
+            AND    ENO_NM   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 가족사항 데이터 삭제 -->
+    <sql name="MEMA016_DEL">
+        <description>가족사항 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_FAMILY
+            WHERE  ENO_NO   = ?
+            AND    REL_CD   = ?
+            AND    ENO_NM   = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : mema017
+* @description : 자격면허
+***********************************************************************
+* 2007/01/17      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 자격면허 데이터 조회 -->
+    <sql name="MEMA017_SHR">
+        <description>자격면허 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                            -- 사번
+                   QUA_CD,                                                            -- 자격면허코드
+                   OCC_CD,                                                            -- 직종코드
+                   SF_GET_COMMNAME('01', 'H1', QUA_CD)                   AS QUA_NM,   -- 자격면허
+                   GAN_YMD,                                                           -- 취득일자
+                   DUE_YMD,                                                           -- 갱신일자
+                   CHG_YMD,                                                           -- 만기일자
+                   STS_YMD,                                                           -- 정지시작일자
+                   STE_YMD,                                                           -- 정지종료일자
+                   QUA_NO,                                                            -- 증서번호
+                   APP_ADM,                                                           -- 발행처
+                   ETG_YN                                                             -- 수당지급여부
+            FROM   T_ME_QUALIFICATION
+            WHERE  ENO_NO   = ?
+            ORDER BY GAN_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 자격면허 데이터 생성 -->
+    <sql name="MEMA017_INS">
+        <description>자격면허 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_QUALIFICATION
+                 ( ENO_NO,   QUA_CD,  OCC_CD, GAN_YMD, DUE_YMD, CHG_YMD, STS_YMD, STE_YMD, QUA_NO, APP_ADM, ETG_YN, IPT_MAN,  IPT_YMD,  UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,        ?,       ?,      ?,       ?,       ?,       ?,       ?,       ?,      ?,       ?,      ?,        SYSDATE,  ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 자격면허 데이터 수정 -->
+    <sql name="MEMA017_UPT">
+        <description>자격면허 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_QUALIFICATION
+            SET    GAN_YMD  = ?,
+                   DUE_YMD  = ?,
+                   CHG_YMD  = ?,
+                   STS_YMD  = ?,
+                   STE_YMD  = ?,
+                   QUA_NO   = ?,
+                   APP_ADM  = ?,
+                   ETG_YN   = ?,
+                   UPT_MAN  = ?,
+                   UPT_YMD  = SYSDATE
+            WHERE  ENO_NO   = ?
+            AND    QUA_CD   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 자격면허 데이터 삭제 -->
+    <sql name="MEMA017_DEL">
+        <description>자격면허 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_QUALIFICATION
+            WHERE  ENO_NO   = ?
+            AND    QUA_CD   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : mema018
+* @description : 입사전경력
+***********************************************************************
+* 2007/01/17      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 입사전경력 데이터 조회 -->
+    <sql name="MEMA018_SHR">
+        <description>입사전경력 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                            -- 사번
+                   STR_YMD,                                                           -- 시작일자
+                   END_YMD,                                                           -- 종료일자
+                   CMP_NAM,                                                           -- 회사명
+                   GRP_CD,                                                            -- 그룹사코드
+                   SF_GET_COMMNAME('01', 'B5', GRP_CD)                   AS GRP_NM,   -- 그룹사명
+                   DPT_NAM,                                                           -- 소속
+                   JOB_CD,                                                            -- 직위
+                   CHG_JOB,                                                           -- 담당업무
+                   CAR_PCT,                                                           -- 경력인정비율
+                   CAR_YY,                                                            -- 경력인정년수
+                   CAR_MM,                                                            -- 경력인정개월
+                   SAL_AMT,                                                           -- 급여
+                   REMARK                                                             -- 비고
+            FROM   T_ME_BHISTORY
+            WHERE  ENO_NO   = ?
+            ORDER BY STR_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 입사전경력 데이터 생성 -->
+    <sql name="MEMA018_INS">
+        <description>입사전경력 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_BHISTORY
+                 ( ENO_NO, STR_YMD, END_YMD, CMP_NAM, GRP_CD, DPT_NAM, JOB_CD, CHG_JOB, CAR_PCT, CAR_YY, CAR_MM, SAL_AMT, REMARK, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,      ?,       ?,       ?,       ?,      ?,       ?,      ?,       ?,       ?,      ?,      ?,       ?,      ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 입사전경력 데이터 수정 -->
+    <sql name="MEMA018_UPT">
+        <description>입사전경력 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_BHISTORY
+            SET    END_YMD  = ?,
+                   CMP_NAM  = ?,
+                   GRP_CD   = ?,
+                   DPT_NAM  = ?,
+                   JOB_CD   = ?,
+                   CHG_JOB  = ?,
+                   CAR_PCT  = ?,
+                   CAR_YY   = ?,
+                   CAR_MM   = ?,
+                   SAL_AMT  = ?,
+                   REMARK   = ?,
+                   UPT_MAN  = ?,
+                   UPT_YMD  = SYSDATE
+            WHERE  ENO_NO   = ?
+            AND    STR_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 입사전경력 데이터 삭제 -->
+    <sql name="MEMA018_DEL">
+        <description>입사전경력 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_BHISTORY
+            WHERE  ENO_NO   = ?
+            AND    STR_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : mema019
+* @description : 입사후경력
+***********************************************************************
+* 2007/01/17      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 입사후경력 데이터 조회 -->
+    <sql name="MEMA019_SHR">
+        <description>입사후경력 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                            -- 사번
+                   TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS STR_YMD,  -- 시작일자
+                   SEQ_NO,                                                            -- SEQ번호
+                   OCC_CD,                                                            -- 직종코드
+                   SF_GET_COMMNAME('01', 'A1', OCC_CD)                   AS OCC_NM,   -- 직종
+                   TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS END_YMD,  -- 종료일자
+                   APP_CD,                                                            -- 발령구분코드
+                   SF_GET_COMMNAME('01', 'J2', APP_CD)                   AS APP_NM,   -- 발령구분
+                   HEAD_CD,                                                           -- 본부코드
+                   SF_GET_DPTNAME('01', 'B2', HEAD_CD)                  AS HEAD_NM,  -- 본부코드
+                   DPT_CD,                                                            -- 소속코드
+                   SF_GET_DPTNAME('01', 'A4', DPT_CD)                   AS DPT_NM,   -- 소속
+                   TEAM_CD,                                                           -- 팀코드
+                   SF_GET_DPTNAME('01', 'A6', TEAM_CD)                  AS TEAM_NM,  -- 팀
+                   JOB_CD,                                                            -- 직위코드
+                   SF_GET_COMMNAME('01', 'A2', JOB_CD)                   AS JOB_NM,   -- 직위
+                   DUTY_CD,                                                           -- 직책코드
+                   SF_GET_COMMNAME('01', 'A7', DUTY_CD)                  AS DUTY_NM,  -- 직책
+                   PART_CD,                                                           -- 부문코드
+                   SF_GET_COMMNAME('01', 'B1', PART_CD)                  AS PART_NM,  -- 부문
+                   JCD_CD,                                                            -- 재직구분코드
+                   SF_GET_COMMNAME('01', 'J3', JCD_CD)                   AS JCD_NM,   -- 재직구분
+                   TO_CHAR(TO_DATE(APP_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS APP_YMD,  -- 발령일자
+                   REMARK,                                                            -- 적요사항
+                   TAX_DPT,                                                           -- 회계부서코드
+                   SF_GET_DPTNAME('01', 'A4', TAX_DPT)                  AS TAX_DPTNM -- 회계부서
+            FROM   T_ME_AHISTORY A
+            WHERE  ENO_NO   = ?
+            ORDER BY ENO_NO, STR_YMD DESC, SEQ_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 입사후경력 데이터 생성 -->
+    <sql name="MEMA019_INS">
+        <description>입사후경력 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_AHISTORY
+                 ( ENO_NO,  STR_YMD,  SEQ_NO, OCC_CD,  END_YMD, APP_CD,  HEAD_CD, DPT_CD,  TEAM_CD, DUTY_CD,
+                   PART_CD, JOB_CD,   JCD_CD, APP_YMD, REMARK,  TAX_DPT, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,       ?,        ?,      ?,       ?,       ?,       ?,       ?,       ?,       ?,
+                   ?,       ?,        ?,      ?,       ?,       ?,       ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 입사후경력 데이터 수정 -->
+    <sql name="MEMA019_UPT">
+        <description>입사후경력 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_AHISTORY
+            SET    OCC_CD   = ?,
+                   END_YMD  = ?,
+                   APP_CD   = ?,
+                   HEAD_CD  = ?,
+                   DPT_CD   = ?,
+                   TEAM_CD  = ?,
+                   DUTY_CD  = ?,
+                   PART_CD  = ?,
+                   JOB_CD   = ?,
+                   JCD_CD   = ?,
+                   APP_YMD  = ?,
+                   REMARK   = ?,
+                   TAX_DPT  = ?,
+                   UPT_MAN  = ?,
+                   UPT_YMD  = SYSDATE
+            WHERE  ENO_NO   = ?
+            AND    STR_YMD  = ?
+            AND    SEQ_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 입사후경력 데이터 삭제 -->
+    <sql name="MEMA019_DEL">
+        <description>입사후경력 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_AHISTORY
+            WHERE  ENO_NO   = ?
+            AND    STR_YMD  = ?
+            AND    SEQ_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 인사기록정보가 없으면 신규생성 -->
+    <sql name="MEMA019_INS_02">
+        <description>인사기록정보가 없으면 신규생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_PERSON
+                  (ENO_NO,   OCC_CD,   ENO_NM,  NAM_ENG, NAM_CHI, MF_TAG,  BIR_YMD,   BIR_TAG,   CET_NO,   HEAD_CD,
+                   GBN_CD,
+                   REG_CD,   DPT_CD,   JOB_CD,  DUTY_CD, TEAM_CD, HIR_YMD, TERM1_YMD, TERM2_YMD,
+                   IPT_MAN,  IPT_YMD,   UPT_MAN, UPT_YMD
+                  )
+
+            SELECT ENO_NO,       '',   ENO_NM,  NAM_ENG, NAM_CHI, MF_TAG,  BIR_YMD,   BIR_TAG,   CET_NO,        '',
+                   '',
+                   '',           '',       '',       '',      '', HIR_YMD, TERM1_YMD, TERM2_YMD,
+                   ?,        SYSDATE,   ?,       SYSDATE
+            FROM T_CM_PERSON_TEMP
+            WHERE SEQ_NO  = (SELECT MAX(TO_NUMBER(SEQ_NO)) FROM T_CM_PERSON_TEMP WHERE ENO_NO = ?)
+            AND   ENO_NO  = ?
+            AND   PSN_GBN = '2'
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : mema020
+* @description : 용역비변경내역
+***********************************************************************
+* 2007/01/18      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 용역비변경내역 데이터 조회 -->
+    <sql name="MEMA020_SHR">
+        <description>용역비변경내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO,                                                            -- 사번
+                   TO_CHAR(TO_DATE(CHN_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS CHN_YMD,  -- 변경일자
+                   SEQ_NO,                                                            -- SEQ번호
+                   OCC_CD,                                                            -- 직종코드
+                   SF_GET_COMMNAME('01', 'A1', OCC_CD)                   AS OCC_NM,   -- 직종
+                   APP_CD,                                                            -- 발령구분코드
+                   SF_GET_COMMNAME('01', 'J2', APP_CD)                   AS APP_NM,   -- 발령구분
+                   JOB_CD,                                                            -- 직위코드
+                   SF_GET_COMMNAME('01', 'A2', JOB_CD)                   AS JOB_NM,   -- 직위
+                   HOB_CD,                                                            -- 호봉코드
+                   SF_GET_COMMNAME('01', 'A3', HOB_CD)                   AS HOB_NM,   -- 호봉
+                   BAS_AMT,                                                           -- 용역비
+                   LSEV_AMT1,                                                         -- 근속장려금(6개월)
+                   LSEV_AMT2,                                                         -- 근속장려금(12개월)
+                   LSEV_AMT3,                                                         -- 근속장려금(18개월)
+                   WEL_AMT,                                                           -- 기타수당
+                   BAS_AMT +
+                   NVL(CASE WHEN B.TERM_YMD_VAL >= 18 THEN LSEV_AMT3
+                            WHEN B.TERM_YMD_VAL >= 12 THEN LSEV_AMT2
+                            WHEN B.TERM_YMD_VAL >= 6  THEN LSEV_AMT1
+                            ELSE 0
+                        END, 0) +
+                   WEL_AMT AS SUM_AMT,  -- 합계액
+                   HOW_AMT                                               AS HOW_AMT,  -- 휴일근무수당(미사용)
+                   TERM_YMD_VAL,
+                   REMARK                                                             -- 비고
+            FROM   T_ME_APY A,
+                  (SELECT ENO_NO,
+                          CASE WHEN LAST_DAY(TO_CHAR(SYSDATE,'YYYYMMDD')) > RET_YMD
+                               THEN MONTHS_BETWEEN(RET_YMD, HIR_YMD)
+                               ELSE MONTHS_BETWEEN(LAST_DAY(TO_CHAR(SYSDATE,'YYYYMMDD')), HIR_YMD)
+                          END AS TERM_YMD_VAL
+                   FROM   T_ME_PERSON) B
+            WHERE A.ENO_NO = B.ENO_NO
+            AND   A.ENO_NO = ?
+            ORDER BY  CHN_YMD DESC, SEQ_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 용역비변경내역 데이터 생성 -->
+    <sql name="MEMA020_INS">
+        <description>용역비변경내역 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_APY
+                 ( ENO_NO, CHN_YMD, SEQ_NO, OCC_CD, APP_CD, JOB_CD, HOB_CD, BAS_AMT, LSEV_AMT1, LSEV_AMT2, LSEV_AMT3, WEL_AMT, REMARK, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,      ?,       ?,      ?,      ?,      ?,      ?,      ?,       ?,         ?,         ?,         ?,       ?,      ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 용역비변경내역 데이터 수정 -->
+    <sql name="MEMA020_UPT">
+        <description>용역비변경내역 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_APY
+            SET    OCC_CD   = ?,
+                   APP_CD   = ?,
+                   JOB_CD   = ?,
+                   HOB_CD   = ?,
+                   BAS_AMT  = ?,
+                   LSEV_AMT1= ?,
+                   LSEV_AMT2= ?,
+                   LSEV_AMT3= ?,
+                   WEL_AMT  = ?,
+                   REMARK   = ?,
+                   UPT_MAN  = ?,
+                   UPT_YMD  = SYSDATE
+            WHERE  ENO_NO   = ?
+            AND    CHN_YMD  = ?
+            AND    SEQ_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 용역비변경내역 데이터 삭제 -->
+    <sql name="MEMA020_DEL">
+        <description>용역비변경내역 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_APY
+            WHERE  ENO_NO   = ?
+            AND    CHN_YMD  = ?
+            AND    SEQ_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : mema021
+* @description : 교육사항
+***********************************************************************
+* 2007/01/23      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 교육사항 데이터 조회 -->
+    <sql name="MEMA021_SHR">
+        <description>교육사항 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                            -- 사번
+                   TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS STR_YMD,  -- 시작일자
+                   OCC_CD,                                                            -- 직종코드
+                   TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS END_YMD,  -- 종료일자
+                   EDU_CD,                                                            -- 교육구분코드
+                   DECODE(EDU_CD, '1', '사내 ', '2', '사외 ', '3', '인터넷 ', '') AS EDU_NM, -- 교육구분
+                   INT_NAM,                                                           -- 시행처
+                   SBJ_CD,                                                            -- 교육과정코드
+                   SF_GET_COMMNAME('01', 'Q1', SBJ_CD)                   AS SBJ_NM,   -- 교육과정
+                   EDU_TAG,                                                           -- 수료여부
+                   APP_VAL,                                                           -- 평가점수
+                   DPT_CD,                                                            -- 소속코드
+                   SF_GET_DPTNAME('01', 'A4', DPT_CD)                    AS DPT_NM,   -- 소속
+                   JOB_CD,                                                            -- 직위코드
+                   SF_GET_COMMNAME('01', 'A2', JOB_CD)                   AS JOB_NM,   -- 직위
+                   EDU_AMT,                                                           -- 교육비
+                   TRA_AMT,                                                           -- 교통비
+                   BOLO_AMT,                                                          -- 숙박비
+                   REMARK                                                             -- 비고
+            FROM   T_ME_EDUCATION
+            WHERE  ENO_NO   = ?
+            ORDER BY STR_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 교육사항 데이터 생성 -->
+    <sql name="MEMA021_INS">
+        <description>교육사항 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_EDUCATION
+                 ( ENO_NO, STR_YMD, OCC_CD, END_YMD, EDU_CD, INT_NAM, SBJ_CD, EDU_TAG, APP_VAL, DPT_CD, JOB_CD, EDU_AMT, TRA_AMT, BOLO_AMT, REMARK, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,      ?,       ?,      ?,       ?,      ?,       ?,      ?,       ?,       ?,      ?,      ?,       ?,       ?,        ?,      ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 교육사항 데이터 수정 -->
+    <sql name="MEMA021_UPT">
+        <description>교육사항 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_EDUCATION
+            SET    END_YMD  = ?,
+                   INT_NAM  = ?,
+                   EDU_TAG  = ?,
+                   APP_VAL  = ?,
+                   DPT_CD   = ?,
+                   JOB_CD   = ?,
+                   EDU_AMT  = ?,
+                   TRA_AMT  = ?,
+                   BOLO_AMT = ?,
+                   REMARK   = ?,
+                   UPT_MAN  = ?,
+                   UPT_YMD  = SYSDATE
+            WHERE  ENO_NO   = ?
+            AND    STR_YMD  = ?
+            AND    EDU_CD   = ?
+            AND    SBJ_CD   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 교육사항 데이터 삭제 -->
+    <sql name="MEMA021_DEL">
+        <description>교육사항 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_EDUCATION
+            WHERE  ENO_NO   = ?
+            AND    STR_YMD  = ?
+            AND    EDU_CD   = ?
+            AND    SBJ_CD   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : mema022
+* @description : 계약변경내역
+***********************************************************************
+* 2007/01/23      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 계약변경내역 데이터 조회 -->
+    <sql name="MEMA022_SHR">
+        <description>계약변경내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                -- 사번
+                   TO_CHAR(TO_DATE(CON_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')  AS CON_YMD,     -- 계약일자
+                   TO_CHAR(TO_DATE(CONS_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS CONS_YMD,    -- 계약시작일자
+                   TO_CHAR(TO_DATE(CONE_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS CONE_YMD,    -- 계약종료일자
+                   DEGREE_GBN,                                                            -- 차수
+                   DISCOMP_CD,                                                            -- 업체코드
+                   SF_GET_COMMNAME('01', 'CA', DISCOMP_CD)                AS DISCOMP_NM,  -- 업체명
+                   REMARK                                                                 -- 비고
+            FROM   T_ME_CONTRACT
+            WHERE  ENO_NO   = ?
+            ORDER BY CON_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 계약변경내역 데이터 생성 -->
+    <sql name="MEMA022_INS">
+        <description>계약변경내역 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_CONTRACT
+                 ( ENO_NO, CON_YMD, CONS_YMD, CONE_YMD, DEGREE_GBN, DISCOMP_CD, REMARK, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,      ?,       ?,        ?,        ?,          ?,          ?,      ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 계약변경내역 데이터 수정 -->
+    <sql name="MEMA022_UPT">
+        <description>계약변경내역 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_CONTRACT
+            SET    CONS_YMD   = ?,
+                   CONE_YMD   = ?,
+                   DEGREE_GBN = ?,
+                   REMARK     = ?,
+                   UPT_MAN    = ?,
+                   UPT_YMD    = SYSDATE
+            WHERE  ENO_NO     = ?
+            AND    CON_YMD    = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 계약변경내역 데이터 삭제 -->
+    <sql name="MEMA022_DEL">
+        <description>계약변경내역 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_CONTRACT
+            WHERE  ENO_NO     = ?
+            AND    CON_YMD    = ?
+            AND    DEGREE_GBN = ?
+            AND    DISCOMP_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 인사마스터 반영 -->
+    <sql name="MEMA022_UPT_01">
+        <description>인사마스터 반영</description>
+        <query>
+            <![CDATA[
+			UPDATE T_ME_PERSON SET DISCOMP_CD = (SELECT DISCOMP_CD
+			                                     FROM  (SELECT *
+			                                            FROM   T_ME_CONTRACT
+			                                            WHERE  ENO_NO = ?
+			                                            ORDER BY CON_YMD DESC, CONS_YMD DESC)
+			                                     WHERE ROWNUM=1)
+			WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : memb040
+* @description : 파견사원급여처리
+***********************************************************************
+* 2007/02/06      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 급상여작업로그 데이터 조회 -->
+    <sql name="MEMB040_SHR_00">
+        <description>급상여작업로그 조회 (존재여부 CHECK) </description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YY, PIS_MM, OCC_CD, SAL_GBN, PRO_STS, PRO_CNT, ERR_CNT
+            FROM   T_CP_WORKLOG
+            WHERE  PIS_YY  = SUBSTR(?, 1, 4)
+            AND    PIS_MM  = SUBSTR(?, 5, 2)
+            AND    OCC_CD  = ' '
+            AND    SAL_GBN = '0'
+            AND    SEQ     = '1'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견사원급여처리 데이터 조회 -->
+    <sql name="MEMB040_SHR_01">
+        <description>파견사원급여처리 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.PIS_YY,
+                   A.PIS_MM,
+                   SF_GET_COMMNAME('01', 'CA', B.DISCOMP_CD)      AS DISCOMP_NM,
+                   SF_GET_DPTNAME('01', 'A4', B.DPT_CD)           AS DPT_NM,
+                   A.ENO_NO,
+                   B.ENO_NM,
+                   TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD')               AS HIR_YMD,                -- 입사일,
+                   TO_CHAR(B.RET_YMD, 'YYYY-MM-DD')               AS RET_YMD,                -- 퇴사일,
+                   A.GUN_CNT,
+                   A.HOW_CNT,
+                   A.BAS_AMT,
+                   A.WEL_AMT,
+                   A.LSEV_AMT,
+                   A.HOW_AMT,
+                   A.BAS_AMT + A.WEL_AMT + A.LSEV_AMT AS SUM_AMT
+            FROM   T_ME_APYMST A,
+                 ( SELECT PSN.ENO_NO, CON.DISCOMP_CD, CON.CONS_YMD, CON.CONE_YMD,
+                          PSN.ENO_NM, PSN.DPT_CD,     PSN.HIR_YMD,  PSN.RET_YMD
+                   FROM   T_ME_CONTRACT CON,
+                          T_ME_PERSON PSN
+                   WHERE  CON.ENO_NO LIKE ? || '%'
+                   AND    CON.ENO_NO = PSN.ENO_NO
+                   AND    CON.CON_YMD = ( SELECT MAX(CON_YMD)
+                                          FROM   T_ME_CONTRACT
+                                          WHERE  ENO_NO   = CON.ENO_NO
+                                          AND    CONS_YMD <= ?||'31'
+                                          AND    CONE_YMD >  ?||'01'
+                                          AND    DISCOMP_CD LIKE ? || '%'
+                                        )
+                   AND    CON.DISCOMP_CD LIKE ? || '%'
+                 ) B
+            WHERE  A.PIS_YY  = SUBSTR(?, 1, 4)
+            AND    A.PIS_MM  = SUBSTR(?, 5, 2)
+            AND    A.ENO_NO  LIKE ? || '%'
+            AND    A.ENO_NO  = B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견사원급여처리 데이터 수정 -->
+    <sql name="MEMB040_UPT">
+        <description>파견사원급여처리 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_APYMST
+            SET    GUN_CNT    = ?,
+                   HOW_CNT    = ?,
+                   UPT_MAN    = ?,
+                   UPT_YMD    = SYSDATE
+            WHERE  PIS_YY     = ?
+            AND    PIS_MM     = ?
+            AND    ENO_NO     = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견사원급여처리 데이터 삭제 -->
+    <sql name="MEMB040_DEL">
+        <description>파견사원급여처리 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_APYMST
+            WHERE  PIS_YY     = ?
+            AND    PIS_MM     = ?
+            AND    ENO_NO     = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : memb050
+* @description : 용역비지급기준
+***********************************************************************
+* 2007/02/05      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 용역비지급기준 데이터 조회 -->
+    <sql name="MEMB050_SHR">
+        <description>용역비지급기준 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DISJOB_CD,                                                               -- 담당업무코드
+                   SF_GET_COMMNAME('01', 'C9', DISJOB_CD)                   AS DISJOB_NM,   -- 담당업무
+                   TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS STR_YMD,     -- 시작일
+                   TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS END_YMD,     -- 폐기일
+                   LSEV1_AMT,                                                               -- 6개월이상근족장려금
+                   LSEV2_AMT,                                                               -- 12개월이상근족장려금
+                   LSEV3_AMT,                                                               -- 18개월이상근족장려금
+                   WEL_AMT,                                                                 -- 기타수당
+                   REMARK                                                                   -- 비고
+            FROM   T_ME_DISBASMST
+            WHERE  DISJOB_CD LIKE ? || '%'
+            AND    STR_YMD >= ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 용역비지급기준 데이터 생성 -->
+    <sql name="MEMB050_INS">
+        <description>용역비지급기준 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ME_DISBASMST
+                  ( DISJOB_CD, STR_YMD, END_YMD, LSEV1_AMT, LSEV2_AMT, LSEV3_AMT, WEL_AMT, REMARK, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                  ( ?,         ?,       ?,       ?,         ?,         ?,         ?,       ?,      ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 용역비지급기준 데이터 수정 -->
+    <sql name="MEMB050_UPT">
+        <description>용역비지급기준 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ME_DISBASMST
+            SET    END_YMD   = ?,
+                   LSEV1_AMT = ?,
+                   LSEV2_AMT = ?,
+                   LSEV3_AMT = ?,
+                   WEL_AMT   = ?,
+                   REMARK    = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  DISJOB_CD = ?
+            AND    STR_YMD   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 용역비지급기준 데이터 수정 -->
+    <sql name="MEMB050_DEL">
+        <description>용역비지급기준 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ME_DISBASMST
+            WHERE  DISJOB_CD = ?
+            AND    STR_YMD   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB060
+* @description : 파견대상업무코드관리
+***********************************************************************
+* 2006/09/20     한학현        최초작성(공통코드).
+* 2007/01/23     박인이
+***********************************************************************
+-->
+    <!-- 코드,코드명에 따른 데이터 조회 -->
+    <sql name="MEMB060_SHR">
+        <description>파견대상업무코드 검색</description>
+        <query>
+            <![CDATA[
+            SELECT COMM_CD,
+                   COMM_NM
+            FROM   T_CM_COMMON
+            WHERE  GUBUN = ?
+            AND    CD_GBN = '**'
+            AND    ( COMM_CD = 'C8'
+            OR       COMM_CD = 'C9' )
+            AND    ( COMM_CD LIKE ?||'%'
+            OR       COMM_NM LIKE ?||'%' )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 코드에 따른 파견대상업무코드 상세 데이터 조회 -->
+    <sql name="MEMB060_SHR_01">
+        <description>파견대상업무코드 상세 검색</description>
+        <query>
+            <![CDATA[
+            SELECT CD_GBN,
+                   COMM_CD,
+                   COMM_NM,                                             --공통코드 명칭
+                   COMM_NM2,                                            --공통코드 명칭2
+                   SORT_NO,                                             --display sorting 순서
+                   EXT_01,                                              --기타 항목1
+                   EXT_02,                                              --기타 항목2
+                   EXT_03,                                              --기타 항목3
+                   EXT_04,                                              --기타 항목4
+                   OTH_DEC,                                             --기타 비고사항
+                   TO_CHAR(END_YMD, 'YYYY-MM-DD') AS END_YMD            --코드 사용기간(종료,폐기일)
+            FROM   T_CM_COMMON
+            WHERE  GUBUN  = ?
+            and    CD_GBN = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견대상업무코드 신규 저장 -->
+    <sql name="MEMB060_INS">
+        <description>파견대상업무코드 상세 등록</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CM_COMMON
+                 ( GUBUN,  CD_GBN,  COMM_CD, COMM_NM, COMM_NM2, SORT_NO, EXT_01,  EXT_02, EXT_03,
+                   EXT_04, OTH_DEC, STR_YMD, END_YMD, IPT_MAN,  IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 ( ?,      ?,       ?,       ?,       ?,        ?,       ?,       ?,      ?,
+                   ?,      ?,       SYSDATE, ?,       ?,        SYSDATE, ?,       SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견대상업무코드 수정 -->
+    <sql name="MEMB060_UPT">
+        <description>파견대상업무코드 상세 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_COMMON
+            SET    COMM_NM  = ?,                      --공통코드 명칭
+                   COMM_NM2 = ?,                      --공통코드 명칭2
+                   SORT_NO  = ?,                      --display sorting 순서
+                   EXT_01   = ?,                      --기타 항목1
+                   EXT_02   = ?,                      --기타 항목2
+                   EXT_03   = ?,                      --기타 항목3
+                   EXT_04   = ?,                      --기타 항목4
+                   OTH_DEC  = ?,                      --기타 비고사항
+                   END_YMD  = ?,                      --코드 사용기간(종료,폐기일)
+                   UPT_MAN  = ?,                      --최종 수정자
+                   UPT_YMD  = sysdate                 --최종 수정일시
+            where  GUBUN    = ?                       --회계 단위
+            AND    CD_GBN   = ?                       --공통 코드 구분
+            AND    COMM_CD  = ?                       --공통 코드
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견대상업무코드 삭제 -->
+    <sql name="MEMB060_DEL">
+        <description>파견대상업무코드 상세 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_CM_COMMON
+            WHERE  GUBUN   = ?
+            AND    CD_GBN  = ?
+            AND    COMM_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB010
+* @description : 파견사원근태현황
+***********************************************************************
+* 2007/03/12     김학수        최초작성
+***********************************************************************
+-->
+    <!-- 파견사원근태현황 조회 -->
+    <sql name="MEMB010_SHR">
+        <description>파견사원근태현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.PIS_YY||'.'||A.PIS_MM                                    GUBUN_YM    --년도
+				  ,DECODE(A.AT1_CD,'W','O','Y','X','H','년','J','보')         "1"
+				  ,DECODE(A.AT2_CD,'W','O','Y','X','H','년','J','보')         "2"
+				  ,DECODE(A.AT3_CD,'W','O','Y','X','H','년','J','보')         "3"
+				  ,DECODE(A.AT4_CD,'W','O','Y','X','H','년','J','보')         "4"
+				  ,DECODE(A.AT5_CD,'W','O','Y','X','H','년','J','보')         "5"
+				  ,DECODE(A.AT6_CD,'W','O','Y','X','H','년','J','보')         "6"
+				  ,DECODE(A.AT7_CD,'W','O','Y','X','H','년','J','보')         "7"
+				  ,DECODE(A.AT8_CD,'W','O','Y','X','H','년','J','보')         "8"
+				  ,DECODE(A.AT9_CD,'W','O','Y','X','H','년','J','보')         "9"
+				  ,DECODE(A.AT10_CD,'W','O','Y','X','H','년','J','보')        "10"
+				  ,DECODE(A.AT11_CD,'W','O','Y','X','H','년','J','보')        "11"
+				  ,DECODE(A.AT12_CD,'W','O','Y','X','H','년','J','보')        "12"
+				  ,DECODE(A.AT13_CD,'W','O','Y','X','H','년','J','보')        "13"
+				  ,DECODE(A.AT14_CD,'W','O','Y','X','H','년','J','보')        "14"
+				  ,DECODE(A.AT15_CD,'W','O','Y','X','H','년','J','보')        "15"
+				  ,DECODE(A.AT16_CD,'W','O','Y','X','H','년','J','보')        "16"
+				  ,DECODE(A.AT17_CD,'W','O','Y','X','H','년','J','보')        "17"
+				  ,DECODE(A.AT18_CD,'W','O','Y','X','H','년','J','보')        "18"
+				  ,DECODE(A.AT19_CD,'W','O','Y','X','H','년','J','보')        "19"
+				  ,DECODE(A.AT20_CD,'W','O','Y','X','H','년','J','보')        "20"
+				  ,DECODE(A.AT21_CD,'W','O','Y','X','H','년','J','보')        "21"
+				  ,DECODE(A.AT22_CD,'W','O','Y','X','H','년','J','보')        "22"
+				  ,DECODE(A.AT23_CD,'W','O','Y','X','H','년','J','보')        "23"
+				  ,DECODE(A.AT24_CD,'W','O','Y','X','H','년','J','보')        "24"
+				  ,DECODE(A.AT25_CD,'W','O','Y','X','H','년','J','보')        "25"
+				  ,DECODE(A.AT26_CD,'W','O','Y','X','H','년','J','보')        "26"
+				  ,DECODE(A.AT27_CD,'W','O','Y','X','H','년','J','보')        "27"
+				  ,DECODE(A.AT28_CD,'W','O','Y','X','H','년','J','보')        "28"
+				  ,DECODE(A.AT29_CD,'W','O','Y','X','H','년','J','보')        "29"
+				  ,DECODE(A.AT30_CD,'W','O','Y','X','H','년','J','보')        "30"
+				  ,DECODE(A.AT31_CD,'W','O','Y','X','H','년','J','보')        "31"
+				  ,B.ENO_NM                                                   ENO_NM    --성명
+				  ,TO_CHAR(B.HIR_YMD,'YYYY.MM.DD')							  HIR_YMD   --입사일
+				  ,(SELECT COMM_NM FROM T_CM_COMMON WHERE COMM_CD = B.DISCOMP_CD AND CD_GBN = 'CA')    COMM_NM   --파견회사
+				  ,(SELECT DPT_NM
+					  FROM T_CM_DEPT
+					 WHERE GUBUN  = '01'
+					   AND CD_GBN = 'A4'
+					   AND DPT_CD = B.DISDPT_CD )                       DPT_NM                  --근무부서
+		     FROM T_DI_DILIGENCE A, T_ME_PERSON B
+            WHERE A.ENO_NO = ?
+		      AND A.PIS_YY = ?
+		      AND A.PIS_MM >= ? AND A.PIS_MM <= ?
+		      AND B.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB070
+* @description : 파견사원 입퇴사자 조회
+***********************************************************************
+* 2007/03/12     김학수        최초작성
+***********************************************************************
+-->
+    <!-- 파견사원근태현황 조회 -->
+    <sql name="MEMB070_SHR">
+        <description>파견사원 입퇴사자 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SF_GET_DPTNAME('01', 'A4', DPT_CD)           AS DPT_NM											--소속명
+				  ,ENO_NM					AS ENO_NM										                        --성명
+				  ,JOB_TAG																							--담당업무
+				  ,CEIL(MONTHS_BETWEEN(SYSDATE, BIR_YMD)/12)-1  AGE													--나이
+				  ,CASE WHEN EDGR_CD = '2' THEN SF_GET_COMMNAME('01',  'E8', SCH_CD)
+									WHEN EDGR_CD = '3' THEN SF_GET_COMMNAME('01',  'E2', SCH_CD)
+									WHEN EDGR_CD = '4' THEN SF_GET_COMMNAME('01',  'E3', SCH_CD)
+									WHEN EDGR_CD = '5' THEN SF_GET_COMMNAME('01',  'E4', SCH_CD)
+									WHEN EDGR_CD = '6' THEN SF_GET_COMMNAME('01',  'E5', SCH_CD)
+									WHEN EDGR_CD = '7' THEN SF_GET_COMMNAME('01',  'E5', SCH_CD)
+									WHEN EDGR_CD = '8' THEN SF_GET_COMMNAME('01',  'E5', SCH_CD)
+									ELSE ''
+							   END  AS SCH_NM																		--학교명
+				  ,SF_GET_COMMNAME('01',  'E6', MAJ_CD)                  AS MAJ_NM									--학과명
+				  ,TO_CHAR(DECODE(RHI_YMD,NULL,HIR_YMD,RHI_YMD),'YYYY-MM-DD')   AS RHI_YMD								    --입사일
+				  ,TO_CHAR(RET_YMD,'YYYY-MM-DD') 	                    AS RET_YMD                      	        --퇴사일
+				  ,(SELECT COMM_NM FROM T_CM_COMMON WHERE COMM_CD = A.DISCOMP_CD AND CD_GBN = 'CA')   AS COMM_NM    --파견업체
+				  ,"REMARK"																							--비고
+				  ,HIR_TAG																							--채용사유
+			  FROM T_ME_PERSON A
+			 [1]
+			  ORDER BY SF_GET_DPTSEQ('01','A4',DPT_CD)
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB080
+* @description : 파견사원 입퇴사자 현황
+***********************************************************************
+* 2007/03/15     김학수        최초작성
+***********************************************************************
+-->
+    <!-- 파견사원근태현황 조회 -->
+    <sql name="MEMB080_SHR">
+        <description>파견사원 입퇴사자 현황</description>
+        <query>
+            <![CDATA[
+            SELECT G.GUBUN                                                GUBUN
+				  ,DECODE(G.GUBUN,'1','본사','9','지방','99','담당업무')  GUBUN_NM
+				  ,G.COMM_CD								              COMM_CD
+				  ,G.COMM_NM								              COMM_NM
+				  ,P.STR_G                 					              STR_G								--시작달
+				  ,P.END_G                 					              END_G								--끝나는달
+				  ,DECODE(NVL(P.END_G,0)-NVL(P.STR_G,0),0,'',NVL(P.END_G,0)-NVL(P.STR_G,0))  DIF			--소계
+				  ,P.HIR_G                 					              HIR								--입사
+				  ,P.APPIN_G                 			                  APPIN								--전입
+				  ,DECODE(NVL(P.HIR_G,0) + NVL(P.APPIN_G,0),0,'',NVL(P.HIR_G,0) + NVL(P.APPIN_G,0))  TOT1	--소계
+				  ,P.RET_G                 					              RET								--퇴사
+				  ,P.APPOUT_G                 				              APPRET							--전출
+				  ,P.CHNG_G                 				              CHNG								--계약직 전환
+				  ,DECODE(NVL(P.RET_G,0) + NVL(APPOUT_G,0) + NVL(CHNG_G,0),0,'',NVL(P.RET_G,0) + NVL(APPOUT_G,0) + NVL(CHNG_G,0))      TOT2  --소계
+			  FROM
+					(
+					        -- 총계
+							SELECT '0'                 GUBUN
+								  ,'0'                 COMM_CD
+								  ,''                  COMM_NM
+							  FROM DUAL
+						UNION ALL
+						    -- 지역
+							SELECT GBN2_TAG   GUBUN
+								  ,MAX(B.COMM_CD)      COMM_CD
+								  ,MAX(B.COMM_NM)      COMM_NM
+							  FROM
+							  (
+							  SELECT GBN2_TAG
+									,UPDPT_CD AS HEAD_CD
+								FROM T_CM_DEPT
+							   WHERE CD_GBN = 'A4'
+								 AND (END_YMD>=? OR END_YMD IS NULL)
+							  ) A,
+							  (
+							  SELECT DPT_CD AS COMM_CD
+								   , DPT_NM AS COMM_NM
+								FROM T_CM_DEPT
+							   WHERE CD_GBN = 'B2'
+							  ) B
+							WHERE A.HEAD_CD = B.COMM_CD
+							GROUP BY  GBN2_TAG, HEAD_CD
+						UNION ALL
+						    -- 담당업무
+							SELECT '99'   GUBUN
+								  ,COMM_CD
+								  ,COMM_NM
+							  FROM T_CM_COMMON
+							 WHERE CD_GBN = 'C9'
+					) G,
+					(
+					SELECT DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),GUBUN)                 GUBUN
+						  ,DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),HEAD_CD)               HEAD_CD
+						  ,SUM(DECODE(CNT_G,'STR',CNT))                 STR_G
+						  ,SUM(DECODE(CNT_G,'END',CNT))                 END_G
+						  ,SUM(DECODE(CNT_G,'HIR',CNT))                 HIR_G
+						  ,SUM(DECODE(CNT_G,'RET',CNT))                 RET_G
+						  ,SUM(DECODE(CNT_G,'APP_IN',CNT))              APPIN_G
+						  ,SUM(DECODE(CNT_G,'APP_OUT',CNT))             APPOUT_G
+						  ,SUM(DECODE(CNT_G,'CHNG',CNT))                CHNG_G
+					  FROM (
+								-- 시작 달(지역)
+								SELECT 'STR'         CNT_G
+									  ,A.HEAD_CD
+									  ,D.GBN2_TAG   GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON A, T_CM_DEPT D
+								 WHERE (To_Char(RET_YMD,'yyyymmdd') > ? OR RET_YMD IS NULL)
+								   AND To_Char(HIR_YMD,'yyyymmdd') <= ?
+                   				   AND D.CD_GBN = 'A4'
+								   AND D.DPT_CD = A.DPT_CD
+								 GROUP BY A.HEAD_CD, GBN2_TAG
+
+							UNION ALL
+								 -- 끝나는 달(지역)
+								 SELECT 'END'        CNT_G
+									  ,A.HEAD_CD
+									  ,D.GBN2_TAG   GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON A, T_CM_DEPT D
+								 WHERE (To_Char(RET_YMD,'yyyymmdd') > ? OR RET_YMD IS NULL)
+								   AND To_Char(HIR_YMD,'yyyymmdd') <= ?
+                   				   AND D.CD_GBN = 'A4'
+								   AND D.DPT_CD = A.DPT_CD
+								 GROUP BY A.HEAD_CD, GBN2_TAG
+							UNION ALL
+								 -- 입사(지역)
+								 SELECT 'HIR'        CNT_G
+									  ,A.HEAD_CD
+									  ,D.GBN2_TAG   GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON A, T_CM_DEPT D
+								 WHERE To_Char(HIR_YMD,'yyyymmdd') >= ? AND To_Char(HIR_YMD,'yyyymmdd') <= ?
+                      				  AND D.CD_GBN = 'A4'
+								      AND D.DPT_CD = A.DPT_CD
+								 GROUP BY A.HEAD_CD, D.GBN2_TAG
+							UNION ALL
+								 -- 퇴사(지역)
+								 SELECT 'RET'        CNT_G
+									  ,A.HEAD_CD
+									  ,D.GBN2_TAG   GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON A, T_CM_DEPT D
+								 WHERE To_Char(RET_YMD,'yyyymmdd') >= ? AND To_Char(RET_YMD,'yyyymmdd') <= ?
+                      				  AND D.CD_GBN = 'A4'
+								      AND D.DPT_CD = A.DPT_CD
+								 GROUP BY A.HEAD_CD, D.GBN2_TAG
+							UNION ALL
+								-- 전입(지역)
+								SELECT 'APP_IN'          CNT_G
+									  ,D.UPDPT_CD        HEAD_CD
+									  ,GBN2_TAG          GUBUN
+									  ,COUNT(A.DPT_CD)   CNT
+								  FROM T_ME_AHISTORY A, T_CM_DEPT D
+								 WHERE A.STR_YMD >= ? AND A.STR_YMD <= ?
+								   AND D.CD_GBN = 'A4'
+								   AND D.DPT_CD = A.DPT_CD
+								   AND A.APP_CD = 'LB1'
+								 GROUP BY D.UPDPT_CD, GBN2_TAG
+							UNION ALL
+								-- 전출(지역)
+								SELECT 'APP_OUT'         CNT_G
+									  ,D.UPDPT_CD        HEAD_CD
+									  ,GBN2_TAG          GUBUN
+									  ,COUNT(A.DPT_CD)   CNT
+								  FROM
+									  (
+									   SELECT STR_YMD
+											 ,SF_GET_PREDPTCD2(ENO_NO, STR_YMD, SEQ_NO)     DPT_CD
+										 FROM T_ME_AHISTORY
+										WHERE STR_YMD >= ? AND STR_YMD <= ?
+										  AND APP_CD = 'LB1'
+									  ) A, T_CM_DEPT D
+								 WHERE D.CD_GBN = 'A4'
+								   AND D.DPT_CD = A.DPT_CD
+								 GROUP BY GBN2_TAG, D.UPDPT_CD
+							UNION ALL
+								 -- 계약직 전환(지역)
+								 SELECT 'CHNG'        CNT_G
+									  ,A.HEAD_CD
+									  ,GBN2_TAG   GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON A, T_CM_DEPT D
+								 WHERE To_Char(CHNG_YMD,'yyyymmdd') >= ? AND To_Char(CHNG_YMD,'yyyymmdd') <= ? AND CHNG_YMD IS NOT NULL
+                      				AND D.CD_GBN = 'A4'
+  								    AND D.DPT_CD = A.DPT_CD
+								 GROUP BY A.HEAD_CD, D.GBN2_TAG
+							UNION ALL
+
+							   -- 시작 달(담당업무)
+							   SELECT 'STR'         CNT_G
+									  ,DISDPT_CD     HEAD_CD
+									  ,'99'           GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON A
+								 WHERE (To_Char(RET_YMD,'yyyymmdd') > ? OR RET_YMD IS NULL)
+								   AND To_Char(HIR_YMD,'yyyymmdd') <= ?
+								 GROUP BY DISDPT_CD
+							UNION ALL
+								-- 끝나는 달(담당업무)
+								SELECT 'END'        CNT_G
+									  ,DISDPT_CD     HEAD_CD
+									  ,'99'           GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON
+								 WHERE (To_Char(RET_YMD,'yyyymmdd') > ? OR RET_YMD IS NULL)
+								   AND To_Char(HIR_YMD,'yyyymmdd') <= ?
+								 GROUP BY DISDPT_CD
+							UNION ALL
+								-- 입사(담당업무)
+								SELECT 'HIR'        CNT_G
+									  ,DISDPT_CD     HEAD_CD
+									  ,'99'           GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON
+								 WHERE To_Char(HIR_YMD,'yyyymmdd') >= ? AND To_Char(HIR_YMD,'yyyymmdd') <= ?
+								 GROUP BY DISDPT_CD
+							UNION ALL
+								-- 퇴사(담당업무)
+								SELECT 'RET'        CNT_G
+									  ,DISDPT_CD     HEAD_CD
+									  ,'99'           GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON
+								 WHERE To_Char(RET_YMD,'yyyymmdd') >= ? AND To_Char(RET_YMD,'yyyymmdd') <= ?
+								 GROUP BY DISDPT_CD
+							UNION ALL
+								-- 전입(담당업무)
+								SELECT 'APP_IN'          CNT_G
+									  ,DISDPT_CD         HEAD_CD
+									  ,'99'               GUBUN
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_AHISTORY
+								 WHERE STR_YMD >= ? AND STR_YMD <= ?
+								   AND APP_CD = 'LB1'
+								 GROUP BY DISDPT_CD
+							UNION ALL
+								-- 전출(담당업무)
+								SELECT 'APP_OUT'         CNT_G
+									  ,DISDPT_CD         HEAD_CD
+									  ,'99'               GUBUN
+									  ,COUNT(STR_YMD)    CNT
+								  FROM (
+									   SELECT STR_YMD
+											 ,SF_GET_PREDISDPTCD2(ENO_NO, STR_YMD, SEQ_NO)     DISDPT_CD
+										 FROM T_ME_AHISTORY
+										WHERE STR_YMD >= ? AND STR_YMD <= ?
+										  AND APP_CD = 'LB1'
+									   )
+								 GROUP BY DISDPT_CD
+							UNION ALL
+								 -- 계약직 전환(담당업무)
+								 SELECT 'CHNG'        CNT_G
+									  ,DISDPT_CD      HEAD_CD
+									  ,'99'           GUBUN
+									  ,COUNT(ENO_NO)  CNT
+								  FROM T_ME_PERSON
+								 WHERE To_Char(CHNG_YMD,'yyyymmdd') >= ? AND To_Char(CHNG_YMD,'yyyymmdd') <= ? AND CHNG_YMD IS NOT NULL
+								 GROUP BY DISDPT_CD
+						  ) A,
+						  (
+						   SELECT ROWNUM  INT
+							 FROM DICT
+							WHERE ROWNUM <= 2
+						  ) COPYT
+					 GROUP BY  DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),GUBUN)
+							  ,DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),HEAD_CD)
+					) P
+			 WHERE G.COMM_CD = P.HEAD_CD(+)
+			   AND G.GUBUN = P.GUBUN(+)
+			 ORDER BY G.GUBUN, COMM_CD
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB120
+* @description : 소속별 파견사원 현황
+***********************************************************************
+* 2007/03/16     김학수        최초작성
+***********************************************************************
+-->
+    <!-- 소속별 파견사원 현황 -->
+    <sql name="MEMB120_SHR">
+        <description>소속별 파견사원 현황</description>
+        <query>
+            <![CDATA[
+            SELECT DPT_CD, DPT_NM, DPTSEQ,
+                   ENO_NO, ENO_NM, CET_NO,
+                   DISDPT_CD, DISDPT_NM,
+                  (SELECT EXT_01 FROM T_CM_COMMON WHERE CD_GBN='CA' AND COMM_CD=DISCOMP_CD) AS EXT_01,
+                  (SELECT EXT_02 FROM T_CM_COMMON WHERE CD_GBN='CA' AND COMM_CD=DISCOMP_CD) AS EXT_02,
+                   CONSE_YMD1, CONSE_YMD2,
+                   DISCOMP_CD, DISCOMP_NM, REMARK
+            FROM  (SELECT D.DPT_CD                                 AS DPT_CD
+                         ,D.DPT_NM                                 AS DPT_NM      -- 근무부서
+                         ,SF_GET_DPTSEQ('01', 'A4', D.DPT_CD)      AS DPTSEQ
+                         ,P.ENO_NO                                 AS ENO_NO
+                         ,P.ENO_NM                                 AS ENO_NM      -- 성명
+                         ,P.CET_NO                                 AS CET_NO      -- 주민번호
+                         ,P.DISDPT_CD                              AS DISDPT_CD
+                         ,SF_GET_COMMNAME('01', 'C9', P.DISDPT_CD) AS DISDPT_NM   -- 담당업무
+                         ,P.CONSE_YMD1                             AS CONSE_YMD1  -- 1차 계약기간
+                         ,P.CONSE_YMD2                             AS CONSE_YMD2  -- 2차 계약기간
+                         ,P.DISCOMP_CD                             AS DISCOMP_CD
+                         ,SF_GET_COMMNAME('01','CA', P.DISCOMP_CD) AS DISCOMP_NM  -- 파견업체
+                         ,P.REMARK                                 AS REMARK      -- 비고
+                   FROM  (SELECT DPT_CD
+                                ,DPT_NM
+                          FROM   T_CM_DEPT
+                          WHERE  CD_GBN = 'A4'
+                          AND   (END_YMD>? OR END_YMD IS NULL)
+                         ) D,
+                         (SELECT DPT_CD
+                                ,ENO_NO
+                                ,ENO_NM
+                                ,CET_NO
+                                ,DISDPT_CD
+                                ,DISCOMP_CD
+                                ,(SELECT DECODE(CONS_YMD,NULL,'','','',TO_CHAR(TO_DATE(CONS_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')||' ~ '||TO_CHAR(TO_DATE(CONE_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD'))
+                                  FROM   T_ME_CONTRACT
+                                  WHERE  ENO_NO = A.ENO_NO
+                                  AND    DEGREE_GBN = '1'
+                                 ) AS CONSE_YMD1
+                                ,(SELECT DECODE(CONS_YMD,NULL,'','','',TO_CHAR(TO_DATE(CONS_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')||' ~ '||TO_CHAR(TO_DATE(CONE_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD'))
+                                  FROM   T_ME_CONTRACT
+                                  WHERE  ENO_NO = A.ENO_NO
+                                  AND    DEGREE_GBN = '2'
+                                 ) AS CONSE_YMD2
+                                ,DECODE(RET_YMD,NULL,'',TO_CHAR(RET_YMD,'MM/DD')||' 퇴사') AS REMARK
+                          FROM  (SELECT ENO_NO, ENO_NM, CET_NO, DPT_CD, DISDPT_CD, CHNG_YMD,
+                                        HIR_YMD, RET_YMD, DISCOMP_CD,
+                                        CASE WHEN LAST_DAY(TO_CHAR(SYSDATE,'YYYYMMDD')) > RET_YMD
+                                             THEN MONTHS_BETWEEN(RET_YMD, HIR_YMD)
+                                             ELSE MONTHS_BETWEEN(LAST_DAY(TO_CHAR(SYSDATE,'YYYYMMDD')), HIR_YMD)
+                                        END AS TERM_YMD_VAL
+                                 FROM   T_ME_PERSON) A
+                          WHERE (TO_CHAR(RET_YMD,'YYYYMM') = SUBSTR(?,1,6) OR RET_YMD IS NULL)
+                          AND    HIR_YMD <= ?
+                         ) P
+                   WHERE  D.DPT_CD = P.DPT_CD(+)
+                   ORDER BY SF_GET_DPTSEQ('01', 'A4', D.DPT_CD), P.ENO_NO)
+            WHERE  ENO_NM IS NOT NULL
+            ]]>
+        </query>
+    </sql>
+    <!-- 회사정보 -->
+    <sql name="MEMB120_COMPANY">
+        <description>회사정보</description>
+        <query>
+            <![CDATA[
+            	SELECT COMP_NM, PRESIDENT_NM, ADDRESS_HD  FROM T_CM_COMPANY
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB090
+* @description : 월별 파견사원 입퇴사자 현황
+***********************************************************************
+* 2007/03/17     김학수        최초작성
+***********************************************************************
+-->
+    <!-- 월별 파견사원 입퇴사자 현황 -->
+    <sql name="MEMB090_SHR">
+        <description>월별 파견사원 입퇴사자 현황 조회</description>
+        <query>
+            <![CDATA[
+              SELECT T.GUBUN       							  GUBUN
+			        ,DECODE(INT,'1','0','2',T.COMM_CD)        COMM_CD
+					,DECODE(INT,'1','계','2',T.COMM_NM)       COMM_NM
+					,DECODE(NVL(SUM("1_RET"),0) - NVL(SUM("1_HIR"),0),0,'',NVL(SUM("1_RET"),0) - NVL(SUM("1_HIR"),0))    AS "1_DIF"   --본사행정지원계
+					,SUM("1_HIR")                             							 	   	 						 AS "1_HIR"   --입사
+                    ,SUM("1_RET")                             							 								 AS "1_RET"   --퇴사
+					,DECODE(NVL(SUM("2_RET"),0) - NVL(SUM("2_HIR"),0),0,'',NVL(SUM("2_RET"),0) - NVL(SUM("2_HIR"),0))    AS "2_DIF"   --지점행정지원계
+                    ,SUM("2_HIR")                             							 	   	 						 AS "2_HIR"   --입사
+                    ,SUM("2_RET")                             							 	   	  		   				 AS "2_RET"	  --퇴사
+					,DECODE(NVL(SUM("3_RET"),0) - NVL(SUM("3_HIR"),0),0,'',NVL(SUM("3_RET"),0) - NVL(SUM("3_HIR"),0))    AS "3_DIF"   --상하차&세무계
+                    ,SUM("3_HIR")                             							 	   	 						 AS "3_HIR"   --입사
+                    ,SUM("3_RET")                             							 								 AS "3_RET"   --퇴사
+					,DECODE(NVL(SUM("4_RET"),0) - NVL(SUM("4_HIR"),0),0,'',NVL(SUM("4_RET"),0) - NVL(SUM("4_HIR"),0))    AS "4_DIF"   --TM계
+                    ,SUM("4_HIR")                             							 	   	 						 AS "4_HIR"   --입사
+                    ,SUM("4_RET")                             							 								 AS "4_RET"	  --퇴사
+					,DECODE(NVL(SUM("5_RET"),0) - NVL(SUM("5_HIR"),0),0,'',NVL(SUM("5_RET"),0) - NVL(SUM("5_HIR"),0))    AS "5_DIF"   --문서수발계
+                    ,SUM("5_HIR")                             							 	   	 						 AS "5_HIR"   --입사
+                    ,SUM("5_RET")                             							 								 AS "5_RET"   --퇴사
+					,DECODE(NVL(SUM("6_RET"),0) - NVL(SUM("6_HIR"),0),0,'',NVL(SUM("6_RET"),0) - NVL(SUM("6_HIR"),0))    AS "6_DIF"   --B/L계
+                    ,SUM("6_HIR")                             							 	   	 						 AS "6_HIR"   --입사
+                    ,SUM("6_RET")                            							 								 AS "6_RET"	  --퇴사
+					,DECODE(NVL(SUM("7_RET"),0) - NVL(SUM("7_HIR"),0),0,'',NVL(SUM("7_RET"),0) - NVL(SUM("7_HIR"),0))    AS "7_DIF"   --운전계
+                    ,SUM("7_HIR")                             							 	   	 						 AS "7_HIR"   --입사
+                    ,SUM("7_RET")                             							 								 AS "7_RET"	  --퇴사
+					,DECODE(NVL(SUM("1_RET"),0) - NVL(SUM("1_HIR"),0)
+					      + NVL(SUM("2_RET"),0) - NVL(SUM("2_HIR"),0)
+					      + NVL(SUM("3_RET"),0) - NVL(SUM("3_HIR"),0)
+					      + NVL(SUM("4_RET"),0) - NVL(SUM("4_HIR"),0)
+					      + NVL(SUM("5_RET"),0) - NVL(SUM("5_HIR"),0)
+					      + NVL(SUM("6_RET"),0) - NVL(SUM("6_HIR"),0)
+					      + NVL(SUM("7_RET"),0) - NVL(SUM("7_HIR"),0),0,'',
+						    NVL(SUM("1_RET"),0) - NVL(SUM("1_HIR"),0)
+					      + NVL(SUM("2_RET"),0) - NVL(SUM("2_HIR"),0)
+					      + NVL(SUM("3_RET"),0) - NVL(SUM("3_HIR"),0)
+					      + NVL(SUM("4_RET"),0) - NVL(SUM("4_HIR"),0)
+					      + NVL(SUM("5_RET"),0) - NVL(SUM("5_HIR"),0)
+					      + NVL(SUM("6_RET"),0) - NVL(SUM("6_HIR"),0)
+					      + NVL(SUM("7_RET"),0) - NVL(SUM("7_HIR"),0))                                                  AS DIF_TOT    --계계
+					,DECODE(NVL(SUM("1_HIR"),0) + NVL(SUM("2_HIR"),0) + NVL(SUM("3_HIR"),0) + NVL(SUM("4_HIR"),0)
+					   	  + NVL(SUM("5_HIR"),0) + NVL(SUM("6_HIR"),0) + NVL(SUM("7_HIR"),0),0,'',
+						    NVL(SUM("1_HIR"),0) + NVL(SUM("2_HIR"),0) + NVL(SUM("3_HIR"),0) + NVL(SUM("4_HIR"),0)
+					   	  + NVL(SUM("5_HIR"),0) + NVL(SUM("6_HIR"),0) + NVL(SUM("7_HIR"),0))                            AS HIR_TOT    --입사계
+					,DECODE(NVL(SUM("1_RET"),0) + NVL(SUM("2_RET"),0) + NVL(SUM("3_RET"),0) + NVL(SUM("4_RET"),0)
+					   	  + NVL(SUM("5_RET"),0) + NVL(SUM("6_RET"),0) + NVL(SUM("7_RET"),0),0,'',
+						    NVL(SUM("1_RET"),0) + NVL(SUM("2_RET"),0) + NVL(SUM("3_RET"),0) + NVL(SUM("4_RET"),0)
+					   	  + NVL(SUM("5_RET"),0) + NVL(SUM("6_RET"),0) + NVL(SUM("7_RET"),0))                            AS RET_TOT    --퇴사계
+			    FROM
+					  (
+					  SELECT P.GUBUN
+							,P.COMM_CD
+							,P.COMM_NM
+					        ,MAX(DECODE(P.CNT_G,'HIR',DECODE(C.NUM,'1',P.ENO_NO)))  AS "1_HIR"
+					        ,MAX(DECODE(P.CNT_G,'RET',DECODE(C.NUM,'1',P.ENO_NO)))  AS "1_RET"
+							,MAX(DECODE(P.CNT_G,'HIR',DECODE(C.NUM,'2',P.ENO_NO)))  AS "2_HIR"
+					        ,MAX(DECODE(P.CNT_G,'RET',DECODE(C.NUM,'2',P.ENO_NO)))  AS "2_RET"
+							,MAX(DECODE(P.CNT_G,'HIR',DECODE(C.NUM,'3',P.ENO_NO)))  AS "3_HIR"
+					        ,MAX(DECODE(P.CNT_G,'RET',DECODE(C.NUM,'3',P.ENO_NO)))  AS "3_RET"
+							,MAX(DECODE(P.CNT_G,'HIR',DECODE(C.NUM,'4',P.ENO_NO)))  AS "4_HIR"
+					        ,MAX(DECODE(P.CNT_G,'RET',DECODE(C.NUM,'4',P.ENO_NO)))  AS "4_RET"
+							,MAX(DECODE(P.CNT_G,'HIR',DECODE(C.NUM,'5',P.ENO_NO)))  AS "5_HIR"
+					        ,MAX(DECODE(P.CNT_G,'RET',DECODE(C.NUM,'5',P.ENO_NO)))  AS "5_RET"
+							,MAX(DECODE(P.CNT_G,'HIR',DECODE(C.NUM,'6',P.ENO_NO)))  AS "6_HIR"
+					        ,MAX(DECODE(P.CNT_G,'RET',DECODE(C.NUM,'6',P.ENO_NO)))  AS "6_RET"
+							,MAX(DECODE(P.CNT_G,'HIR',DECODE(C.NUM,'7',P.ENO_NO)))  AS "7_HIR"
+					        ,MAX(DECODE(P.CNT_G,'RET',DECODE(C.NUM,'7',P.ENO_NO)))  AS "7_RET"
+						FROM
+							 (
+								 SELECT X.CNT_G       CNT_G
+								       ,Y.GUBUN       GUBUN
+									   ,Y.COMM_CD     COMM_CD
+									   ,Y.COMM_NM     COMM_NM
+									   ,X.DISDPT_CD   DISDPT_CD
+									   ,COUNT(X.ENO_NO)      ENO_NO
+								   FROM
+										(
+							-- 실제데이타를 가져오는부분-----------
+										 SELECT 'HIR'        CNT_G        --입사
+										       ,REG_CD       GUBUN
+										       ,DISDPT_CD
+											   ,HEAD_CD
+											   ,ENO_NO   ENO_NO
+									      FROM T_ME_PERSON
+										 WHERE HIR_YMD >= ?||'01' AND HIR_YMD <= TO_CHAR(LAST_DAY(TO_DATE(?||'01','YYYYMMDD')),'YYYYMMDD')
+								     UNION ALL
+										 SELECT 'RET'        CNT_G        --퇴사
+										       ,REG_CD       GUBUN
+										       ,DISDPT_CD
+											   ,HEAD_CD
+											   ,ENO_NO   ENO_NO
+									      FROM T_ME_PERSON
+										 WHERE RET_YMD >= ?||'01' AND RET_YMD <= TO_CHAR(LAST_DAY(TO_DATE(?||'01','YYYYMMDD')),'YYYYMMDD')
+							---------------------------------------
+								        ) X,
+										(
+							-- outer join 에 사용될 코드값들을 생성하는부분-----
+										SELECT GUBUN
+											  ,MAX(B.COMM_CD)      COMM_CD
+											  ,MAX(B.COMM_NM)      COMM_NM
+										  FROM
+											  (
+											  SELECT DECODE(INT,'1','1','2','9','3','0')  GUBUN   -- 본사,지방,총계부분의 코드값을 본사코드값으로 고정
+											        ,HEAD_CD
+											    FROM
+													  (
+													  SELECT GBN2_TAG    GUBUN
+															,UPDPT_CD AS HEAD_CD
+														FROM T_CM_DEPT
+													   WHERE CD_GBN = 'A4'
+													     AND GBN2_TAG = '1'
+														 AND (END_YMD>=TO_CHAR(LAST_DAY(TO_DATE(?||'01','YYYYMMDD')),'YYYYMMDD') OR END_YMD IS NULL)
+												   	  ) D,
+													  (
+													   SELECT ROWNUM  INT
+														 FROM DICT
+														WHERE ROWNUM <= 3
+													  ) COPYT
+											  ) A,
+											  (
+											  SELECT DPT_CD AS COMM_CD
+												   , DPT_NM AS COMM_NM
+												FROM T_CM_DEPT
+											   WHERE CD_GBN = 'B2'
+											  ) B
+										WHERE A.HEAD_CD = B.COMM_CD
+										GROUP BY  A.GUBUN, HEAD_CD
+							-----------------------------------------------------
+										) Y
+							      WHERE X.GUBUN(+) = Y.GUBUN
+								    AND X.HEAD_CD(+) = Y.COMM_CD
+								  GROUP BY X.CNT_G, Y.GUBUN, Y.COMM_CD, Y.COMM_NM, X.DISDPT_CD
+							 ) P,
+							 (
+			                 SELECT COMM_CD
+								   ,ROWNUM    NUM
+							   FROM T_CM_COMMON
+							  WHERE CD_GBN = 'C9'
+							 ) C
+					   WHERE P.DISDPT_CD = C.COMM_CD(+)
+					   GROUP BY P.GUBUN, P.COMM_CD, P.COMM_NM
+					  ) T,
+					  (
+					   SELECT ROWNUM  INT
+						 FROM DICT
+						WHERE ROWNUM <= 2
+					  ) COPYT
+			    GROUP BY T.GUBUN
+				        ,DECODE(INT,'1','0','2',T.COMM_CD)
+						,DECODE(INT,'1','계','2',T.COMM_NM)
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB100
+* @description : 부서별 입,퇴사 현황
+***********************************************************************
+* 2007/03/18     김학수        최초작성
+***********************************************************************
+-->
+    <!-- 부서별 입,퇴사 현황 -->
+    <sql name="MEMB100_SHR">
+        <description>부서별 입,퇴사 현황</description>
+        <query>
+            <![CDATA[
+            SELECT DECODE(INT,1,'0',G.GUBUN)																GUBUN       --구분코드1(1,9)
+				  ,DECODE(INT,1,'총계',2,DECODE(G.GUBUN,'1','본사','9','지방') || '계',DECODE(G.GUBUN,'1','본사','9','지방'))  GUBUN_NM   --구분명1(본사,지방)
+				  ,DECODE(INT,1,'',2,'',G.COMM_CD)															COMM_CD		--구분코드2
+				  ,DECODE(INT,3,G.COMM_NM || '계',4,G.COMM_NM)												COMM_NM		--구분명2
+				  ,DECODE(INT,3,'',4,G.DPT_CD)																DPT_CD		--부서코드
+				  ,DECODE(INT,2,'합계',3,'계',4,G.DPT_NM)													DPT_NM		--부서명
+				  ,SUM(P.HIR_G)                 					                                        HIR			--입사
+				  ,SUM(P.APPIN_G)                 			                                                APPIN		--전입
+				  ,SUM(DECODE(NVL(P.HIR_G,0) + NVL(P.APPIN_G,0),0,'',NVL(P.HIR_G,0) + NVL(P.APPIN_G,0)))    TOT1	    --증 소계
+				  ,SUM(P.RET_G)                 															RET			--퇴사
+				  ,SUM(P.APPOUT_G)                 															APPRET		--전출
+				  ,SUM(P.CHNG_G)                 															CHNG		--계약직 전환
+				  ,SUM(DECODE(NVL(P.RET_G,0) + NVL(APPOUT_G,0) + NVL(CHNG_G,0),0,'',NVL(P.RET_G,0)
+				                             + NVL(APPOUT_G,0) + NVL(CHNG_G,0)))                            TOT2        --감 소계
+                  ,DECODE(SUM(NVL(P.HIR_G,0) + NVL(P.APPIN_G,0))
+				        - SUM(NVL(P.RET_G,0) + NVL(APPOUT_G,0) + NVL(CHNG_G,0)),0,'',
+						  SUM(NVL(P.HIR_G,0) + NVL(P.APPIN_G,0))
+				        - SUM(NVL(P.RET_G,0) + NVL(APPOUT_G,0) + NVL(CHNG_G,0)))                            TOT3        --증감
+				  ,SUM(DECODE(NVL("1_GBN",0) + NVL("2_GBN",0) + NVL("3_GBN",0) + NVL("4_GBN",0)
+				                         + NVL("5_GBN",0) + NVL("6_GBN",0) + NVL("7_GBN",0),0,'',
+						  NVL("1_GBN",0) + NVL("2_GBN",0) + NVL("3_GBN",0) + NVL("4_GBN",0)
+				                         + NVL("5_GBN",0) + NVL("6_GBN",0) + NVL("7_GBN",0)))				THIS_TOT    --현인원계
+			      ,SUM("1_GBN")																			 AS "1_GBN"		--본사행정지원
+				  ,SUM("2_GBN")																			 AS "2_GBN"		--지점행정지원
+				  ,SUM("3_GBN")																			 AS "3_GBN"		--상하차사무
+				  ,SUM("4_GBN")																			 AS "4_GBN"		--TM
+				  ,SUM("5_GBN")																			 AS "5_GBN"		--문서수발
+				  ,SUM("6_GBN")																			 AS "6_GBN"		--B/L
+				  ,SUM("7_GBN")																			 AS "7_GBN"		--운전
+				  ,MAX(INT)																			     AS "INT1"			--테두리구분값
+			  FROM
+					(
+						    -- 지역
+							SELECT GBN2_TAG   GUBUN
+								  ,B.COMM_CD      COMM_CD
+								  ,B.COMM_NM      COMM_NM
+								  ,A.DPT_CD       DPT_CD
+								  ,A.DPT_NM       DPT_NM
+							  FROM
+							  (
+							  SELECT GBN2_TAG
+									,UPDPT_CD AS HEAD_CD
+									,DPT_CD
+									,SF_GET_DPTNAME('01','A4',DPT_CD)    DPT_NM
+
+								FROM T_CM_DEPT
+							   WHERE CD_GBN = 'A4'
+								 AND (END_YMD>=? OR END_YMD IS NULL)
+							  ) A,
+							  (
+							  SELECT DPT_CD AS COMM_CD
+								   , DPT_NM AS COMM_NM
+								FROM T_CM_DEPT
+							   WHERE CD_GBN = 'B2'
+							  ) B
+							WHERE A.HEAD_CD = B.COMM_CD
+							ORDER BY GUBUN, COMM_CD, DPT_CD
+					) G,
+					(
+					SELECT DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),GUBUN)                 GUBUN
+						  ,DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),HEAD_CD)               HEAD_CD
+						  ,DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),DPT_CD)                DPT_CD
+						  ,SUM(DECODE(CNT_G,'HIR',CNT))                 HIR_G
+						  ,SUM(DECODE(CNT_G,'RET',CNT))                 RET_G
+						  ,SUM(DECODE(CNT_G,'APP_IN',CNT))              APPIN_G
+						  ,SUM(DECODE(CNT_G,'APP_OUT',CNT))             APPOUT_G
+						  ,SUM(DECODE(CNT_G,'CHNG',CNT))                CHNG_G
+						  ,SUM(DECODE(CNT_G,'1_GBN',CNT))           AS "1_GBN"
+						  ,SUM(DECODE(CNT_G,'2_GBN',CNT))  			AS "2_GBN"
+						  ,SUM(DECODE(CNT_G,'3_GBN',CNT))  			AS "3_GBN"
+						  ,SUM(DECODE(CNT_G,'4_GBN',CNT))  			AS "4_GBN"
+						  ,SUM(DECODE(CNT_G,'5_GBN',CNT))  			AS "5_GBN"
+						  ,SUM(DECODE(CNT_G,'6_GBN',CNT))  			AS "6_GBN"
+						  ,SUM(DECODE(CNT_G,'7_GBN',CNT))  			AS "7_GBN"
+					  FROM (
+								 -- 입사(지역)
+								 SELECT 'HIR'        CNT_G
+									  ,A.HEAD_CD
+									  ,D.GBN2_TAG   GUBUN
+									  ,A.DPT_CD
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON A ,T_CM_DEPT D
+								 WHERE ((HIR_YMD >= ? AND HIR_YMD <= ?) OR (RHI_YMD >= ? AND RHI_YMD <= ?))
+                      					AND D.CD_GBN = 'A4'
+								      AND D.DPT_CD = A.DPT_CD
+								 GROUP BY A.HEAD_CD, GBN2_TAG, A.DPT_CD
+							UNION ALL
+								 -- 퇴사(지역)
+								 SELECT 'RET'        CNT_G
+									  ,A.HEAD_CD
+									  ,D.GBN2_TAG   GUBUN
+									  ,A.DPT_CD
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON A ,T_CM_DEPT D
+								 WHERE RET_YMD >= ? AND RET_YMD <= ?
+                      					AND D.CD_GBN = 'A4'
+								      	AND D.DPT_CD = A.DPT_CD
+								 GROUP BY A.HEAD_CD, D.GBN2_TAG, A.DPT_CD
+							UNION ALL
+								-- 전입(지역)
+								SELECT 'APP_IN'          CNT_G
+									  ,D.UPDPT_CD        HEAD_CD
+									  ,GBN2_TAG          GUBUN
+									  ,A.DPT_CD          DPT_CD
+									  ,COUNT(A.DPT_CD)   CNT
+								  FROM T_ME_AHISTORY A, T_CM_DEPT D
+								 WHERE A.STR_YMD >= ? AND A.STR_YMD <= ?
+								   AND D.CD_GBN = 'A4'
+								   AND D.DPT_CD = A.DPT_CD
+								   AND A.APP_CD = 'LB1'
+								 GROUP BY D.UPDPT_CD, GBN2_TAG, A.DPT_CD
+							UNION ALL
+								-- 전출(지역)
+								SELECT 'APP_OUT'         CNT_G
+									  ,D.UPDPT_CD        HEAD_CD
+									  ,GBN2_TAG          GUBUN
+									  ,A.DPT_CD
+									  ,COUNT(A.DPT_CD)   CNT
+								  FROM
+									  (
+									   SELECT STR_YMD
+											 ,SF_GET_PREDPTCD2(ENO_NO, STR_YMD, SEQ_NO)     DPT_CD
+										 FROM T_ME_AHISTORY
+										WHERE STR_YMD >= ? AND STR_YMD <= ?
+										  AND APP_CD = 'LB1'
+									  ) A, T_CM_DEPT D
+								 WHERE D.CD_GBN = 'A4'
+								   AND D.DPT_CD = A.DPT_CD
+								 GROUP BY GBN2_TAG, D.UPDPT_CD, A.DPT_CD
+							UNION ALL
+								 -- 계약직 전환(지역)
+								 SELECT 'CHNG'        CNT_G
+									  ,A.HEAD_CD
+									  ,D.GBN2_TAG   GUBUN
+									  ,A.DPT_CD
+									  ,COUNT(ENO_NO)     CNT
+								  FROM T_ME_PERSON A, T_CM_DEPT D
+								 WHERE CHNG_YMD >= ? AND CHNG_YMD <= ?
+				                    AND CHNG_YMD IS NOT NULL
+				                    AND D.CD_GBN = 'A4'
+								    AND D.DPT_CD = A.DPT_CD
+								 GROUP BY A.HEAD_CD, GBN2_TAG, A.DPT_CD
+						    UNION ALL
+							     SELECT C.NUM || '_GBN'        CNT_G
+									   ,P.HEAD_CD
+									   ,P.GUBUN
+									   ,P.DPT_CD
+									   ,P.CNT
+								   FROM
+										 (
+										   SELECT DISDPT_CD
+										       ,A.HEAD_CD
+										 	   ,D.GBN2_TAG   GUBUN
+											   ,A.DPT_CD
+											   ,COUNT(ENO_NO) CNT
+										   FROM T_ME_PERSON A, T_CM_DEPT D
+										  WHERE D.CD_GBN = 'A4'
+						                        AND D.DPT_CD = A.DPT_CD
+						                        AND ((HIR_YMD <= ? AND (RET_YMD > ? OR RET_YMD IS NULL))
+										     			OR (RHI_YMD <= ? AND (RET_YMD > ? OR RET_YMD IS NULL)))
+										  GROUP BY  D.GBN2_TAG, A.HEAD_CD, DISDPT_CD, A.DPT_CD
+										 ) P,
+										 (
+										 SELECT COMM_CD
+										        ,ROWNUM    NUM
+										   FROM T_CM_COMMON
+										  WHERE CD_GBN = 'C9'
+										 ) C
+								  WHERE P.DISDPT_CD = C.COMM_CD(+)
+
+						  ) A,
+						  (
+						   SELECT ROWNUM  INT
+							 FROM DICT
+							WHERE ROWNUM <= 2
+						  ) COPYT
+					 GROUP BY  DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),GUBUN)
+							  ,DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),HEAD_CD)
+							  ,DECODE(INT,'1',DECODE(GUBUN,'1','0','9','0',''),DPT_CD)
+					) P,
+					(
+				     SELECT ROWNUM  INT
+					   FROM DICT
+					  WHERE ROWNUM <= 4
+				    ) COPYT
+			 WHERE G.COMM_CD = P.HEAD_CD(+)
+			   AND G.GUBUN = P.GUBUN(+)
+			   AND G.DPT_CD = P.DPT_CD(+)
+             GROUP BY DECODE(INT,1,'0',G.GUBUN)
+				     ,DECODE(INT,1,'총계',2,DECODE(G.GUBUN,'1','본사','9','지방') || '계',DECODE(G.GUBUN,'1','본사','9','지방'))
+				     ,DECODE(INT,1,'',2,'',G.COMM_CD)
+                     ,DECODE(INT,3,G.COMM_NM || '계',4,G.COMM_NM)
+                     ,DECODE(INT,3,'',4,G.DPT_CD)
+                     ,DECODE(INT,2,'합계',3,'계',4,G.DPT_NM)
+			 ORDER BY DECODE(INT,1,'0',G.GUBUN)
+				     ,DECODE(INT,1,'총계',2,DECODE(G.GUBUN,'1','본사','9','지방') || '계',DECODE(G.GUBUN,'1','본사','9','지방'))
+				     ,DECODE(INT,1,'',2,'',G.COMM_CD)
+                     ,DECODE(INT,3,'',4,G.DPT_CD)
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB130
+* @description : 업체별파견사원현황
+***********************************************************************
+* 2007/03/20     김학수        최초작성
+***********************************************************************
+-->
+    <sql name="MEMB130_SHR">
+        <description>업체별파견사원현황</description>
+        <query>
+            <![CDATA[
+            SELECT DISCOMP_CD,
+                   SF_GET_COMMSEQ('01','CA',P.DISCOMP_CD) AS DISCOMP_SEQ,
+                   SF_GET_COMMNAME('01','CA',P.DISCOMP_CD) AS DISCOMP_NM,
+                   P.DPT_CD,
+                   SF_GET_DPTSEQ('01', 'A4', P.DPT_CD) AS DPT_SEQ,
+                   SF_GET_DPTNAME('01','A4',P.DPT_CD) AS DPT_NM,
+                   P.ENO_NO,
+                   P.ENO_NM,
+                  (SELECT DECODE(CONS_YMD,NULL,'','','',TO_CHAR(TO_DATE(CONS_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')||' ~ '||TO_CHAR(TO_DATE(CONE_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD'))
+                   FROM  T_ME_CONTRACT
+                   WHERE ENO_NO=p.ENO_NO
+                   AND   DEGREE_GBN = (select max(DEGREE_GBN) from T_ME_CONTRACT where ENO_NO=p.ENO_NO)
+                  ) AS TERM_YMD,
+                   P.TERM_YMD_VAL,
+                   A.BAS_AMT,
+                   CASE WHEN P.TERM_YMD_VAL >= 18 THEN A.LSEV_AMT3
+                        WHEN P.TERM_YMD_VAL >= 12 THEN A.LSEV_AMT2
+                        WHEN P.TERM_YMD_VAL >= 6  THEN A.LSEV_AMT1
+                        ELSE 0
+                   END AS LSEV_AMT,
+                   A.WEL_AMT,
+                   NVL(A.BAS_AMT,0) +
+                   NVL(CASE WHEN P.TERM_YMD_VAL >= 18 THEN A.LSEV_AMT3
+                            WHEN P.TERM_YMD_VAL >= 12 THEN A.LSEV_AMT2
+                            WHEN P.TERM_YMD_VAL >= 6  THEN A.LSEV_AMT1
+                            ELSE 0
+                       END, 0) +
+                   NVL(A.WEL_AMT,0) AS TOT,
+                   P.M_YMD AS M_YMD,
+                   M.TOT2,
+                   P.ETC,
+                   TO_CHAR(LAST_DAY('200707'||'01'),'DD')
+            FROM  (SELECT DPT_CD
+                         ,DISCOMP_CD
+                         ,DISDPT_CD
+                         ,ENO_NO
+                         ,ENO_NM
+                         ,CASE WHEN LAST_DAY(?||'01') > RET_YMD
+                               THEN MONTHS_BETWEEN(RET_YMD, HIR_YMD)
+                               ELSE MONTHS_BETWEEN(LAST_DAY(?||'01'), HIR_YMD)
+                          END AS TERM_YMD_VAL
+                         ,DECODE(?,TO_CHAR(HIR_YMD,'YYYYMM'),TO_CHAR(HIR_YMD,'YYYY-MM-DD')
+                                          , TO_CHAR(TO_DATE(?,'YYYYMM'),'YYYY-MM') || '-01') || ' ~ ' ||
+                          DECODE(?,TO_CHAR(RET_YMD,'YYYYMM'),TO_CHAR(RET_YMD,'YYYY-MM-DD')
+                                          , TO_CHAR(TO_DATE(?,'YYYYMM'),'YYYY-MM') || '-' || TO_CHAR(LAST_DAY(?||'01'),'DD'))      M_YMD
+                         ,DECODE(?,TO_CHAR(TERM1_YMD,'YYYYMM'),TO_CHAR(TERM1_YMD,'MM/DD') || ' 계약종료  ') ||
+                          DECODE(?,TO_CHAR(TERM2_YMD,'YYYYMM'),TO_CHAR(TERM2_YMD,'MM/DD') || ' 계약종료  ') ||
+                          DECODE(?,TO_CHAR(HIR_YMD,'YYYYMM'),TO_CHAR(HIR_YMD,'MM/DD') || ' 입사 ') ||
+                          DECODE(?,TO_CHAR(RET_YMD,'YYYYMM'),TO_CHAR(RET_YMD,'MM/DD') || ' 퇴사 ')                       ETC
+                   FROM   T_ME_PERSON
+                   WHERE (TO_CHAR(RET_YMD,'YYYYMM') >= SUBSTR(?,1,6) OR RET_YMD IS NULL)
+                   AND    TO_CHAR(HIR_YMD,'YYYYMM') <= SUBSTR(?,1,6)
+                  ) P,
+                  (SELECT ENO_NO,
+                          CHN_YMD,
+                          BAS_AMT,
+                          LSEV_AMT1,
+                          LSEV_AMT2,
+                          LSEV_AMT3,
+                          WEL_AMT
+                   FROM   T_ME_APY A
+                   WHERE  CHN_YMD = (SELECT MAX(CHN_YMD) FROM T_ME_APY WHERE ENO_NO = A.ENO_NO AND SUBSTR(CHN_YMD,1,6) <= ?)
+                  ) A,
+                  (SELECT ENO_NO,
+                         (BAS_AMT + LSEV_AMT + WEL_AMT) AS TOT2
+                   FROM   T_ME_APYMST
+                   WHERE  PIS_YY = SUBSTR(?,1,4)
+                   AND    PIS_MM = SUBSTR(?,5,2)
+                  ) M
+            WHERE P.ENO_NO = A.ENO_NO(+)
+            AND   P.ENO_NO = M.ENO_NO(+)
+            ORDER BY DISCOMP_SEQ, DPT_SEQ, P.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="MEMB130_SHR_OLD">
+        <description>업체별파견사원현황</description>
+        <query>
+            <![CDATA[
+SELECT DISCOMP_SEQ,DISCOMP_NM,DPT_SEQ,DPT_NM,ENO_NO,ENO_NM,TERM_YMD,BAS_AMT,LSEV_AMT,WEL_AMT,TOT,M_YMD,TOT2,ETC
+FROM(
+			SELECT DECODE(INT,1,'Z',2,P.DISCOMP_CD||' 계',3,P.DISCOMP_CD)                                                            DISCOMP_CD     --업체명코드
+                  ,DECODE(INT,1,'Z',2,SF_GET_COMMSEQ('01','CA',P.DISCOMP_CD)||' 계',3,SF_GET_COMMSEQ('01','CA',P.DISCOMP_CD))        DISCOMP_SEQ
+				  ,DECODE(INT,1,'총계',2,SF_GET_COMMNAME('01','CA',P.DISCOMP_CD)||' 계',3,SF_GET_COMMNAME('01','CA',P.DISCOMP_CD))   DISCOMP_NM 	--업체명
+				  ,DECODE(INT,1,'',2,'',3,P.DPT_CD)									                                                 DPT_CD			--부서코드
+                  ,DECODE(INT,1,'',2,'',3,SF_GET_DPTSEQ('01', 'A4', p.DPT_CD))                                                       DPT_SEQ
+				  ,DECODE(INT,1,'',2,'',3,SF_GET_DPTNAME('01','A4',P.DPT_CD))			                                             DPT_NM         --부서명
+				  ,DECODE(INT,1,'',2,'',3,P.ENO_NO)									                                                 ENO_NO			--사번
+				  ,DECODE(INT,1,'',2,'',3,P.ENO_NM)									                                                 ENO_NM			--사원명
+				  ,MAX(DECODE(INT,1,'',2,'',3,P.TERM_YMD))									                                         TERM_YMD		--계약기간
+				  ,SUM(DECODE(A.BAS_AMT,0,'',A.BAS_AMT))									                                         BAS_AMT        --파견단가
+				  ,SUM(CASE WHEN P.TERM_YMD_VAL <= 6  THEN A.LSEV_AMT1
+				            WHEN P.TERM_YMD_VAL <= 12 THEN A.LSEV_AMT2
+							WHEN P.TERM_YMD_VAL <= 18 THEN A.LSEV_AMT3
+					   END)									                                                                         LSEV_AMT	    --근속장려금
+				  ,SUM(DECODE(A.WEL_AMT,0,'',A.WEL_AMT))									                                         WEL_AMT		--기타
+				  ,SUM(NVL(A.BAS_AMT,0) +
+				              NVL(CASE WHEN P.TERM_YMD_VAL <= 6 THEN A.LSEV_AMT1
+							           WHEN P.TERM_YMD_VAL <= 12 THEN A.LSEV_AMT2
+									   WHEN P.TERM_YMD_VAL <= 18 THEN A.LSEV_AMT3
+								   END, 0) +
+							  NVL(A.WEL_AMT,0))                                   			                                         TOT             --계
+				  ,MAX(DECODE(INT,1,'',2,'',3,P.M_YMD))										                                         M_YMD			--기간
+				  ,SUM(DECODE(M.TOT2,0,'',M.TOT2))											                                         TOT2			--금액
+				  ,MAX(DECODE(INT,1,'',2,'',3,P.ETC))									                                             ETC			--비고
+				  ,MAX(INT)																	                                         INT            --구분값
+				  ,TO_CHAR(LAST_DAY(?||'01'),'DD') || ' )'							                                                 LASTDAY        --월의마지막날
+				  ,COUNT(P.ENO_NO) || ' 명'													                                         CNT            --업체별 및 전체 명수
+			  FROM
+					(
+					SELECT DPT_CD
+						  ,DISCOMP_CD
+						  ,DISDPT_CD
+						  ,ENO_NO
+						  ,ENO_NM
+						  ,DECODE(RHI_YMD,NULL,TO_CHAR(HIR_YMD,'YYYY-MM-DD'),'',TO_CHAR(HIR_YMD,'YYYY-MM-DD'),TO_CHAR(RHI_YMD,'YYYY-MM-DD')) || ' ~ ' || DECODE(TERM2_YMD,NULL,TO_CHAR(TERM1_YMD,'YYYY-MM-DD'),'',TO_CHAR(TERM1_YMD,'YYYY-MM-DD'),TO_CHAR(TERM2_YMD,'YYYY-MM-DD'))    TERM_YMD
+						  ,TRUNC(MONTHS_BETWEEN(DECODE(TERM2_YMD,NULL,TERM1_YMD,'',TERM1_YMD,TERM2_YMD)
+		                                       ,DECODE(RHI_YMD,NULL,HIR_YMD,'',HIR_YMD,RHI_YMD)))												  TERM_YMD_VAL
+						  ,DECODE(?,TO_CHAR(HIR_YMD,'YYYYMM'),TO_CHAR(HIR_YMD,'YYYY-MM-DD')
+								 , TO_CHAR(TO_DATE(?,'YYYYMM'),'YYYY-MM') || '-01') || ' ~ ' ||
+						   DECODE(?,TO_CHAR(RET_YMD,'YYYYMM'),TO_CHAR(RET_YMD,'YYYY-MM-DD')
+								 , TO_CHAR(TO_DATE(?,'YYYYMM'),'YYYY-MM') || '-' || TO_CHAR(LAST_DAY(?||'01'),'DD'))      M_YMD
+						  ,DECODE(?,TO_CHAR(TERM1_YMD,'YYYYMM'),TO_CHAR(TERM1_YMD,'MM.DD') || ' 계약종료  ') ||
+						   DECODE(?,TO_CHAR(TERM2_YMD,'YYYYMM'),TO_CHAR(TERM2_YMD,'MM.DD') || ' 계약종료  ') ||
+						   DECODE(?,TO_CHAR(HIR_YMD,'YYYYMM'),TO_CHAR(HIR_YMD,'MM.DD') || ' 입사 ') ||
+						   DECODE(?,TO_CHAR(RET_YMD,'YYYYMM'),TO_CHAR(RET_YMD,'MM.DD') || ' 퇴사 ')      				 ETC
+					  FROM T_ME_PERSON
+					 WHERE ((TO_CHAR(HIR_YMD,'YYYYMM') <= ? AND (TO_CHAR(RET_YMD,'YYYYMM') >= ? OR RET_YMD IS NULL))
+						OR (TO_CHAR(RHI_YMD,'YYYYMM') <= ? AND (TO_CHAR(RET_YMD,'YYYYMM') >= ? OR RET_YMD IS NULL)))
+					   AND (TO_CHAR(TERM1_YMD,'YYYYMM') >= ? OR TO_CHAR(TERM2_YMD,'YYYYMM') >= ?)
+
+					) P,
+					(
+                    SELECT ENO_NO,
+                           BAS_AMT,
+                           LSEV_AMT1,
+                           LSEV_AMT2,
+                           LSEV_AMT3,
+                           WEL_AMT
+					  FROM T_ME_APY A
+					 WHERE CHN_YMD = (SELECT MAX(CHN_YMD) FROM T_ME_APY WHERE ENO_NO = A.ENO_NO AND CHN_YMD <= ?)
+					) A,
+                    (
+                    SELECT ENO_NO,
+                           (BAS_AMT + LSEV_AMT + WEL_AMT) as TOT2
+					  FROM T_ME_APYMST
+					 WHERE PIS_YY=substr(?,1,4)
+                     and   PIS_MM=substr(?,5,2)
+					) M,
+					(
+					 SELECT ROWNUM  INT
+					   FROM DICT
+					  WHERE ROWNUM <= 3
+					) COPYT
+			  WHERE P.ENO_NO = A.ENO_NO(+)
+			  GROUP BY DECODE(INT,1,'Z',2,P.DISCOMP_CD||' 계',3,P.DISCOMP_CD)
+                                  ,DECODE(INT,1,'Z',2,SF_GET_COMMSEQ('01','CA',P.DISCOMP_CD)||' 계',3,SF_GET_COMMSEQ('01','CA',P.DISCOMP_CD))
+                                  ,DECODE(INT,1,'총계',2,SF_GET_COMMNAME('01','CA',P.DISCOMP_CD)||' 계',3,SF_GET_COMMNAME('01','CA',P.DISCOMP_CD))
+                                  ,DECODE(INT,1,'',2,'',3,P.DPT_CD)
+                                  ,DECODE(INT,1,'',2,'',3,SF_GET_DPTSEQ('01', 'A4', p.DPT_CD))
+                                  ,DECODE(INT,1,'',2,'',3,SF_GET_DPTNAME('01','A4',P.DPT_CD))
+                                  ,DECODE(INT,1,'',2,'',3,P.ENO_NO)
+                                  ,DECODE(INT,1,'',2,'',3,P.ENO_NM)
+
+			  ORDER BY DISCOMP_CD, DPT_CD, ENO_NO
+)
+ORDER BY DISCOMP_SEQ
+        ,DPT_SEQ
+        ,ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB030
+* @description : 파견사원 근무수당 현황
+***********************************************************************
+* 2007/03/20     김학수        최초작성
+***********************************************************************
+-->
+    <!-- 파견사원 근무수당 현황 -->
+    <sql name="MEMB030_SHR">
+        <description>파견사원 근무수당 현황</description>
+        <query>
+            <![CDATA[
+			SELECT DECODE(INT,1,'합계',P.DPT_CD)							DPT_CD    --부서코드
+				  ,DECODE(INT,1,'합계',2,DPT_NM||'계',3,P.DPT_NM)			DPT_NM    --부서명
+				  ,DECODE(INT,1,'',2,'',3,P.ENO_NO)							ENO_NO    --사원번호
+				  ,DECODE(INT,1,'',2,'',3,P.ENO_NM)							ENO_NM    --사원명
+				  ,SUM(A.HOW_CNT)											HOW_CNT   --근무일
+				  ,SUM(A.HOW_AMT)											HOW_AMT   --근무수당
+				  ,MAX(INT)                                                 GUBUN     --구분값
+			  FROM
+					(
+					SELECT DPT_CD
+					      ,SF_GET_DPTNAME('01','A4',DPT_CD)   DPT_NM
+						  ,ENO_NO
+						  ,ENO_NM
+					  FROM T_ME_PERSON
+					 WHERE ((TO_CHAR(HIR_YMD,'YYYYMM') <= ? AND (TO_CHAR(RET_YMD,'YYYYMM') >= ? OR RET_YMD IS NULL))
+						OR (TO_CHAR(RHI_YMD,'YYYYMM') <= ? AND (TO_CHAR(RET_YMD,'YYYYMM') >= ? OR RET_YMD IS NULL)))
+
+					) P,
+					(
+				    SELECT ENO_NO
+					      ,HOW_CNT
+						  ,HOW_AMT
+					  FROM T_ME_APYMST
+					 WHERE PIS_YY = ?
+					   AND PIS_MM = ?
+                    ) A,
+					(
+					 SELECT ROWNUM  INT
+					   FROM DICT
+					  WHERE ROWNUM <= 3
+					) COPYT
+			 WHERE P.ENO_NO = A.ENO_NO
+			 GROUP BY DECODE(INT,1,'합계',P.DPT_CD)
+				     ,DECODE(INT,1,'합계',2,DPT_NM||'계',3,P.DPT_NM)
+				     ,DECODE(INT,1,'',2,'',3,P.ENO_NO)
+				     ,DECODE(INT,1,'',2,'',3,P.ENO_NM)
+			 ORDER BY DECODE(INT,1,'합계',P.DPT_CD)
+			         ,DECODE(INT,1,'',2,'',3,P.ENO_NO)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파견사원 근무수당 현황(근무날짜가져오기) -->
+    <sql name="MEMB030_SHR_02">
+        <description>파견사원 근무수당 현황</description>
+        <query>
+            <![CDATA[
+			SELECT TO_CHAR(TO_DATE(HOL_YMD,'YYYYMMDD'),'DD')    HOL_YMD
+			  FROM T_DI_HOLIDAYWORK
+		     WHERE ENO_NO = ?
+			   AND TO_CHAR(TO_DATE(HOL_YMD,'YYYYMMDD'),'YYYYMM') = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : MEMB110
+* @description : 사용사업관리대장
+***********************************************************************
+* 2007/03/22     김학수        최초작성
+***********************************************************************
+-->
+    <!-- 사용사업관리대장 -->
+    <sql name="MEMB110_SHR">
+        <description>사용사업관리대장</description>
+        <query>
+            <![CDATA[
+            SELECT DPT_CD                                        DPT_CD
+                  ,SF_GET_DPTNAME('01', 'A4', DPT_CD)            DPT_NM
+                  ,DUTY_CD                                       DUTY_CD
+                  ,SF_GET_COMMNAME('01', 'A7', DUTY_CD)          DUTY_NM
+                  ,SYENO_NO                                      SYENO_NO
+                  ,SF_GET_ENONAME('01', SYENO_NO)                SYENO_NM
+                  ,DISCOMP_CD                                    DISCOMP_CD
+                  ,SF_GET_COMMNAME('01',  'CA', DISCOMP_CD)      DISCOMP_NM
+                  ,ENO_NO                                        ENO_NO
+                  ,ENO_NM                                        ENO_NM
+                  ,JOB_TAG                                       JOB_TAG
+              FROM T_ME_PERSON
+             WHERE (((TO_CHAR(HIR_YMD,'YYYYMM') <= ? AND (TO_CHAR(RET_YMD,'YYYYMM') >= ? OR RET_YMD IS NULL))
+                OR (TO_CHAR(RHI_YMD,'YYYYMM') <= ? AND (TO_CHAR(RET_YMD,'YYYYMM') >= ? OR RET_YMD IS NULL))))
+                [1]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사용사업관리대장 -->
+    <sql name="MEMB110_SHR_02">
+        <description>사용사업관리대장</description>
+        <query>
+            <![CDATA[
+			SELECT TO_CHAR(TO_DATE(PIS_YMD,'YYYYMMDD'),'YYYYMMDD')   PIS_YMD
+				  ,N1_CD
+				  ,REPLACE(STR_HMS,':','')         STR_HMS
+				  ,REPLACE(END_HMS,':','')         END_HMS
+				  ,REPLACE(GUN_HMS,':','')         GUN_HMS
+				  ,REPLACE(REST_HMS,':','')        REST_HMS
+				  ,JOB_TAG
+				  ,''  FLAG
+				  ,ENO_NO
+			  FROM T_ME_DAYLEDGER
+			 WHERE ENO_NO = ?
+			   AND TO_CHAR(TO_DATE(PIS_YMD,'YYYYMMDD'),'YYYYMM') = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사용사업관리대장 -->
+    <sql name="MEMB110_SHR_03">
+        <description>사용사업관리대장</description>
+        <query>
+            <![CDATA[
+			SELECT REPLACE(STR_HMS,':','')         STR_HMS          --시업시각
+				  ,REPLACE(END_HMS,':','')         END_HMS			--종업시각
+				  ,REPLACE(GUN_HMS,':','')         GUN_HMS			--근무시간
+				  ,REPLACE(REST_HMS,':','')        REST_HMS			--휴식시간
+				  ,JOB_TAG											--업무내용
+				  ,SF_GET_COMMNAME('01',  'CA', DISCOMP_CD)         --파견회사명
+				  ,(SELECT ENO_NM
+				      FROM T_ME_PERSON
+					 WHERE ENO_NO = A.ENO_NO)	   ENO_NM			--파견직원명
+                  ,(SELECT REG_CD
+				      FROM T_ME_PERSON
+					 WHERE ENO_NO = A.ENO_NO)      REG_CD           --근무지역
+				  ,SF_GET_COMMNAME('01', 'A7', SYDUTY_CD) || ' ' || SF_GET_ENONAME('01',SYENO_NO)  SYENO_NM  --업무관리자
+			  FROM T_ME_DAYLEDGER A
+			 WHERE ENO_NO = ?
+			   AND TO_CHAR(TO_DATE(PIS_YMD,'YYYYMMDD'),'YYYY-MM') = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사용사업관리대장 입력부분 -->
+    <sql name="MEMB110_INS">
+        <description>사용사업관리대장 한달 자료 등록</description>
+        <query>
+            <![CDATA[
+				INSERT INTO T_ME_DAYLEDGER("PIS_YMD","ENO_NO","DISCOMP_CD","DPT_CD","SYDUTY_CD","SYENO_NO","N1_CD","STR_HMS","END_HMS","GUN_HMS","JOB_TAG"
+										  ,"IPT_MAN","IPT_YMD","UPT_MAN","UPT_YMD")
+				SELECT SUBSTR(?,1,4)||SUBSTR(?,6,2)||DECODE(LENGTH(ROWNUM),1,'0'||ROWNUM,2,ROWNUM)   AS PIS_YMD
+					  ,?			AS ENO_NO
+					  ,DECODE(B.HOL_YN,'N',?,'Y','')			AS DISCOMP_CD
+					  ,DECODE(B.HOL_YN,'N',?,'Y','')				AS DPT_CD
+					  ,DECODE(B.HOL_YN,'N',?,'Y','')				AS SYDUTY_CD
+					  ,DECODE(B.HOL_YN,'N',?,'Y','')				AS SYENO_NO
+					  ,CASE B.NUM
+							WHEN 1 THEN AT1_CD
+							WHEN 2 THEN AT2_CD
+							WHEN 3 THEN AT3_CD
+							WHEN 4 THEN AT4_CD
+							WHEN 5 THEN AT5_CD
+							WHEN 6 THEN AT6_CD
+							WHEN 7 THEN AT7_CD
+							WHEN 8 THEN AT8_CD
+							WHEN 9 THEN AT9_CD
+							WHEN 10 THEN AT10_CD
+							WHEN 11 THEN AT11_CD
+							WHEN 12 THEN AT12_CD
+							WHEN 13 THEN AT13_CD
+							WHEN 14 THEN AT14_CD
+							WHEN 15 THEN AT15_CD
+							WHEN 16 THEN AT16_CD
+							WHEN 17 THEN AT17_CD
+							WHEN 18 THEN AT18_CD
+							WHEN 19 THEN AT19_CD
+							WHEN 20 THEN AT20_CD
+							WHEN 21 THEN AT21_CD
+							WHEN 22 THEN AT22_CD
+							WHEN 23 THEN AT23_CD
+							WHEN 24 THEN AT24_CD
+							WHEN 25 THEN AT25_CD
+							WHEN 26 THEN AT26_CD
+							WHEN 27 THEN AT27_CD
+							WHEN 28 THEN AT28_CD
+							WHEN 29 THEN AT29_CD
+							WHEN 30 THEN AT30_CD
+							WHEN 31 THEN AT30_CD
+					   END	 AS "N1_CD"
+					  ,DECODE(B.HOL_YN,'N',?,'Y','')				AS STR_HMS
+					  ,DECODE(B.HOL_YN,'N',?,'Y','')				AS END_HMS
+					  ,DECODE(B.HOL_YN,'N',TO_CHAR(TO_DATE((TO_DATE( ?,'YYYY-MM-DD HH24:MI:SS') - TO_DATE(?,'YYYY-MM-DD HH24:MI:SS')) * 24 * 60 * 60,'sssss'),'HH24:MI'),'Y','')	    GUN_HMS
+					  ,DECODE(B.HOL_YN,'N',?,'Y','')				AS JOB_TAG
+					  ,?			AS IPT_MAN
+					  ,SYSDATE      AS IPT_YMD
+					  ,?			AS UPT_MAN
+					  ,SYSDATE      AS UPT_YMD
+				  FROM  (
+						 SELECT AT1_CD, AT2_CD, AT3_CD, AT4_CD, AT5_CD, AT6_CD, AT7_CD, AT8_CD, AT9_CD, AT10_CD
+							  , AT11_CD, AT12_CD, AT13_CD, AT14_CD, AT15_CD, AT16_CD, AT17_CD, AT18_CD, AT19_CD, AT20_CD
+							  , AT21_CD, AT22_CD, AT23_CD, AT24_CD, AT25_CD, AT26_CD, AT27_CD, AT28_CD, AT29_CD, AT30_CD
+							  , AT31_CD
+
+						 FROM T_DI_DILIGENCE
+						WHERE ENO_NO = ?
+						  AND PIS_YY = SUBSTR(?,1,4)
+						  AND PIS_MM = SUBSTR(?,6,2)
+					  ) A,
+					  (
+					   SELECT TO_NUMBER(TO_CHAR(TO_DATE(REG_YMD,'YYYYMMDD'),'DD')) NUM
+					         ,HOL_YN
+						 FROM T_DI_HOLIDAY
+						WHERE TO_CHAR(TO_DATE(REG_YMD,'YYYYMMDD'),'YYYY-MM') = ?
+					  ) B
+				 ORDER BY 1
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 사용사업관리대장 입력부분 -->
+    <sql name="MEMB110_UPT">
+        <description>사용사업관리대장 한달 자료 등록</description>
+        <query>
+            <![CDATA[
+			  UPDATE  T_ME_DAYLEDGER
+					  SET  STR_HMS  = SUBSTR(?,1,2)||':'||SUBSTR(?,3,2)
+						  ,END_HMS  = SUBSTR(?,1,2)||':'||SUBSTR(?,3,2)
+						  ,GUN_HMS  = SUBSTR(?,1,2)||':'||SUBSTR(?,3,2)
+						  ,REST_HMS = SUBSTR(?,1,2)||':'||SUBSTR(?,3,2)
+			   WHERE ENO_NO = ?
+			     AND PIS_YMD = ?
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!--
+***********************************************************************
+* @UseCase     : EMPL_SHR
+* @description : 사원정보조회
+***********************************************************************
+* 2007/08/27   조정호        최초작성.
+***********************************************************************
+-->
+    <!-- 사원정보조회  -->
+    <sql name="EMPL_SHR">
+        <description>사원정보조회</description>
+        <query>
+            <![CDATA[
+SELECT distinct *
+FROM
+	(
+        SELECT ENO_NO                                                   -- 사번
+               , ENO_NM                                                   -- 성명
+               , TO_CHAR(NVL(HIRG_YMD, HIR_YMD), 'YYYY-MM-DD')       AS HIRG_YMD       -- 입사일
+               , TO_CHAR(HIR_YMD  , 'YYYY-MM-DD')       AS HIR_YMD
+               , TO_CHAR(RET_YMD  , 'YYYY-MM-DD')       AS RET_YMD
+               , TO_CHAR(RAM_YMD  , 'YYYY-MM-DD')       AS RAM_YMD
+               , TO_CHAR(RAM_YMD2 , 'YYYY-MM-DD')       AS RAM_YMD2
+               , TO_CHAR(RAM_YMD3 , 'YYYY-MM-DD')       AS RAM_YMD3
+               , TO_CHAR(NVL(RETP_YMD,RET_YMD) , 'YYYY-MM-DD')       AS RETP_YMD
+               , TO_CHAR(MID_YMD1 , 'YYYY-MM-DD')       AS MID_YMD1
+               , TO_CHAR(MID_YMD2 , 'YYYY-MM-DD')       AS MID_YMD2
+               , TO_CHAR(MID_YMD3 , 'YYYY-MM-DD')       AS MID_YMD3
+               , TO_CHAR( NVL(HIRR_YMD, HIR_YMD) , 'YYYY-MM-DD')       AS HIRR_YMD
+               , TO_CHAR(DPA_YMD, 'YYYY-MM-DD')         AS DPA_YMD         -- 소속발령일
+               , A.OCC_CD                                                    -- 직종코드
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A1', A.OCC_CD)   AS OCC_NM          -- 직종명
+               , A.HEAD_CD                                                   -- 본부코드
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'B2', A.HEAD_CD)  AS HEAD_NM         -- 본부명
+               , A.DPT_CD                                                    -- 부서코드
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'A4', A.DPT_CD)   AS DPT_NM          -- 부서명
+               , JOB_CD                                                    -- 직위코드
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A2', JOB_CD)   AS JOB_NM          -- 직위명
+               , HOB_CD                                                    -- 호봉코드
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A3', HOB_CD)   AS HOB_NM          -- 호봉명
+               , CET_NO
+               , MF_TAG
+               , ASNHR.SF_GET_DPTSEQ( '01', 'A4', A.DPT_CD) DPT_SEQ
+               , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD) JOB_SEQ
+               , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) HOB_SEQ
+               , DUTY_CD
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A7', DUTY_CD)   AS DUTY_NM          -- 직책명
+			   , B.HEAD_TAG
+        FROM ASNHR.T_CM_PERSON A, ASNHR.T_CM_DEPT B
+        WHERE DUTY_CD  IN ('03','04','30')
+		AND   A.HEAD_CD = B.DPT_CD
+		[1]
+		AND   A.HEAD_CD IN (SELECT UPDPT_CD FROM ASNHR.T_CM_DEPT WHERE DPT_CD = NVL(?, DPT_CD))
+	UNION ALL
+        SELECT ENO_NO                                                   -- 사번
+               , ENO_NM                                                 -- 성명
+               , TO_CHAR(NVL(HIRG_YMD, HIR_YMD), 'YYYY-MM-DD')       AS HIRG_YMD       -- 입사일
+               , TO_CHAR(HIR_YMD  , 'YYYY-MM-DD')       AS HIR_YMD
+               , TO_CHAR(RET_YMD  , 'YYYY-MM-DD')       AS RET_YMD
+               , TO_CHAR(RAM_YMD  , 'YYYY-MM-DD')       AS RAM_YMD
+               , TO_CHAR(RAM_YMD2 , 'YYYY-MM-DD')       AS RAM_YMD2
+               , TO_CHAR(RAM_YMD3 , 'YYYY-MM-DD')       AS RAM_YMD3
+               , TO_CHAR(NVL(RETP_YMD,RET_YMD) , 'YYYY-MM-DD')       AS RETP_YMD
+               , TO_CHAR(MID_YMD1 , 'YYYY-MM-DD')       AS MID_YMD1
+               , TO_CHAR(MID_YMD2 , 'YYYY-MM-DD')       AS MID_YMD2
+               , TO_CHAR(MID_YMD3 , 'YYYY-MM-DD')       AS MID_YMD3
+               , TO_CHAR( NVL(HIRR_YMD, HIR_YMD) , 'YYYY-MM-DD')       AS HIRR_YMD
+               , TO_CHAR(DPA_YMD, 'YYYY-MM-DD')         AS DPA_YMD         -- 소속발령일
+               , A.OCC_CD                                                    -- 직종코드
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A1', A.OCC_CD)   AS OCC_NM          -- 직종명
+               , A.HEAD_CD                                                   -- 본부코드
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'B2', A.HEAD_CD)  AS HEAD_NM         -- 본부명
+               , A.DPT_CD                                                    -- 부서코드
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'A4', A.DPT_CD)   AS DPT_NM          -- 부서명
+               , JOB_CD                                                    -- 직위코드
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A2', JOB_CD)   AS JOB_NM          -- 직위명
+               , HOB_CD                                                    -- 호봉코드
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A3', HOB_CD)   AS HOB_NM          -- 호봉명
+               , CET_NO
+               , MF_TAG
+               , ASNHR.SF_GET_DPTSEQ( '01', 'A4', A.DPT_CD) DPT_SEQ
+               , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD) JOB_SEQ
+               , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) HOB_SEQ
+               , DUTY_CD
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A7', DUTY_CD)   AS DUTY_NM          -- 직책명
+			   , B.HEAD_TAG
+        FROM ASNHR.T_CM_PERSON A, ASNHR.T_CM_DEPT B
+        WHERE A.DPT_CD = NVL(?, A.DPT_CD)
+		AND   A.DPT_CD = B.DPT_CD
+	[2]
+)
+WHERE  (ENO_NO LIKE '%'||?||'%'
+                OR  ENO_NM LIKE '%'||?||'%')
+ORDER BY JOB_SEQ, DPT_SEQ, HOB_SEQ DESC, ENO_NO
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 사원정보조회  -->
+    <sql name="EMPL_SHR01">
+        <description>사원정보조회</description>
+        <query>
+            <![CDATA[
+        SELECT ENO_NO                                                   -- 사번
+               , ENO_NM                                                 -- 성명
+               , TO_CHAR(NVL(HIRG_YMD, HIR_YMD), 'YYYY-MM-DD')       AS HIRG_YMD       -- 입사일
+               , TO_CHAR(HIR_YMD  , 'YYYY-MM-DD')       AS HIR_YMD
+               , A.HEAD_CD                                                   -- 본부코드
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'B2', A.HEAD_CD)  AS HEAD_NM         -- 본부명
+               , A.DPT_CD                                                    -- 부서코드
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'A4', A.DPT_CD)   AS DPT_NM          -- 부서명
+               , JOB_CD                                                    -- 직위코드
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A2', JOB_CD)   AS JOB_NM          -- 직위명
+               , DUTY_CD
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A7', DUTY_CD)   AS DUTY_NM          -- 직책명
+               , ASNHR.SF_GET_DPTSEQ( '01', 'A4', A.DPT_CD) DPT_SEQ
+               , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD) JOB_SEQ
+               , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) HOB_SEQ               
+        FROM ASNHR.T_CM_PERSON A, ASNHR.T_CM_DEPT B
+        WHERE 
+				A.DPT_CD = B.DPT_CD
+				AND   A.RET_YMD IS NULL
+				AND  (ENO_NO LIKE '%'||?||'%' OR  ENO_NM LIKE '%'||?||'%')
+		ORDER BY JOB_SEQ, DPT_SEQ, HOB_SEQ DESC, ENO_NO
+
+            ]]>
+        </query>
+    </sql>
+
+
+    <sql name="EMPL_SHR_DPT">
+        <description>부서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  
+	            ENO_NO, 
+	            ENO_NM,
+	            DPT_CD, 
+	            ASNHR.SF_GET_DPTNAME('01',  'A4', DPT_CD)   AS DPT_NM,
+	            ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD)   AS JOB_NM
+            FROM    ASNHR.T_CM_PERSON
+            WHERE   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+</sqls>

@@ -1,0 +1,5371 @@
+
+
+<sqls>
+
+<!-- 복리후생 이주비 -->
+<!--
+***********************************************************************
+* @UseCase     : WELA010
+* @description : 이주비신청
+***********************************************************************
+* 2006/12/05     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 이주비 신청 조회 -->
+    <sql name="WELA010_SHR">
+        <description>이주비 신청 조회</description>
+        <query>
+            <![CDATA[
+
+             SELECT ORD_NO
+                  , A.ENO_NO
+                  , B.ENO_NM
+                  , B.DPT_NM
+                  , B.JOB_NM
+                  , A.RADR
+                  , A.RADR_CT
+                  , CASE
+                    WHEN LENGTH(A.RZI_NO) = 6
+                    THEN SUBSTR(A.RZI_NO,1,3)||'-'||SUBSTR(A.RZI_NO,4,6)
+                     END AS RZI_NO
+                  , A.MADR
+                  , A.MADR_CT
+                  , CASE
+                    WHEN LENGTH(A.MZI_NO) = 6
+                    THEN SUBSTR(A.MZI_NO,1,3)||'-'||SUBSTR(A.MZI_NO,4,6)
+                     END AS MZI_NO
+                  , TO_CHAR(TO_DATE(MOVE_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS MOVE_YMD
+                  , A.COM_PHN_NO
+                  , HOM_PHN_NO
+                  , A.EM_PHN_NO
+                  , TO_CHAR(TO_DATE(APP_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS APP_YMD
+                  , APP_CD
+                  , RAREA
+                  , MAREA
+                  , SF_GET_DPTNAME('01' ,'A4' ,RAREA) AS RAREA_NM
+                  , SF_GET_DPTNAME('01' ,'A4' ,MAREA) AS MAREA_NM
+                  , MOVE_AMT
+                  , SUBSTR(A.RADR, 1, INSTR(A.RADR, ' ', 1, 2)) AS RPLACE
+                  , SUBSTR(MADR, 1, INSTR(MADR, ' ', 1, 2)) AS MPLACE
+                  , A.REMARK
+                  , NVL(APP_STS, '0') AS APP_STS
+                  , DECODE(NVL(APP_STS, '0')
+                          ,'0' ,'신청'
+                          ,'1' ,'접수'
+                          ,'2' ,'반송'
+                          ,'3' ,'결재') AS APP_STS_NM
+			   FROM T_WL_MOVEAPPLY A
+                  , VI_T_CM_PERSON B
+			  WHERE A.ENO_NO = ?
+                AND A.ENO_NO = B.ENO_NO
+			    [1]
+           ORDER BY A.MOVE_YMD DESC
+           ]]>
+        </query>
+    </sql>
+
+	<sql name="WELA010_SHR_PRINT">
+        <description>이주비 신청서 출력</description>
+        <query>
+            <![CDATA[
+
+             SELECT ORD_NO
+                  , A.ENO_NO
+                  , B.ENO_NM
+                  , B.DPT_NM
+                  , B.JOB_NM
+                  , A.RADR
+                  , A.RADR_CT
+                  , A.RZI_NO
+                  , MADR
+                  , MADR_CT
+                  , MZI_NO
+                  , TO_CHAR(TO_DATE(MOVE_YMD, 'YYYYMMDD'), 'YYYY/MM/DD') AS MOVE_YMD
+                  , A.COM_PHN_NO
+                  , HOM_PHN_NO
+                  , A.EM_PHN_NO
+                  , TO_CHAR(TO_DATE(APP_YMD, 'YYYYMMDD'), 'YYYY/MM/DD') AS APP_YMD
+                  , TO_CHAR(A.IPT_YMD, 'YYYY/MM/DD') AS IPT_YMD
+                  , DECODE(NVL(APP_CD, '0')
+                          ,'0' ,''
+                          ,'1' ,'전임'
+                          ,'2' ,'파견'
+                          ,'3' ,'승진') AS APP_CD
+                  , RAREA
+                  , MAREA
+                  , SF_GET_DPTNAME('01' ,'A4' ,RAREA) AS RAREA_NM
+                  , SF_GET_DPTNAME('01' ,'A4' ,MAREA) AS MAREA_NM
+                  , TO_CHAR(MOVE_AMT,'FM999,999,999')||'원' AS MOVE_AMT
+                  , SUBSTR(A.RADR, 1, INSTR(A.RADR, ' ', 1, 2)) AS RPLACE
+                  , SUBSTR(MADR, 1, INSTR(MADR, ' ', 1, 2)) AS MPLACE
+                  , A.REMARK
+                  , NVL(APP_STS, '0') AS APP_STS
+                  , DECODE(NVL(APP_STS, '0')
+                          ,'0' ,'신청'
+                          ,'1' ,'접수'
+                          ,'2' ,'반송'
+                          ,'3' ,'결재') AS APP_STS_NM
+			   FROM T_WL_MOVEAPPLY A
+                  , VI_T_CM_PERSON B
+			   WHERE A.ENO_NO = ?
+                     AND A.ENO_NO = B.ENO_NO
+			    	 AND A.ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 이주비 지원 신청 -->
+    <sql name="WELA010_INS">
+        <description>이주비 지원 입력</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_MOVEAPPLY
+			( ORD_NO,
+			  ENO_NO, RADR, RADR_CT, RZI_NO, MADR, MADR_CT, MZI_NO,
+			  MOVE_YMD          , COM_PHN_NO, HOM_PHN_NO, EM_PHN_NO,
+			  APP_YMD           , APP_CD, RAREA, MAREA, MOVE_AMT, REMARK,
+			  IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES
+			((SELECT TO_CHAR(SYSDATE, 'YYYY')||'-'||LPAD(NVL2(MAX(SUBSTR(ORD_NO, 6, 3)), TO_NUMBER(MAX(SUBSTR(ORD_NO, 6, 3)))+1, 1), 3, '0')
+              FROM   T_WL_MOVEAPPLY
+			  WHERE  ENO_NO = ? ),
+			  ?     , ?   , ?      , ?     , ?   , ?      , ?      ,
+			  REPLACE(?, '-', ''), ?         , ?         , ?        ,
+			  REPLACE(?, '-', ''), ?     , ?    , ?    , ?        , ?,
+			  ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 이주비 지원 내역 수정 -->
+	<sql name="WELA010_UPT">
+        <description>이주비 지원 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_MOVEAPPLY
+			SET    RADR = ?,						--현 거주지 주소1
+			       RADR_CT = ?,						--현 거주지 주소2
+				   RZI_NO = ?,						--현 거주지 우편번호
+				   MADR = ?,						--이주지 주소1
+				   MADR_CT = ?,						--이주지 주소2
+				   MZI_NO = ?,						--이주지 우편번호
+				   MOVE_YMD = REPLACE(?, '-', ''),	--이주일자
+				   COM_PHN_NO = ?,					--사무실 전화번호
+				   HOM_PHN_NO = ?,					--자택 전화번호
+				   EM_PHN_NO = ?,					--휴대폰번호
+				   APP_YMD = REPLACE(?, '-', ''),	--인사발령일
+				   APP_CD = ?,						--발령구분
+				   RAREA = ?,						--전 근무지
+				   MAREA = ?,						--현 근무지
+				   MOVE_AMT = ?,					--이주비용
+                   REMARK = ?,
+                   APP_STS = ?,
+			       UPT_MAN = ?,						--수정자
+				   UPT_YMD = sysdate
+			WHERE  ORD_NO = ?						--구분번호
+			AND    ENO_NO = ?						--사번
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 이주비 지원 내역 삭제 -->
+	<sql name="WELA010_DEL">
+        <description>이주비 지원 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_MOVEAPPLY
+			WHERE  ORD_NO = ?
+			AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : WELA020
+* @description : 이주비 신청처리
+***********************************************************************
+* 2006/12/05     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 이주비 신청 내역 조회 -->
+    <sql name="WELA020_SHR">
+        <description>이주비 신청 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO
+                 , A.ENO_NO
+                 , B.DPT_NM
+                 , B.JOB_NM
+                 , B.ENO_NM
+                 , TO_CHAR(TO_DATE(A.MOVE_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS MOVE_YMD
+                 , A.COM_PHN_NO
+                 , A.HOM_PHN_NO
+                 , A.EM_PHN_NO
+                 , TO_CHAR(TO_DATE(A.APP_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')  AS APP_YMD
+                 , A.APP_CD
+                 , A.MOVE_AMT
+                 , SUBSTR(A.RADR, 1, INSTR(A.RADR, ' ', 1, 2))              AS RPLACE
+                 , SUBSTR(A.MADR, 1, INSTR(A.MADR, ' ', 1, 2))              AS MPLACE
+
+                 , RAREA
+                 , MAREA
+                 , SF_GET_DPTNAME('01' ,'A4' ,RAREA)                        AS RAREA_NM
+                 , SF_GET_DPTNAME('01' ,'A4' ,MAREA)                        AS MAREA_NM
+
+                 , A.RADR
+                 , A.RADR_CT
+                 , CASE
+                   WHEN LENGTH(A.RZI_NO) = 6
+                   THEN SUBSTR(A.RZI_NO,1,3)||'-'||SUBSTR(A.RZI_NO,4,6)
+                    END AS RZI_NO
+                 , A.MADR
+                 , A.MADR_CT
+                 , CASE
+                   WHEN LENGTH(A.MZI_NO) = 6
+                   THEN SUBSTR(A.MZI_NO,1,3)||'-'||SUBSTR(A.MZI_NO,4,6)
+                    END AS MZI_NO
+
+                 , A.REMARK
+                 , NVL(A.APP_STS, '0') AS APP_STS
+                 , DECODE( NVL(A.APP_STS, '0')
+                         , '0', '신청'
+                         , '1', '접수'
+                         , '2', '반송'
+                         , '3', '결재') AS APP_STS_NM
+
+			  FROM T_WL_MOVEAPPLY A
+			     , VI_T_CM_PERSON B
+			 WHERE A.ENO_NO = B.ENO_NO
+               AND NVL(A.APP_STS, '0') LIKE ?||'%'
+			   [1]
+	      ORDER BY B.DPT_SEQ
+	             , B.JOB_SEQ
+	             , B.HOB_SEQ DESC
+	             , B.HIRG_YMD
+	             , B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : WELA030
+* @description : 이주비 지원현황
+***********************************************************************
+* 2006/12/05     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 이주비 지원현황 조회 -->
+    <sql name="WELA030_SHR">
+        <description>이주비 지원현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ORD_NO, A.ENO_NO, B.DPT_NM, B.JOB_NM, B.ENO_NM, A.RADR,
+			        A.RADR_CT, A.RZI_NO, A.MADR, A.MADR_CT, A.MZI_NO,
+					TO_CHAR(TO_DATE(A.MOVE_YMD, 'YYYY-MM-DD'), 'YYYY/MM/DD') AS MOVE_YMD,
+					A.COM_PHN_NO, A.HOM_PHN_NO, A.EM_PHN_NO,
+					TO_CHAR(TO_DATE(A.APP_YMD, 'YYYY-MM-DD'), 'YYYY/MM/DD') AS APP_YMD,
+					A.APP_CD, A.MOVE_AMT
+
+                  , A.RAREA
+                  , A.MAREA
+                  , SF_GET_DPTNAME('01' ,'A4' , A.RAREA) AS RAREA_NM
+                  , SF_GET_DPTNAME('01' ,'A4' , A.MAREA) AS MAREA_NM
+
+				  , SUBSTR(A.RADR, 1, INSTR(A.RADR, ' ', 1, 2)) AS RPLACE
+                  , SUBSTR(A.MADR, 1, INSTR(A.MADR, ' ', 1, 2)) AS MPLACE
+			FROM    T_WL_MOVEAPPLY A, VI_T_CM_PERSON B
+			WHERE   A.ENO_NO = B.ENO_NO
+			    AND A.APP_STS IN ('3','4')
+                AND B.DPT_CD = NVL(? ,B.DPT_CD)
+                AND A.ENO_NO = NVL(?, A.ENO_NO)
+			[1]
+			ORDER BY B.DPT_SEQ, B.JOB_SEQ, B.HOB_SEQ DESC, B.HIRG_YMD, B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+***********************************************************************
+* 2007/03/15     방석호        최초작성.
+***********************************************************************
+-->
+
+	<!-- 이주비 지원현황 조회 -->
+    <sql name="WELA030_PRT">
+        <description>이주비 지원현황 조회</description>
+        <query>
+            <![CDATA[
+		 SELECT TO_CHAR(TO_DATE(A.MOVE_YMD, 'YYYY-MM-DD'), 'YY') AS MOVE_YEAR,
+		  A.ORD_NO, A.ENO_NO, B.DPT_NM, B.JOB_NM, B.ENO_NM, A.RADR,
+			        A.RADR_CT, A.RZI_NO, A.MADR, A.MADR_CT, A.MZI_NO,
+					TO_CHAR(TO_DATE(A.MOVE_YMD, 'YYYY-MM-DD'), 'YYYY/MM/DD') AS MOVE_YMD,
+					A.COM_PHN_NO, A.HOM_PHN_NO, A.EM_PHN_NO,
+					TO_CHAR(TO_DATE(A.APP_YMD, 'YYYY-MM-DD'), 'YYYY/MM/DD') AS APP_YMD,
+					A.APP_CD, '→' AS  ARROW,A.RAREA , A.MAREA , (A.MOVE_AMT /1000) AS MOVE_AMT,
+					SUBSTR(A.RADR, 1, INSTR(A.RADR, ' ', 1, 2)) AS RPLACE,
+                    SUBSTR(A.MADR, 1, INSTR(A.MADR, ' ', 1, 2)) AS MPLACE
+			FROM    T_WL_MOVEAPPLY A, VI_T_CM_PERSON B
+			WHERE   A.ENO_NO = B.ENO_NO
+				AND A.APP_STS IN ('3')
+                AND B.DPT_CD = NVL(? ,B.DPT_CD)
+                AND A.ENO_NO = NVL(?, A.ENO_NO)
+			[1]
+			ORDER BY B.DPT_SEQ, B.JOB_SEQ, B.HOB_SEQ DESC, B.HIRG_YMD, B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : WELA040
+* @description : 이사비용 참고
+***********************************************************************
+* 2006/12/06     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 이사비용 참고 내역 조회 -->
+    <sql name="WELA040_SHR">
+        <description>이사비용 참고 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  GBN_CD, SEQ_NO, CD_NM, ITEM_NM, COSA_AMT, COSB_AMT, COSC_AMT,
+			        CBM_AMT, REMARK
+			FROM    T_WL_MOVEXPENS
+			WHERE   CD_NM LIKE '%'||?||'%'
+			ORDER BY GBN_CD, SEQ_NO, CD_NM
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 이사비용 참고 내역 저장 -->
+    <sql name="WELA040_INS">
+        <description>이사비용 참고 내역 입력</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_MOVEXPENS
+			( GBN_CD, SEQ_NO, CD_NM, ITEM_NM, COSA_AMT, COSB_AMT, COSC_AMT,
+			  CBM_AMT, REMARK, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES
+			( ?     , ?     , ?    , ?      , ?        , ?        , ?        ,
+			  ?      , ?     , ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 이사비용 참고 내역 수정 -->
+	<sql name="WELA040_UPT">
+        <description>이사비용 참고 내역 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_MOVEXPENS
+			SET    CD_NM = ?,				--품목
+			       ITEM_NM = ?,				--내역
+				   COSA_AMT = ?,			--금액1
+				   COSB_AMT = ?,			--금액2
+				   COSC_AMT = ?,			--금액3
+				   CBM_AMT = ?,				--CBM 금액
+				   REMARK = ?,				--비고
+			       UPT_MAN = ?,				--수정자
+				   UPT_YMD = sysdate
+			WHERE  GBN_CD = ?				--구분코드
+			AND    SEQ_NO = ?				--일련번호
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 이사비용 참고 내역 삭제 -->
+	<sql name="WELA040_DEL">
+        <description>이사비용 참고 내역 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE  T_WL_MOVEXPENS
+			WHERE   GBN_CD = ?
+			AND     SEQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 부서별 휴대폰 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELB010
+* @description : 부서별 휴대폰 관리
+***********************************************************************
+* 2006/12/07     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 부서별 핸드폰 목록 관리 조회 -->
+    <sql name="WELB010_SHR">
+        <description>부서별 핸드폰 목록 관리내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO, A.ENO_NM, B.DPT_CD,
+                    SF_GET_DPTNAME('01','A4', B.DPT_CD) AS DPT_NM, B.JOB_CD, SF_GET_COMMNAME('01', 'A2', B.JOB_CD) AS JOB_NM,
+			        A.PHN_NO, A.SUB_AMT,
+			        TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMM'),'YYYY-MM') STR_YMD, TO_CHAR(TO_DATE(A.END_YMD,'YYYYMM'),'YYYY-MM') END_YMD
+			        , ABA_CD                                           -- 은행구분 코드
+	                , SF_GET_COMMNAME('01', 'BK',  ABA_CD) AS ABA_NM   -- 은행명
+     		        , ACC_NO                                           --계좌번호
+			FROM    T_WL_HDPDLIST A, T_CM_EMPLIST B
+			WHERE  B.DPT_CD LIKE '%'||?||'%'
+			AND    A.GBN_TAG ='0'
+			AND    A.ENO_NO LIKE '%'||?||'%'
+			AND    A.ENO_NO = B.ENO_NO
+            [1]
+            ORDER BY SF_GET_DPTSEQ('01','A4',B.DPT_CD), SF_GET_COMMSEQ('01','A2',B.JOB_CD)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 부서별 계좌정보 조회 -->
+    <sql name="WELB010_SHR_01">
+        <description>부서별 계좌정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ABA_CD, SF_GET_COMMNAME('01','BK',ABA_CD) AS ABA_NM, ACC_NO
+              FROM T_CM_PERSON
+              WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 핸드폰 목록 관리내역 저장 -->
+    <sql name="WELB010_INS">
+        <description>부서별 핸드폰 목록 입력</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_WL_HDPDLIST
+                 ( GBN_TAG
+                 , ENO_NO
+                 , ENO_NM
+                 , PHN_NO
+                 , SUB_AMT
+                 , STR_YMD
+                 , END_YMD
+                 , ABA_CD
+                 , ACC_NO
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ('0'
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 핸드폰 목록 관리내역 수정 -->
+	<sql name="WELB010_UPT">
+        <description>부서별 핸드폰 목록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_HDPDLIST
+               SET PHN_NO  = ?                        --핸드폰번호
+                 , SUB_AMT = ?                        --보조비
+                 , END_YMD = ?
+                 , ABA_CD  = ?                        --은행구분코드
+                 , ACC_NO  = ?                        --계좌번호
+                 , UPT_MAN = ?                        --수정자
+                 , UPT_YMD = SYSDATE
+             WHERE ENO_NO  = ?                        --사번
+               AND STR_YMD = ?
+               AND GBN_TAG ='0'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 핸드폰 목록 관리내역 삭제 -->
+	<sql name="WELB010_DEL">
+        <description>부서별 핸드폰 목록 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_HDPDLIST
+             WHERE ENO_NO  = ?
+               AND STR_YMD = ?
+               AND GBN_TAG ='0'
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 부서별 보조비 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELB020
+* @description : 부서별 보조비 관리
+***********************************************************************
+* 2006/12/08     오대성        최초작성.
+***********************************************************************
+-->
+
+    <!-- 보조비 지원 대상자 리스트 조회 -->
+    <sql name="WELB020_SHR_PROC">
+        <description>보조비 지원 대상자 리스트 조회</description>
+        <query>
+            <![CDATA[
+           SELECT A.PIS_YM, A.PIS_YY, A.PIS_MM, A.ENO_NO, A.ENO_NM, NVL(B.DPT_CD,NVL(C.DPT_CD,A.DPT_CD)) AS DPT_CD, NVL(B.JOB_CD,NVL(C.JOB_CD,A.JOB_CD)) AS JOB_CD
+             , SF_GET_DPTNAME('01', 'A4', NVL(B.DPT_CD,NVL(C.DPT_CD,A.DPT_CD))) AS DPT_NM
+             , SF_GET_COMMNAME('01', 'A2',NVL(B.JOB_CD,NVL(C.JOB_CD,A.JOB_CD))) AS JOB_NM
+             , PHN_NO
+             , KR_SUB_AMT
+             , KR_USE_AMT
+             , FR_USE_AMT
+             , REMARK
+             , TOTAL
+             , FINS
+             , ABA_CD
+             , SF_GET_COMMNAME('01','BK',A.ABA_CD) AS ABA_NM
+             , A.ACC_NO
+           FROM  ( SELECT ?||'-'||? AS PIS_YM
+                        , ? AS PIS_YY
+                        , ? AS PIS_MM
+                        , A.ENO_NO
+                        , A.ENO_NM
+                        , B.DPT_CD
+                        , B.JOB_CD
+                        , SF_GET_DPTNAME('01', 'A4',  B.DPT_CD) AS DPT_NM
+                        , SF_GET_COMMNAME('01', 'A2', B.JOB_CD) AS JOB_NM
+                        , PHN_NO
+                        , SUB_AMT     AS KR_SUB_AMT
+                        , SUB_AMT  AS KR_USE_AMT
+                        , 0           AS FR_USE_AMT
+                        , ''          AS REMARK
+                        , SUB_AMT     AS TOTAL
+                        , TO_CHAR(TO_DATE(DECODE(NVL(RET_YMD,1),1,END_YMD,SUBSTR(B.RET_YMD,1,6)),'YYYYMM'),'YYYY-MM') AS FINS
+                        , ABA_CD
+                        , ACC_NO
+                   FROM T_WL_HDPDLIST A, T_CM_EMPLIST B
+                   WHERE ? BETWEEN SUBSTR(STR_YMD, 1, 6)
+                         AND SUBSTR(NVL(END_YMD, TO_CHAR(SYSDATE, 'YYYYMMDD')), 1, 6)
+                         AND GBN_TAG ='0'
+                         AND A.ENO_NO = B.ENO_NO
+                         AND (RET_YMD IS NULL OR (TO_CHAR(ADD_MONTHS(TO_DATE(?||?,'YYYYMM'),-2),'YYYYMM') <= SUBSTR(RET_YMD,1,6)))  )A,
+
+                 ( SELECT A.DPT_CD, A.JOB_CD, ENO_NO, UPDPT_CD AS HEAD_CD
+                     FROM T_CM_AHISTORY A, T_CM_DEPT B
+                    WHERE ?||TO_CHAR(ADD_MONTHS(TO_DATE(?,'MM'),-1),'MM')||TO_CHAR(LAST_DAY(TO_DATE(?||TO_CHAR(ADD_MONTHS(TO_DATE(?,'MM'),-1),'MM'), 'YYYYMM')),'DD') BETWEEN A.STR_YMD AND NVL(A.END_YMD,'99991231')
+                      AND A.DPT_CD = B.DPT_CD
+                      AND B.CD_GBN ='A4') B,
+
+                 ( SELECT A.DPT_CD, A.JOB_CD, ENO_NO, UPDPT_CD AS HEAD_CD
+                     FROM T_ME_AHISTORY A , T_CM_DEPT B
+                    WHERE ?||TO_CHAR(ADD_MONTHS(TO_DATE(?,'MM'),-1),'MM')||TO_CHAR(LAST_DAY(TO_DATE(?||TO_CHAR(ADD_MONTHS(TO_DATE(?,'MM'),-1),'MM'), 'YYYYMM')),'DD') BETWEEN A.STR_YMD AND NVL(A.END_YMD,'99991231')
+                      AND SEQ_NO ='1'
+                      AND A.DPT_CD = B.DPT_CD
+                      AND B.CD_GBN ='A4') C
+
+              WHERE A.ENO_NO = B.ENO_NO(+)
+                AND A.ENO_NO = C.ENO_NO(+)
+              ORDER BY SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 보조비 관리 조회 -->
+    <sql name="WELB020_SHR">
+        <description>부서별 보조비 관리내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YY||'-'||PIS_MM AS PIS_YM
+                           , PIS_YY
+                           , PIS_MM
+                           , ENO_NO
+                           , ENO_NM
+                           , DPT_CD
+                           , JOB_CD
+                           , SF_GET_DPTNAME('01', 'A4', DPT_CD) AS DPT_NM
+                           , SF_GET_COMMNAME('01', 'A2',JOB_CD) AS JOB_NM
+                           , PHN_NO
+                           , KR_SUB_AMT
+                           , KR_USE_AMT
+                           , NVL(FR_USE_AMT,0) AS FR_USE_AMT
+                           , (KR_USE_AMT+FR_USE_AMT) AS TOTAL
+                           , REMARK AS REMARK
+                           , YN_TAG
+                           , ABA_CD
+                           , SF_GET_COMMNAME('01','BK',ABA_CD) AS ABA_NM
+                           , ACC_NO
+                     FROM T_WL_HDPDBOOK
+                     WHERE PIS_YY LIKE '%'||?||'%'
+                       AND PIS_MM LIKE '%'||?||'%'
+                       AND DPT_CD LIKE '%'||?||'%'
+                       AND GBN_TAG ='0'
+
+                   ORDER BY SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                          , SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                          , ENO_NO
+                ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 보조비 관리내역 저장 -->
+    <sql name="WELB020_INS">
+        <description>부서별 보조비 목록 입력</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_HDPDBOOK
+			( GBN_TAG, PIS_YY, PIS_MM, ENO_NO, ENO_NM, DPT_CD, JOB_CD, PHN_NO,
+			  KR_USE_AMT, KR_SUB_AMT, FR_USE_AMT,  REMARK, ABA_CD, ACC_NO,
+			  IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES
+			( '0'      ,  ?     , ?     , ?     , ?     , ?     , ?     , ?     ,
+			  ?        , ?         , ?         , ?      , ?     ,  ?    ,
+			  ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 보조비 목록 수정 -->
+	<sql name="WELB020_UPT">
+        <description>부서별 보조비 목록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_HDPDBOOK
+			SET    KR_USE_AMT = ?,					--국내통화료
+				   KR_SUB_AMT = ?,					--보조비
+			       FR_USE_AMT = ?,					--국제통화료
+				   REMARK = ?,						--비고
+				   ABA_CD = ?,                      --은행코드
+				   ACC_NO = ?,                      --계좌번호
+				   UPT_MAN = ?,
+				   UPT_YMD = sysdate
+			WHERE  PIS_YY = ?						--지원연도
+			AND    PIS_MM = ?						--지원월
+			AND    ENO_NO = ?						--사번
+			AND    GBN_TAG = '0'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 보조비 관리내역 삭제 -->
+	<sql name="WELB020_DEL">
+        <description>부서별 보조비 내역 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_HDPDBOOK
+			 WHERE PIS_YY = ?
+			   AND PIS_MM = ?
+			   AND ENO_NO = ?
+			   AND GBN_TAG = '0'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 보조비 관리내역 삭제 -->
+	<sql name="WELB020_DEL_ALL">
+        <description>부서별 보조비 내역 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_HDPDBOOK
+			 WHERE PIS_YY = ?
+			   AND PIS_MM = ?
+			   AND GBN_TAG = '0'
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 완료 버튼 처리  -->
+	<sql name="WELB020_FINS_UPT">
+        <description>부서별 보조비 내역 삭제</description>
+        <query>
+            <![CDATA[
+             UPDATE T_WL_HDPDBOOK
+			    SET    YN_TAG ='Y'
+			    WHERE  PIS_YY = ?					    --지원연도
+			    AND    PIS_MM = ?						--지원월
+			    AND    GBN_TAG = '0'
+
+            ]]>
+        </query>
+    </sql>
+
+
+       <!-- 카운트 -->
+	<sql name="WELB020_FINSHR">
+        <description>YN_TAG 카운트 </description>
+        <query>
+            <![CDATA[
+            SELECT COUNT(YN_TAG) AS YN_TAG
+              FROM T_WL_HDPDBOOK
+              WHERE  PIS_YY = ?					--지원연도
+			  AND    PIS_MM = ?						--지원월
+			  AND    GBN_TAG = '0'
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : WELB030
+* @description : 임원 휴대폰 관리
+***********************************************************************
+* 2006/12/11     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 전액지원 휴대폰 목록 관리 조회 -->
+    <sql name="WELB030_SHR">
+        <description>전액지원 휴대폰 목록 관리내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.PHN_NO
+                 , A.NAME_GBN
+                 , A.ENO_NO
+                 , A.ENO_NM
+                 , B.JOB_CD
+                 , SF_GET_COMMNAME('01', 'A2', B.JOB_CD) AS JOB_NM
+                 , A.REMARK
+                 , TO_CHAR(TO_DATE(A.STR_YMD, 'YYYYMM'),'YYYY-MM') AS STR_YMD
+                 , TO_CHAR(TO_DATE(A.END_YMD, 'YYYYMM'),'YYYY-MM') AS END_YMD
+              FROM T_WL_HDPDLIST A, T_CM_PERSON B
+             WHERE A.PHN_NO LIKE '%'||?||'%'
+               AND A.NAME_GBN LIKE '%'||?||'%'
+               AND A.ENO_NO LIKE '%'||?||'%'
+               AND A.GBN_TAG ='1'
+               AND A.ENO_NO = B.ENO_NO(+)
+               [1]
+          ORDER BY DECODE(JOB_CD, NULL, 999, SF_GET_COMMSEQ('01', 'A2', B.JOB_CD))
+                 , A.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 전액지원 휴대폰 목록 관리내역 저장 -->
+    <sql name="WELB030_INS">
+        <description>전액지원 휴대폰 목록 입력</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_HDPDLIST
+			( GBN_TAG, PHN_NO, NAME_GBN, ENO_NO, ENO_NM, REMARK,
+              STR_YMD, END_YMD,
+			  IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES
+			( '1'   ,?     , ?       , ?     , ?      , ?     ,
+              ?,     ?,
+			  ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 핸드폰 목록 관리내역 수정 -->
+	<sql name="WELB030_UPT">
+        <description>부서별 핸드폰 목록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_HDPDLIST
+			SET    NAME_GBN = ?,					--명의구분
+				   ENO_NO = ?,						--사원번호
+				   ENO_NM = ?,						--성명
+				   REMARK = ?,						--비고
+                   STR_YMD = ?,
+                   END_YMD = ?,
+			       UPT_MAN = ?,						--수정자
+				   UPT_YMD = sysdate
+			WHERE  PHN_NO = ?						--핸드폰번호
+			   AND GBN_TAG ='1'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 부서별 핸드폰 목록 관리내역 삭제 -->
+	<sql name="WELB030_DEL">
+        <description>부서별 핸드폰 목록 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_HDPDLIST
+			WHERE  PHN_NO = ?
+			AND GBN_TAG ='1'
+            ]]>
+        </query>
+    </sql>
+
+<!-- 임원휴대폰 사용료 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELB040
+* @description : 임원휴대폰 사용료 관리
+***********************************************************************
+* 2006/12/11     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 보조비 지원 대상자 리스트 조회 -->
+    <sql name="WELB040_SHR_PROC">
+        <description>보조비 지원 대상자 리스트 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ?||'-'||? AS PIS_YM
+                 , ? AS PIS_YY
+                 , ? AS PIS_MM
+                 , A.ENO_NO
+                 , A.ENO_NM
+                 , B.JOB_CD
+                 , SF_GET_COMMNAME('01', 'A2', B.JOB_CD) AS JOB_NM
+                 , NAME_GBN
+                 , PHN_NO
+                 , 0  AS KR_USE_AMT        --보조비
+              FROM T_WL_HDPDLIST A, T_CM_EMPLIST B
+             WHERE ? BETWEEN SUBSTR(STR_YMD, 1, 6) AND SUBSTR(NVL(END_YMD, TO_CHAR(SYSDATE, 'YYYYMMDD')), 1, 6)
+               AND GBN_TAG ='1'
+               AND A.ENO_NO = B.ENO_NO(+)
+               AND (RET_YMD IS NULL OR (TO_CHAR(ADD_MONTHS(TO_DATE(?||?,'YYYYMM'),-2),'YYYYMM') <= SUBSTR(RET_YMD,1,6)))
+          ORDER BY DECODE(JOB_CD, NULL, 999, SF_GET_COMMSEQ('01', 'A2', JOB_CD)), ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 임원휴대폰 사용료 관리 조회 -->
+    <sql name="WELB040_SHR">
+        <description>임원휴대폰 사용료 관리내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT CASE WHEN C.RET_YMD IS NULL AND B.END_YMD IS NULL     THEN ''
+                        WHEN C.RET_YMD IS NULL AND B.END_YMD IS NOT NULL THEN TO_CHAR(TO_DATE(B.END_YMD,'YYYYMM'),'YYYY-MM')
+                        WHEN C.RET_YMD IS NOT NULL AND B.END_YMD IS NULL THEN TO_CHAR(TO_DATE(C.RET_YMD,'YYYYMMDD'),'YYYY-MM')
+                        ELSE TO_CHAR(LEAST(SUBSTR(C.RET_YMD,1,6),B.END_YMD),'YYYY-MM')
+                   END  AS PIS_YM
+                 , A.PIS_YY
+                 , A.PIS_MM
+                 , A.ENO_NO
+                 , A.ENO_NM
+                 , A.JOB_CD
+                 , SF_GET_COMMNAME('01','A2',A.JOB_CD) AS JOB_NM
+                 , A.NAME_GBN
+                 , A.PHN_NO
+                 , A.KR_USE_AMT
+                 , A.YN_TAG
+              FROM T_WL_HDPDBOOK A, T_WL_HDPDLIST B, T_CM_PERSON C
+             WHERE A.PIS_YY = ?
+               AND A.PIS_MM = ?
+               AND A.GBN_TAG ='1'
+               AND B.GBN_TAG ='1'
+               AND A.ENO_NO = B.ENO_NO
+               AND A.ENO_NO = C.ENO_NO(+)
+          ORDER BY DECODE(JOB_CD, NULL, 999, SF_GET_COMMSEQ('01', 'A2', JOB_CD)), ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 임원휴대폰 사용료 관리내역 저장 -->
+    <sql name="WELB040_INS">
+        <description>임원휴대폰 사용료 목록 입력</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_HDPDBOOK
+			( GBN_TAG, PIS_YY, PIS_MM, PHN_NO, KR_USE_AMT, NAME_GBN,
+			  ENO_NO, ENO_NM, JOB_CD,
+			  IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES
+			('1'    , ?     , ?     , ?     , ?      , ?       ,
+			  ?     , ?     , ?     ,
+			  ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 임원휴대폰 사용료 목록 수정 -->
+	<sql name="WELB040_UPT">
+        <description>임원휴대폰 사용료 목록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_HDPDBOOK
+			SET    KR_USE_AMT = ?,					--사용료
+				   UPT_MAN = ?,
+				   UPT_YMD = sysdate
+			WHERE  PIS_YY = ?					--지원연도
+			AND    PIS_MM = ?					--지원월
+			AND    PHN_NO = ?					--핸드폰번호
+			AND    GBN_TAG = '1'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 임원휴대폰 사용료 관리내역 삭제 -->
+	<sql name="WELB040_DEL">
+        <description>임원휴대폰 사용료 내역 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_HDPDBOOK
+			 WHERE PIS_YY = ?
+			   AND PIS_MM = ?
+               AND PHN_NO = ?
+               AND GBN_TAG ='1'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 임원휴대폰 사용료 관리내역 전부 삭제 -->
+	<sql name="WELB040_DEL_ALL">
+        <description>임원휴대폰 사용료 관리내역 전부 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_HDPDBOOK
+			 WHERE PIS_YY = ?
+			   AND PIS_MM = ?
+			   AND GBN_TAG = '1'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 완료 버튼 처리  -->
+	<sql name="WELB040_FINS_UPT">
+        <description>부서별 보조비 내역 삭제</description>
+        <query>
+            <![CDATA[
+             UPDATE T_WL_HDPDBOOK
+			    SET    YN_TAG ='Y'
+			    WHERE  PIS_YY = ?					--지원연도
+			    AND    PIS_MM = ?						--지원월
+			    AND    GBN_TAG = '1'
+
+            ]]>
+        </query>
+    </sql>
+
+
+       <!-- 카운트 -->
+	<sql name="WELB040_FINSHR">
+        <description>YN_TAG 카운트 </description>
+        <query>
+            <![CDATA[
+            SELECT COUNT(YN_TAG) AS YN_TAG
+              FROM T_WL_HDPDBOOK
+              WHERE  PIS_YY = ?					--지원연도
+			  AND    PIS_MM = ?						--지원월
+			  AND    GBN_TAG = '1'
+
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 임원휴대폰 사용료 현황 -->
+<!--
+***********************************************************************
+* @UseCase     : WELB050
+* @description : 임원휴대폰 사용료 현황
+***********************************************************************
+* 2006/12/13     이기선        최초작성.
+***********************************************************************
+-->
+
+	<!-- 임원휴대폰 사용료 현황 조회 -->
+    <sql name="WELB050_SHR">
+        <description>임원휴대폰 사용료 현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT NAME_GBN, JOB_NM, JOB_CD, ENO_NM, AA.PHN_NO, AA.PIS_YY, AMT01,
+                   AMT02, AMT03, AMT04, AMT05, AMT06, AMT07, AMT08, AMT09, AMT10,
+				   AMT11, AMT12, TOTAL
+		    FROM   ( SELECT A.GBN_TAG, A.PIS_YY, A.PHN_NO, A.NAME_GBN, A.ENO_NO, A.ENO_NM,
+			                A.JOB_CD, B.KR_USE_AMT AS AMT01, C.KR_USE_AMT AS AMT02,
+							D.KR_USE_AMT AS AMT03, E.KR_USE_AMT AS AMT04, F.KR_USE_AMT AS AMT05,
+							G.KR_USE_AMT AS AMT06, H.KR_USE_AMT AS AMT07, I.KR_USE_AMT AS AMT08,
+							J.KR_USE_AMT AS AMT09, K.KR_USE_AMT AS AMT10, L.KR_USE_AMT AS AMT11,
+							M.KR_USE_AMT AS AMT12
+                     FROM   T_WL_HDPDBOOK A
+                            LEFT JOIN T_WL_HDPDBOOK B ON A.PHN_NO=B.PHN_NO AND A.PIS_YY=B.PIS_YY AND B.PIS_MM='01'
+                            LEFT JOIN T_WL_HDPDBOOK C ON A.PHN_NO=C.PHN_NO AND A.PIS_YY=C.PIS_YY AND C.PIS_MM='02'
+                            LEFT JOIN T_WL_HDPDBOOK D ON A.PHN_NO=D.PHN_NO AND A.PIS_YY=D.PIS_YY AND D.PIS_MM='03'
+                            LEFT JOIN T_WL_HDPDBOOK E ON A.PHN_NO=E.PHN_NO AND A.PIS_YY=E.PIS_YY AND E.PIS_MM='04'
+                            LEFT JOIN T_WL_HDPDBOOK F ON A.PHN_NO=F.PHN_NO AND A.PIS_YY=F.PIS_YY AND F.PIS_MM='05'
+                            LEFT JOIN T_WL_HDPDBOOK G ON A.PHN_NO=G.PHN_NO AND A.PIS_YY=G.PIS_YY AND G.PIS_MM='06'
+                            LEFT JOIN T_WL_HDPDBOOK H ON A.PHN_NO=H.PHN_NO AND A.PIS_YY=H.PIS_YY AND H.PIS_MM='07'
+                            LEFT JOIN T_WL_HDPDBOOK I ON A.PHN_NO=I.PHN_NO AND A.PIS_YY=I.PIS_YY AND I.PIS_MM='08'
+                            LEFT JOIN T_WL_HDPDBOOK J ON A.PHN_NO=J.PHN_NO AND A.PIS_YY=J.PIS_YY AND J.PIS_MM='09'
+                            LEFT JOIN T_WL_HDPDBOOK K ON A.PHN_NO=K.PHN_NO AND A.PIS_YY=K.PIS_YY AND K.PIS_MM='10'
+                            LEFT JOIN T_WL_HDPDBOOK L ON A.PHN_NO=L.PHN_NO AND A.PIS_YY=L.PIS_YY AND L.PIS_MM='11'
+                            LEFT JOIN T_WL_HDPDBOOK M ON A.PHN_NO=M.PHN_NO AND A.PIS_YY=M.PIS_YY AND M.PIS_MM='12'
+                    WHERE   A.PIS_YY = ?
+                    GROUP BY A.GBN_TAG, A.PHN_NO, A.PIS_YY, A.NAME_GBN, A.ENO_NO, A.ENO_NM, A.JOB_CD,
+                            B.KR_USE_AMT, C.KR_USE_AMT, D.KR_USE_AMT, E.KR_USE_AMT, F.KR_USE_AMT, G.KR_USE_AMT,
+							H.KR_USE_AMT, I.KR_USE_AMT, J.KR_USE_AMT, K.KR_USE_AMT, L.KR_USE_AMT, M.KR_USE_AMT) AA,
+                   ( SELECT A.PIS_YY, A.PHN_NO, SUM(KR_USE_AMT) AS TOTAL
+				     FROM   T_WL_HDPDBOOK A
+                     WHERE  PIS_YY = ?
+                     GROUP BY A.PHN_NO,A.PIS_YY) BB,
+                   ( SELECT A.PIS_YY, A.PHN_NO, B.COMM_NM AS JOB_NM, B.SORT_NO
+                     FROM (T_WL_HDPDBOOK A
+					       LEFT JOIN T_CM_COMMON B ON CD_GBN='A2' AND A.JOB_CD=B.COMM_CD)
+                     WHERE PIS_YY = ?
+                     GROUP BY A.PHN_NO, A.PIS_YY, B.COMM_NM, B.SORT_NO) CC
+            WHERE  AA.PIS_YY=BB.PIS_YY(+)
+			AND    AA.PHN_NO=BB.PHN_NO(+)
+			AND    AA.PIS_YY=CC.PIS_YY(+)
+			AND    AA.PHN_NO=CC.PHN_NO(+)
+			AND    AA.GBN_TAG='1'
+            ORDER BY NAME_GBN ASC, SORT_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+<!-- 임원휴대폰 사용료 현황 -->
+<!--
+***********************************************************************
+* @UseCase     : WELB050
+* @description : 임원휴대폰 사용료 현황
+***********************************************************************
+* 2007/03/19   방석호        최초작성.
+***********************************************************************
+-->
+
+	<!-- 임원휴대폰 사용료 현황 조회 -->
+    <sql name="WELB050_PRT">
+        <description>임원휴대폰 사용료 현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT Decode(NAME_GBN,'1','법인','2','개인') AS NAME_GUBUN, JOB_NM, JOB_CD, ENO_NM, AA.PHN_NO, AA.PIS_YY, AMT01,
+                   AMT02, AMT03, AMT04, AMT05, AMT06, AMT07, AMT08, AMT09, AMT10,
+				   AMT11, AMT12, TOTAL
+		    FROM   ( SELECT A.GBN_TAG, A.PIS_YY, A.PHN_NO, A.NAME_GBN, A.ENO_NO, A.ENO_NM,
+			                A.JOB_CD, B.KR_USE_AMT AS AMT01, C.KR_USE_AMT AS AMT02,
+							D.KR_USE_AMT AS AMT03, E.KR_USE_AMT AS AMT04, F.KR_USE_AMT AS AMT05,
+							G.KR_USE_AMT AS AMT06, H.KR_USE_AMT AS AMT07, I.KR_USE_AMT AS AMT08,
+							J.KR_USE_AMT AS AMT09, K.KR_USE_AMT AS AMT10, L.KR_USE_AMT AS AMT11,
+							M.KR_USE_AMT AS AMT12
+                     FROM   T_WL_HDPDBOOK A
+                            LEFT JOIN T_WL_HDPDBOOK B ON A.PHN_NO=B.PHN_NO AND A.PIS_YY=B.PIS_YY AND B.PIS_MM='01'
+                            LEFT JOIN T_WL_HDPDBOOK C ON A.PHN_NO=C.PHN_NO AND A.PIS_YY=C.PIS_YY AND C.PIS_MM='02'
+                            LEFT JOIN T_WL_HDPDBOOK D ON A.PHN_NO=D.PHN_NO AND A.PIS_YY=D.PIS_YY AND D.PIS_MM='03'
+                            LEFT JOIN T_WL_HDPDBOOK E ON A.PHN_NO=E.PHN_NO AND A.PIS_YY=E.PIS_YY AND E.PIS_MM='04'
+                            LEFT JOIN T_WL_HDPDBOOK F ON A.PHN_NO=F.PHN_NO AND A.PIS_YY=F.PIS_YY AND F.PIS_MM='05'
+                            LEFT JOIN T_WL_HDPDBOOK G ON A.PHN_NO=G.PHN_NO AND A.PIS_YY=G.PIS_YY AND G.PIS_MM='06'
+                            LEFT JOIN T_WL_HDPDBOOK H ON A.PHN_NO=H.PHN_NO AND A.PIS_YY=H.PIS_YY AND H.PIS_MM='07'
+                            LEFT JOIN T_WL_HDPDBOOK I ON A.PHN_NO=I.PHN_NO AND A.PIS_YY=I.PIS_YY AND I.PIS_MM='08'
+                            LEFT JOIN T_WL_HDPDBOOK J ON A.PHN_NO=J.PHN_NO AND A.PIS_YY=J.PIS_YY AND J.PIS_MM='09'
+                            LEFT JOIN T_WL_HDPDBOOK K ON A.PHN_NO=K.PHN_NO AND A.PIS_YY=K.PIS_YY AND K.PIS_MM='10'
+                            LEFT JOIN T_WL_HDPDBOOK L ON A.PHN_NO=L.PHN_NO AND A.PIS_YY=L.PIS_YY AND L.PIS_MM='11'
+                            LEFT JOIN T_WL_HDPDBOOK M ON A.PHN_NO=M.PHN_NO AND A.PIS_YY=M.PIS_YY AND M.PIS_MM='12'
+                    WHERE   A.PIS_YY = ?
+                    GROUP BY A.GBN_TAG, A.PHN_NO, A.PIS_YY, A.NAME_GBN, A.ENO_NO, A.ENO_NM, A.JOB_CD,
+                            B.KR_USE_AMT, C.KR_USE_AMT, D.KR_USE_AMT, E.KR_USE_AMT, F.KR_USE_AMT, G.KR_USE_AMT,
+							H.KR_USE_AMT, I.KR_USE_AMT, J.KR_USE_AMT, K.KR_USE_AMT, L.KR_USE_AMT, M.KR_USE_AMT) AA,
+                   ( SELECT A.PIS_YY, A.PHN_NO, SUM(KR_USE_AMT) AS TOTAL
+				     FROM   T_WL_HDPDBOOK A
+                     WHERE  PIS_YY = ?
+                     GROUP BY A.PHN_NO,A.PIS_YY) BB,
+                   ( SELECT A.PIS_YY, A.PHN_NO, B.COMM_NM AS JOB_NM, B.SORT_NO
+                     FROM (T_WL_HDPDBOOK A
+					       LEFT JOIN T_CM_COMMON B ON CD_GBN='A2' AND A.JOB_CD=B.COMM_CD)
+                     WHERE PIS_YY = ?
+                     GROUP BY A.PHN_NO, A.PIS_YY, B.COMM_NM, B.SORT_NO) CC
+            WHERE  AA.PIS_YY=BB.PIS_YY(+)
+			AND    AA.PHN_NO=BB.PHN_NO(+)
+			AND    AA.PIS_YY=CC.PIS_YY(+)
+			AND    AA.PHN_NO=CC.PHN_NO(+)
+			AND    AA.GBN_TAG='1'
+            ORDER BY NAME_GBN ASC, SORT_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+<!-- 개인 보조비 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELB060
+* @description : 개인 보조비 관리
+***********************************************************************
+* 2006/12/12     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 개인 보조비 현황 조회 -->
+    <sql name="WELB060_SHR">
+        <description>부서별 보조비 관리내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YYMM
+                 , PHN_NO
+                 , KR_USE_AMT
+                 , KR_SUB_AMT
+                 , FR_USE_AMT
+              FROM (SELECT PIS_YY||'-'||PIS_MM AS PIS_YYMM
+                         , PHN_NO
+                         , NVL(KR_USE_AMT,0) KR_USE_AMT
+                         , NVL(KR_SUB_AMT,0) KR_SUB_AMT
+                         , NVL(FR_USE_AMT,0) FR_USE_AMT
+                      FROM T_WL_HDPDBOOK
+                     WHERE ENO_NO = ?
+                       AND YN_TAG = 'Y')
+             WHERE PIS_YYMM BETWEEN ? AND ?
+          ORDER BY PIS_YYMM DESC,PHN_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!-- 복리후생 건강검진 대상자 조회 -->
+<!--
+***********************************************************************
+* @UseCase     : WELC010
+* @description : 건강검진 대상자 조회
+***********************************************************************
+* 2006/12/05      채갑병       최초작성
+* 2007/07/05      조정호       쿼리수정
+***********************************************************************
+-->
+    <!-- 날짜에 따른 건강검진 대상자 정보를 조회 한다. -->
+    <sql name="WELC010_SHR">
+        <description>건강검진 대상자정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT E.*
+              FROM (SELECT D.OCC_CD
+                         , D.ENO_NO
+                         , D.ENO_NM
+                         , D.DPT_CD
+                         , D.DPT_NM
+                         , D.DPT_SEQ
+                         , D.JOB_CD
+                         , D.JOB_NM
+                         , D.JOB_SEQ
+                         , D.PAST_YY    --검진받은후 지난 년수
+                         , D.CONT_YY    --근속년수
+                         , D.PRO_YMD1
+                         , D.PRO_YMD2
+                         , D.PRO_YMD3
+                         , D.PRO_YMD4
+                         , D.PRO_YMD5
+                         , D.HIR_YMD
+                         , CASE
+                           -- 사무직이면서 건강검진을 받은지 2년이 넘은 사람
+                           WHEN D.OCC_CD = 'A'
+                            AND PAST_YY >= 2
+                           THEN 'T'
+                           -- 사무직이면서 작년 입사자인 사람
+                           WHEN D.OCC_CD = 'A'
+                            AND CONT_YY < 2
+                           THEN 'T'
+                           -- 택배직이면서 근속년수가 1년을 넘은 사람 (올해 입사자 제외한 모두)
+                           WHEN D.OCC_CD = 'M'
+                            AND CONT_YY >= 1
+                           THEN 'T'
+                           ELSE 'F'
+                            END AS IS_TRG
+                      FROM (SELECT A.OCC_CD
+                                 , A.ENO_NO
+                                 , A.ENO_NM
+                                 , A.DPT_CD
+                                 , A.DPT_NM
+                                 , A.DPT_SEQ
+                                 , A.JOB_CD
+                                 , A.JOB_NM
+                                 , A.JOB_SEQ
+                                 , TRUNC(MONTHS_BETWEEN( TO_DATE(?||'1231', 'YYYYMMDD')
+                                                       , A.HIR_YMD) / 12
+                                         ) AS CONT_YY       --비교날짜와 비교한 근속년수
+
+                                 , TRUNC(MONTHS_BETWEEN( TO_DATE(?||'1231', 'YYYYMMDD')
+                                                       , NVL(TO_DATE(C.PRO_YMD1, 'YYYY-MM-DD'), A.HIR_YMD)) / 12
+                                         ) AS PAST_YY       --비교날짜와 검진날짜를 비교해 지난 횟수
+
+                                 , C.PRO_YMD1
+                                 , C.PRO_YMD2
+                                 , C.PRO_YMD3
+                                 , C.PRO_YMD4
+                                 , C.PRO_YMD5
+                                 , TO_CHAR(A.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+                              FROM VI_T_CM_PERSON A
+                         LEFT JOIN (SELECT ENO_NO
+                                         , MAX(DECODE(B.NUM, 1, B.PRO_YMD)) AS PRO_YMD1
+                                         , MAX(DECODE(B.NUM, 2, B.PRO_YMD)) AS PRO_YMD2
+                                         , MAX(DECODE(B.NUM, 3, B.PRO_YMD)) AS PRO_YMD3
+                                         , MAX(DECODE(B.NUM, 4, B.PRO_YMD)) AS PRO_YMD4
+                                         , MAX(DECODE(B.NUM, 5, B.PRO_YMD)) AS PRO_YMD5
+                                      FROM (SELECT ROW_NUMBER() OVER(PARTITION BY ENO_NO ORDER BY PRO_YMD DESC) AS NUM
+                                                 , ENO_NO
+                                                 , TO_CHAR(TO_DATE(PRO_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS PRO_YMD
+                                              FROM T_CM_BODY
+                                            ) B
+                                  GROUP BY ENO_NO
+                                    ) C
+                                ON A.ENO_NO = C.ENO_NO
+                            ) D
+                    ) E
+             WHERE IS_TRG = NVL(?, IS_TRG)
+               AND DPT_CD = NVL(?, DPT_CD)
+               AND JOB_CD = NVL(?, JOB_CD)
+          ORDER BY DPT_SEQ
+                 , JOB_SEQ
+                 , ENO_NM
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!-- 복리후생 건강검진 결과관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELC020
+* @description : 건강검진 결과관리
+***********************************************************************
+* 2006/12/05      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 날짜 및 부서코드에 따른 건강검진 결과 정보를 조회 한다. -->
+    <sql name="WELC020_SHR">
+        <description>건강검진 결과정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.OCC_CD
+                 , A.ENO_NO
+                 , A.ENO_NM
+                 , A.CET_NO
+                 , TO_CHAR(TO_DATE(B.PRO_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS PRO_YMD
+                 , B.EYE_LEF
+                 , B.EYE_RHT
+                 , B.HEIGHT
+                 , B.WEIGHT
+                 , B.AB_HGT
+                 , B.CBLD_CD
+                 , B.BLD_TYP
+                 , B.XRY_RMK
+                 , B.BLD_PRE
+                 , B.PH
+                 , B.EXM_HSP
+                 , B.DECISION
+                 , B.SPEC
+              FROM VI_T_CM_PERSON A
+                 , T_CM_BODY B
+             WHERE A.ENO_NO = B.ENO_NO
+               AND DPT_CD = NVL(?, DPT_CD)
+               [1]
+          ORDER BY B.PRO_YMD
+                 , A.DPT_SEQ
+                 , A.JOB_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다. -->
+    <sql name="WELC020_SHR_01">
+        <description>사원 정보조회</description>
+        <query>
+            <![CDATA[
+             SELECT OCC_CD
+                  , ENO_NO
+                  , ENO_NM
+                  , DPT_NM
+                  , JOB_NM
+               FROM VI_T_CM_PERSON2
+              WHERE CET_NO = ?
+                AND (RET_YMD IS NULL
+                 OR  RET_YMD >= SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 새로추가된 건강검진 결과를 저장 한다. -->
+    <sql name="WELC020_INS">
+        <description>건강검진 결과 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_CM_BODY
+                 ( ENO_NO
+                 , PRO_YMD
+                 , OCC_CD
+                 , EYE_LEF
+                 , EYE_RHT
+                 , HEIGHT
+                 , WEIGHT
+                 , AB_HGT
+                 , CBLD_CD
+                 , BLD_TYP
+                 , XRY_RMK
+                 , BLD_PRE
+                 , PH
+                 , EXM_HSP
+                 , DECISION
+                 , SPEC
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( ?
+                 , ?
+                 , (SELECT OCC_CD
+                      FROM T_CM_PERSON
+                     WHERE ENO_NO = ?
+                    )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 건강검진 결과를 수정한다. -->
+    <sql name="WELC020_UPT">
+        <description>건강검진 결과를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_CM_BODY
+            SET     PRO_YMD         = ?,             -- 검진일자
+                    EYE_LEF         = ?,             -- 좌시력
+                    EYE_RHT         = ?,             -- 우시력
+                    HEIGHT          = ?,             -- 신장
+                    WEIGHT          = ?,             -- 체중
+                    AB_HGT          = ?,             -- 흉위
+                    CBLD_CD         = ?,             -- 색맹 CODE
+                    BLD_TYP         = ?,             -- 혈액형
+                    XRY_RMK         = ?,             -- X선 소견
+                    BLD_PRE         = ?,             -- 혈압
+                    PH              = ?,             -- 뇨검사 PH
+                    EXM_HSP         = ?,             -- 검사병원
+                    DECISION        = ?,             -- 판정
+                    SPEC            = ?,             -- 특기사항
+                    UPT_MAN         = ?,             -- 마지막 수정자 사번
+                    UPT_YMD         = sysdate        -- 마지막 수정일자
+            WHERE   ENO_NO          = ?
+            AND     PRO_YMD         = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 건강검진 결과를 삭제 한다. -->
+    <sql name="WELC020_DEL">
+        <description>검진결과 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  T_CM_BODY
+             WHERE   ENO_NO   = ?
+             AND     PRO_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 복리후생 건강검진 장부관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELC030
+* @description : 건강검진 장부관리
+***********************************************************************
+* 2006/12/07      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 날짜 및 부서코드에 따른 건강검진 장부를 조회 한다. -->
+    <sql name="WELC030_SHR">
+        <description>건강검진 장부 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO
+                 , A.SEQ_NO
+                 , TO_CHAR(TO_DATE(A.CHIT_YMD,  'YYYYMMDD'),'YYYY-MM-DD') AS CHIT_YMD
+                 , TO_CHAR(TO_DATE(A.CHIT_YMD2, 'YYYYMMDD'),'YYYY-MM-DD') AS CHIT_YMD2
+                 , A.ENO_NO
+                 , A.ENO_NM
+                 , B.DPT_NM
+                 , B.JOB_NM
+                 , A.CHIT_TXT
+                 , A.CHIT_AMT
+              FROM T_WL_BODYBOOK A
+                 , VI_T_CM_PERSON B
+             WHERE [1]
+               AND A.ENO_NO = B.ENO_NO
+          ORDER BY A.CHIT_YMD
+                 , A.ENO_NM ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 새로추가된 건강검진 장부를 저장 한다. -->
+    <sql name="WELC030_INS">
+        <description>건강검진 장부 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO T_WL_BODYBOOK
+                     ( ORD_NO, SEQ_NO, CHIT_YMD, CHIT_YMD2, ENO_NO, ENO_NM, CHIT_TXT, CHIT_AMT,
+                       IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+             VALUES
+                     (?, ?, ?, ?, ?, ?, ?, ?,
+                      ?, sysdate, ?, sysdate)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 건강검진 장부를 수정한다. -->
+    <sql name="WELC030_UPT">
+        <description>건강검진 장부 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_WL_BODYBOOK
+             SET     ORD_NO          = ?,
+                     SEQ_NO          = ?,
+                     CHIT_TXT        = ?,             -- 내용
+                     CHIT_AMT        = ?,             -- 비용
+                     CHIT_YMD        = ?,
+                     UPT_MAN         = ?,             -- 마지막 수정자 사번
+                     UPT_YMD         = SYSDATE        -- 마지막 수정일자
+             WHERE   ENO_NO          = ?
+             AND     CHIT_YMD2       = ?
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 건강검진 장부를 삭제 한다. -->
+    <sql name="WELC030_DEL">
+        <description>건강검진 장부 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE T_WL_BODYBOOK
+             WHERE  ENO_NO          = ?
+             AND    CHIT_YMD2       = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : WELD010
+* @description : 콘도공통코드관리
+***********************************************************************
+* 2006/12/14     오대성        최초작성(공통코드).
+***********************************************************************
+-->
+    <!-- 코드,코드명에 따른 데이터 조회 -->
+    <sql name="WELD010_SHR">
+        <description>콘도공통코드 검색</description>
+        <query>
+            <![CDATA[
+            SELECT COMM_CD,
+                   COMM_NM
+            FROM   T_CM_COMMON
+            WHERE  GUBUN = ?
+            AND    CD_GBN = '**'
+			AND    ( COMM_CD = 'CN' OR COMM_CD = 'CO' )
+            AND    ( COMM_CD LIKE '%'||?||'%' OR COMM_NM LIKE '%'||?||'%' )
+			ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 코드에 따른 콘도공통코드 상세 데이터 조회 -->
+    <sql name="WELD010_SHR_01">
+        <description>콘도공통코드 상세 검색</description>
+        <query>
+            <![CDATA[
+            SELECT CD_GBN, COMM_CD, COMM_NM, COMM_NM2, SORT_NO,
+                   EXT_01, EXT_02, EXT_03, EXT_04, OTH_DEC,
+                   TO_CHAR(END_YMD, 'YYYY-MM-DD') AS END_YMD
+            FROM   T_CM_COMMON
+            WHERE  GUBUN = ?
+            AND    CD_GBN = ?
+			ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도공통코드 신규 저장 -->
+    <sql name="WELD010_INS">
+        <description>콘도공통코드 상세 등록</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CM_COMMON
+                 ( GUBUN, CD_GBN, COMM_CD,
+                   COMM_NM, COMM_NM2, SORT_NO, EXT_01, EXT_02, EXT_03, EXT_04, OTH_DEC, STR_YMD, END_YMD,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 ( ?, ?, ?,
+                   ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE, ?,
+                   ?, SYSDATE, ?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도공통코드 수정 -->
+    <sql name="WELD010_UPT">
+        <description>콘도공통코드 상세 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_COMMON
+            SET    COMM_NM = ?, --공통코드 명칭
+                   COMM_NM2 = ?, --공통코드 명칭2
+                   SORT_NO = ?, --display sorting 순서
+                   EXT_01 = ?, --기타 항목1
+                   EXT_02 = ?, --기타 항목2
+                   EXT_03 = ?, --기타 항목3
+                   EXT_04 = ?, --기타 항목4
+                   OTH_DEC = ?, --기타 비고사항
+                   END_YMD = ?, --코드 사용기간(종료,폐기일)
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = sysdate --최종 수정일시
+            WHERE  GUBUN = ? --회계 단위
+            AND    CD_GBN = ? --공통 코드 구분
+            AND    COMM_CD = ? --공통 코드
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도공통코드 삭제 -->
+    <sql name="WELD010_DEL">
+        <description>콘도공통코드 상세 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_CM_COMMON
+            WHERE  GUBUN = ?
+            AND    CD_GBN = ?
+            AND    COMM_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : WELD020
+* @description : 콘도이용신청
+***********************************************************************
+* 2006/12/14     오대성        최초작성.
+***********************************************************************
+-->
+
+    <!-- 콘도선택에 따른 지역별 콘도 상세 데이터 조회 -->
+    <sql name="WELD020_SHR_01">
+        <description>지역별 콘도 상세 검색</description>
+        <query>
+            <![CDATA[
+            SELECT CD_GBN
+                 , COMM_CD
+                 , COMM_NM
+                   ||NVL2(EXT_01,'/'||EXT_01||'평','')
+                   ||NVL2(EXT_02,'/'||EXT_02||'명','')
+                   ||NVL2(EXT_03,'/'||EXT_03,'')        AS COMM_NM
+              FROM T_CM_COMMON
+             WHERE GUBUN = ?
+               AND CD_GBN = 'CO'
+			   AND COMM_CD LIKE ?||'%'
+	      ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 콘도 성수기 관리 테이블에서 성수기 기간 조회 -->
+    <sql name="WELD020_SHR_02">
+        <description>성수기 기간 조회</description>
+        <query>
+            <![CDATA[
+            SELECT *
+              FROM (SELECT ROW_NUMBER() OVER(ORDER BY ORD_NO DESC) AS NUM
+                         , STR_YMD
+                         , END_YMD
+                      FROM T_WL_CONDOSSN
+                    )
+             WHERE NUM = 1
+
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 콘도이용신청 내역 조회 -->
+    <sql name="WELD020_SHR">
+        <description>콘도이용신청 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , SF_GET_ENONAME('01', A.ENO_NO)                           AS ENO_NM
+                 , TO_CHAR(TO_DATE(A.STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')    AS STR_YMD
+                 , A.CN_CD
+                 , A.CO_CD
+                 , A.STAY_CNT
+                 , A.ROOM_CNT
+                 , A.RSV_GBN
+                 , A.RSV_NO
+                 , DECODE( A.RST_GBN
+                         , NULL, '1'
+                         , '4' , '3'
+                         , '5' , '3'
+                         , A.RST_GBN
+                           ) AS RST_GBN   --결과 코드 - 일반취소, 완료취소도 취소로서 구분 - 신청결과 1.미회신  2.확정  3.일반취소  4.완료취소  5.NoShow
+                 , A.SEASON_GBN                                                             --시즌 구분
+                 , B.COMM_NM AS CO_NM
+                 , B.EXT_01
+                 , B.EXT_02
+                 , B.EXT_03
+                 , A.ENO_TEL
+              FROM T_WL_CONDOUSE A
+                 , T_CM_COMMON B
+             WHERE A.ENO_NO             = NVL(?, A.ENO_NO)
+               AND NVL(A.RSV_GBN,' ')   LIKE '%'||?||'%'
+               AND A.CO_CD              = B.COMM_CD
+               AND B.CD_GBN             = 'CO'
+               [1]
+          ORDER BY STR_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도이용신청 신규 저장 -->
+    <sql name="WELD020_INS">
+        <description>콘도이용신청 등록</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_CONDOUSE
+                 ( ENO_NO, STR_YMD, CN_CD, CO_CD, STAY_CNT, ROOM_CNT,
+				   RSV_GBN, RSV_NO, RST_GBN, SEASON_GBN, ENO_TEL,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 ( ?     , ?      , ?      , ?       , ?       , ?       ,
+				   ?     , ?      , ?      , ?       , ?,
+                   ?     , SYSDATE, ?     , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도이용신청 수정 -->
+    <sql name="WELD020_UPT">
+        <description>콘도이용신청 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_CONDOUSE
+            SET    CN_CD = ?,
+			       CO_CD = ?,
+                   STAY_CNT = ?,
+				   ROOM_CNT = ?,
+				   RSV_GBN = ?,
+				   RST_GBN = ?,
+				   ENO_TEL = ?,
+				   UPT_MAN = ?,
+				   UPT_YMD = sysdate
+            WHERE  ENO_NO = ?
+			AND    STR_YMD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도이용신청 삭제 -->
+    <sql name="WELD020_DEL">
+        <description>콘도이용신청 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CONDOUSE
+            WHERE  ENO_NO = ?
+            AND    STR_YMD = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : WELD030
+* @description : 콘도신청처리
+***********************************************************************
+* 2006/12/15     오대성        최초작성.
+* 2007/03/19		 방석호		  수정 (CN_NAME 추가)
+***********************************************************************
+-->
+
+	<!-- 콘도 신청 내역 조회 -->
+    <sql name="WELD030_SHR">
+        <description>콘도 신청 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , TO_CHAR(TO_DATE(A.STR_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD
+                 , TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') AS IPT_YMD
+                 , A.CN_CD
+                 , SF_GET_COMMNAME('01','CN',A.CN_CD) AS CN_NAME
+                 , A.CO_CD
+                 , (SELECT COMM_NM
+                           ||NVL2(EXT_01,'/'||EXT_01||'평','')
+                           ||NVL2(EXT_02,'/'||EXT_02||'명','')
+                           ||NVL2(EXT_03,'/'||EXT_03,'')
+                      FROM T_CM_COMMON
+                     WHERE GUBUN  = '01'
+                       AND CD_GBN = 'CO'
+                       AND COMM_CD LIKE A.CO_CD
+                    ) AS CO_NM
+                 , A.STAY_CNT
+                 , A.ROOM_CNT
+                 , A.RSV_GBN
+                 , A.RSV_NO
+                 , A.RST_GBN
+                 , A.SEASON_GBN
+                 , B.DPT_NM
+                 , B.JOB_NM
+                 , B.ENO_NM
+                 , A.ENO_TEL
+                 , (SELECT COUNT(*)
+                      FROM T_WL_CONDOUSE
+                     WHERE ENO_NO = A.ENO_NO
+                       AND SUBSTR(STR_YMD,1,4) = TO_CHAR(SYSDATE, 'YYYY')
+                       AND RST_GBN = '2'
+                    ) AS USE_CNT
+              FROM T_WL_CONDOUSE A
+                 , VI_T_CM_PERSON B
+             WHERE A.ENO_NO = B.ENO_NO
+               AND NVL(A.CN_CD,' ') LIKE '%'||?||'%'
+               AND NVL(A.SEASON_GBN,' ') LIKE '%'||?||'%'
+               [1]
+          ORDER BY A.IPT_YMD DESC
+                 , A.STR_YMD DESC
+                 , B.DPT_SEQ
+                 , B.JOB_SEQ
+                 , B.HOB_SEQ DESC
+                 , B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 콘도 신청 처리 -->
+    <sql name="WELD030_UPT">
+        <description>콘도 신청 내역 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_CONDOUSE
+            SET    RSV_GBN = ?,
+			       RSV_NO = ?,
+                   RST_GBN = ?,
+				   UPT_MAN = ?,
+				   UPT_YMD = sysdate
+            WHERE  ENO_NO = ?
+			AND    STR_YMD = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : WELD040
+* @description : 콘도 성수기 관리
+***********************************************************************
+* 2006/12/15     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 콘도 성수기 등록 내역 조회 -->
+    <sql name="WELD040_SHR">
+        <description>콘도 성수기 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO
+                 , TO_DATE(STR_YMD, 'YYYY-MM-DD') AS STR_YMD
+                 , TO_DATE(END_YMD, 'YYYY-MM-DD') AS END_YMD
+                 , TO_DATE(APP1_YMD, 'YYYY-MM-DD') AS APP1_YMD
+                 , TO_DATE(APP2_YMD, 'YYYY-MM-DD') AS APP2_YMD
+              FROM T_WL_CONDOSSN
+             WHERE ORD_NO LIKE ?||'%'
+          ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도 성수기 신규 저장 -->
+    <sql name="WELD040_INS">
+        <description>콘도 성수기 등록</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_CONDOSSN
+                 ( ORD_NO, STR_YMD, END_YMD, APP1_YMD, APP2_YMD,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 ( ?     , ?      , ?      , ?       , ?       ,
+                   ?      , SYSDATE, ?      , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도 성수기 등록내용 수정 -->
+    <sql name="WELD040_UPT">
+        <description>콘도 성수기 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_CONDOSSN
+            SET    STR_YMD = ?,
+			       END_YMD = ?,
+                   APP1_YMD = ?,
+				   APP2_YMD = ?,
+				   UPT_MAN = ?,
+				   UPT_YMD = sysdate
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도 성수기 내용 삭제 -->
+    <sql name="WELD040_DEL">
+        <description>콘도 성수기 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CONDOSSN
+             WHERE ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+    <sql name="WELD040_DEL_01">
+        <description>콘도 성수기 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CONDORSV
+             WHERE ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+    <sql name="WELD040_DEL_02">
+        <description>콘도 성수기 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CONDOLOT
+             WHERE ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : WELD050
+* @description : 성수기 콘도 등록
+***********************************************************************
+* 2006/12/18     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 콘도 성수기 관리번호 조회 -->
+    <sql name="WELD050_SHR_01">
+        <description>콘도 성수기 관리번호 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO
+                 , TO_DATE(STR_YMD, 'YYYY-MM-DD') AS STR_YMD
+                 , TO_DATE(END_YMD, 'YYYY-MM-DD') AS END_YMD
+              FROM T_WL_CONDOSSN A
+          ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 콘도 성수기 관리번호 조회 -->
+    <sql name="WELD050_SHR">
+        <description>콘도 성수기 관리번호 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO
+                 , SEQ_NO
+                 , SUBSTR(CO_CD, 1, 1) AS CN_CD
+                 , CO_CD
+                 , TO_DATE(STR_YMD, 'YYYY-MM-DD') AS STR_YMD
+                 , RSV_NO
+                 , STAY_CNT
+                 , '1' AS ROOM_CNT
+                 , SF_GET_COMMNAME('01', 'CO', CO_CD) AS CO_NM
+              FROM T_WL_CONDORSV
+             WHERE ORD_NO LIKE ?||'%'
+               AND CO_CD  LIKE ?||'%'
+               [1]
+          ORDER BY ORD_NO DESC
+                 , SEQ_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도 성수기 신규 저장 -->
+    <sql name="WELD050_INS">
+        <description>콘도 성수기 등록</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_CONDORSV
+                 ( ORD_NO,
+				   SEQ_NO,
+				   CO_CD, STR_YMD, RSV_NO, STAY_CNT,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 ( ?     ,
+				   ( SELECT LPAD(DECODE(MAX(SEQ_NO), NULL, 1, TO_NUMBER(MAX(SEQ_NO))+1), 3, '0')
+				     FROM   T_WL_CONDORSV
+				     WHERE  ORD_NO = ? ),
+				   ?    , ?      , ?     , ?       ,
+                   ?      , SYSDATE, ?      , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도 성수기 등록내용 수정 -->
+    <sql name="WELD050_UPT">
+        <description>콘도 성수기 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_CONDORSV
+            SET    CO_CD = ?,
+			       STR_YMD = ?,
+			       RSV_NO = ?,
+                   STAY_CNT = ?,
+				   UPT_MAN = ?,
+				   UPT_YMD = sysdate
+            WHERE  ORD_NO = ?
+			AND    SEQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도 성수기 내용 삭제 -->
+    <sql name="WELD050_DEL">
+        <description>콘도 성수기 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CONDORSV
+             WHERE ORD_NO   = ?
+			   AND CO_CD    = ?
+               AND STR_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+    <sql name="WELD050_DEL_01">
+        <description>콘도 성수기 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CONDOLOT
+             WHERE ORD_NO   = ?
+               AND CO_CD    = ?
+               AND STR_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : WELD060
+* @description : 성수기 추첨 등록
+***********************************************************************
+* 2006/12/19     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 성수기 콘도 추첨 등록 조회 -->
+    <sql name="WELD060_SHR">
+        <description>성수기 콘도 추첨 등록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO
+                 , TO_CHAR(TO_DATE(A.STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS STR_YMD
+                 , A.ROOM_CNT
+                 , NVL(    (SELECT COUNT(*)
+                              FROM T_WL_CONDOLOT
+                             WHERE ORD_NO   = A.ORD_NO
+                               AND CO_CD    = A.CO_CD
+                               AND STR_YMD  = A.STR_YMD
+                               AND STAY_CNT = A.STAY_CNT
+                            )
+                      , 0)      AS APP_CNT       -- 현재 신청한 사람의 수
+                 , DECODE( (SELECT COUNT(*)
+                              FROM T_WL_CONDOLOT
+                             WHERE ORD_NO   = A.ORD_NO
+                               AND CO_CD    = A.CO_CD
+                               AND STR_YMD  = A.STR_YMD
+                               AND STAY_CNT = A.STAY_CNT
+                               AND ENO_NO   = ?
+                            )
+                         , 0
+                         , 'F'
+                         , 'T') AS APP_YN       -- 자신의 신청여부
+                 , A.STAY_CNT
+                 , SUBSTR(A.CO_CD,0,1) AS CN_CD
+                 , SF_GET_COMMNAME('01', 'CN', SUBSTR(A.CO_CD,0,1) ) AS CN_NM
+                 , A.CO_CD
+                 , (SELECT COMM_NM
+                           ||NVL2(EXT_01,'/'||EXT_01||'평','')
+                           ||NVL2(EXT_02,'/'||EXT_02||'명','')
+                           ||NVL2(EXT_03,'/'||EXT_03,'')
+                      FROM T_CM_COMMON
+                     WHERE GUBUN  = '01'
+                       AND CD_GBN = 'CO'
+        			   AND COMM_CD LIKE A.CO_CD
+        			) AS CO_NM
+
+                 , B.APP1_YMD
+                 , B.APP2_YMD
+
+                 , (SELECT COUNT(*)
+                      FROM T_WL_CONDOLOT
+                     WHERE ORD_NO = A.ORD_NO
+                       AND RST_GBN IS NOT NULL
+                    )   AS LOTTERY
+
+              FROM (SELECT ORD_NO
+                         , CO_CD
+                         , STR_YMD
+                         , STAY_CNT
+                         , COUNT(*) AS ROOM_CNT --방갯수
+                      FROM T_WL_CONDORSV
+                  GROUP BY ORD_NO
+                         , CO_CD
+                         , STR_YMD
+                         , STAY_CNT) A  --현재 신청가능한 방 리스트
+                 , T_WL_CONDOSSN B
+             WHERE A.ORD_NO = B.ORD_NO(+)
+               AND A.ORD_NO = ?
+               AND TO_CHAR(SYSDATE, 'YYYYMMDD') BETWEEN B.APP1_YMD
+                                                    AND B.APP2_YMD
+          ORDER BY A.STR_YMD
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 성수기 콘도 추첨 등록 조회 -->
+    <sql name="WELD060_SHR_01">
+        <description>성수기 콘도 추첨 등록 조회</description>
+        <query>
+            <![CDATA[
+			SELECT APP1_YMD
+                 , APP2_YMD
+                 , (SELECT COUNT(*)
+                      FROM T_WL_CONDOLOT
+                     WHERE ORD_NO = A.ORD_NO
+                       AND RST_GBN IS NOT NULL
+                    )   AS LOTTERY
+              FROM T_WL_CONDOSSN A
+             WHERE ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 콘도 성수기 추첨 등록 -->
+    <sql name="WELD060_INS">
+        <description>콘도 성수기 추첨 등록자 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_CONDOLOT
+                 ( ORD_NO, ENO_NO, CO_CD, STR_YMD, STAY_CNT,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 ( ?     , ?     , ?    , ?      ,   ?    ,
+                   ?      , SYSDATE, ?      , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 콘도 성수기 추첨 등록 삭제 -->
+    <sql name="WELD060_DEL">
+        <description>콘도 성수기 추첨 등록자 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CONDOLOT
+             WHERE ORD_NO   = ?
+               AND ENO_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : WELD070
+* @description : 성수기 신청자 목록
+***********************************************************************
+* 2006/12/20     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 성수기 신청자 목록 조회 -->
+    <sql name="WELD070_SHR">
+        <description>성수기 신청자 목록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO
+                 , A.CO_CD
+                 , TO_DATE(A.STR_YMD,'YYYY-MM-DD') AS STR_YMD
+                 , A.ROOM_CNT
+                 , A.STAY_CNT
+                 , NVL(B.APP_CNT, 0) AS APP_CNT
+                 , C.COMM_NM
+                   ||NVL2(C.EXT_01,'/'||C.EXT_01||'평','')
+                   ||NVL2(C.EXT_02,'/'||C.EXT_02||'명','')
+                   ||NVL2(C.EXT_03,'/'||C.EXT_03,'') AS CO_NM
+                 , SUBSTR(A.CO_CD,0,1) AS CN_CD
+                 , (SELECT COMM_NM
+                      FROM T_CM_COMMON
+                     WHERE CD_GBN = 'CN'
+                       AND COMM_CD = SUBSTR(A.CO_CD,0,1)
+                    )   AS CN_NM
+                 , (SELECT COUNT(*)
+                      FROM T_WL_CONDOLOT
+                     WHERE ORD_NO = A.ORD_NO
+                       AND RST_GBN IS NOT NULL
+                    )   AS LOTTERY
+              FROM (SELECT ORD_NO
+                         , CO_CD
+                         , STR_YMD
+                         , STAY_CNT
+                         , COUNT(*) AS ROOM_CNT
+                      FROM T_WL_CONDORSV
+                  GROUP BY ORD_NO
+                         , CO_CD
+                         , STR_YMD
+                         , STAY_CNT
+                    ) A
+                 , (SELECT ORD_NO
+                         , CO_CD
+                         , STR_YMD
+                         , STAY_CNT -- 추가
+                         , COUNT(*) AS APP_CNT
+                      FROM T_WL_CONDOLOT
+                  GROUP BY ORD_NO
+                         , CO_CD
+                         , STR_YMD
+                         , STAY_CNT
+                    ) B
+                 , T_CM_COMMON C
+             WHERE NVL(A.ORD_NO,' ') LIKE '%'||?||'%'
+               AND SUBSTR(A.ORD_NO,1,4) = SUBSTR((SELECT MAX(ORD_NO) FROM T_WL_CONDOSSN),1,4)
+               AND A.ORD_NO     = B.ORD_NO(+)
+               AND A.CO_CD      = B.CO_CD(+)
+               AND A.STR_YMD    = B.STR_YMD(+)
+               AND A.STAY_CNT	= B.STAY_CNT(+) -- 추가
+               AND C.CD_GBN     = 'CO'
+               AND C.COMM_CD    = A.CO_CD
+          ORDER BY A.ORD_NO
+                 , A.STR_YMD
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 성수기 이용가능한 콘도 조회 -->
+    <sql name="WELD070_SHR_01">
+        <description>성수기 이용가능한 콘도 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SEQ_NO
+                 , RSV_NO
+              FROM T_WL_CONDORSV
+             WHERE ORD_NO   = ?
+               AND CO_CD    = ?
+               AND STR_YMD  = ?
+               AND STAY_CNT = ?	-- 추가
+          ORDER BY SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 성수기 콘도 추첨 등록자 조회 -->
+    <sql name="WELD070_SHR_02">
+        <description>성수기 콘도 추첨 등록자 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+              FROM --대상자 리스트
+                   (SELECT ENO_NO
+                      FROM T_WL_CONDOLOT
+                     WHERE ORD_NO   = ?
+                       AND CO_CD    = ?
+                       AND STR_YMD  = ?
+                       AND STAY_CNT = ? -- 추가
+                    )
+                     MINUS
+                   --제외자 리스트
+                   (SELECT ENO_NO
+                      FROM T_WL_CONDOUSE
+                     WHERE RST_GBN      = '2'   --1미회신 2확정 3일반취소 4완료취소 5NoShow
+                       --현재가 하계성수기 기간이면 저번 동계성수기 기간의 리스트를 가지고 온다.
+                       AND (TO_CHAR(SYSDATE, 'MM') IN ( '07', '08', '09')
+                       AND  SUBSTR(STR_YMD, 1, 6)  IN ( TO_CHAR(ADD_MONTHS(SYSDATE, -12), 'YYYY')||'12'
+                                                      , TO_CHAR(SYSDATE, 'YYYY')||'01'
+                                                      , TO_CHAR(SYSDATE, 'YYYY')||'02' ))
+                       --현재가 동계성수기 기간중 '12'월이면
+                        OR (TO_CHAR(SYSDATE, 'MM') IN ( '12')
+                       AND  SUBSTR(STR_YMD, 1, 6)  IN ( TO_CHAR(SYSDATE, 'YYYY')||'07'
+                                                      , TO_CHAR(SYSDATE, 'YYYY')||'08'
+                                                      , TO_CHAR(SYSDATE, 'YYYY')||'09' ))
+                       --현재가 동계성수기 기간중 '01, 02'월이면
+                        OR (TO_CHAR(SYSDATE, 'MM') IN ( '01', '02')
+                       AND  SUBSTR(STR_YMD, 1, 6)  IN ( TO_CHAR(ADD_MONTHS(SYSDATE, -12), 'YYYY')||'07'
+                                                      , TO_CHAR(ADD_MONTHS(SYSDATE, -12), 'YYYY')||'08'
+                                                      , TO_CHAR(ADD_MONTHS(SYSDATE, -12), 'YYYY')||'09' ))
+
+                     UNION
+                    --최근 3개월간 이용실적이 있는 사람
+                    SELECT ENO_NO
+                      FROM T_WL_CONDOUSE
+                     WHERE RST_GBN      = '2'   --1미회신 2확정 3일반취소 4완료취소 5NoShow
+                       AND STR_YMD BETWEEN TO_CHAR(ADD_MONTHS(SYSDATE, -3), 'YYYYMMDD')
+                                       AND TO_CHAR(SYSDATE, 'YYYYMMDD')
+                     UNION
+                    --비수기때 최근 1년간 no-show가 발생한 사람
+                    SELECT ENO_NO
+                      FROM T_WL_CONDOUSE
+                     WHERE RST_GBN      = '5'   --1미회신 2확정 3일반취소 4완료취소 5NoShow
+                       AND SEASON_GBN   = '1'   --1.비성수기 2.성수기
+                       AND STR_YMD BETWEEN TO_CHAR(ADD_MONTHS(SYSDATE, -12), 'YYYYMMDD')
+                                       AND TO_CHAR(SYSDATE, 'YYYYMMDD')
+                     UNION
+                    --성수기때 최근 2년간 no-show가 발생한 사람
+                    SELECT ENO_NO
+                      FROM T_WL_CONDOUSE
+                     WHERE RST_GBN      = '5'   --1미회신 2확정 3일반취소 4완료취소 5NoShow
+                       AND SEASON_GBN   = '2'   --1.비성수기 2.성수기
+                       AND STR_YMD BETWEEN TO_CHAR(ADD_MONTHS(SYSDATE, -24), 'YYYYMMDD')
+                                       AND TO_CHAR(SYSDATE, 'YYYYMMDD')
+                    )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 성수기 이용가능한 콘도 조회 -->
+    <sql name="WELD070_SHR_03">
+        <description>성수기 이용가능한 콘도 조회</description>
+        <query>
+            <![CDATA[
+            SELECT COUNT(*) AS CNT
+			FROM   T_WL_CONDOLOT
+            WHERE  ORD_NO = ?
+			AND    CO_CD = ?
+			AND    STR_YMD = ?
+			AND	   STAY_CNT = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 성수기 콘도 추첨 등록자 수정 -->
+    <sql name="WELD070_UPT">
+        <description>성수기 콘도 추첨 내용 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_CONDOLOT
+               SET SEQ_NO   = LPAD(?, 3, 0)
+			     , RST_GBN  = ?
+			     , RSV_NO   = ?      --예약번호
+				 , UPT_MAN  = ?
+				 , UPT_YMD  = SYSDATE
+             WHERE ORD_NO   = ?
+			   AND ENO_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 콘도이용신청 신규 저장(성수기 콘도신청 당첨자) -->
+    <sql name="WELD070_INS">
+        <description>콘도이용신청 등록</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_WL_CONDOUSE
+                 ( ENO_NO
+                 , STR_YMD
+                 , CN_CD
+                 , CO_CD
+                 , STAY_CNT
+                 , ROOM_CNT
+                 , RSV_GBN
+                 , RSV_NO
+                 , RST_GBN
+                 , SEASON_GBN
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , '1'          -- 객실수
+                 , '3'          -- 신청상태 1.신청  2.취소  3.예약
+                 , ?            -- 예약번호
+                 , ?            -- 신청결과 1.미회신  2.확정  3.일반취소  4.완료취소  5.NoShow, 6.미당첨
+                 , '2'          -- 성수기 구분 1.비성수기 2.성수기
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콘도이용신청 초기화 -->
+    <sql name="WELD070_DEL">
+        <description>콘도이용신청 초기화</description>
+        <query>
+            <![CDATA[
+            DECLARE
+                l_ord_no    VARCHAR2(7);
+            BEGIN
+                l_ord_no    := ?;
+
+                -- 콘도 이용현황 삭제
+                DELETE
+                  FROM T_WL_CONDOUSE A
+                 WHERE (CO_CD, STR_YMD, STAY_CNT) IN (SELECT CO_CD, STR_YMD, STAY_CNT -- 콘도구분을 위한 STAY_CNT추가
+                                              FROM T_WL_CONDOLOT
+                                             WHERE ORD_NO = l_ord_no
+                                            )
+                   AND SEASON_GBN = '2';
+
+                -- 콘도 추첨내역 삭제
+                UPDATE T_WL_CONDOLOT
+                   SET SEQ_NO    = ''
+                     , RST_GBN   = ''
+                     , RSV_NO    = ''
+                 WHERE ORD_NO    = l_ord_no;
+            END;
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 콤보박스 조회 -->
+    <sql name="WELD070_SHR_04">
+        <description>콤보박스 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO, TO_DATE(STR_YMD, 'YYYY-MM-DD') AS STR_YMD,
+			TO_DATE(END_YMD, 'YYYY-MM-DD') AS END_YMD
+            FROM   T_WL_CONDOSSN
+            WHERE  SUBSTR(ORD_NO,1,4) = SUBSTR((SELECT MAX(ORD_NO) FROM T_WL_CONDOSSN),1,4)
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : WELD071
+* @description : 성수기 세부 신청자 목록
+***********************************************************************
+* 2006/12/20     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 성수기 세부 신청자 목록 조회 -->
+    <sql name="WELD071_SHR">
+        <description>성수기 세부 신청자 목록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , B.DPT_NM
+                 , B.JOB_NM
+                 , B.ENO_NM
+                 , (SELECT COUNT(*)
+                      FROM T_WL_CONDOUSE
+                     WHERE STR_YMD <> A.STR_YMD		-- STR_YMD
+							                     -- ORD_NO  <> A.ORD_NO T_WL_CONDOUSE 에는 ORD_NO이 없다.
+                       AND ENO_NO   = A.ENO_NO
+                       AND RST_GBN  = '2'        -- 신청결과 1.미회신  2.확정  3.일반취소  4.완료취소  5.NoShow
+                    )   AS USE_CNT
+                 , DECODE((SELECT COUNT(*)
+                             FROM T_WL_CONDOUSE
+		                     WHERE STR_YMD <> A.STR_YMD
+                            					-- ORD_NO   <> A.ORD_NO 상기와 동일 이유
+                              AND ENO_NO    = A.ENO_NO
+                              AND RST_GBN   = '2'       -- 신청결과 1.미회신  2.확정  3.일반취소  4.완료취소  5.NoShow
+                              AND SEASON_GBN = '2'      -- 성수기 구분 1.비성수기 2.성수기
+                           ), 0, 'N', 'Y') AS APP_YN
+              FROM T_WL_CONDOLOT A
+                 , VI_T_CM_PERSON B
+             WHERE A.ORD_NO = ?
+               AND A.CO_CD = ?
+               AND A.STR_YMD = ?
+               AND A.STAY_CNT = ? --추가
+               AND A.ENO_NO = B.ENO_NO
+          ORDER BY B.DPT_SEQ
+                 , B.JOB_SEQ
+                 , B.HOB_SEQ DESC
+                 , B.HIRG_YMD
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : WELD080
+* @description : 성수기 추첨 결과
+***********************************************************************
+* 2006/12/20     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 성수기 추첨 결과 조회 -->
+    <sql name="WELD080_SHR">
+        <description>성수기 추첨 결과 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO
+                 , A.ENO_NO
+                 , A.RST_GBN
+                 , A.RSV_NO
+                 , SUBSTR(A.CO_CD, 0, 1) AS CN_CD
+                 , A.CO_CD
+                 , TO_DATE(A.STR_YMD, 'YYYY-MM-DD') AS STR_YMD
+                 , B.COMM_NM AS CO_NM
+                 , B.EXT_01
+                 , C.DPT_NM
+                 , C.JOB_NM
+                 , C.ENO_NM
+                 , (SELECT STAY_CNT
+                      FROM T_WL_CONDORSV
+                     WHERE ORD_NO  = A.ORD_NO
+                       AND CO_CD   = A.CO_CD
+                       AND STR_YMD = A.STR_YMD
+                       AND STAY_CNT = A.STAY_CNT	-- 추가
+                  GROUP BY STAY_CNT
+                    )   AS STAY_CNT
+                 , (SELECT COMM_NM
+                      FROM T_CM_COMMON
+                     WHERE CD_GBN   = 'CN'
+                       AND COMM_CD  = SUBSTR(A.CO_CD, 0, 1)
+                    )   AS CN_NM
+
+                 --확정여부확인
+                 , DECODE( (SELECT COUNT(*)
+                              FROM T_WL_CONDOUSE
+                             WHERE STR_YMD      = A.STR_YMD
+                               AND ENO_NO       = A.ENO_NO
+                               AND SEASON_GBN   = '2' --성수기
+                            )
+                         , 1, 'Y'
+                         , 0, 'N'
+                           )    AS CMP_YN
+              FROM T_WL_CONDOLOT A
+                 , T_CM_COMMON B
+                 , VI_T_CM_PERSON C
+             WHERE A.ORD_NO     LIKE '%'||?||'%'
+               AND SUBSTR(A.ORD_NO,1,4) = SUBSTR((SELECT MAX(ORD_NO) FROM T_WL_CONDOSSN),1,4)
+               AND A.RST_GBN    LIKE '%'||?||'%'
+               AND A.RST_GBN    IS NOT NULL
+               AND B.CD_GBN     = 'CO'
+               AND B.COMM_CD    = A.CO_CD
+               AND C.ENO_NO     = A.ENO_NO
+          ORDER BY A.ORD_NO
+                 , A.STR_YMD
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : WELE010
+* @description : 식당이용기록관리
+***********************************************************************
+* 2006/12/22     채갑병        최초작성.
+***********************************************************************
+-->
+    <!-- 식당이용기록 관리 정보를 조회 한다. -->
+    <sql name="WELE010_SHR">
+        <description>식당이용기록 관리 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , A.RSTR_CD
+                 , B.ENO_NM
+                 , TO_CHAR(TO_DATE(A.STR_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD
+                 , TO_CHAR(TO_DATE(A.END_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD
+                 , A.DPT_CD
+                 , SF_GET_DPTNAME('01','A4', A.DPT_CD) AS DPT_NM
+                 , A.MRN_CNT
+                 , A.MRN_AMT
+                 , A.AFN_CNT
+                 , A.AFN_AMT
+                 , A.EVN_CNT
+                 , A.EVN_AMT
+                 , A.TOT_CNT
+                 , A.TOT_AMT
+                 , A.SEQ_NO
+              FROM T_WL_DININGUSE A
+                 , VI_T_CM_PERSON2 B
+             WHERE [1]
+               AND A.ENO_NO = B.ENO_NO
+          ORDER BY SF_GET_DPTSEQ( '01', 'A4', A.DPT_CD)
+                 , SF_GET_COMMSEQ('01', 'A2', B.JOB_CD)
+                 , SF_GET_COMMSEQ('01', 'A3', B.HOB_CD) DESC
+                 , A.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다. -->
+    <sql name="WELE010_SHR_01">
+        <description>사원 정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , A.ENO_NM
+                 , A.DPT_CD
+                 , A.DPT_NM
+                 , (SELECT RSTR_CD
+                      FROM T_WL_DININGCD
+                     WHERE ENO_NO = ? ) AS RSTR_CD
+              FROM VI_T_CM_PERSON2 A
+             WHERE A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다. -->
+    <sql name="WELE010_CHK">
+        <description>사원 정보조회</description>
+        <query>
+            <![CDATA[
+              SELECT COUNT(*) AS CNT
+                FROM T_CM_PERSON
+               WHERE ENO_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 새로추가된 식당이용기록 정보를 저장 한다. -->
+    <sql name="WELE010_INS">
+        <description>식당이용기록 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_WL_DININGUSE
+                 ( ENO_NO
+                 , SEQ_NO
+                 , STR_YMD
+                 , END_YMD
+                 , DPT_CD
+                 , RSTR_CD
+                 , MRN_CNT
+                 , MRN_AMT
+                 , AFN_CNT
+                 , AFN_AMT
+                 , EVN_CNT
+                 , EVN_AMT
+                 , TOT_CNT
+                 , TOT_AMT
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( ?
+                 -- SEQ 값 증가
+                 , (SELECT NVL(MAX(SEQ_NO), 0)+1
+                      FROM T_WL_DININGUSE
+                     WHERE ENO_NO = ?
+                       AND STR_YMD = ?
+                    )
+                 , ?
+                 , ?
+                 , (SELECT DPT_CD
+                      FROM VI_T_CM_PERSON2
+                     WHERE ENO_NO = ?
+                    )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 식당이용기록 정보를 수정한다. -->
+    <sql name="WELE010_UPT">
+        <description>식당코드이용기록 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_WL_DININGUSE
+            SET     MRN_CNT         = ?,              -- 조식 수
+                    MRN_AMT         = ?,              -- 조식 금액
+                    AFN_CNT         = ?,              -- 중식 수
+                    AFN_AMT         = ?,              -- 중식 금액
+                    EVN_CNT         = ?,              -- 석식 수
+                    EVN_AMT         = ?,              -- 석식 금액
+                    TOT_CNT         = ?,              -- 총 식수
+                    TOT_AMT         = ?,              -- 총 금액
+                    UPT_MAN         = ?,              -- 최종수정자
+                    UPT_YMD         = sysdate         -- 최종수정일
+            WHERE   ENO_NO          = ?               -- 사번
+            AND     SEQ_NO          = ?
+            AND     STR_YMD         = ?               -- 기간 시작일
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 이미 등록된 식당이용 기록 정보를 삭제한다. -->
+    <sql name="WELE010_DEL">
+        <description>식당코드 이용기록 정보를 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  T_WL_DININGUSE
+             WHERE   ENO_NO   = ?
+             AND     SEQ_NO   = ?
+             AND     STR_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 식당이용 기록 정보를 삭제한다. -->
+    <sql name="WELE010_DEL_01">
+        <description>식당코드 이용기록 정보를 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  T_WL_DININGUSE
+             WHERE   STR_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : WELE020
+* @description : 기간별 식대비용계산
+***********************************************************************
+* 2006/12/26     채갑병        최초작성.
+***********************************************************************
+-->
+    <!-- 기간별 식대비용을 조회 한다. -->
+    <sql name="WELE020_SHR">
+        <description>기간별 식대비용 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.MRN_CNT
+                 , A.AFN_CNT
+                 , A.EVN_CNT
+                 , A.MRN_CNT * B.MRN_UNI    AS MRN_AMT
+                 , A.AFN_CNT * B.AFN_UNI    AS AFN_AMT
+                 , A.EVN_CNT * B.EVN_UNI    AS EVN_AMT
+                 , A.MRN_CNT
+                    + A.AFN_CNT
+                    + A.EVN_CNT             AS TOT_CNT
+                 , A.MRN_CNT * B.MRN_UNI
+                    + A.AFN_CNT * B.AFN_UNI
+                    + A.EVN_CNT * B.EVN_UNI AS TOT_AMT
+                 , B.MRN_UNI
+                 , B.AFN_UNI
+                 , B.EVN_UNI
+              FROM (SELECT SUM(MRN_CNT) AS MRN_CNT
+                         , SUM(AFN_CNT) AS AFN_CNT
+                         , SUM(EVN_CNT) AS EVN_CNT
+                      FROM T_WL_DININGUSE
+                     WHERE ENO_NO = NVL(?, ENO_NO)
+                       AND END_YMD BETWEEN ?
+                                       AND ?
+                    ) A
+                 --식대 가져오기
+                 , (SELECT 3000 AS MRN_UNI
+                         , 3800 AS AFN_UNI
+                         , 3500 AS EVN_UNI
+                      FROM DUAL
+                    ) B
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : WELE030
+* @description : 개인별 식대비용계산
+***********************************************************************
+* 2006/12/26     채갑병        최초작성.
+***********************************************************************
+-->
+    <!-- 개인별 식대비용을 조회 한다.(모두) -->
+    <sql name="WELE030_SHR">
+        <description>개인별 식대비용 조회(모두)</description>
+        <query>
+            <![CDATA[
+            SELECT A.*
+                 , B.ENO_NM
+                 , SF_GET_COMMNAME('01','A2',B.JOB_CD)      AS JOB_NM
+			  FROM (SELECT ENO_NO
+			             , SF_GET_DPTNAME('01','A4', DPT_CD)AS DPT_NM
+			             , SUM(MRN_CNT) AS MRN_CNT
+			             , SUM(AFN_CNT) AS AFN_CNT
+			             , SUM(EVN_CNT) AS EVN_CNT
+			             , SUM(TOT_CNT) AS SUM_CNT
+			             , SUM(TOT_AMT) AS SUM_AMT
+		              FROM T_WL_DININGUSE
+		             WHERE SUBSTR(END_YMD, 1, 6) = ?
+		          GROUP BY ENO_NO
+		                 , DPT_CD
+			        ) A
+			     , VI_T_CM_PERSON B
+			 WHERE A.ENO_NO = B.ENO_NO
+          ORDER BY B.DPT_SEQ
+                 , B.JOB_SEQ
+                 , B.ENO_NM
+                 , B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+  <!-- 개인별 식대비용을 조회 한다.(모두) -->
+    <sql name="WELE030_PRT">
+        <description>개인별 식대비용 조회(모두)</description>
+        <query>
+            <![CDATA[
+            SELECT B.DPT_CD, A.*
+                 , B.ENO_NM
+                 , SF_GET_COMMNAME('01','A2',B.JOB_CD)      AS JOB_NM
+			  FROM (SELECT ENO_NO
+			             , SF_GET_DPTNAME('01','A4', DPT_CD)AS DPT_NM
+			             , SUM(MRN_CNT) AS MRN_CNT
+			             , SUM(AFN_CNT) AS AFN_CNT
+			             , SUM(EVN_CNT) AS EVN_CNT
+			             , SUM(TOT_CNT) AS SUM_CNT
+			             , SUM(TOT_AMT) AS SUM_AMT
+		              FROM T_WL_DININGUSE
+		             WHERE SUBSTR(END_YMD, 1, 6) = ?
+		          GROUP BY ENO_NO
+		                 , DPT_CD
+			        ) A
+			     , VI_T_CM_PERSON B
+			 WHERE A.ENO_NO = B.ENO_NO
+          ORDER BY B.DPT_SEQ
+                 , B.JOB_SEQ
+                 , B.ENO_NM
+                 , B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별 식대비용을 조회 한다.(조식) -->
+    <sql name="WELE030_SHR_01">
+        <description>개인별 식대비용 조회(조식)</description>
+        <query>
+            <![CDATA[
+             SELECT  SF_GET_ENONAME('01', ENO_NO) AS ENO_NM, ENO_NO,
+                     SF_GET_DPTNAME('01','A4', DPT_CD) AS DPT_NM,
+                     SUM(MRN_CNT) AS SUM_CNT, SUM(MRN_AMT) AS SUM_AMT
+             FROM   T_WL_DININGUSE
+             WHERE  [1]
+             GROUP BY ENO_NO, DPT_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별 식대비용을 조회 한다.(중식) -->
+    <sql name="WELE030_SHR_02">
+        <description>개인별 식대비용 조회(중식)</description>
+        <query>
+            <![CDATA[
+             SELECT  SF_GET_ENONAME('01', ENO_NO) AS ENO_NM, ENO_NO,
+                     SF_GET_DPTNAME('01','A4', DPT_CD) AS DPT_NM,
+                     SUM(AFN_CNT) AS SUM_CNT, SUM(AFN_AMT) AS SUM_AMT
+             FROM   T_WL_DININGUSE
+             WHERE  [1]
+             GROUP BY ENO_NO, DPT_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별 식대비용을 조회 한다.(석식) -->
+    <sql name="WELE030_SHR_03">
+        <description>개인별 식대비용 조회(석식)</description>
+        <query>
+            <![CDATA[
+             SELECT  SF_GET_ENONAME('01', ENO_NO) AS ENO_NM, ENO_NO,
+                     SF_GET_DPTNAME('01','A4', DPT_CD) AS DPT_NM,
+                     SUM(EVN_CNT) AS SUM_CNT, SUM(EVN_AMT) AS SUM_AMT
+             FROM   T_WL_DININGUSE
+             WHERE  [1]
+             GROUP BY ENO_NO, DPT_CD
+            ]]>
+        </query>
+    </sql>
+
+<!-- 식당코드 -->
+<!--
+***********************************************************************
+* @UseCase     : WELE040
+* @description : 식당코드관리
+***********************************************************************
+* 2006/12/22     채갑병        최초작성.
+***********************************************************************
+-->
+    <!-- 식당코드 관리 정보를 조회 한다. -->
+    <sql name="WELE040_SHR">
+        <description>식당코드 관리 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , A.RSTR_CD
+                 , B.ENO_NM
+                 , B.DPT_CD
+                 , B.DPT_NM
+                 , B.JOB_CD
+                 , B.JOB_NM
+              FROM T_WL_DININGCD A
+                 , VI_T_CM_EMPLIST2 B
+             WHERE A.ENO_NO = B.ENO_NO
+               [1]
+               AND B.RET_YMD IS NULL
+          ORDER BY SF_GET_DPTSEQ( '01', 'A4', B.DPT_CD)
+                 , SF_GET_COMMSEQ('01', 'A2', B.JOB_CD)
+                 , SF_GET_COMMSEQ('01', 'A3', B.HOB_CD) DESC
+                 , B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신규 저장. -->
+    <sql name="WELE040_INS">
+        <description>신규 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_DININGCD
+                 ( ENO_NO, RSTR_CD,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 (  ?, ?,
+                    ?, SYSDATE,?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 식당코드 정보를 수정한다. -->
+    <sql name="WELE040_UPT">
+        <description>식당코드 관리 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_WL_DININGCD
+            SET     RSTR_CD         = ?,             -- 식당코드
+                    UPT_MAN         = ?,             -- 최종수정자
+                    UPT_YMD         = sysdate        -- 최종수정일
+            WHERE   ENO_NO          = ?              -- 사번
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 삭제 -->
+    <sql name="WELE040_DEL">
+        <description>삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_DININGCD
+            WHERE  ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 방문증관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELF010
+* @description : 지급장비관리      방문증 => 지급장비 용도변경
+***********************************************************************
+* 2006/12/21     채갑병        최초작성.
+***********************************************************************
+-->
+    <!-- 지급장비방문증 관리 정보를 조회 한다. -->
+    <sql name="WELF010_SHR">
+        <description>지급장비 관리 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , B.ENO_NM
+                 , A.EQUP_KIND
+                 , SF_GET_COMMNAME('01', 'EQ', A.EQUP_KIND)         AS PUM_NM         -- 품명
+                 , A.MODEL_NO
+                 , A.SERIAL_NO
+                 , SF_GET_DPTNAME('01','A4', B.DPT_CD) AS DPT_NM
+                 , SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM
+                 , A.CONFIG
+                 , TO_CHAR(TO_DATE(A.BUY_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS BUY_YMD
+                 , TO_CHAR(TO_DATE(A.SUP_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS SUP_YMD
+                 , A.ASST_NO
+                 , A.ASST_AMT
+                 , DPT_NM1
+                 , REG_NM
+                 , A.REMARK
+                 , A.USE_GBN
+  			FROM T_CM_EQUIP_MST A,
+      			 T_CM_PERSON B
+			 WHERE A.ENO_NO    LIKE '%'||?||'%'
+			   AND A.USE_GBN   LIKE '%'||?||'%'
+			   AND A.SERIAL_NO LIKE '%'||?||'%'
+			   AND A.ENO_NO = B.ENO_NO(+)
+			 ORDER BY  EQUP_KIND,MODEL_NO,ENO_NM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 지급장비방문증 관리 정보를 개인별 조회 한다. -->
+    <sql name="WELF010_SHR_01">
+        <description>지급장비 관리 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , B.ENO_NM
+                 , A.EQUP_KIND
+                 , SF_GET_COMMNAME('01', 'EQ', A.EQUP_KIND)         AS PUM_NM         -- 품명
+                 , A.MODEL_NO
+                 , A.SERIAL_NO
+                 , SF_GET_DPTNAME('01','A4', B.DPT_CD) AS DPT_NM
+                 , SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM
+                 , A.CONFIG
+                 , TO_CHAR(TO_DATE(A.BUY_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS BUY_YMD
+                 , TO_CHAR(TO_DATE(A.SUP_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS SUP_YMD
+                 , A.ASST_NO
+                 , A.ASST_AMT
+                 , DPT_NM1
+                 , REG_NM
+                 , A.REMARK
+                 , A.USE_GBN
+  			FROM T_CM_EQUIP_MST A,
+      			 T_CM_PERSON B
+			 WHERE A.ENO_NO LIKE '%'||?||'%'
+			   AND A.ENO_NO = B.ENO_NO(+)
+			 ORDER BY  SERIAL_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 카드번호가 사용할 수 있는지 여부를 검증한다. -->
+    <sql name="WELF010_CHK">
+        <description>카드번호가 사용할 수 있는지 여부를 검증한다.</description>
+        <query>
+            <![CDATA[
+		    SELECT DECODE(COUNT(*), 0, 'N', 'Y') AS IS_USE
+			  FROM (SELECT *
+					  FROM T_WL_VISITOR
+					 WHERE CARD_NO = LPAD(?, '3', '0')
+					   AND NVL(END_YMD, TO_CHAR(SYSDATE, 'YYYYMMDD')) >= TO_CHAR(SYSDATE, 'YYYYMMDD')
+					)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 새로추가된 지급장비 관리 정보를 저장 한다. -->
+    <sql name="WELF010_INS">
+        <description>지급장비 관리 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_CM_EQUIP_MST
+                 ( EQUP_KIND
+                 , MODEL_NO
+                 , SERIAL_NO
+                 , CONFIG
+                 , BUY_YMD
+                 , REMARK
+                 , IPT_MAN
+                 , IPT_YMD
+                 , ENO_NO
+                 , DPT_NM1
+                 , USE_GBN
+                 , ASST_NO
+                 , REG_NM
+                 , ASST_AMT
+                 , SUP_YMD)
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?     )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 지급장비 관리 정보를 수정한다. -->
+    <sql name="WELF010_UPT">
+        <description>지급장비 관리 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_EQUIP_MST
+               SET EQUP_KIND	= ?
+                 , MODEL_NO		= ?
+                 , CONFIG		= ?
+                 , BUY_YMD		= ?
+                 , REMARK		= ?
+                 , UPT_MAN      = ?
+                 , UPT_YMD     	= SYSDATE
+                 , ENO_NO		= ?
+                 , DPT_NM1		= ?
+                 , USE_GBN		= ?
+                 , ASST_NO		= ?
+                 , REG_NM		= ?
+                 , ASST_AMT		= ?
+                 , SUP_YMD		= ?
+             WHERE SERIAL_NO          = ?              -- 일련번호
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 지급장비 관리 정보를 삭제 한다. -->
+    <sql name="WELF010_DEL">
+        <description>지급장비 관리 정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_CM_EQUIP_MST
+             WHERE SERIAL_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 장비 대여 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELF012
+* @description : 장비 대여 신청
+***********************************************************************
+* 2009/11/09     권혁수        최초작성.
+***********************************************************************
+-->
+    <!-- 장비 대여 신청 정보를 조회 한다. -->
+    <sql name="WELF012_SHR">
+        <description>장비 대여 조회</description>
+        <query>
+            <![CDATA[
+            SELECT H.ENO_NO
+                 , B.ENO_NM
+                 , A.EQUP_KIND
+                 , SF_GET_COMMNAME('01', 'EQ', A.EQUP_KIND)         AS PUM_NM         -- 품명
+                 , A.MODEL_NO
+                 , H.SERIAL_NO
+                 , A.CONFIG
+                 , SF_GET_DPTNAME('01','A4', B.DPT_CD) AS DPT_NM
+                 , SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM
+                 , H.REQ_YMD
+                 , TO_CHAR(TO_DATE(H.SUP_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS SUP_YMD
+                 , TO_CHAR(TO_DATE(H.RET_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS RET_YMD
+                 , TO_CHAR(TO_DATE(H.APP_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS APP_YMD
+                 , H.REMARK
+                 , H.STATE_GBN
+                 , H.APP_MAN
+                 , H.APP_RMK
+  			FROM T_CM_EQUIP_HST H,
+  			     T_CM_EQUIP_MST A,
+      			 T_CM_PERSON B
+			 WHERE A.EQUP_KIND   LIKE '%'||?||'%'
+			   AND H.STATE_GBN   LIKE '%'||?||'%'
+			   AND H.REQ_YMD >=  ?
+			   AND H.ENO_NO = B.ENO_NO(+)
+   			   AND A.SERIAL_NO = H.SERIAL_NO
+   			   AND A.USE_GBN = '3'
+			 ORDER BY  REQ_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 장비 대여 신청 정보를 개인별 조회 한다. -->
+    <sql name="WELF012_SHR_01">
+        <description>대여장비 신청 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , 'FALSE' IS_CHK
+                 , B.ENO_NM
+                 , A.EQUP_KIND
+                 , SF_GET_COMMNAME('01', 'EQ', A.EQUP_KIND)         AS PUM_NM         -- 품명
+                 , A.MODEL_NO
+                 , A.SERIAL_NO
+                 , SF_GET_DPTNAME('01','A4', B.DPT_CD) AS DPT_NM
+                 , SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM
+                 , A.CONFIG
+                 , TO_CHAR(TO_DATE(A.SUP_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS SUP_YMD
+                 , '1'                                 AS STATE_GBN
+                 , '사유:                           기간:              '           AS REMARK
+                 , TO_CHAR(sysdate,'YYYY-MM-DD HH24:MM:SS') 		AS REQ_YMD
+  			FROM T_CM_EQUIP_MST A,
+  				 T_CM_PERSON B
+			 WHERE A.USE_GBN = '3'     -- 대여 가능 상태
+   		  	   AND A.EQUP_KIND   LIKE '%'||?||'%'
+			   AND A.ENO_NO = B.ENO_NO(+)
+			 ORDER BY  SERIAL_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 카드번호가 사용할 수 있는지 여부를 검증한다. -->
+    <sql name="WELF012_CHK">
+        <description>카드번호가 사용할 수 있는지 여부를 검증한다.</description>
+        <query>
+            <![CDATA[
+		    SELECT DECODE(COUNT(*), 0, 'N', 'Y') AS IS_USE
+			  FROM (SELECT *
+					  FROM T_WL_VISITOR
+					 WHERE CARD_NO = LPAD(?, '3', '0')
+					   AND NVL(END_YMD, TO_CHAR(SYSDATE, 'YYYYMMDD')) >= TO_CHAR(SYSDATE, 'YYYYMMDD')
+					)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 새로추가된 장비 대여 신청 정보를 저장 한다. -->
+    <sql name="WELF012_INS">
+        <description>장비 대여 신청 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_CM_EQUIP_HST
+                 ( SERIAL_NO
+                 , ENO_NO
+                 , REQ_YMD
+                 , RET_YMD
+                 , STATE_GBN
+                 , REMARK )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ? )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 장비 대여 신청 정보를 수정한다. -->
+    <sql name="WELF012_UPT">
+        <description>장비 대여 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_EQUIP_HST
+               SET REMARK		= ?
+                 , STATE_GBN    = ?
+                 , RET_YMD      = ?
+             WHERE SERIAL_NO    = ?              -- 일련번호
+               AND REQ_YMD      = ?              -- 일련번호
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 장비 대여 신청 정보를 삭제 한다. -->
+    <sql name="WELF012_DEL">
+        <description>장비 대여 신청 정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_CM_EQUIP_HST
+             WHERE SERIAL_NO   = ?
+             AND   REQ_YMD     = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 장비 대여 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELF013
+* @description : 장비 대여 관리
+***********************************************************************
+* 2009/11/09     권혁수        최초작성.
+***********************************************************************
+-->
+    <!-- 장비 대여 관리 정보를 조회 한다. -->
+    <sql name="WELF013_SHR">
+        <description>장비 대여 조회</description>
+        <query>
+            <![CDATA[
+            SELECT H.ENO_NO
+                 , B.ENO_NM
+                 , A.EQUP_KIND
+                 , SF_GET_COMMNAME('01', 'EQ', A.EQUP_KIND)         AS PUM_NM         -- 품명
+                 , A.MODEL_NO
+                 , H.SERIAL_NO
+                 , A.CONFIG
+                 , SF_GET_DPTNAME('01','A4', B.DPT_CD) AS DPT_NM
+                 , SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM
+                 , H.REQ_YMD
+                 , TO_CHAR(TO_DATE(H.SUP_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS SUP_YMD
+                 , TO_CHAR(TO_DATE(H.RET_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS RET_YMD
+                 , TO_CHAR(TO_DATE(H.APP_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS APP_YMD
+                 , H.REMARK
+                 , H.STATE_GBN
+                 , H.APP_MAN
+                 , H.APP_RMK
+  			FROM T_CM_EQUIP_HST H,
+  			     T_CM_EQUIP_MST A,
+      			 T_CM_PERSON B
+			 WHERE A.EQUP_KIND   LIKE '%'||?||'%'
+			   AND H.STATE_GBN   LIKE '%'||?||'%'
+			   AND H.REQ_YMD >=  ?
+			   AND H.ENO_NO		 LIKE '%'||?||'%'
+			   AND H.SERIAL_NO   LIKE '%'||?||'%'
+			   AND H.ENO_NO = B.ENO_NO(+)
+   			   AND A.SERIAL_NO = H.SERIAL_NO
+   			   AND A.USE_GBN = '3'
+			 ORDER BY  REQ_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 장비 대여 가능 목록 조회 한다. -->
+    <sql name="WELF013_SHR_01">
+        <description>장비 대여 가능 목록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , 'FALSE' IS_CHK
+                 , B.ENO_NM
+                 , A.EQUP_KIND
+                 , SF_GET_COMMNAME('01', 'EQ', A.EQUP_KIND)         AS PUM_NM         -- 품명
+                 , A.MODEL_NO
+                 , A.SERIAL_NO
+                 , SF_GET_DPTNAME('01','A4', B.DPT_CD) AS DPT_NM
+                 , SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM
+                 , A.CONFIG
+                 , TO_CHAR(TO_DATE(A.SUP_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS SUP_YMD
+                 , '1'                                 AS STATE_GBN
+                 , '사유:                           기간:              '           AS REMARK
+                 , TO_CHAR(sysdate,'YYYY-MM-DD HH24:MM:SS') 		AS REQ_YMD
+  			FROM T_CM_EQUIP_MST A,
+  				 T_CM_PERSON B
+			 WHERE A.USE_GBN = '3'     -- 대여 가능 상태
+   		  	   AND A.EQUP_KIND   LIKE '%'||?||'%'
+			   AND A.ENO_NO = B.ENO_NO(+)
+			 ORDER BY  SERIAL_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 카드번호가 사용할 수 있는지 여부를 검증한다. -->
+    <sql name="WELF013_CHK">
+        <description>카드번호가 사용할 수 있는지 여부를 검증한다.</description>
+        <query>
+            <![CDATA[
+		    SELECT DECODE(COUNT(*), 0, 'N', 'Y') AS IS_USE
+			  FROM (SELECT *
+					  FROM T_WL_VISITOR
+					 WHERE CARD_NO = LPAD(?, '3', '0')
+					   AND NVL(END_YMD, TO_CHAR(SYSDATE, 'YYYYMMDD')) >= TO_CHAR(SYSDATE, 'YYYYMMDD')
+					)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 새로추가된 장비 대여 관리 정보를 저장 한다. -->
+    <sql name="WELF013_INS">
+        <description>장비 대여 관리 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_CM_EQUIP_HST
+                 ( SERIAL_NO
+                 , ENO_NO
+                 , REQ_YMD
+                 , STATE_GBN
+                 , REMARK )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ? )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 대여된 정보를 수정한다. -->
+    <sql name="WELF013_UPT">
+        <description>장비 대여 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_EQUIP_HST
+			  SET  ENO_NO    = ?,
+			       SUP_YMD   = ?,
+			       RET_YMD   = ?,
+			       STATE_GBN = ?,
+			       REMARK    = ?,
+			       APP_MAN   = ?,
+			       APP_YMD   = TO_CHAR(sysdate, 'YYYYMMDD'),
+			       APP_RMK   = ?
+             WHERE SERIAL_NO    = ?              -- 일련번호
+               AND REQ_YMD      = ?              -- 신청일시
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 장비 대여 관리 정보를 삭제 한다. -->
+    <sql name="WELF013_DEL">
+        <description>장비 대여 관리 정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_CM_EQUIP_HST
+             WHERE SERIAL_NO   = ?
+             AND   REQ_YMD     = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : WELG010
+* @description : 기념대상자현황
+***********************************************************************
+* 2008/08/27     김경주        최초작성.
+***********************************************************************
+-->
+
+   <!-- 기념대상자현황을 조회 한다. -->
+   <sql name="WELG010_SHR">
+        <description>기념대상자현황을 조회</description>
+        <query>
+            <![CDATA[
+             SELECT A.PIS_YY,
+                    A.ENO_NO,
+                    B.NAME AS EMO_NM,
+                    SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+                    SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM,
+                    A.PIS_YY||'/'||SUBSTR(A.CAKE_DATE,1,2)||'/'||SUBSTR(A.CAKE_DATE,3,4) AS CAKE_DATE,
+                    A.CAKE_CD,
+                    SF_GET_COMMNAME('01','HH',CAKE_CD)  AS CAKE_NM,
+                    CASE WHEN CAKE_CD='IS'
+                         THEN TO_CHAR(SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),1,4) - SUBSTR(HIR_YMD,1,4))
+                         WHEN CAKE_CD='IB'
+                         THEN TO_CHAR(SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),1,4) - TO_CHAR('19'||SUBSTR(CET_NO,1,2)))
+                         ELSE ''
+                    END AS CAKE_YEAR,
+                    A.REMARK,
+                    A.ADDRESS,
+                    NVL(A.EM_PHN_NO,B.EM_PHN_NO) AS EM_PHN_NO
+               FROM T_WL_CAKELIST A, T_CM_EMPLIST B
+               WHERE A.ENO_NO = B.ENO_NO
+                 AND DPT_CD LIKE ?
+                 AND A.ENO_NO LIKE ?
+                 [1]
+               ORDER BY CAKE_DATE
+                     , SF_GET_DPTSEQ('01', 'A4', DPT_CD)
+                     , SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                     , ENO_NO
+
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 기념대상자현황을 저장 한다. -->
+    <sql name="WELG010_INS">
+         <description>기념대상자현황을 저장</description>
+         <query>
+              <![CDATA[
+              INSERT
+               INTO T_WL_CAKELIST
+                  ( PIS_YY, ENO_NO, CAKE_CD, REMARK,
+                     CAKE_DATE, ADDRESS, EM_PHN_NO, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+               VALUES
+                  ( ?,      ?,       ?,       ?,
+                    ?,      ?,       ?,		  ?,	SYSDATE ,	  ?	,	 SYSDATE)
+              ]]>
+         </query>
+    </sql>
+
+
+    <!-- 기념대상자현황을 수정 한다. -->
+    <sql name="WELG010_UPT">
+         <description>기념대상자현황을 수정</description>
+         <query>
+              <![CDATA[
+              UPDATE T_WL_CAKELIST
+                 SET ENO_NO = ?
+                    ,CAKE_CD= ?
+                    ,REMARK = ?
+                    ,ADDRESS = ?
+                    ,EM_PHN_NO = ?
+                    ,UPT_MAN = ?
+                    ,UPT_YMD = SYSDATE
+               WHERE ENO_NO =  ?
+               AND	 PIS_YY||CAKE_DATE = ?	-- 추가
+
+              ]]>
+         </query>
+    </sql>
+
+    <!-- 기념대상자현황을 삭제 한다. -->
+    <sql name="WELG010_DEL">
+         <description>기념대상자현황을 삭제</description>
+         <query>
+              <![CDATA[
+              DELETE T_WL_CAKELIST
+               WHERE ENO_NO = ?
+               AND	 PIS_YY||CAKE_DATE = ?	-- 추가
+              ]]>
+         </query>
+    </sql>
+
+
+<!-- 축하전보발송자명단 -->
+<!--
+***********************************************************************
+* @UseCase     : WELG020
+* @description : 축하전보발송자명단
+***********************************************************************
+* 2007/01/02     채갑병        최초작성.
+***********************************************************************
+-->
+    <!-- 축하전보발송자명단을 조회 한다. -->
+    <sql name="WELG020_SHR">
+        <description>축하전보발송자명단 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                 , ENO_NM
+                 , DPT_NM
+                 , SF_GET_DPTNAME('01','A6',TEAM_CD) AS TEAM_NM
+                 , JOB_NM
+                 , BIR_TAG
+                 , EM_PHN_NO
+                 , TO_CHAR(HIR_YMD,'YYYY-MM-DD') AS HIR_YMD
+                 , TO_CHAR(SYSDATE,'YYYY')-TO_CHAR(HIR_YMD,'YYYY') AS LSE_YY
+                 , DECODE(BIR_TAG, 'S', '(양) ','(음) ') || TO_CHAR(BIR_YMD,'YYYY-MM-DD') AS BIR_YMD
+                 , TO_CHAR(BIR_YMD,'MM-DD') S_BIR
+                 , TO_CHAR(WED_YMD,'YYYY-MM-DD') AS WED_YMD
+                 , NVL2(WED_YMD, 'Y', '') AS WED_TAG
+                 , (SELECT ENO_NM
+                      FROM T_CM_FAMILY
+                     WHERE ENO_NO=A.ENO_NO
+                       AND REL_CD='S5'
+                    ) AS WED_NM
+                 , SUBSTR(RZI_NO,0,3)||'-'||SUBSTR(RZI_NO,4,6) AS ZIP_NO
+                 , RADR_CT || ' ' || RADR AS ADDRESS
+			  FROM VI_T_CM_PERSON A
+			 WHERE 1=1
+			   [1]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 축하전보발송자명단을 조회한다. -->
+    <sql name="WELG020_PRT">
+        <description>축하전보발송자명단 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  ENO_NO, ENO_NM, DPT_NM, JOB_NM, BIR_TAG, EM_PHN_NO,JOB_CD,DPT_CD,
+                     ( DECODE( BIR_TAG, 'S', '(양) ','(음) ') || SUBSTR(BIR_YMD,4,2)|| '월 ' || SUBSTR(BIR_YMD,7,2)||'일' ) AS BIR_YMD,
+                     ( DECODE( WED_YMD, NULL, '', SUBSTR(WED_YMD,4,2) || '월 ' || SUBSTR(WED_YMD,7,2) || '일' ) ) AS WED_YMD,
+                     SUBSTR(ZIP_NO,0,3)||'-'||SUBSTR(ZIP_NO,4,6) AS ZIP_NO, (ADR_CT || ' ' || ADDRESS)  AS ADDRESS
+			 FROM    VI_T_CM_PERSON
+			 WHERE   1=1
+			 [1]
+			 ORDER BY SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                 , SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                 , SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                 , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+<!-- 차량유지비 교통비 중식비 -->
+<!--
+***********************************************************************
+* @UseCase     : WELH010
+* @description : 차량유지비 교통비 중식비
+***********************************************************************
+* 2006/12/28     채갑병        최초작성.
+***********************************************************************
+-->
+    <!-- 조회년도/월에 해당하는 차량유지비 교통비 중식비 정보 조회 한다. -->
+    <sql name="WELH010_SHR">
+        <description>차량유지비 교통비 중식비 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.PIS_YY
+                 , A.PIS_MM
+                 , A.ENO_NO
+                 , A.OCC_CD
+                 , A.DPT_CD
+                 , A.JOB_CD
+                 , A.CAR_AMT
+                 , A.TRA_AMT
+                 , A.LUN_AMT
+                 , A.DEL1_AMT
+                 , A.DEL2_AMT
+                 , A.SUM_AMT
+                 , A.TOT_AMT
+                 , A.NO_TAX
+                 , B.ENO_NM
+                 , B.DPT_NM
+                 , B.JOB_NM
+                 , B.HOB_CD
+                 , B.JOB_SEQ
+              FROM T_WL_CTLNBOOK A
+                 , VI_T_CM_PERSON2 B
+                 , T_CM_DEPT C
+             WHERE A.ENO_NO = B.ENO_NO
+               AND B.DPT_CD = C.DPT_CD
+               AND C.CD_GBN = 'A4'
+               AND A.PIS_YY = ?
+               AND A.PIS_MM = ?
+               AND A.JOB_CD LIKE '%'||?||'%'
+               AND A.DPT_CD LIKE '%'||?||'%'
+               AND A.ENO_NO LIKE '%'||?||'%'
+               AND C.GBN2_TAG LIKE '%'||?||'%'
+          ORDER BY B.DPT_SEQ
+                 , B.JOB_SEQ
+                 , B.HOB_SEQ DESC
+                 , B.HIRG_YMD
+                 , B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 카운트를 위한 조회 -->
+    <sql name="WELH010_SHR_01">
+        <description>차량유지비 교통비 중식비 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  *
+             FROM    T_WL_CTLNBOOK
+             WHERE   PIS_YY = ?
+             AND     PIS_MM = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 식당이용기록 존재여부 확인을 위한 조회 -->
+    <sql name="WELH010_SHR_02">
+        <description>식당이용기록 존재여부 확인을 위한 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  *
+             FROM    T_WL_DININGUSE
+             WHERE   END_YMD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 차량유지비 교통비 중식비 정보를 저장 한다. -->
+    <sql name="WELH010_INS">
+        <description>차량유지비 교통비 중식비 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT INTO T_WL_CTLNBOOK
+                    ( PIS_YY  , PIS_MM  , ENO_NO , OCC_CD, DPT_CD , JOB_CD , CAR_AMT, TRA_AMT, LUN_AMT,
+					  DEL1_AMT, DEL2_AMT, SUM_AMT, TOT_AMT, NO_TAX, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+
+             SELECT   A.PIS_YY, A.PIS_MM, A.ENO_NO, A.OCC_CD, A.DPT_CD,A.JOB_CD,
+                      A.CAR_AMT, A.TRA_AMT, A.LUN_AMT, NVL(A.DEL1_AMT,0) AS DEL1_AMT, NVL(A.DEL2_AMT,0) AS DEL2_AMT,
+                      (NVL(A.LUN_AMT,0) - NVL(A.DEL1_AMT,0) - NVL(A.DEL2_AMT,0)) AS SUM_AMT,
+                      (NVL(A.CAR_AMT,0) + NVL(A.TRA_AMT,0) + (NVL(A.LUN_AMT,0) - NVL(A.DEL1_AMT,0) - NVL(A.DEL2_AMT,0))) AS TOT_AMT, A.NO_TAX,
+                      A.IPT_MAN, SYSDATE, A.UPT_MAN, SYSDATE
+
+             FROM     (SELECT PIS_YY, PIS_MM, IPT_MAN, UPT_MAN,
+                              ENO_NO, OCC_CD, DPT_CD, JOB_CD, JOB_SEQ, GBN_CD, DEL1_AMT, DEL2_AMT,
+                              (CASE WHEN (CASE WHEN LUN_AMT > 0
+                                               THEN (CASE WHEN (SUBSTR(HIR_YMD,1,6)  = ?  AND NVL(SUBSTR(RET_YMD,1,6),'000000') <> ?)
+                                                          THEN ROUND(LUN_AMT * (BAS_HIR_WORK / BAS_LAST_DAY))
+                                                          WHEN (SUBSTR(HIR_YMD,1,6) <> ?  AND NVL(SUBSTR(RET_YMD,1,6),'000000')  = ?)
+                                                          THEN ROUND(LUN_AMT * (BAS_RET_WORK / BAS_LAST_DAY))
+                                                          WHEN (SUBSTR(HIR_YMD,1,6) = ? AND NVL(SUBSTR(RET_YMD,1,6),'000000') = ?)
+                                                          THEN ROUND(LUN_AMT * ((TO_DATE(RET_YMD,'YYYYMMDD') - TO_DATE(HIR_YMD,'YYYYMMDD') + 1) / BAS_LAST_DAY))
+                                                          ELSE LUN_AMT
+                                                     END)
+                                               ELSE LUN_AMT
+                                          END) <= 100000
+                                    THEN (CASE WHEN LUN_AMT > 0
+                                               THEN (CASE WHEN (SUBSTR(HIR_YMD,1,6)  = ?  AND NVL(SUBSTR(RET_YMD,1,6),'000000') <> ?)
+                                                          THEN ROUND(LUN_AMT * (BAS_HIR_WORK / BAS_LAST_DAY))
+                                                          WHEN (SUBSTR(HIR_YMD,1,6) <> ?  AND NVL(SUBSTR(RET_YMD,1,6),'000000')  = ?)
+                                                          THEN ROUND(LUN_AMT * (BAS_RET_WORK / BAS_LAST_DAY))
+                                                          WHEN (SUBSTR(HIR_YMD,1,6) = ? AND NVL(SUBSTR(RET_YMD,1,6),'000000') = ?)
+                                                          THEN ROUND(LUN_AMT * ((TO_DATE(RET_YMD,'YYYYMMDD') - TO_DATE(HIR_YMD,'YYYYMMDD') + 1) / BAS_LAST_DAY))
+                                                          ELSE LUN_AMT
+                                                     END)
+                                               ELSE LUN_AMT
+                                          END)
+                                    ELSE 100000
+                              END) AS NO_TAX,
+                             (CASE WHEN CAR_AMT > 0
+                                   THEN (CASE WHEN (SUBSTR(HIR_YMD,1,6) = ? AND NVL(SUBSTR(RET_YMD,1,6),'000000') <> ?)
+                                              THEN ROUND(CAR_AMT * (BAS_HIR_WORK / BAS_LAST_DAY))
+                                              WHEN (SUBSTR(HIR_YMD,1,6) <> ? AND NVL(SUBSTR(RET_YMD,1,6),'000000') = ?)
+                                              THEN ROUND(CAR_AMT * (BAS_RET_WORK / BAS_LAST_DAY))
+                                              WHEN (SUBSTR(HIR_YMD,1,6) = ? AND NVL(SUBSTR(RET_YMD,1,6),'000000') = ?)
+                                              THEN ROUND(CAR_AMT * ((TO_DATE(RET_YMD,'YYYYMMDD') - TO_DATE(HIR_YMD,'YYYYMMDD') + 1) / BAS_LAST_DAY))
+                                              ELSE CAR_AMT
+                                         END)
+                                   ELSE CAR_AMT
+                              END) AS CAR_AMT,
+                             (CASE WHEN TRA_AMT > 0
+                                   THEN (CASE WHEN (SUBSTR(HIR_YMD,1,6)  = ?  AND NVL(SUBSTR(RET_YMD,1,6),'000000') <> ?)
+                                              THEN ROUND(TRA_AMT * (BAS_HIR_WORK / BAS_LAST_DAY))
+                                              WHEN (SUBSTR(HIR_YMD,1,6) <> ?  AND NVL(SUBSTR(RET_YMD,1,6),'000000')  = ?)
+                                              THEN ROUND(TRA_AMT * (BAS_RET_WORK / BAS_LAST_DAY))
+                                              WHEN (SUBSTR(HIR_YMD,1,6) = ? AND NVL(SUBSTR(RET_YMD,1,6),'000000') = ?)
+                                              THEN ROUND(TRA_AMT * ((TO_DATE(RET_YMD,'YYYYMMDD') - TO_DATE(HIR_YMD,'YYYYMMDD') + 1) / BAS_LAST_DAY))
+                                              ELSE TRA_AMT
+                                         END)
+                                   ELSE TRA_AMT
+                              END) AS TRA_AMT,
+                              (CASE WHEN LUN_AMT > 0
+                                    THEN (CASE WHEN (SUBSTR(HIR_YMD,1,6)  = ?  AND NVL(SUBSTR(RET_YMD,1,6),'000000') <> ?)
+                                               THEN ROUND(LUN_AMT * (BAS_HIR_WORK / BAS_LAST_DAY))
+                                               WHEN (SUBSTR(HIR_YMD,1,6) <> ?  AND NVL(SUBSTR(RET_YMD,1,6),'000000')  = ?)
+                                               THEN ROUND(LUN_AMT * (BAS_RET_WORK / BAS_LAST_DAY))
+                                               WHEN (SUBSTR(HIR_YMD,1,6) = ? AND NVL(SUBSTR(RET_YMD,1,6),'000000') = ?)
+                                               THEN ROUND(LUN_AMT * ((TO_DATE(RET_YMD,'YYYYMMDD') - TO_DATE(HIR_YMD,'YYYYMMDD') + 1) / BAS_LAST_DAY))
+                                              ELSE LUN_AMT
+                                         END)
+                                   ELSE LUN_AMT
+                              END) AS LUN_AMT
+                       FROM
+                       (SELECT  ? AS PIS_YY, ? AS PIS_MM, ? AS IPT_MAN, ? AS UPT_MAN,
+                               B.ENO_NO, B.OCC_CD, B.DPT_CD, B.JOB_CD, B.JOB_SEQ, B.GBN_CD, C.DEL1_AMT, C.DEL2_AMT,
+                               TO_CHAR(B.HIR_YMD,'YYYYMMDD') AS HIR_YMD,
+                               TO_CHAR(B.RET_YMD,'YYYYMMDD') AS RET_YMD,
+                               TO_NUMBER(TO_CHAR(LAST_DAY(TO_DATE(?,'YYYYMM')),'DD')) AS BAS_LAST_DAY, --해당월의 마지막일
+                               ( CASE WHEN SUBSTR(TO_CHAR(B.HIR_YMD,'YYYYMMDD'),1,6) = ?
+                                      THEN (LAST_DAY(TO_DATE(?,'YYYYMM')) - B.HIR_YMD + 1)
+                                      ELSE NULL
+                                 END ) AS BAS_HIR_WORK, --입사자일 경우 입사일수 나온다(일할계산을 위해)
+                               ( CASE WHEN SUBSTR(TO_CHAR(B.RET_YMD,'YYYYMMDD'),1,6) = ?
+                                      THEN (B.RET_YMD - TO_DATE(?||'01','YYYYMMDD') + 1)
+                                      ELSE NULL
+                                 END ) AS BAS_RET_WORK, --퇴사자일 경우 퇴사일수 나온다(일할계산을 위해)
+                               ( CASE WHEN ( B.ENO_NO='20001795' OR B.ENO_NO = '20400244' )                   -- 사장 , 차량유지비 제외자 2명 추가
+                                      THEN 0
+                                      WHEN ( B.JOB_CD = 'AC' OR B.JOB_CD = 'A1' OR B.JOB_CD = 'A2' OR B.JOB_CD = 'A3' OR B.JOB_CD = 'SD' OR B.JOB_CD = 'AA' ) -- 차량 유지비 제외
+                                      THEN 0
+                                      WHEN ( B.JOB_CD = 'A4' OR B.JOB_CD = 'A5' OR B.JOB_CD = 'AB' ) -- 전무, 상무, 상무보
+                                      THEN 200000
+                                      WHEN ( B.JOB_CD = '1C' OR B.JOB_CD = '1N') -- 부장
+                                      THEN 150000
+                                      WHEN ( B.JOB_CD = '1D' ) -- 부대
+                                      THEN 120000
+                                      WHEN ( B.JOB_CD = '1E' OR B.JOB_CD = '20' OR B.JOB_CD = '2A' OR B.JOB_CD = '2B' ) -- 차장, 과장
+                                      THEN 100000
+                                      ELSE 0
+                                 END ) AS CAR_AMT,
+                               ( CASE WHEN ( B.JOB_CD = 'A7')      -- 사외이사
+                                      THEN 0
+                                      WHEN ( B.JOB_SEQ >= '153') -- 대리이하 직급 5만
+                                      THEN 50000
+                                      ELSE 0
+                                 END ) AS TRA_AMT,
+                               ( CASE WHEN ( E.GBN2_TAG IS NULL OR D.GBN2_TAG = E.GBN2_TAG )
+                                      THEN ( CASE WHEN ( B.JOB_CD = 'A7')      -- 사외이사
+                                                  THEN 0
+                                                  WHEN ( D.GBN2_TAG = '1')     -- 본사 9만, 지방 10만
+                                                  THEN 90000
+                                                  ELSE 100000
+                                             END )
+                                      WHEN ( SUBSTR(E.STR_YMD,1,6) = ? AND NVL(SUBSTR(E.END_YMD,1,6),'000000') <> ?)
+                                      THEN ROUND((DECODE(E.GBN2_TAG,'1',90000,100000) * (BAS_STR_WORK / BAS_LAST_DAY))
+                                           + (DECODE(D.GBN2_TAG,'1',90000,100000) * ((BAS_LAST_DAY-BAS_STR_WORK) / BAS_LAST_DAY)))
+                                      WHEN ( SUBSTR(E.STR_YMD,1,6) <> ? AND NVL(SUBSTR(E.END_YMD,1,6),'000000') = ?)
+                                      THEN ROUND((DECODE(E.GBN2_TAG,'1',90000,100000) * (BAS_END_WORK / BAS_LAST_DAY))
+                                           + (DECODE(D.GBN2_TAG,'1',90000,100000) * ((BAS_LAST_DAY-BAS_END_WORK) / BAS_LAST_DAY)))
+                                      WHEN (SUBSTR(E.STR_YMD,1,6) = ? AND NVL(SUBSTR(E.END_YMD,1,6),'000000') = ?)
+                                      THEN ROUND((DECODE(E.GBN2_TAG,'1',90000,100000) * ((TO_DATE(E.END_YMD,'YYYYMMDD') - TO_DATE(E.STR_YMD,'YYYYMMDD') + 1) / BAS_LAST_DAY))
+                                           + (DECODE(D.GBN2_TAG,'1',90000,100000) * ((BAS_LAST_DAY-(TO_DATE(E.END_YMD,'YYYYMMDD') - TO_DATE(E.STR_YMD,'YYYYMMDD') + 1)) / BAS_LAST_DAY)))
+                                 END ) LUN_AMT
+                        FROM   VI_T_CM_PERSON2 B,
+                               ( SELECT ENO_NO
+                                      , SUM(NVL(MRN_AMT, 0)) AS DEL1_AMT
+                                      , SUM(NVL(AFN_AMT, 0)) AS DEL2_AMT
+                                   FROM T_WL_DININGUSE
+                                  WHERE END_YMD = ?
+                               GROUP BY ENO_NO) C,
+                               ( SELECT * FROM T_CM_DEPT WHERE CD_GBN = 'A4') D,
+                               ( SELECT AA.ENO_NO, AA.STR_YMD, AA.END_YMD, AA.DPC_GBN, AA.DPC_DPT_CD, BB.GBN2_TAG,
+                                        TO_NUMBER(TO_CHAR(LAST_DAY(TO_DATE(?,'YYYYMM')),'DD')) AS BAS_LAST_DAY, --해당월의 마지막일
+                                        ( CASE WHEN SUBSTR(AA.STR_YMD,1,6) = ?
+                                               THEN (LAST_DAY(TO_DATE(?,'YYYYMM')) - TO_DATE(AA.STR_YMD,'YYYYMMDD') + 1)
+                                               ELSE NULL
+                                          END ) AS BAS_STR_WORK, --파견시작일 경우 파견일수 나온다(일할계산을 위해)
+                                        ( CASE WHEN SUBSTR(AA.END_YMD,1,6) = ?
+                                               THEN (TO_DATE(AA.END_YMD,'YYYYMMDD') - TO_DATE(?||'01','YYYYMMDD') + 1)
+                                               ELSE NULL
+                                          END ) AS BAS_END_WORK  --파견종료일 경우 파견일수 나온다(일할계산을 위해)
+                                 FROM   T_CM_DISPATCH AA,
+                                        (SELECT * FROM T_CM_DEPT WHERE CD_GBN='A4') BB
+                                 WHERE  AA.DPC_DPT_CD=BB.DPT_CD
+                                 AND    SUBSTR(AA.STR_YMD,1,6) <= ?
+                                 AND   (AA.END_YMD IS NULL OR SUBSTR(AA.END_YMD,1,6) >=?)
+                                 AND    AA.DPC_GBN = '1') E
+                        WHERE  (B.RET_YMD IS NULL OR SUBSTR(TO_CHAR(B.RET_YMD,'YYYYMMDD'),1,6)=?) --현재달의 퇴직자 가져온다.(일할계산을 위해)
+                        AND    B.ENO_NO = C.ENO_NO(+)
+                        AND    B.ENO_NO = E.ENO_NO(+)
+                        AND    B.DPT_CD = D.DPT_CD
+                        AND    B.JOB_CD NOT IN ('JD','ZA','A7','AA','1N')   --아에 대상자 삭제
+                        )
+		        ) A
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신규 저장. -->
+    <sql name="WELH010_INS_02">
+        <description>신규 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_WL_CTLNBOOK
+                 ( PIS_YY, PIS_MM, ENO_NO,
+                   OCC_CD, DPT_CD, JOB_CD, CAR_AMT, TRA_AMT, LUN_AMT, DEL1_AMT, DEL2_AMT, SUM_AMT, TOT_AMT, NO_TAX,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 (  ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, SYSDATE,?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 등록된 차량유지비 교통비 중식비 정보를 수정한다. -->
+    <sql name="WELH010_UPT">
+        <description>차량유지비 교통비 중식비 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_WL_CTLNBOOK
+            SET     CAR_AMT         = ?,             -- 차량유지비
+                    TRA_AMT         = ?,             -- 교통비
+                    LUN_AMT         = ?,             -- 중식대액
+                    DEL1_AMT        = ?,             -- 조식공제액
+                    DEL2_AMT        = ?,             -- 중식공제액
+                    SUM_AMT         = ?,             -- 중식대지급액
+                    TOT_AMT         = ?,             -- 합계
+                    NO_TAX          = ?,             -- 비과세
+                    UPT_MAN         = ?,             -- 최종 수정자
+                    UPT_YMD         = sysdate        -- 최종 수정일
+            WHERE   ENO_NO          = ?              -- 사번
+            AND     PIS_YY          = ?              -- 해당년도
+            AND     PIS_MM          = ?              -- 월
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 삭제 -->
+    <sql name="WELH010_DEL">
+        <description>삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CTLNBOOK
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 일괄삭제 -->
+    <sql name="WELH010_DEL_01">
+        <description>일괄삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CTLNBOOK
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 차량유지비 교통비 중식비 -->
+<!--
+***********************************************************************
+* @UseCase     : WELH021
+* @description : 차량유지비 교통비 중식비
+***********************************************************************
+* 2006/12/28     채갑병        최초작성.
+***********************************************************************
+-->
+    <!-- 조회년도/월에 해당하는 차량유지비 교통비 중식비 정보 조회 한다. -->
+    <sql name="WELH021_SHR">
+        <description>차량유지비 교통비 중식비 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ? PIS_YY
+                 , ? PIS_MM
+                 , C.ENO_NO
+		         , C.OCC_CD
+		         , C.DPT_CD
+		         , C.JOB_CD
+		         , B.TRA_AMT
+		         , B.LUN_AMT
+		         , C.LUN_CHK
+		         , B.DEL1_AMT
+		         , B.DEL2_AMT
+		         , B.SUM_AMT
+		         , B.TOT_AMT
+		         , B.NO_TAX
+		         , C.TAX_DPT
+		         , SF_GET_COMMNAME('01', 'AD', B.TAX_DPT)   AS TAX_DPTNM              -- 회계부서
+		         , C.ENO_NM
+		         , SF_GET_DPTNAME('01', 'A4',C.DPT_CD)      AS DPT_NM
+		         , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)    AS JOB_NM
+              FROM T_CM_PERSON C
+                      , T_WL_CTLNBOOK B
+           WHERE  C.ENO_NO = B.ENO_NO (+)
+                AND ? = B.PIS_YY(+)
+                AND ? = B.PIS_MM(+)
+                AND C.JOB_CD(+)   LIKE '%'||?||'%'
+                AND C.DPT_CD(+)   LIKE '%'||?||'%'
+                AND C.ENO_NO  LIKE '%'||?||'%'
+                AND  ( C.RET_YMD IS NULL         OR     C.RET_YMD >= ? || ? || '01' )
+           ORDER BY   DPT_NM,  ENO_NM
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 등록된 중식비(월변동) 정보를 수정한다. -->
+    <sql name="WELH021_UPT">
+        <description>차량유지비 교통비 중식비 정보를 수정</description>
+        <query>
+            <![CDATA[
+            MERGE INTO T_WL_CTLNBOOK
+ 				USING DUAL
+ 				ON ( 		ENO_NO          =  ?            -- 사번
+ 						AND PIS_YY             =  ?              -- 해당년도
+                        AND PIS_MM           = ?  )            -- 월
+                WHEN MATCHED THEN
+					UPDATE SET
+						TRA_AMT        =  ?,             -- 중식공제액
+						LUN_AMT        =  ?,             -- 중식공제액
+						DEL1_AMT        =  ?,             -- 중식공제액
+						DEL2_AMT        =  ?,             -- 중식공제액
+        				SUM_AMT         = ?,             -- 중식대지급액
+        				TOT_AMT         = ?,
+        				NO_TAX          = ?,           -- 합계
+        				UPT_MAN         = ?,             -- 최종 수정자
+        				UPT_YMD         = sysdate        -- 최종 수정일
+ 				WHEN NOT MATCHED THEN
+					INSERT (PIS_YY, PIS_MM, ENO_NO,
+						         OCC_CD, DPT_CD, JOB_CD, TAX_DPT, TRA_AMT, LUN_AMT, DEL1_AMT,
+						         DEL2_AMT, SUM_AMT, TOT_AMT, NO_TAX,
+								 IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+					VALUES (?, ?, ?,
+								    'A', ?, ?, ?, ?, ?, ?,
+								   ?, ?, ?, ?,
+								   ?, sysdate, ?,sysdate)
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 등록된 교통비,중식비(고정) 정보를 수정한다. -->
+    <sql name="WELH021_UPT2">
+        <description>차량유지비 교통비 중식비 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_CM_PERSON
+	            SET  LUN_CHK        = ?              -- 중식공제 대상 Check
+            WHERE   ENO_NO          = ?              -- 사번
+            ]]>
+        </query>
+    </sql>
+
+        <!-- 등록된 교통비,중식비(고정) 정보를 수정한다. -->
+    <sql name="WELH021_SHR_04">
+        <description>차량유지비 교통비 중식비 정보를 수정</description>
+        <query>
+            <![CDATA[
+			SELECT
+			      B.ENO_NM
+			    , B.ENO_NO
+			    , B.DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4',B.DPT_CD) AS DPT_NM
+			    , B.JOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD) AS JOB_NM
+			    , ETC_AMT
+			    , ETC_AMT3
+			 FROM  T_CP_PAYTABLE A
+			     , T_CM_PERSON B
+			 WHERE SUBSTR(A.HOB_CD, 5,6) = B.ENO_NO
+			   AND A.STR_YMD <= TO_CHAR(SYSDATE, 'YYYYMMDD')
+			   AND NVL(A.END_YMD, '99991231') >= TO_CHAR(SYSDATE, 'YYYYMMDD')
+			   AND B.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+    <!-- 삭제 -->
+    <sql name="WELH021_DEL">
+        <description>삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CTLNBOOK
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+    <!-- 일괄삭제 -->
+    <sql name="WELH021_DEL_01">
+        <description>삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CTLNBOOK
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            ]]>
+        </query>
+    </sql>
+<!-- 동호회 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELI010
+* @description : 동호회 관리
+***********************************************************************
+* 2007/02/23     오대성        최초작성.
+***********************************************************************
+-->
+
+
+    <!-- 동호회 관리 정보를 조회 한다. -->
+    <sql name="WELI010_SHR">
+        <description>동호회 관리 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				  A.ENO_NO
+			    , A.ENO_NM
+			    , C.DPT_NM
+			    , D.COMM_NM AS JOB_NM
+			    , B.CLUB_CD
+			    , E.COMM_NM   AS CLUB_NM
+			    , NVL(B.APP_AMT, 0)                        AS APP_AMT
+			    , F.CLUB_AMT
+			    , B.FEE_YN
+			    , TO_CHAR(A.HIR_YMD, 'YYYY-MM-DD')         AS HIR_YMD
+			    , TO_CHAR(A.RET_YMD, 'YYYY-MM-DD')         AS RET_YMD
+			    , TO_CHAR(TO_DATE(B.STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')   AS STR_YMD
+			    , TO_CHAR(TO_DATE(B.END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')   AS END_YMD
+			    , TO_CHAR(B.IPT_YMD, 'YYYY-MM-DD')                        AS IPT_YMD
+			 FROM T_CM_PERSON A
+			    , T_WL_CLUBLIST B
+				, T_CM_DEPT C
+				, T_CM_COMMON D -- 직위
+				, T_CM_COMMON E -- 클럽명
+				,(
+                SELECT A.BAS_CD     AS CLUB_CD
+                      , A.BAS_AMT    AS CLUB_AMT
+                              ,C.SORT_NO AS FROM_SEQ
+                              ,D.SORT_NO AS TO_SEQ
+                 FROM T_CM_BASIS A
+                 , (SELECT BAS_CD
+                         , MAX(BASIC_YMD) AS BASIC_YMD
+                    FROM T_CM_BASIS
+                                WHERE BAS_GBN = 'CL'   --추가
+                    GROUP BY BAS_CD
+                   ) B,
+				   T_CM_COMMON C,
+				   T_CM_COMMON D
+                  WHERE A.BAS_GBN = 'CL'
+                    AND A.BASIC_YMD = B.BASIC_YMD
+                    AND A.BAS_CD  = B.BAS_CD
+					AND C.CD_GBN = 'A2'
+					AND A.JOB_CD_FROM = C.COMM_CD
+					AND D.CD_GBN = 'A2'
+					AND A.JOB_CD_TO = D.COMM_CD
+				 ) F
+			WHERE A.ENO_NO = B.ENO_NO
+			  AND A.DPT_CD = C.DPT_CD
+			  AND A.ENO_NO    LIKE ?||'%'
+			  [1]
+			  AND B.CLUB_CD   LIKE ?||'%'
+			  AND D.CD_GBN = 'A2'
+			  AND A.JOB_CD = D.COMM_CD
+			  AND E.CD_GBN = 'H6'
+			  AND B.CLUB_CD = E.COMM_CD
+			  AND B.CLUB_CD = F.CLUB_CD(+)
+			  AND D.SORT_NO BETWEEN F.FROM_SEQ AND F.TO_SEQ
+			  ORDER BY C.SORT_NO
+			         , D.SORT_NO
+			         , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 동호회 정보를 조회 한다. -->
+    <sql name="WELI010_SHR_01">
+        <description>동호회 관리 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT COMM_CD
+                 , COMM_NM
+                 , EXT_01
+                 , CASE
+                   WHEN END_YMD IS NULL
+                     OR END_YMD >= SYSDATE
+                   THEN 'N'
+                   ELSE 'Y'
+                    END AS IS_END
+              FROM T_CM_COMMON
+             WHERE GUBUN    = ?
+               AND CD_GBN   = ?
+          ORDER BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 동호회 가입내역을 조회 한다. -->
+    <sql name="WELI010_SHR_CLUB_AMT">
+        <description>동호회 가입내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT *
+              FROM (SELECT ROW_NUMBER() OVER(PARTITION BY G.ENO_NO
+                                                 ORDER BY H.FROM_SEQ
+                                             )          AS NUM
+                         , H.CLUB_AMT           --동호회비
+
+                         , (SELECT COUNT(*)
+                              FROM T_WL_CLUBLIST
+                             WHERE ENO_NO    = G.ENO_NO
+                               AND (END_YMD >= TO_CHAR(SYSDATE, 'YYYYMMDD')
+                                OR  END_YMD  IS NULL)
+                            )   AS CLUB_CNT     --가입된 동호회 갯수
+
+                      FROM VI_T_CM_PERSON2 G
+                         , (SELECT C.COMM_CD AS CLUB_CD
+                                 , NVL(D.CLUB_AMT, 0) AS CLUB_AMT
+                                 , NVL(FROM_SEQ, 900) AS FROM_SEQ
+                                 , NVL(TO_SEQ, 0) AS TO_SEQ
+                              FROM T_CM_COMMON C
+                                 , (SELECT A.BAS_CD     AS CLUB_CD
+                                         , A.BAS_AMT    AS CLUB_AMT
+        			                     , SF_GET_COMMSEQ('01', 'A2', JOB_CD_FROM) AS FROM_SEQ
+                                         , DECODE( SF_GET_COMMSEQ('01', 'A2', JOB_CD_TO)
+                                                 , '0'
+                                                 , '900'
+                                                 , SF_GET_COMMSEQ('01', 'A2', JOB_CD_TO)
+                                                   ) AS TO_SEQ
+                                      FROM T_CM_BASIS A
+                                         , (SELECT BAS_CD
+                                                 , MAX(BASIC_YMD) AS BASIC_YMD
+                                              FROM T_CM_BASIS
+                                          GROUP BY BAS_CD
+                                            ) B
+                                     WHERE A.BAS_GBN = 'CL'
+                                       AND A.BASIC_YMD = B.BASIC_YMD
+                                       AND A.BAS_CD  = B.BAS_CD
+                                    ) D
+                             WHERE C.COMM_CD = D.CLUB_CD(+)
+                               AND C.CD_GBN = 'H6'
+                            ) H
+                     WHERE G.ENO_NO     = ?
+                       AND H.CLUB_CD    = ?
+                       AND G.JOB_SEQ BETWEEN H.TO_SEQ AND H.FROM_SEQ
+                    )
+             WHERE NUM = 1
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 새로추가된 동호회 관리 정보를 저장 한다. -->
+    <sql name="WELI010_INS">
+        <description>동호회 관리 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_WL_CLUBLIST
+                 ( ENO_NO
+                 , CLUB_CD
+                 , STR_YMD
+                 , END_YMD
+                 , FEE_YN
+                 , APP_AMT
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 동호회 관리 정보를 수정한다. -->
+    <sql name="WELI010_UPT">
+        <description>동호회 관리 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_CLUBLIST
+               SET END_YMD   = ?              -- 탈퇴일
+                 , FEE_YN    = ?              -- 회비납부여부
+                 , APP_AMT   = ?
+                 , UPT_MAN   = ?              -- 최종 수정자
+                 , UPT_YMD   = sysdate        -- 최종 수정일
+             WHERE ENO_NO    = ?              -- 사원번호
+               AND CLUB_CD   = ?              -- 동회회코드
+               AND STR_YMD   = ?              -- 가입일
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 동호회 관리 정보를 삭제 한다. -->
+    <sql name="WELI010_DEL">
+        <description>동호회 관리 정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CLUBLIST
+             WHERE ENO_NO    = ?              -- 사원번호
+               AND CLUB_CD   = ?              -- 동회회코드
+               AND STR_YMD   = ?              -- 가입일
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!-- 버스신청 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELJ010
+* @description : 버스신청 관리
+***********************************************************************
+* 2009/12/17     임종태        최초작성.
+***********************************************************************
+-->
+
+
+    <!-- 버스신청 정보를 조회 한다. -->
+    <sql name="WELJ010_SHR">
+        <description>버스신청 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  ENO_NO
+            	   ,SUBSTR(PIS_YYMM, 1, 4) || '-' || SUBSTR(PIS_YYMM, 5, 6) AS PIS_YYMM
+            	   ,A.LINE_CD
+            	   ,A.SEQ
+            	   ,PHONE
+            	   ,REMARK
+            	   ,D.STOP_LOC
+				   ,D.STOP_TIME
+				   ,'UPT' AS GUBUN
+              FROM T_WL_BUSAPP A, T_WL_BUSSTOP D
+             WHERE 1 = 1
+			 AND   A.LINE_CD = D.LINE_CD
+			 AND   A.SEQ     = D.SEQ
+             AND   ENO_NO = ?
+           ORDER BY PIS_YYMM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 버스신청 정보를 조회 한다. -->
+    <sql name="WELJ010_SHR_LST">
+        <description>버스신청 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO
+				   ,B.ENO_NM
+            	   ,B.DPT_NM
+				   ,B.JOB_NM
+				   ,A.PIS_YYMM
+            	   ,C.LINE_NM
+            	   ,D.STOP_LOC
+				   ,D.STOP_TIME
+            	   ,PHONE
+            	   ,A.REMARK
+              FROM T_WL_BUSAPP A, VI_T_CM_PERSON B, T_WL_BUSLINE C, T_WL_BUSSTOP D
+             WHERE 1 = 1
+			 AND   A.ENO_NO = B.ENO_NO
+			 AND   A.LINE_CD = C.LINE_CD
+			 AND   A.LINE_CD = D.LINE_CD
+			 AND   A.SEQ     = D.SEQ
+			 AND   A.PIS_YYMM  =  ?
+             AND   A.ENO_NO  LIKE ? || '%'
+           ORDER BY A.IPT_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 버스노선 정보를 조회 한다. -->
+    <sql name="WELJ010_SHR_LINE">
+        <description>버스노선 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+				   '' LINE_CD
+				  ,'' LINE_NM
+				  ,'' COM_NM
+				  ,'' FULL_GBN
+			FROM DUAL
+			UNION ALL
+			SELECT LINE_CD
+                 , LINE_NM
+                 , COM_NM
+                 , FULL_GBN
+              FROM T_WL_BUSLINE
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 버스탑승지정보를 조회 한다. -->
+    <sql name="WELJ010_SHR_STOP">
+        <description>버스탑승지정보를 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+            		LINE_CD
+            	,	SEQ
+            	,	STOP_LOC
+            	,	STOP_TIME
+              FROM T_WL_BUSSTOP
+             WHERE 1 = 1
+             AND   LINE_CD = ?
+             ORDER BY LINE_CD, SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 새로추가된 버스신청현황 정보를 저장 한다. -->
+    <sql name="WELJ010_INS">
+        <description>버스신청 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_WL_BUSAPP
+                 ( ENO_NO
+                 , PIS_YYMM
+                 , LINE_CD
+                 , SEQ
+                 , PHONE
+                 , REMARK
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD
+                 )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 버스현황의 정보를 수정한다. -->
+    <sql name="WELJ010_UPT">
+        <description>버스현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_BUSAPP
+               SET LINE_CD   = ?              -- 노선
+                 , SEQ    	 = ?              -- 순서
+                 , PHONE     = ?			  -- 전화번호
+                 , REMARK    = ?              -- 비고
+                 , UPT_MAN   = ?
+                 , UPT_YMD   = SYSDATE
+             WHERE ENO_NO    = ?              -- 사원번호
+               AND PIS_YYMM  = ?              -- 년월
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 버스신청 정보를 삭제 한다. -->
+    <sql name="WELJ010_DEL">
+        <description>버스신청 정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_BUSAPP
+             WHERE ENO_NO    = ?              -- 사원번호
+               AND PIS_YYMM  = ?              -- 년월
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 버스노선 정보를 조회 한다. -->
+    <sql name="WELJ012_SHR_LINE">
+        <description>버스노선 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT LINE_CD
+                 , LINE_NM
+                 , COM_NM
+                 , FULL_GBN
+              FROM T_WL_BUSLINE
+              ORDER BY LINE_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 버스 STOP 정보를 조회 한다. -->
+    <sql name="WELJ012_SHR_STOP">
+        <description>버스 STOP 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT  LINE_CD
+				, SEQ, STOP_LOC
+				, STOP_TIME
+				, KEY_SEQ
+			FROM T_WL_BUSSTOP
+			WHERE LINE_CD = ?
+			ORDER BY LINE_CD, SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 버스노선 정보를 수정한다. -->
+    <sql name="WELJ012_UPT">
+        <description>버스현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_BUSLINE   SET
+            	FULL_GBN   = ?              -- 만차여부
+             WHERE LINE_CD   = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 버스노선 정보를 수정한다. -->
+    <sql name="WELJ012_UPT2">
+        <description>버스현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+     UPDATE T_WL_BUSSTOP
+        SET    SEQ       = ?
+               ,STOP_LOC  = ?
+               ,STOP_TIME = ?
+     WHERE  LINE_CD = ?
+         AND  KEY_SEQ = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 버스노선 정보를 수정한다. -->
+    <sql name="WELJ012_INS">
+        <description>버스현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+	INSERT INTO T_WL_BUSLINE (
+	   LINE_CD,
+	   LINE_NM,
+	   COM_NM,
+	   FULL_GBN)
+	VALUES ( ?, ?, ?, ?)
+            ]]>
+        </query>
+    </sql>
+    <!-- 버스 탑승지 정보를 수정한다. -->
+    <sql name="WELJ012_INS2">
+        <description>버스현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+     INSERT INTO T_WL_BUSSTOP (
+          LINE_CD
+        , SEQ
+        , STOP_LOC
+        , STOP_TIME
+        , KEY_SEQ)
+     VALUES ( ?, ?, ?, ?, ?)
+            ]]>
+        </query>
+    </sql>
+    <!-- 버스 탑승지 정보를 삭제 한다. -->
+    <sql name="WELJ012_DEL2">
+        <description>버스 탑승지  정보 삭제</description>
+        <query>
+            <![CDATA[
+         DELETE T_WL_BUSSTOP
+	     WHERE  LINE_CD = ?
+         AND  KEY_SEQ = ?
+            ]]>
+        </query>
+    </sql>
+    <!-- 버스 노선 -> 탑승지 ALL   삭제 한다. -->
+    <sql name="WELJ012_DEL2ALL">
+        <description>버스 탑승지  정보 삭제</description>
+        <query>
+            <![CDATA[
+         DELETE T_WL_BUSSTOP
+	     WHERE  LINE_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 버스 노선 정보를 삭제 한다. -->
+    <sql name="WELJ012_DEL">
+        <description>버스 노선  정보 삭제</description>
+        <query>
+            <![CDATA[
+         DELETE T_WL_BUSLINE
+	     WHERE  LINE_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 명함신청 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELK010
+* @description : 명함신청 관리
+***********************************************************************
+* 2009/12/18     임종태        최초작성.
+***********************************************************************
+-->
+
+
+    <!-- 명함신청 정보를 조회 한다. -->
+    <sql name="WELK010_SHR">
+        <description>명함신청 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT  A.ENO_NO
+				   ,B.ENO_NM
+				   ,A.SEQ
+				   ,A.TEL1
+				   ,A.TEL2
+				   ,A.TEL3
+				   ,A.MOBILE1
+				   ,A.MOBILE2
+				   ,A.MOBILE3
+				   ,A.FAX1
+				   ,A.FAX2
+				   ,A.FAX3
+				   ,A.EMAIL
+				   ,A.ADDR
+				   ,A.ENG_ADDR
+				   ,A.REMARK
+				   ,A.REQ_YMD
+				   ,A.END_TAG
+				   ,B.DPT_NM
+				   ,B.JOB_NM
+				   ,B.NAM_ENG
+				 , (SELECT REMARK3  FROM T_CM_COMMON WHERE CD_GBN = 'A2' AND COMM_CD = B.JOB_CD AND ROWNUM = 1) AS ENG_JOB_NM
+				 , (SELECT REMARK3  FROM T_CM_DEPT   WHERE END_YMD IS NULL AND DPT_CD = B.DPT_CD) AS ENG_DPT_NM
+			FROM T_WL_CARD A, VI_T_CM_PERSON B
+			WHERE A.ENO_NO = B.ENO_NO
+			AND   A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인신상 정보를 조회 한다. -->
+    <sql name="WELK010_SHR_01">
+        <description>개인신상 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT ENO_NO							-- 사번
+				   , ENO_NM							-- 성명
+				   , NAM_ENG						-- 영문성명
+				   , A.DPT_CD						-- 부서코드
+				   , B.DPT_NM          				-- 부서명
+				   , JOB_CD                         -- 직위코드
+			 	   , C.COMM_NM   AS JOB_NM          -- 직위명
+				   , C.REMARK3 AS ENG_JOB_NM
+				   , B.REMARK3 AS ENG_DPT_NM
+			FROM T_CM_PERSON A, T_CM_DEPT B, T_CM_COMMON C
+			WHERE 1 = 1
+			AND   A.DPT_CD = B.DPT_CD
+			AND   A.JOB_CD = C.COMM_CD
+			AND   C.CD_GBN = 'A2'
+			AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 명함신청 일련정보를 조회 한다. -->
+    <sql name="WELK010_SHR_MAX">
+        <description>명함신청 일련정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT NVL(DECODE(MAX(NVL(SEQ, 0)), 0, 1, MAX(SEQ) + 1), 1) AS SEQ
+			FROM T_WL_CARD
+			WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 명함신청 정보를 조회 한다. -->
+    <sql name="WELK010_SHR_LST">
+        <description>명함신청 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO
+            	   ,A.SEQ
+				   ,B.ENO_NM
+            	   ,B.DPT_NM
+				   ,B.JOB_NM
+				   ,A.REQ_YMD
+            	   ,A.REMARK
+					,A.TEL1 || '-' || A.TEL2 || '-' || A.TEL3 AS TEL
+					,A.MOBILE1 || '-' || A.MOBILE2 || '-' || A.MOBILE3 AS MOBILE
+					,A.FAX1 || '-' || A.FAX2 || '-' || A.FAX3 AS FAX
+					,A.EMAIL || '@hyundai-uni.com' AS EMAIL
+					,(CASE WHEN A.ADDR = '1' THEN '110-052 서울특별시 종로구 적선동 66번지'
+						   WHEN A.ADDR = '2' THEN ' 618-410 부산시 강서구 성북동 1522번지 현대부산신항만 6층'
+						   WHEN A.ADDR = '3' THEN '100-743 서울시 중구 남대문로 4가 45번지 대한상공회의소 B/D 8층'
+						   WHEN A.ADDR = '4' THEN '110-738 서울시 종로구 연지동 1-1번지 여전도회관 현대로지엠㈜5층'
+						   WHEN A.ADDR = '5' THEN '467-734 경기도 이천시 부발읍 현대엘리베이터㈜ 정보기술실'
+						   WHEN A.ADDR = '6' THEN '110-510 서울시 종로구 동숭동 1-83 현대엘리베이터㈜ 3층 정보기술실'
+						   WHEN A.ADDR = '7' THEN '110-793 서울시 종로구 계동 140-2 현대빌딩'
+						   WHEN A.ADDR = '8' THEN '110-786 서울 종로구 신문로1가 226 흥국생명빌딩12F'
+						   WHEN A.ADDR = '9' THEN '135-983 서울시 강남구 역삼동 736-1 캐피탈타워 12층'
+						   WHEN A.ADDR = '10' THEN '110-754 서울특별시 종로구 연지동 1-7 현대그룹 빌딩'
+						   WHEN A.ADDR = '11' THEN '150-886 서울시 영등포구 여의도동 36-1번지 키움FS빌딩 8층 현대증권'
+						   ELSE ''
+					  END) ADDR
+		            , (SELECT REMARK3  FROM T_CM_COMMON WHERE CD_GBN = 'A2' AND COMM_CD = B.JOB_CD AND ROWNUM = 1) AS ENG_JOB_NM
+		            , (SELECT REMARK3  FROM T_CM_DEPT   WHERE END_YMD IS NULL AND DPT_CD = B.DPT_CD) AS ENG_DPT_NM
+					,A.ENG_ADDR
+					,B.NAM_ENG
+					,A.END_TAG
+              FROM T_WL_CARD A, VI_T_CM_PERSON B
+             WHERE 1 = 1
+			 AND   A.ENO_NO = B.ENO_NO
+			 AND   A.REQ_YMD  >=  ? ||'01'
+			 AND   A.REQ_YMD  <=  ? ||'31'
+             AND   A.ENO_NO  LIKE ? || '%'
+           ORDER BY A.IPT_YMD DESC, DPT_NM, JOB_NM, ENO_NM
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 새로추가된 명함신청현황 정보를 저장 한다. -->
+    <sql name="WELK010_INS">
+        <description>버스신청 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_WL_CARD
+                 ( ENO_NO
+                 	, SEQ
+					, TEL1
+					, TEL2
+					, TEL3
+					, MOBILE1
+					, MOBILE2
+					, MOBILE3
+					, FAX1
+					, FAX2
+					, FAX3
+					, EMAIL
+					, ADDR
+					, ENG_ADDR
+					, REMARK
+					, REQ_YMD
+					, END_TAG
+					, IPT_MAN
+					, IPT_YMD
+					, UPT_MAN
+					, UPT_YMD
+                 )
+          VALUES ( ?
+          		 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                 , 'F'
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 명함현황의 정보를 수정한다. -->
+    <sql name="WELK010_UPT">
+        <description>명함현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_CARD
+               SET
+					  TEL1			= ?
+					, TEL2			= ?
+					, TEL3			= ?
+					, MOBILE1		= ?
+					, MOBILE2		= ?
+					, MOBILE3		= ?
+					, FAX1			= ?
+					, FAX2			= ?
+					, FAX3			= ?
+					, EMAIL			= ?
+					, ADDR			= ?
+					, ENG_ADDR		= ?
+					, REMARK		= ?
+					, END_TAG       = 'F'
+					, UPT_MAN       = ?
+					, UPT_YMD       = SYSDATE
+             WHERE ENO_NO    = ?              -- 사원번호
+               AND SEQ  = ?              -- 년월
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 명함현황의 정보를 수정한다. -->
+    <sql name="WELK010_UPT_02">
+        <description>명함현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_CARD   SET
+				END_TAG       = ?      -- 확인여부
+				,UPT_MAN       = ?
+				,UPT_YMD       = SYSDATE
+             WHERE ENO_NO     = ?      -- 사원번호
+               AND SEQ  	  = ?      -- 년월
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 명함신청 정보를 삭제 한다. -->
+    <sql name="WELK010_DEL">
+        <description>명함신청 정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_CARD
+             WHERE ENO_NO    = ?         -- 사원번호
+               AND SEQ  = ?              -- 순서
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 건강보험증신청 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELL010
+* @description : 건강보험증신청 관리
+***********************************************************************
+* 2009/12/21     임종태        최초작성.
+***********************************************************************
+-->
+
+
+    <!-- 건강보험증신청 정보를 조회 한다. -->
+    <sql name="WELL010_SHR">
+        <description>명함신청 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT  A.ENO_NO
+				   ,B.ENO_NM
+				   ,A.SEQ
+				   ,A.GUBUN
+				   ,A.REQ_YMD
+				   ,B.DPT_NM
+				   ,B.JOB_NM
+			FROM T_WL_HEALTH A, VI_T_CM_PERSON B
+			WHERE A.ENO_NO = B.ENO_NO
+			AND   A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 건강보험증신청 일련정보를 조회 한다. -->
+    <sql name="WELL010_SHR_MAX">
+        <description>건강보험증신청 일련정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT NVL(DECODE(MAX(NVL(SEQ, 0)), 0, 1, MAX(SEQ) + 1), 1) AS SEQ
+			FROM T_WL_HEALTH
+			WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 건강보험증신청 정보를 조회 한다. -->
+    <sql name="WELL010_SHR_LST">
+        <description>건강보험증신청 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO
+				   ,B.ENO_NM
+            	   ,B.DPT_NM
+				   ,B.JOB_NM
+				   ,A.REQ_YMD
+				   ,A.GUBUN
+              FROM T_WL_HEALTH A, VI_T_CM_PERSON B
+             WHERE 1 = 1
+			 AND   A.ENO_NO = B.ENO_NO
+			 AND   A.REQ_YMD  >=  ? ||'01'
+			 AND   A.REQ_YMD  <=  ? ||'31'
+             AND   A.ENO_NO  LIKE ? || '%'
+           ORDER BY DPT_NM, JOB_NM, ENO_NM, REQ_YMD
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 새로추가된 건강보험증신청현황 정보를 저장 한다. -->
+    <sql name="WELL010_INS">
+        <description>건강보험증신청 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_WL_HEALTH
+                 ( ENO_NO
+                 	, SEQ
+					, GUBUN
+					, REQ_YMD
+                 )
+          VALUES ( ?
+          		 , ?
+                 , ?
+                 , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 건강보험증현황의 정보를 수정한다. -->
+    <sql name="WELL010_UPT">
+        <description>건강보험증현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_HEALTH
+               SET
+					  GUBUN			= ?
+             WHERE ENO_NO    		= ?              -- 사원번호
+               AND SEQ  			= ?              -- 년월
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 건강보험증신청 정보를 삭제 한다. -->
+    <sql name="WELL010_DEL">
+        <description>건강보험증신청 정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_HEALTH
+             WHERE ENO_NO    = ?         -- 사원번호
+               AND SEQ  = ?              -- 순서
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!-- 주차권신청 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELM010
+* @description : 주차권신청 관리
+***********************************************************************
+* 2010/04/09     임종태        최초작성.
+***********************************************************************
+-->
+
+
+    <!-- 명함신청 정보를 조회 한다. -->
+    <sql name="WELM010_SHR">
+        <description>주차권신청 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT  A.ENO_NO
+				   ,SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+				   ,DPT_CD
+				   ,SF_GET_DPTNAME('01', 'A4', A.DPT_CD ) AS DPT_NM
+				   ,JOB_CD
+				   ,B.COMM_NM AS JOB_NM
+				   ,A.CAR_KIND
+				   ,A.CAR_NO
+				   ,A.REMARK
+				   ,SUBSTR(A.REQ_YMD, 1, 4) || '-' || SUBSTR(A.REQ_YMD, 5, 2) || '-' || SUBSTR(A.REQ_YMD, 7) AS REQ_YMD
+				   ,A.END_TAG
+			FROM T_WL_PARKING A, T_CM_COMMON B
+			WHERE A.JOB_CD = B.COMM_CD
+			AND   B.CD_GBN = 'A2'
+			AND   A.ENO_NO = ?
+			ORDER BY REQ_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인신상 정보를 조회 한다. -->
+    <sql name="WELM010_SHR_01">
+        <description>개인신상 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT ENO_NO							-- 사번
+				   , ENO_NM							-- 성명
+				   , NAM_ENG						-- 영문성명
+				   , A.DPT_CD						-- 부서코드
+				   , B.DPT_NM          				-- 부서명
+				   , JOB_CD                         -- 직위코드
+			 	   , C.COMM_NM   AS JOB_NM          -- 직위명
+				   , C.REMARK3 AS ENG_JOB_NM
+				   , B.REMARK3 AS ENG_DPT_NM
+			FROM T_CM_PERSON A, T_CM_DEPT B, T_CM_COMMON C
+			WHERE 1 = 1
+			AND   A.DPT_CD = B.DPT_CD
+			AND   A.JOB_CD = C.COMM_CD
+			AND   C.CD_GBN = 'A2'
+			AND   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 주차권신청 일련정보를 조회 한다. -->
+    <sql name="WELM010_SHR_MAX">
+        <description>주차권신청 일련정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT NVL(DECODE(MAX(NVL(SEQ, 0)), 0, 1, MAX(SEQ) + 1), 1) AS SEQ
+			FROM T_WL_PARKING
+			WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 주차권신청 정보를 조회 한다. -->
+    <sql name="WELM010_SHR_LST">
+        <description>주차권신청 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT  A.ENO_NO
+				   ,SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+				   ,SF_GET_DPTNAME('01', 'A4', A.DPT_CD ) AS DPT_NM
+				   ,B.COMM_NM AS JOB_NM
+				   ,A.CAR_KIND
+				   ,A.CAR_NO
+				   ,A.REMARK
+				   ,A.REQ_YMD
+				   ,A.END_TAG
+			FROM T_WL_PARKING A, T_CM_COMMON B
+			WHERE A.JOB_CD = B.COMM_CD
+			AND   B.CD_GBN = 'A2'
+			 AND   A.REQ_YMD  >=  ? ||'01'
+			 AND   A.REQ_YMD  <=  ? ||'31'
+             AND   A.ENO_NO  LIKE ? || '%'
+			 ORDER BY A.REQ_YMD DESC
+
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 새로추가된 주차권신청현황 정보를 저장 한다. -->
+    <sql name="WELM010_INS">
+        <description>주차권신청 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_WL_PARKING
+                 ( ENO_NO
+                 	, DPT_CD
+					, JOB_CD
+					, REQ_YMD
+					, CAR_KIND
+					, CAR_NO
+					, REMARK
+					, END_TAG
+					, IPT_MAN
+					, IPT_YMD
+					, UPT_MAN
+					, UPT_YMD
+                 )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , 'F'
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 주차권신청현황의 정보를 수정한다. -->
+    <sql name="WELM010_UPT">
+        <description>주차권신청현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_PARKING
+               SET
+					  CAR_KIND			= ?
+					, CAR_NO			= ?
+					, REMARK		= ?
+					, END_TAG       = 'F'
+					, UPT_MAN       = ?
+					, UPT_YMD       = SYSDATE
+             WHERE ENO_NO    = ?              -- 사원번호
+               AND REQ_YMD  = ?              -- 년월
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 주차권신청현황의 정보를 수정한다. -->
+    <sql name="WELM010_UPT_02">
+        <description>주차권신청현황 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_PARKING   SET
+				END_TAG       = ?      -- 확인여부
+				,UPT_MAN       = ?
+				,UPT_YMD       = SYSDATE
+             WHERE ENO_NO     = ?      -- 사원번호
+               AND REQ_YMD  	  = ?      -- 년월
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 주차권신청 정보를 삭제 한다. -->
+    <sql name="WELM010_DEL">
+        <description>주차권신청신청 정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_WL_PARKING
+             WHERE ENO_NO    = ?         -- 사원번호
+               AND REQ_YMD  = ?              -- 순서
+            ]]>
+        </query>
+    </sql>
+
+<!-- 복지카드 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELN010
+* @description : 복지카드 관리
+***********************************************************************
+* 2014/07/02     이동훈        최초작성.
+***********************************************************************
+-->
+
+
+
+    <!-- 이미 등록된 카드업로드 정보를 조회 한다. -->
+    <sql name="WELN010_SHR">
+        <description>카드업로드 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+			A.SEQID,
+			A.RESINO,
+			A.ENO_NM,
+			A.CARDNO,
+			A.DPT_NM,
+			A.APPNO,
+			A.APPDT,
+			A.SALEDT,
+			A.SETTDT,
+			A.SALAMT,
+			A.CANAMT,
+			A.REQAMT,
+			A.MBERNO,
+			A.MEMBER,
+			A.MBERRESINO,
+			A.MBERCD,
+			A.MBERNM,
+			A.CLOSEYN
+			FROM T_WL_CARDUP A
+			WHERE 1=1
+			AND A.SETTDT LIKE ?||'%'
+			ORDER BY A.SETTDT, A.ENO_NM, A.SEQID
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 정보를 삭제 한다. -->
+    <sql name="WELN010_DEL">
+        <description>정보 삭제</description>
+        <query>
+            <![CDATA[
+         DELETE T_WL_CARDUP
+	     WHERE  SETTDT LIKE ?||'%'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 정보를 삭제 한다. -->
+    <sql name="WELN010_DEL2">
+        <description>정보 삭제</description>
+        <query>
+            <![CDATA[
+         DELETE T_WL_CARD_STS
+	     WHERE  SETTDT LIKE ?||'%'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 카드업로드 정보를 저장 한다. -->
+    <sql name="WELN010_SAV">
+        <description>카드업로드 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO T_WL_CARDUP
+                 (
+					SEQID,
+					RESINO,
+					ENO_NM,
+					CARDNO,
+					DPT_NM,
+					APPNO,
+					APPDT,
+					SALEDT,
+					SETTDT,
+					SALAMT,
+
+					CANAMT,
+					REQAMT,
+					MBERNO,
+					MEMBER,
+					MBERRESINO,
+					MBERCD,
+					MBERNM,
+
+					CLOSEYN,
+					IPT_MAN,
+					IPT_YMD,
+					UPT_MAN,
+					UPT_YMD
+                 )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , 'N'
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 이미 등록된 카드업로드 정보를 카드_sts 테이블에 다시 저장 한다. -->
+    <sql name="WELN010_SAV_01">
+        <description>카드업로드 정보 저장</description>
+        <query>
+            <![CDATA[
+
+            INSERT INTO T_WL_CARD_STS
+			SELECT
+			B.ENO_NO,A.APPDT,A.SEQID,
+			B.HEAD_CD,B.DPT_CD,DECODE(B.TEAM_CD, '', B.DPT_CD, B.TEAM_CD) AS TEAM_CD ,
+			A.REQAMT,A.MEMBER,
+			DECODE(B.GBN_CD,'2','Y','4','Y','5','Y', 'N'),
+			A.SALEDT,A.SETTDT,
+			?,SYSDATE,?,SYSDATE
+			 FROM T_WL_CARDUP A, T_CM_PERSON B
+			 WHERE A.RESINO = REPLACE(B.CET_NO,'-')
+			 AND B.FINJ_CD IN ('L01','L11','L06','L20','L30','L36','L54','L63','L23')
+			 AND A.SETTDT LIKE ?||'%'
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 카드업로드 정보를 마감 한다. -->
+    <sql name="WELN010_SAV_END">
+        <description>카드정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE T_WL_CARDUP   SET
+				CLOSEYN       = 'C'      -- 확인여부
+				,UPT_MAN       = ?
+				,UPT_YMD       = SYSDATE
+             WHERE SETTDT LIKE ?||'%'
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 카드 정보를 조회 한다. -->
+    <sql name="WELN020_SHR">
+        <description>카드 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+			B.HEAD_CD,
+            SF_GET_DPTNAME('01', 'B2', B.HEAD_CD)  AS HEAD_NM,         -- 본부명
+			B.DPT_CD,
+			SF_GET_DPTNAME('01', 'A4', B.DPT_CD ) AS DPT_NM,			--부서명
+			B.TEAM_CD,
+			DECODE(SF_GET_DPTNAME('01', 'A6', B.TEAM_CD), B.TEAM_CD, SF_GET_DPTNAME('01', 'A4', B.DPT_CD), SF_GET_DPTNAME('01', 'A6', B.TEAM_CD)) AS TEAM_NM ,     -- 팀명
+			A.ENO_NO,
+			SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM,
+			A.APPDT,
+			A.SEQID,
+			A.SALEDT,
+			A.SETTDT,
+			A.REQAMT,
+			A.MEMBER,
+			A.TAXGB
+			FROM T_WL_CARD_STS A, T_CM_PERSON B
+			WHERE 1=1
+			AND A.ENO_NO = B.ENO_NO
+			AND A.SETTDT LIKE ?||'%'
+			AND A.ENO_NO LIKE '%'||?||'%'
+			ORDER BY A.HEAD_CD , A.DPT_CD , A.TEAM_CD, A.ENO_NO, A.SETTDT
+            ]]>
+        </query>
+    </sql>
+
+<!-- 복지카드 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : WELN030
+* @description : 복지카드 관리
+***********************************************************************
+* 2014/07/02     이동훈        최초작성.
+***********************************************************************
+-->
+
+    <!-- 이미 등록된 카드업로드 정보를 조회 한다. -->
+    <sql name="WELN030_SHR">
+        <description>카드업로드 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+			A.SEQID,
+			A.RESINO,
+			A.ENO_NM,
+			A.APPDT,
+			A.MEMBER,
+			A.SALAMT,
+			A.CLOSEYN
+			
+			FROM ASNHR.T_WL_CARDUP A
+			WHERE 1=1
+			AND A.SETTDT = ?
+			ORDER BY A.APPDT, A.ENO_NM, A.SEQID
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 정보를 삭제 한다. -->
+    <sql name="WELN030_DEL">
+        <description>정보 삭제</description>
+        <query>
+            <![CDATA[
+         DELETE ASNHR.T_WL_CARDUP
+	     WHERE  SETTDT = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 정보를 삭제 한다. -->
+    <sql name="WELN030_DEL2">
+        <description>정보 삭제</description>
+        <query>
+            <![CDATA[
+         DELETE ASNHR.T_WL_CARD_STS
+	     WHERE  SETTDT = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 카드업로드 정보를 저장 한다. -->
+    <sql name="WELN030_SAV">
+        <description>카드업로드 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_WL_CARDUP
+                 (
+					SEQID,
+					RESINO,
+					ENO_NM,
+					CARDNO,
+					DPT_NM,
+					APPNO,
+					APPDT,
+					SETTDT,
+					SALAMT,
+					MEMBER,
+					CLOSEYN,
+					IPT_MAN,
+					IPT_YMD,
+					UPT_MAN,
+					UPT_YMD
+                 )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , '1234'	
+                 , '현대아산'
+                 , ' '
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , 'N'
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 카드업로드 정보를 카드_sts 테이블에 다시 저장 한다. -->
+    <sql name="WELN030_SAV_01">
+        <description>카드업로드 정보 저장</description>
+        <query>
+            <![CDATA[
+
+            INSERT INTO ASNHR.T_WL_CARD_STS
+			SELECT
+			B.ENO_NO,
+			A.APPDT,
+			A.SEQID,
+			B.HEAD_CD,
+			B.DPT_CD,
+			DECODE(B.TEAM_CD, '', B.DPT_CD, B.TEAM_CD) AS TEAM_CD ,
+			A.SALAMT,
+			A.MEMBER,
+			DECODE(B.GBN_CD,'2','Y','4','Y','5','Y', 'N'),
+			A.SALEDT,
+			A.SETTDT,
+			?,SYSDATE,
+			?,SYSDATE
+			 FROM ASNHR.T_WL_CARDUP A, ASNHR.T_CM_PERSON B
+			WHERE A.RESINO = SUBSTR(B.CET_NO,1,6)
+       		 AND A.ENO_NM = B.ENO_NM
+			 AND B.FINJ_CD IN ('L01','L11','L06','L20','L30','L36','L37','L54','L63','L23')
+			 AND A.SETTDT = ? 
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 이미 등록된 카드업로드 정보를 마감 한다. -->
+    <sql name="WELN030_SAV_END">
+        <description>카드정보 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_WL_CARDUP   SET
+				CLOSEYN       = 'C'      -- 확인여부
+				,UPT_MAN       = ?
+				,UPT_YMD       = SYSDATE
+             WHERE SETTDT = ?
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 카드 정보를 조회 한다. -->
+    <sql name="WELN040_SHR">
+        <description>카드 정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+			B.HEAD_CD,
+            ASNHR.SF_GET_DPTNAME('01', 'B2', B.HEAD_CD)  AS HEAD_NM,         -- 본부명
+			B.DPT_CD,
+			ASNHR.SF_GET_DPTNAME('01', 'A4', B.DPT_CD ) AS DPT_NM,			--부서명
+			B.TEAM_CD,
+			DECODE(ASNHR.SF_GET_DPTNAME('01', 'A6', B.TEAM_CD), B.TEAM_CD, ASNHR.SF_GET_DPTNAME('01', 'A4', B.DPT_CD), ASNHR.SF_GET_DPTNAME('01', 'A6', B.TEAM_CD)) AS TEAM_NM ,     -- 팀명
+			A.ENO_NO,
+			ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM,
+			A.APPDT,
+			A.SEQID,
+			A.SALEDT,
+			A.SETTDT,
+			A.REQAMT,
+			A.MEMBER,
+			A.TAXGB
+			FROM ASNHR.T_WL_CARD_STS A, ASNHR.T_CM_PERSON B
+			WHERE 1=1
+			AND A.ENO_NO = B.ENO_NO
+			AND A.SETTDT LIKE ?||'%'
+			AND A.ENO_NO LIKE '%'||?||'%'
+			ORDER BY A.HEAD_CD , A.DPT_CD , A.TEAM_CD, A.ENO_NO, A.SETTDT
+            ]]>
+        </query>
+    </sql>
+
+
+</sqls>
+
+

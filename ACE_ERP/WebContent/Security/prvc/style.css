@@ -1,0 +1,59 @@
+BODY
+{
+	FONT-FAMILY:  "±¼¸²", "Tahoma", "Verdana", "MS Sans Serif", "Courier New";	
+	margin-top: 0px; margin-left: 0px; margin-right: 0px;
+	/* border : Blue dotted f7f7f7;*/
+	page-break-after : auto;
+	page-break-before : auto;
+	scrollbar-3dlight-color:#424142;
+	scrollbar-arrow-color:#848284;
+	scrollbar-base-color:#DEDFDE;
+	scrollbar-darkshadow-color:white;
+	scrollbar-face-color:#DEDFDE;
+	scrollbar-highlight-color:white;
+	scrollbar-shadow-color:#424142;
+}
+
+INPUT
+{
+	BORDER-RIGHT: #C2C2C2 1pt solid;                   
+	BORDER-TOP: #C2C2C2 1pt solid;  
+	FONT-SIZE: 9pt; 
+	BORDER-LEFT: #C2C2C2 1pt solid;
+	COLOR: #4F4E4E;                  
+	BORDER-BOTTOM: #C2C2C2 1pt solid; 
+	FONT-FAMILY: ±¼¸², Arial; 
+	background-color: #FFFFFF;
+	PADDING-RIGHT: 0px;
+	MARGIN-TOP: 1pt;
+	PADDING-LEFT: 2px;
+	PADDING-TOP: 2px;
+}   
+
+TEXTAREA
+{
+	BORDER-RIGHT: #C2C2C2 1px solid; 
+    BORDER-TOP: #C2C2C2 1px solid;
+    FONT-SIZE: 9pt; 
+    OVERFLOW: auto; 
+    BORDER-LEFT: #C2C2C2 1px solid;
+    COLOR: #4F4E4E; 
+    LINE-HEIGHT: 17px; 
+    BORDER-BOTTOM: #C2C2C2 1px solid;
+    FONT-FAMILY: ±¼¸², Arial; 
+    BACKGROUND-COLOR: #FFFFFF;
+}
+
+TABLE
+{
+	BORDER : 0px solid #000000;
+	TABLE-LAYOUT : fixed;
+}
+
+TD
+{
+	font-size: 12px;
+	color: #3E3E3E;
+	LINE-HEIGHT: 17px;
+	TEXT-ALIGN: center;
+}

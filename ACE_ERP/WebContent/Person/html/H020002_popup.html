@@ -1,0 +1,199 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	인사
++ 프로그램 ID	: H020002_POPUP.HTML
++ 기 능 정 의	: 조회
++ 변 경 이 력	: 
++ 서 블 릿 명	: h020002_s1
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title>채용안내정보</title>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+get_cookdata();
+lfn_init();
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+	var arg = new Array ();
+
+	arg = window.dialogArguments;
+	ln_Query(arg[0]);
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(e){
+	gcds_data.DataID = "/services/servlet/Person.h020002_s1?"
+									 + "v_str1=" + e;
+	gcds_data.Reset();
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save(){
+
+}
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+</script>
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><OBJECT id=gcds_data classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcds_data" event="onloadcompleted(row,colid)">
+	if (row<1) return;
+	gclx_carrdiv.bindcolval = gcds_data.namevalue(row,"CARRDIV");
+	gcem_rfrdt.text = gcds_data.namevalue(row,"RFRDT");
+	gcem_rtodt.text = gcds_data.namevalue(row,"RTODT");
+	txt_info.value = gcds_data.namevalue(row,"INFO");
+	txt_rmemo.value = gcds_data.namevalue(row,"RMEMO");
+
+	var pam = "";
+	for (var i=1;i<=gcds_data.countrow;i++){
+		pam += gcds_data.namevalue(i,"MINORNM") + "/";
+	}
+	txt_minornm.value = pam;
+</script>
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+<table border="0" cellpadding="0" cellspacing="0" style="position:relative;left:5px;top:5px;width:360px;border:1 solid #708090">
+	<tr>
+		<td class="tab11" width="80px;" bgcolor="#eeeeee">채용구분</td>
+		<td class="tab22" width="280px">
+			<comment id="__NSID__"><object id=gclx_carrdiv classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69
+				style="position:relative;left:8px;top:0px;font-size:12px;width:130px;height:200px;">
+					<param name=CBData					value="2^신입,1^경력,3^무관">
+					<param name=CBDataColumns		value="Code, Parm">
+					<param name=SearchColumn		value="Parm">
+					<param name=Sort						value="false">
+					<param name=ListExprFormat	value="Parm^0^130">
+					<param name=BindColumn			value="Code">
+					<param name=Enable					value=false>
+			</object></comment><script>__ws__(__NSID__);</script>
+		</td>
+	</tr>
+	<tr>
+		<td class="tab11" width="80px;" bgcolor="#eeeeee">안내일자</td>
+		<td class="tab22" width="280px">
+			<comment id="__NSID__"><object id=gcem_rfrdt classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  tabindex="1"
+				style="position:relative; left:8px;top:6px; width:60px; height:17px; font-family:굴림; font-size:9pt;z-index:2; ">
+					<param name=Alignment			value=0>
+					<param name=Border	      value=false>
+					<param name=Format	      value="YYYY/MM/DD">
+					<param name=PromptChar	  value="_">
+					<param name=Enable				value=false>
+		  </object></comment><script>__ws__(__NSID__);</script>
+			&nbsp;&nbsp;~
+			<comment id="__NSID__"><object id=gcem_rtodt classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  tabindex="1"
+				style="position:relative; left:8px;top:6px; width:100px; height:17px; font-family:굴림; font-size:9pt;z-index:2; ">
+					<param name=Alignment			value=0>
+					<param name=Border	      value=false>
+					<param name=Format	      value="YYYY/MM/DD">
+					<param name=PromptChar	  value="_">
+					<param name=Enable				value=false>
+		  </object></comment><script>__ws__(__NSID__);</script>
+		</td>
+	</tr>
+	<tr>
+		<td class="tab11" width="80px;" bgcolor="#eeeeee">안내제목</td>
+		<td class="tab22" width="280px"><input type="text" id="txt_info" class="txt11" style="position:relative;top:2px;width:260px;border:0" disabled></td>
+	</tr>
+	<tr>
+		<td class="tab11" width="80px;" bgcolor="#eeeeee">안내내용</td>
+		<td class="tab21" width="280px" height="210px;"><textarea id=txt_rmemo style="position:relative;left:8px;font-family:굴림;font-size:9pt;width:272px;height:200px;border:0 solid #708090" disabled></textarea></td>
+	</tr>
+	<tr>
+		<td class="tab12" width="80px;" bgcolor="#eeeeee">채용학과</td>
+		<td width="280px"><input type="text" id="txt_minornm" class="txt11" style="position:relative;top:2px;width:260px;border:0" disabled></td>
+	</tr>
+</table>
+
+</body>
+</html>

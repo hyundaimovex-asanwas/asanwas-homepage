@@ -1,0 +1,142 @@
+/* 테이블기본적용값 */
+body { 	font-family: 굴림체,arial,curier,seoul;	color: #000000;	font-size: 12px; line-height: 125%;}
+table { font-family: 굴림체,arial,curier,seoul; color: #000000; font-size: 12px; line-height: 125%; text-decoration: none; }
+tr { font-family: 굴림체,arial,curier,seoul; color: #000000; font-size: 12px; line-height: 125%; }
+td { font-family: 굴림체,arial,curier,seoul; color: #000000; font-size: 12px; line-height: 125%; }
+input {	font-family: 굴림체,arial,curier,seoul; font-size: 12px; border: #808080 1px solid; padding: 2 3 0 3; }
+select { font-family: 굴림체,arial,curier,seoul; font-size: 12px; line-height: 125%; background:#FCF8F0 ; scrollbar-face-color:white; scrollbar-highlight-color:white; scrollbar-shadow-color:#808080; scrollbar-arrow-color:black; scrollbar-darkshadow-color: #404040; scrollbar-bace-color: white; }
+textarea { FONT-FAMILY: 굴림체,arial,curier,seoul; COLOR: #000000; font-size: 12px; BORDER: #808080 1px solid; padding:5px; }
+
+/*링크*/
+A:link    { font-family:굴림체,arial,curier,seoul; COLOR: #898989; TEXT-DECORATION: none; FONT-SIZE: 12px}
+A:visited { font-family:굴림체,arial,curier,seoul; COLOR: #898989; TEXT-DECORATION: none; FONT-SIZE: 12px}
+A:active  { font-family:굴림체,arial,curier,seoul; COLOR: #898989; TEXT-DECORATION: none; FONT-SIZE: 12px}
+A:hover   { font-family:굴림체,arial,curier,seoul; COLOR: #db6200; TEXT-DECORATION: none; FONT-SIZE: 12px}
+
+/*네비게이터*/
+.navigator { COLOR: #595959; font-size: 11px; line-widht: 60%;}
+
+/*입력타입 기본외*/
+.input_hidden   { font-family:굴림체,arial,curier,seoul;                                     font-size:12px; border:0;                 padding:0 3 0 5; }
+.inputDisabled  { font-family:굴림체,arial,curier,seoul;                  background:EEEEEE; font-size:12px; border:#808080 1px solid; padding:2 3 0 3; }
+.input_ReadOnly { font-family:굴림체,arial,curier,seoul; color:#966218;   background:EEEEEE; font-size:12px; border:#966218 1px solid; padding:2 3 0 3; }
+.textareaNude   { FONT-FAMILY:굴림체,arial,curier,seoul; color:#000000 ;                     font-size:12px; border:#ffffff 1px solid; padding:5px; }
+
+/*타이틀바*/
+.barBg { height:28; BACKGROUND-IMAGE: url(../images/common/barBg.gif); }
+.barTitle { font-size: 16px; font-weight: bolder; color: #000000;}
+
+/*left 트리테이블*/
+.tree { background:#E7EEDD; border-right: 1px solid #B7D795; padding:10 10 20 5; }
+.info { font-size: 12px; color: #141E01; border-right: 1px solid #B7D795; BACKGROUND-IMAGE: url(../images/common/infoBg.gif); padding-top:4px;}
+
+/* table type 공통*/
+.listOver { background:FFFFCE; }
+
+/* 조건입력 Table */
+.creamBold { height:25; background:FBF3E1; font-weight: bolder; }
+
+/*리스트가 10개 이상일경우 격줄컬러값*/
+.twoToneColor { background:F7FAF0; }
+
+/*table Type1*/
+.orangeBold { height:25 ; font-weight: bolder; background:F7DDBC; border-bottom: 2px solid #999999;}
+.orangeNo { height:22 ; background:F7DDBC;}
+
+/*table Type2*/
+.beigeBold { height:25 ; font-weight: bolder; background:F7E8BC; border-bottom: 2px solid #999999;}
+.beigeNo { height:22 ; background:F7E8BC;}
+
+/*table Type3
+.blueBold { height:25 ; font-weight: bolder; background:#f6f8fc; border-bottom: 2px solid #d1deeb;}*/
+.blueBold { height:25 ; font-weight: bolder; background:#f6f8fc; border-bottom: 0px solid #000000;}
+.blueNo { height:22 ; background:F7DDBC;}
+
+/* 탭 데이블 */
+.overMenu25 { font-family:굴림체,arial,curier,seoul; COLOR: #000000; TEXT-DECORATION: none; FONT-SIZE: 12px; line-height: 120%; font-weight: bolder; BACKGROUND-IMAGE: url(../images/common/tab25Center.gif);padding-top:3px;}
+.hiddenMenu25 { font-family:굴림체,arial,curier,seoul; COLOR: #878787; TEXT-DECORATION: none; FONT-SIZE: 12px; line-height: 120%; font-weight: bolder; BACKGROUND-IMAGE: url(../images/common/tabGray25Center.gif);padding-top:3px;}
+.overMenu40 { font-family:굴림체,arial,curier,seoul; COLOR: #000000; TEXT-DECORATION: none; FONT-SIZE: 12px; line-height: 120%; font-weight: bolder; BACKGROUND-IMAGE: url(../images/common/tab40Center.gif);padding-top:3px;}
+.hiddenMenu40 { font-family:굴림체,arial,curier,seoul; COLOR: #878787; TEXT-DECORATION: none; FONT-SIZE: 12px; line-height: 120%; font-weight: bolder; BACKGROUND-IMAGE: url(../images/common/tabGray40Center.gif);padding-top:3px;}
+.tabBold { height:25 ; font-weight: bolder; background:F8B97B; border-bottom: 2px solid #999999;}
+.tabNo { height:22 ; background:F8B97B;}
+
+/*padding*/
+/*테이블 사이간격*/
+.paddingTop15 { padding-top:15px; }
+.paddingTop8 { padding-top:8px; }
+.paddingTop5 { padding-top:5px; }
+.paddingTop3 { padding-top:3px; }
+.padding2423 { padding:2 4 2 3; }
+
+/*power search테이블 2014.10.31 이동훈 추가*/
+.blueTable { height:36px; margin-bottom:15px; border:1px solid #d1deeb; background:#f6f8fc;}
+.blueTable form{font-weight:bold; color:#34578c; padding:8px 0 0 10px; }
+.blueTable select{height:18px;}
+
+
+/*power search테이블*/
+.greenTable { border: 3px solid #D1E2C4;padding:8px; BACKGROUND-IMAGE: url(../images/common/searchBg.gif); }
+.sPadding { padding-right:2px; }
+.div1 { BORDER:#5DA334 1px solid;LEFT: -1px; POSITION: relative; TOP: 0px; HEIGHT: 20px; }
+.div2 { LEFT: -1px; CLIP: rect(2px 163px 18px 2px); POSITION: absolute; TOP: -1px; HEIGHT: 22px ; }
+.divSelect { HEIGHT: 22px ;FONT-SIZE: 12px; font-family:굴림체,arial,curier,seoul; padding-top: 10px; }
+.divInput { height: 20px;BORDER: #5DA334 1px solid; }
+
+
+/*인사평가 - 자기평가진행정보 페이지*/
+.hrWtable{ BORDER: #B5D4AA 1px solid; background:ffffff;}
+.hrWtable2{ BORDER: #D8D172 1px solid; background:ffffff; padding:15px;}
+.hrWtable3{ BORDER: #D8D172 1px solid; background:FDFCF5; padding:15px;}
+.hrTextGreen { font-weight: bolder; color: #00AC31;}
+.hrTextGreen2 { color: #00AC31;}
+.hrTextBlue A:link { font-family:굴림체,arial,curier,seoul; COLOR: #0484BF; TEXT-DECORATION: none; FONT-SIZE: 12px}
+.hrTextBlue A:visited { font-family:굴림체,arial,curier,seoul; COLOR: #0484BF; TEXT-DECORATION: none; FONT-SIZE: 12px}
+.hrTextBlue A:active { font-family:굴림체,arial,curier,seoul; COLOR: #0484BF; TEXT-DECORATION: none; FONT-SIZE: 12px}
+.hrTextBlue A:hover { font-family:굴림체,arial,curier,seoul; COLOR: #0484BF; TEXT-DECORATION: none; FONT-SIZE: 12px}
+.hrTextBlack { color: #000000;}
+
+/*조회 상태 테이블*/
+.searchState { font-size: 12px; font-weight: bolder; color: #000000; }
+.searchBold { height:25; width:90; font-weight: bolder; }
+
+
+/* HEADER */
+#haHeader { width:100%; }
+	/* 헤더-탑 */
+	#haHeaderTop {  height:42px; }
+	#haHeaderMenu { height:32px;background:url(../../images/Common/topMenu_back.gif);border-bottom:solid 1 #187DFF; }
+	.htImg { width:29px; height:29px; border:0; cursor:pointer ; }
+
+
+
+/* LAYOUT BOX (Header-Footer를 제외한 레이아웃) */
+#haSubBody { float:left; width:1020px; height:90%; margin:0px 0px 0px 0px;  }
+	/* 포털페이지 메인 컨텐츠 */
+/*	#mcMessage {float:left; width:310px; margin:0px 0px 0px 10px;}
+	#mcMessage_title {float:left;width:16px; font-size:12px;font-weight:bold; }
+	#mcShortcut { float:right;width:286px; }
+	.mcSCicon {  float:left; width:76px; height:80px;}
+	.mcSCiconT {width: 76px; height:58px; text-align:center;}
+	.mcSCiconB { width: 76px; height:16px; padding:6px 0px 9px 0px; color:#999999; text-align:center; font-size:11px; font-weight:bold; }
+	.mcImg { width:58px; height:58px; border:0; cursor: hand ; }
+*/
+
+	.rowH9 {  clear:both; width:100%; height:3px; border:1 solid blue;}
+#haBodyMerge { width:980px; }
+
+
+/* Align */
+.l{text-align:left !important;}
+.c{text-align:center !important;}
+.r{text-align:right !important}
+.t{vertical-align:top !important;}
+.m{vertical-align:middle !important;}
+.b{vertical-align:bottom !important}
+
+.calendar
+{
+	Z-INDEX: -1; VERTICAL-ALIGN: baseline; POSITION: absolute; TEXT-ALIGN: center; TEXT-DECORATION: none;
+	WIDTH: 185px;
+	HEIGHT: 156px;
+	display:none;
+}

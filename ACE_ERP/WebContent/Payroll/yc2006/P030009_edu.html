@@ -1,0 +1,192 @@
+<!--
+	Copyright 2005 HMM Co, Ltd. All Rights Reserved.
+	Programmed by dongilseo, 2005.10.10
+-->
+
+
+
+
+
+
+
+
+<html>
+<head>
+<title>2006년 근로소득공제 취학생 학교비용 공제 상세 입력</title>
+<link rel="stylesheet" href="imgs/css_ehr.css" type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<script language="JavaScript" src="imgs/web.js"></script>
+<script language="JavaScript" src="imgs/06YearEntryEdu.js"></script>
+<script language="JavaScript">
+<!--
+//-->
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" onLoad="getValue(document.entry, '1')";>
+<form name="entry" method="post" action="">
+	<input type="hidden" name="eyy" value="2006">
+	<input type="hidden" name="emm" value="12">
+	<input type="hidden" name="egb" value="0">
+	<input type="hidden" name="gb1" value="L">
+	<input type="hidden" name="eno" value="200089">
+	<input type="hidden" name="cgq" value="1">
+	<input type="hidden" name="mod" value="IPT">
+
+	<!-- 인적사항 및 공제항목 -->
+	<table width="820" border="0" cellspacing="1" cellpadding="3">
+		<tr bgcolor="#FFFFFF">
+			<td colspan="12" height="85">
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+
+					<tr>
+						<td colspan="2"><b>※ 취학생 학교비용</b></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#FF6633">1. 공제 가능</font></b></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#FF6633">&nbsp;&nbsp;&nbsp;&nbsp;① 초중고 - 『초·중등교육법, 고등교육법』에 의한 학교로써 정규수업시간을 위해 지출한 비용<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;대학생 - 『고등교육법 및 특별법』에 의한 학교로써 정규 교육과정을 위해 지출한 비용<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						예) 입학금, 수업료, 육성/기성회비(학교운영지원비), 예능학교 등의 정규 교과과정에 해당하는 실기지도비 등<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						→국공립 초등학생의 경우 학교 등록금(수업료 등)이 없으므로 교육비 공제 신청액도 없음.<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;②『평생교육법』에 의한 원격대학(사이버 대학)<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;③『학점인정 등에 관한 법』에 의한 학위취득과정 기관<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;예) 대학교 부설 사회교육원 과정(학점은행제 평가인정기관으로 지정되어 있는 곳)<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;④ 근로자 본인의 대학원비
+						</font></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#3366FF">2. 공제 불가능(연간 총소득 100만원 초과자)</font></b></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp;① 학생의 사설학원 수강료<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;② 장학금, 보충수업비, 학생회비, 학교버스이용료, 교육자재대, 식비, 기숙사비, 동창회비, 졸업앨범비 등<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;③ 가족의 대학원비<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;④ 직계존속의 교육비<br>
+						</font></td>
+					</tr>
+					<tr>
+						<td colspan="2"><b>※ 장애인 특수교육비</b></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#FF6633">1. 공제 가능 (연간 총소득 100만원 이하자)</font></b></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#FF6633">&nbsp;&nbsp;&nbsp;&nbsp;①『사회복지사업법』에 의한 사회복지시설로써 정규 재활교육과정을 위해 지출한 비용<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;예) 수업료, 입학금 등<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;②『민법』에 의한 비영리법인으로써 정규 재활교육과정을 위해 지출한 비용<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ 한국 장애인 부모회, 한국 뇌성마비 부모회, 장애우권익문제연구소, 나사함, 아띠<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;예) 수업료, 입학금 등
+						</font></td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><b><font color="#3366FF">2. 공제 불가능 (연간 총소득 100만원 초과자)</font></b></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp;①『사회복지사업 및 민법』에 의한 시설이 아닌 곳에 지출한 비용<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;② 직계존속의 교육비<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;③ 기숙사비, 학교버스이용료, 교육자재대 등
+						</font></td>
+					</tr>
+
+					<tr>
+						<td>&nbsp;</td>
+						<td align="right"><a href="javascript:checkForm(document.entry, '1');"><img src="imgs/btn_save.gif" border="0"></a></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+
+	<table width="820" bgcolor="#666666" border="0" cellspacing="1" cellpadding="3">
+		<tr align="center" bgcolor="#FFFFFF">
+			<td colspan="2" bgcolor="#ffedd2">근 로 소 득 자</td>
+			<td colspan="3" bgcolor="#ffedd2">공 제 신 청 자 (= 교 육 대 상 자)</td>
+			<td colspan="4" bgcolor="#ffedd2">금 액</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td bgcolor="#fff8ee" width="70">이 름</td>
+			<td bgcolor="#fff8ee" width="90">주민등록번호</td>
+			<td bgcolor="#fff8ee" width="70">이 름</td>
+			<td bgcolor="#fff8ee" width="90">관 계</td>
+			<td bgcolor="#fff8ee" width="">주민등록번호</td>
+			<td bgcolor="#fff8ee" width="70">자료 구분</td>
+
+			<td bgcolor="#fff8ee" width="">초중고비용</td>
+			<td bgcolor="#fff8ee" width="">대학생비용</td>
+			<td bgcolor="#fff8ee" width="">장애인특수비용</td>
+
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pyghnm" value="" class="input02" size="10" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pygcgq" value="0">
+				<input type="hidden" name="pygcg1" value="">
+				<input type="hidden" name="pygcgc" value="">
+				<input type="hidden" name="pygknd" value="A">
+				<input type="text" name="pygcg1hnm" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pygju1" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pygju2" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청 자료</font></td>
+			<td>
+				<input type="text" name="pyged1" value="0" class="input03" size="10" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePygedutot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" onClick="printMsg('A', '1');">
+			</td>
+			<td>
+				<input type="text" name="pyged3" value="0" class="input03" size="10" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePygedutot(document.entry, '2');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" onClick="printMsg('A', '2');">
+			</td>
+			<td>
+				<input type="text" name="pyged5" value="0" class="input03" size="10" style="text-align:right;ime-mode:disabled;" onFocus="checkJAN(this, '1');" onKeyup="addComma(this);calculatePygedutot(document.entry, '3');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td bgcolor="#fff8ee">그밖의 자료</td>
+			<td>
+				<input type="text" name="pyged2" value="0" class="input01" size="10" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePygedutot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" onClick="printMsg('A', '1');">
+			</td>
+			<td>
+				<input type="text" name="pyged4" value="0" class="input01" size="10" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePygedutot(document.entry, '2');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" onClick="printMsg('A', '2');">
+			</td>
+			<td>
+				<input type="text" name="pyged6" value="0" class="input01" size="10" style="text-align:right;ime-mode:disabled;" onFocus="checkJAN(this, '1');" onKeyup="addComma(this);calculatePygedutot(document.entry, '3');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td colspan="6" bgcolor="#fff8ee">합 계
+				<input type="hidden" name="pygedktot" value="0">
+				<input type="hidden" name="pygedetot" value="0">
+			</td>
+			<td>
+				<input type="text" name="pyged1tot" value="0" class="input02" size="10" style="text-align:right;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyged2tot" value="0" class="input02" size="10" style="text-align:right;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyged3tot" value="0" class="input02" size="10" style="text-align:right;" readonly>
+			</td>
+		</tr>
+	</table>
+	<div id="tipbox" style="position:absolute;border:black solid 1; background-color:infobackground; font-size:9pt; display:none; z-index:100"></div>
+
+</form>
+</body>
+</html>

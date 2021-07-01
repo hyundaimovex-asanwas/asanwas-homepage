@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/Mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/Mobile/lib/common.css" />
+    
+    <style type="text/css">
+        .main .ui-content .ui-listview > li .ui-btn
+        {
+        	padding:.3em 1em;
+        }
+        .main .ui-content .ui-listview > li h2 
+        {
+        	font-size:.8em;
+        	font-weight:normal;
+        	padding-right:70px;
+        }
+        .main .ui-content .ui-listview > li p
+        {
+        	width:100%;
+        	text-align:right;
+        	margin-top:-21px;
+        }
+        .main .ui-content .ui-listview > li .ui-btn-icon-right:after
+        {
+        	display:none;
+        }
+    </style>
+
+    <script data-main="/Mobile/lib/app" src="/Mobile/lib/require.js"></script>
+    
+    <script src="/Mobile/controller/main.js?v1"></script>
+
+</head>
+<body>
+    <div id="pageMain" data-role="page" class="main">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div><!--//menu-->
+        
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>HYUNDAI ASAN</h1>
+        </div>
+        <div role="main" class="ui-content" style="padding:0;">
+            <img src="/Mobile/images/nintro.gif" width="100%" />
+            <!--<ul id="listNotice" data-role="listview" data-inset="true" data-theme="c" data-mini="true">
+                <li data-role="list-divider" data-theme="f">Notice</li>
+            </ul>-->
+        </div>
+    </div>
+</body>
+</html>

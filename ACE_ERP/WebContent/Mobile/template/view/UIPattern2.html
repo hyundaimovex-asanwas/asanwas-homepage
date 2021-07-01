@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/mobile/lib/mobipick.css" />
+    <link rel="stylesheet" href="/mobile/lib/common.css" />
+    
+    <script src="/mobile/controller/account.js"></script>
+    <script data-main="/mobile/lib/app" src="/mobile/lib/require.js"></script>
+
+</head>
+<body>
+    <div id="pageAccount" data-role="page">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div><!--//menu-->
+
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div class="ui-grid-a">
+                <div class="ui-block-a">
+                    <input id="stxtDT_ACCOUNT" type="text" data-mini="true" readonly="readonly" />
+                </div>
+                <div class="ui-block-b">
+                    <input type="button" id="btnNew" value="발행하기" data-theme="d" data-icon="edit" data-mini="true" />
+                </div>
+            </div>
+            
+            <div style="margin-top: 25px;margin-bottom:40px;">
+                <ul id="listAccount" data-role="listview" data-theme="c">
+                    <li data-role="list-divider" data-theme="f"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pageAccountDetail" data-role="page">
+        <div data-role="header">
+			<a href="#pageAccount" data-icon="back">목록</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div class="ui-field-contain">
+                <input type="hidden" id="hdnNO_SEQ" />
+                
+                <label for="txtTITLE">제목:</label>
+                <input type="text" id="txtTITLE" />
+                <label>부서:</label>
+                <div class="divView ui-controlgroup-controls">
+                    <input type="text" id="txtDS_DEPT" readonly="readonly" />
+                </div>
+                <div class="divEdit" style="display:none;"> 
+                    <input type="hidden" id="hdnCD_DEPT" />
+                    <a id="btnCD_DEPT" href="/mobile/codefind/dept.html" data-role="button" data-icon="search" data-iconpos="right" data-mini="true" data-transition="pop" data-theme="c"><span id="spDS_DEPT">부서선택</span></a>
+                </div>
+                <label for="cboTY_ACCOUNT">결재구분:</label>
+                <div class="divView ui-controlgroup-controls">
+                    <input type="text" id="txtTY_ACCOUNT" readonly="readonly" />
+                </div>
+                <div class="divEdit" style="display:none;"> 
+                    <select id="cboTY_ACCOUNT" data-mini="true" data-native-menu="false" data-theme="c">
+                        <option value="1" selected="selected">법인카드</option>
+                        <option value="2">개인정산</option>
+                        <option value="3">기타</option>
+                    </select>
+                </div>
+                <label for="txtAM_ACCOUNT">금액:</label>
+                <input type="text" pattern="[0-9]*" id="txtAM_ACCOUNT" />
+                <label>거래처:</label>
+                <div class="divView ui-controlgroup-controls">
+                    <input type="text" id="txtDS_VENDOR" readonly="readonly" />
+                </div>
+                <div class="divEdit" style="display:none;"> 
+                    <input type="hidden" id="hdnCD_VENDOR" />
+                    <a id="btnCD_VENDOR" href="/mobile/codefind/vendor.html" data-role="button" data-icon="search" data-iconpos="right" data-mini="true" data-transition="pop" data-theme="c"><span id="spDS_VENDOR">업체선택</span></a>
+                </div>
+                <label for="txtAM_ACCOUNT">날짜:</label>
+                <input type="text" id="txtDT_ACCOUNT" readonly="readonly" /><input type="hidden" id="btnDT_ACCOUNT" />
+                <label for="txtDS_ACCOUNT">비고:</label>
+                <textarea id="txtDS_ACCOUNT"></textarea>
+                <label for="files">증빙:</label>
+            </div>
+            
+            <div id="divFile"><input type="file" id="files" name="files[]" accept="image/*" multiple="multiple" /></div>
+            <div id="imgPreview"></div>
+            
+            <div class="divView">
+                <div class="ui-grid-a">
+                    <div class="ui-block-a">
+                        <input type="button" id="btnEdit" value="수정하기" data-theme="f" data-icon="edit" />
+                    </div>
+                    <div class="ui-block-b">
+                        <input type="button" id="btnDelete" value="삭제하기" data-theme="d" data-icon="delete" />
+                    </div>
+                </div>
+            </div>
+            <div class="divEdit" style="display:none;">
+                <div class="ui-grid-a"> 
+                    <div class="ui-block-a">
+                        <input type="button" id="btnSave" value="저장" data-theme="d" data-icon="check" />
+                    </div>
+                    <div class="ui-block-b">
+                        <input type="button" id="btnCancel" value="취소" data-theme="b" data-icon="delete" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

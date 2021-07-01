@@ -1,0 +1,1625 @@
+<!---------------------------------------------------------------------------
++ 시 스 템 명	:  미결전표관리 - 전표입력부부 (IFRAME 부분)	
++ 프로그램 ID	:  A020001_ifrm.html
++ 기 능 정 의	:  미결전표 입력 부분을 그리드가 멀티로를 지원하지 못하여 스크립트로 작성
++ 작   성  자 :  정 영 식
++ 작 성 일 자 :  2005.11.22
+-----------------------------------------------------------------------------
++ 수 정 내 용 :	   
++ 수   정  자 :
++ 수 정 일 자 :
+-----------------------------------------------------------------------------
++ 서 블 릿 명	:
+------------------------------------------------------------------------------>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+var ls_html2="";
+var g_yn="";      //결재완료 대기 상태
+var g_row;        //마지막 레코드 위치
+var g_position=0; //현재 row의 위치
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+
+ // parent.document.all.LowerFrame.style.visibility="visible";
+  
+	//ln_SetFormat(3)
+	gcds_comcode01.DataID = g_servlet+"/Account.comcode_s1?v_str1=0052"
+	//prompt("",gcds_comcode01.DataID);
+	gcds_comcode01.Reset();
+	
+}
+
+/******************************************************************************
+	Description : 조회
+	parameter   : p0 - 구분         01 - 더블 클릭해서 데이타 가져옴.
+	              p1 - fdcode 현장코드  
+								p2 - fsdat  전표일자 
+								p3 - fsnbr, 전표번호
+								p4 - 결재완료 구분
+								p5 - 담당부서
+								p6 - 회계개발자
+								p7 - 작성일자
+								p8 - 금액
+								p9 - 부가세액
+								p10 - 적요
+******************************************************************************/
+function ln_Query(p0,p1,p2,p3,p4){
+  g_yn = p4;
+	if (p0=="01"){ 
+	  g_usests ="2";
+		gcds_data01.DataID = g_servlet+"/Account.a020001_s7f?v_str1="+p1+"&v_str2="+p2+"&v_str3="+p3;
+		//prompt("",gcds_data01.DataID);																							
+		gcds_data01.Reset();
+	}
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+	//ln_row_Cnt(1);
+	//ln_line_Add(i,j,strbgcolor);
+}
+
+/******************************************************************************
+	Description : 전표 Master Data 와 전표 Detail 데이타를 동시에 저장함.
+	              DataSet은 두개로 분리해서 저장함.
+	parameter   : p2 - status     
+								p3 - 현장코드(2자리)  
+                p4 - 전표일자(9자리)
+								p5 - 전표번호(000000) ==> 서블릿에서 Max+1로 생성
+								p6 - 작성일자
+								p7 - 작성부서
+								p8 - 작성자
+								p9 - 가전표금액
+								p10- 부가세
+								p11- 차변합계
+								p12- 대변합계
+								p13- 적요
+								p14- 가전표상태
+								p15- 작업일자
+******************************************************************************/
+function ln_Save(p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15){
+  
+  //ln_Data_Mst();
+	  gcds_mst.ClearAll();
+	  ln_SetDataHeader("MST");
+
+    gcds_mst.addrow();
+    gcds_mst.namevalue(gcds_mst.rowposition,"FDCODE")=p3;
+		gcds_mst.namevalue(gcds_mst.rowposition,"FSDAT")=p4;
+		gcds_mst.namevalue(gcds_mst.rowposition,"FSNBR")=p5;
+		gcds_mst.namevalue(gcds_mst.rowposition,"FSKND")="";
+		gcds_mst.namevalue(gcds_mst.rowposition,"FSWRTDAT")=p6;
+
+		gcds_mst.namevalue(gcds_mst.rowposition,"COCODE")="";
+		gcds_mst.namevalue(gcds_mst.rowposition,"DEPTCD")=p7;
+		gcds_mst.namevalue(gcds_mst.rowposition,"EMPNO")=p8;
+		gcds_mst.namevalue(gcds_mst.rowposition,"DIVCD")="";
+		gcds_mst.namevalue(gcds_mst.rowposition,"FSAMT")=p9;
+
+		gcds_mst.namevalue(gcds_mst.rowposition,"FSVAT")=p10;
+		gcds_mst.namevalue(gcds_mst.rowposition,"DETOT")=p11;
+		gcds_mst.namevalue(gcds_mst.rowposition,"CRTOT")=p12;
+		gcds_mst.namevalue(gcds_mst.rowposition,"REMARK")=p13;
+		gcds_mst.namevalue(gcds_mst.rowposition,"SGNDAT")="";
+
+		gcds_mst.namevalue(gcds_mst.rowposition,"FSSTAT")=p14;
+		gcds_mst.namevalue(gcds_mst.rowposition,"ACTDAT")="";
+		gcds_mst.namevalue(gcds_mst.rowposition,"WRDT")=p15;
+		gcds_mst.namevalue(gcds_mst.rowposition,"WRID")=p8;
+		gcds_mst.namevalue(gcds_mst.rowposition,"UPDT")=p15;
+		gcds_mst.namevalue(gcds_mst.rowposition,"UPID")=p8;
+
+		ln_Update(p3,p4,p5); //Update 건 확인 - chk 된 건수
+    //alert("row" + gcds_data01.countrow);
+		if(ln_Chk()){
+			if (gcds_mst.IsUpdated||gcds_data01.IsUpdated){
+				if (confirm("저장하시겠습니까?")){	
+					gctr_data01.Action = g_servlet+"/Account.a020001_t1f?";
+					prompt("gcds_mst",gcds_mst.text);
+					prompt("gcds_data01",gcds_data01.text);
+					prompt("gcds_data02",gcds_data02.text);
+					gctr_data01.post();
+				}	
+			}
+		}
+}
+
+/******************************************************************************
+	Description : Detail 과 관리항목 중 chk 된 건만 update 함.
+  parameter   : p1 - 지점
+	              p2 - 전표일자
+								p3 - 전표행번호
+******************************************************************************/
+function ln_Update(p1,p2,p3){
+  var cnt=0;
+	var cnt2=0;
+	var j=0;
+	var seq="";
+	var seq2="";
+  ln_SetDataHeader("DTL_UPDATE");
+
+	alert("update g_row"+g_row);
+	for (i=1;i<=g_row;i++){
+		if(eval("chkbox"+i).checked==true){  //Update
+		  /* cnt=cnt+1;
+				if (cnt>=1&&cnt<10) seq="0000"+cnt;
+				if (cnt>=10&&cnt<100) seq="000"+cnt;
+				if (cnt>=100&&cnt<1000) seq="00"+cnt;
+				if (cnt>=1000&&cnt<10000) seq="0"+cnt;
+				if (cnt>=10000&&cnt<100000) seq=cnt;
+      */
+				gcds_data02.Addrow();
+
+				alert("fsseq"+ eval("hid_fsseq"+i).value);
+				gcds_data02.namevalue(gcds_data02.rowposition,"FDCODE")=p1;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSDAT")=p2;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSNBR")=p3;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSSEQ")=eval("hid_fsseq"+i).value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"ATCODE")= eval("txt_atcode"+i).value;
+
+				gcds_data02.namevalue(gcds_data02.rowposition,"ATDECR")="2";
+				gcds_data02.namevalue(gcds_data02.rowposition,"CHAAMT")=eval("gcem_chaamt"+i).text;
+				gcds_data02.namevalue(gcds_data02.rowposition,"DAEAMT")=eval("gcem_daeamt"+i).text;
+				gcds_data02.namevalue(gcds_data02.rowposition,"DOCUMCD")=eval("sel_documcd"+i).value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSWRKDIV")=eval("sel_fswrkdiv"+i).value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"REMARK")=eval("txt_remark"+i).value;
+
+        j=1;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFSEQ01")=eval("txt_fsrefseq"+i+j+"1").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFCD01")=eval("txt_fsrefcd"+i+j+"1").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFVAL01")=eval("txt_fsrefval"+i+j+"1").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFSEQ02")=eval("txt_fsrefseq"+i+j+"2").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFCD02")=eval("txt_fsrefcd"+i+j+"2").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFVAL02")=eval("txt_fsrefval"+i+j+"2").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFSEQ03")=eval("txt_fsrefseq"+i+j+"3").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFCD03")=eval("txt_fsrefcd"+i+j+"3").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFVAL03")=eval("txt_fsrefval"+i+j+"3").value;
+				
+        j=2;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFSEQ04")=eval("txt_fsrefseq"+i+j+"1").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFCD04")=eval("txt_fsrefcd"+i+j+"1").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFVAL04")=eval("txt_fsrefval"+i+j+"1").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFSEQ05")=eval("txt_fsrefseq"+i+j+"2").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFCD05")=eval("txt_fsrefcd"+i+j+"2").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFVAL05")=eval("txt_fsrefval"+i+j+"2").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFSEQ06")=eval("txt_fsrefseq"+i+j+"3").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFCD06")=eval("txt_fsrefcd"+i+j+"3").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFVAL06")=eval("txt_fsrefval"+i+j+"3").value;
+
+				j=3;
+				//alert("i"+i+"j"+j+"::"+eval("txt_fsrefseq"+i+j+"1").value);
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFSEQ07")=eval("txt_fsrefseq"+i+j+"1").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFCD07")=eval("txt_fsrefcd"+i+j+"1").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFVAL07")=eval("txt_fsrefval"+i+j+"1").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFSEQ08")=eval("txt_fsrefseq"+i+j+"2").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFCD08")=eval("txt_fsrefcd"+i+j+"2").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFVAL08")=eval("txt_fsrefval"+i+j+"2").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFSEQ09")=eval("txt_fsrefseq"+i+j+"3").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFCD09")=eval("txt_fsrefcd"+i+j+"3").value;
+				gcds_data02.namevalue(gcds_data02.rowposition,"FSREFVAL09")=eval("txt_fsrefval"+i+j+"3").value;
+     
+				gcds_data02.namevalue(gcds_data02.rowposition,"WRDT")="4";
+				gcds_data02.namevalue(gcds_data02.rowposition,"WRID")="4";
+				gcds_data02.namevalue(gcds_data02.rowposition,"UPDT")="4";
+				gcds_data02.namevalue(gcds_data02.rowposition,"UPID")="4";
+
+		}else if(eval("chkbox"+i).checked==false){   //Insert
+		    //alert("i::"+i+"hid_flag"+eval("hid_flag"+i+"0").value);
+				//alert("i::"+i+"hid_flag_sel:::"+eval("hid_flag_sel"+i+"0").value);
+				if((eval("txt_atcode"+i).value!="")&&(eval("hid_flag_sel"+i+"0").value!="S")){
+					/*cnt2=cnt2+1;
+					if (cnt2>=1&&cnt2<10) seq2="0000"+cnt2;
+					if (cnt2>=10&&cnt2<100) seq2="000"+cnt2;
+					if (cnt2>=100&&cnt2<1000) seq2="00"+cnt2;
+					if (cnt2>=1000&&cnt2<10000) seq2="0"+cnt2;
+					if (cnt2>=10000&&cnt2<100000) seq2=cnt2;*/
+
+					gcds_data01.Addrow();
+					gcds_data01.namevalue(gcds_data01.rowposition,"FDCODE")=p1;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSDAT")=p2;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSNBR")=p3;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSSEQ")=seq2;
+					gcds_data01.namevalue(gcds_data01.rowposition,"ATCODE")= eval("txt_atcode"+i).value;
+
+					gcds_data01.namevalue(gcds_data01.rowposition,"ATDECR")="2";
+					gcds_data01.namevalue(gcds_data01.rowposition,"CHAAMT")=eval("gcem_chaamt"+i).text;
+					gcds_data01.namevalue(gcds_data01.rowposition,"DAEAMT")=eval("gcem_daeamt"+i).text;
+					gcds_data01.namevalue(gcds_data01.rowposition,"DOCUMCD")=eval("sel_documcd"+i).value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSWRKDIV")=eval("sel_fswrkdiv"+i).value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"REMARK")=eval("txt_remark"+i).value;
+
+					j=1;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFSEQ01")=eval("txt_fsrefseq"+i+j+"1").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFCD01")=eval("txt_fsrefcd"+i+j+"1").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFVAL01")=eval("txt_fsrefval"+i+j+"1").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFSEQ02")=eval("txt_fsrefseq"+i+j+"2").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFCD02")=eval("txt_fsrefcd"+i+j+"2").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFVAL02")=eval("txt_fsrefval"+i+j+"2").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFSEQ03")=eval("txt_fsrefseq"+i+j+"3").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFCD03")=eval("txt_fsrefcd"+i+j+"3").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFVAL03")=eval("txt_fsrefval"+i+j+"3").value;
+					
+					j=2;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFSEQ04")=eval("txt_fsrefseq"+i+j+"1").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFCD04")=eval("txt_fsrefcd"+i+j+"1").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFVAL04")=eval("txt_fsrefval"+i+j+"1").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFSEQ05")=eval("txt_fsrefseq"+i+j+"2").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFCD05")=eval("txt_fsrefcd"+i+j+"2").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFVAL05")=eval("txt_fsrefval"+i+j+"2").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFSEQ06")=eval("txt_fsrefseq"+i+j+"3").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFCD06")=eval("txt_fsrefcd"+i+j+"3").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFVAL06")=eval("txt_fsrefval"+i+j+"3").value;
+
+					j=3;
+					//alert("i"+i+"j"+j+"::"+eval("txt_fsrefseq"+i+j+"1").value);
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFSEQ07")=eval("txt_fsrefseq"+i+j+"1").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFCD07")=eval("txt_fsrefcd"+i+j+"1").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFVAL07")=eval("txt_fsrefval"+i+j+"1").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFSEQ08")=eval("txt_fsrefseq"+i+j+"2").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFCD08")=eval("txt_fsrefcd"+i+j+"2").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFVAL08")=eval("txt_fsrefval"+i+j+"2").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFSEQ09")=eval("txt_fsrefseq"+i+j+"3").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFCD09")=eval("txt_fsrefcd"+i+j+"3").value;
+					gcds_data01.namevalue(gcds_data01.rowposition,"FSREFVAL09")=eval("txt_fsrefval"+i+j+"3").value;
+			 
+					gcds_data01.namevalue(gcds_data01.rowposition,"WRDT")="9";
+					gcds_data01.namevalue(gcds_data01.rowposition,"WRID")="9";
+					gcds_data01.namevalue(gcds_data01.rowposition,"UPDT")="9";
+					gcds_data01.namevalue(gcds_data01.rowposition,"UPID")="9";
+
+					if(eval("hid_flag"+i+"0").value=="F"){
+						gcds_data01.DeleteRow(i);
+					}
+				}
+		}
+	}//for
+
+}
+
+/******************************************************************************
+	Description : 저장할 Data를 위한 DataSetHead 설정
+  parameter   : 관련table - FSLIPMST, FSLIPDTL, FSLIPREF, 
+******************************************************************************/
+function ln_SetDataHeader(p1){
+
+	if(p1=="MST"){
+		var s_fslipmst = "FDCODE:STRING,FSDAT:STRING,FSNBR:STRING,FSKND:STRING,FSWRTDAT:STRING,"
+									 + "COCODE:STRING,DEPTCD:STRING,EMPNO:STRING,DIVCD:STRING,FSAMT:DECIAML,"
+									 + "FSVAT:DECIAML,DETOT:DECIAML,CRTOT:DECIAML,REMARK:STRING,"
+									 + "SGNDAT:STRING,FSSTAT:STRING,ACTDAT:STRING,"
+									 + "WRDT:STRING,WRID:STRING,UPDT:STRING,UPID:STRING";
+		gcds_mst.SetDataHeader(s_fslipmst);
+	}else if(p1=="DTL"){
+		var s_fslipdtl = "FDCODE:STRING,FSDAT:STRING,FSNBR:STRING,FSSEQ:STRING,ATCODE:STRING,"
+                   + "ATKORNAM:STRING,ATDECR:STRING,REMARK:STRING,CHAAMT:DECIMAL,DAEAMT:DECIMAL,"
+                   + "FSREFSEQ01:STRING,FSREFSEQ02:STRING,FSREFSEQ03:STRING,FSREFSEQ04:STRING,FSREFSEQ05:STRING,"
+                   + "FSREFSEQ06:STRING,FSREFSEQ07:STRING,FSREFSEQ08:STRING,FSREFSEQ09,"
+									 + "FSREFCD01:STRING,FSREFCD02:STRING,FSREFCD03:STRING,FSREFCD04:STRING,FSREFCD05:STRING,"
+									 + "FSREFCD06:STRING,FSREFCD07:STRING,FSREFCD08:STRING,FSREFCD09:STRING,"
+                   + "FSREFVAL01:STRING,FSREFVAL02:STRING,FSREFVAL03:STRING,FSREFVAL04:STRING,FSREFVAL05:STRING,"
+									 + "FSREFVAL06:STRING,FSREFVAL07:STRING,FSREFVAL08:STRING,FSREFVAL09:STRING,"
+									 + "FSREFNM01:STRING,FSREFNM02:STRING,FSREFNM03:STRING,FSREFNM04:STRING,FSREFNM05:STRING,"
+									 + "FSREFNM06:STRING,FSREFNM07:STRING,FSREFNM08:STRING,FSREFNM09:STRING,"
+									 + "FSRVALNM01:STRING,FSRVALNM02:STRING,FSRVALNM03:STRING,FSRVALNM04:STRING,FSRVALNM05:STRING,"
+									 + "FSRVALNM06:STRING,FSRVALNM07:STRING,FSRVALNM08:STRING,FSRVALNM09:STRING,"
+									 + "CNT:DECIMAL,DOCUMCD:STRING,DOCUMNM:STRING,FSWRKDIV:STRING,"
+									 + "WRDT:STRING,WRID:STRING,UPDT:STRING,UPID:STRING";
+		gcds_data01.SetDataHeader(s_fslipdtl);
+                        
+	}else if(p1=="DTL_UPDATE"){
+		var s_fslipdtl2 = "FDCODE:STRING,FSDAT:STRING,FSNBR:STRING,FSSEQ:STRING,ATCODE:STRING,"
+                   + "ATKORNAM:STRING,ATDECR:STRING,REMARK:STRING,CHAAMT:DECIMAL,DAEAMT:DECIMAL,"
+                   + "FSREFSEQ01:STRING,FSREFSEQ02:STRING,FSREFSEQ03:STRING,FSREFSEQ04:STRING,FSREFSEQ05:STRING,"
+                   + "FSREFSEQ06:STRING,FSREFSEQ07:STRING,FSREFSEQ08:STRING,FSREFSEQ09,"
+									 + "FSREFCD01:STRING,FSREFCD02:STRING,FSREFCD03:STRING,FSREFCD04:STRING,FSREFCD05:STRING,"
+									 + "FSREFCD06:STRING,FSREFCD07:STRING,FSREFCD08:STRING,FSREFCD09:STRING,"
+                   + "FSREFVAL01:STRING,FSREFVAL02:STRING,FSREFVAL03:STRING,FSREFVAL04:STRING,FSREFVAL05:STRING,"
+									 + "FSREFVAL06:STRING,FSREFVAL07:STRING,FSREFVAL08:STRING,FSREFVAL09:STRING,"
+									 + "FSREFNM01:STRING,FSREFNM02:STRING,FSREFNM03:STRING,FSREFNM04:STRING,FSREFNM05:STRING,"
+									 + "FSREFNM06:STRING,FSREFNM07:STRING,FSREFNM08:STRING,FSREFNM09:STRING,"
+									 + "FSRVALNM01:STRING,FSRVALNM02:STRING,FSRVALNM03:STRING,FSRVALNM04:STRING,FSRVALNM05:STRING,"
+									 + "FSRVALNM06:STRING,FSRVALNM07:STRING,FSRVALNM08:STRING,FSRVALNM09:STRING,"
+									 + "CNT:DECIMAL,DOCUMCD:STRING,DOCUMNM:STRING,FSWRKDIV:STRING,"
+									 + "WRDT:STRING,WRID:STRING,UPDT:STRING,UPID:STRING";
+								
+		gcds_data02.SetDataHeader(s_fslipdtl2);
+                        
+	}else if(p1=="DTL_DEL"){
+		var s_fslipdtl3 = "FDCODE:STRING,FSDAT:STRING,FSNBR:STRING,FSSEQ:STRING";               
+		gcds_del01.SetDataHeader(s_fslipdtl3);
+
+  }else if(p1=="MST_DEL"){
+		var s_fslipdtl4 = "FDCODE:STRING,FSDAT:STRING,FSNBR:STRING,FSSEQ:STRING";
+		gcds_del02.SetDataHeader(s_fslipdtl4);
+  }
+}
+
+/******************************************************************************
+	Description : 각 obj의 데이타 값을 DataSet에 넣는다.
+	              현재까지 생성된 모든 row를 for문으로 돌면서 hid_flag="T"인 건만 실제 
+								데이타로 간주하여 DataSet에 저장한다.
+								hid_flag0 - 계정코드, 차변,대변,증빙명, 적요
+								hid_flag1 - 관리항목(1~3)
+                hid_flag2 - 관리항목(4~6)
+                hid_flag3 - 관리항목(7~9)
+  parameter   : p1 - 현장코드(2자리)      p2 - 전표일자(9자리)
+******************************************************************************/
+function ln_Data(p1,p2){
+/*	alert("maxrow"+g_row);
+	for (i=1;i<=g_row;i++){
+		if(eval("hid_flag"+i+"0")=="T"){
+			gcds_mst.AddRow() 
+
+      gcds_mst.namevalue(gcds_mst.RowPosition,"FDCODE")=p1;
+      gcds_mst.namevalue(gcds_mst.RowPosition,"FSDAT")=p2;
+      gcds_mst.namevalue(gcds_mst.RowPosition,"FSNBR")="";   //저장시 서블릿에서 생성
+
+      gcds_dtl.AddRow() 
+			gcds_dtl.namevalue(gcds_dtl.RowPosition,"FDCODE")=p1;
+      gcds_dtl.namevalue(gcds_dtl.RowPosition,"FSDAT")=p2;
+      gcds_dtl.namevalue(gcds_dtl.RowPosition,"FSNBR")="";
+
+			if(eval("gcem_chaamt"+i).value!=0){
+				gcds_dtl.namevalue(gcds_mst.RowPosition,"FSAMT")=eval("gcem_chaamt"+i).value;
+				gcds_dtl.namevalue(gcds_mst.RowPosition,"FSAMT")=eval("gcem_chaamt"+i).value;
+			}else if {
+				gcds_dtl.namevalue(gcds_mst.RowPosition,"FSAMT")=eval("gcem_daeamt"+i).value;
+			}
+			eval("txt_atcode"+i).value
+			eval("gcem_chaamt"+i).value
+			eval("gcem_daeamt"+i).value
+			eval("sel_documcd"+i).value
+			eval("txt_remark"+i).value 
+		}
+
+		if(eval("hid_flag"+i+"1")=="T"){
+			
+		}
+
+    if(eval("hid_flag"+i+"2")=="T"){
+			
+		}
+
+    if(eval("hid_flag"+i+"3")=="T"){
+			
+		}
+	}
+
+*/
+}
+
+/******************************************************************************
+	Description : 삭제시 현재 Row가 몇번째 Line 인지 확인
+	prameter    : 
+******************************************************************************/
+function ln_Dtl_Count(){
+
+
+}
+
+/******************************************************************************
+	Description : 삭제
+	prameter    : p1 - 지점
+	              p2 - 전표일자
+								p3 - 전표행번호
+******************************************************************************/
+function ln_Delete(p1,p2,p3){
+	var chk="false"; //해당 line이 최상위 line인지 체크(false 최상위 line 아님)
+	var cnt=0;
+	var line_position_1=0; //첫번째 line
+	var line_position_2=0; //두번째 line
+	var line_cnt=0;
+   
+
+	if(g_position<1||g_position=="undefined") {
+		alert("삭제할 내용을 선택하십시요");  
+		return;
+	}
+  
+	ln_SetDataHeader("DTL_DEL");
+	gcds_del01.addrow();
+  gcds_del01.namevalue(gcds_del01.rowposition,"FDCODE")=p1;
+	gcds_del01.namevalue(gcds_del01.rowposition,"FSDAT")=p2;
+	gcds_del01.namevalue(gcds_del01.rowposition,"FSNBR")=p3;
+	gcds_del01.namevalue(gcds_del01.rowposition,"FSSEQ")=eval("hid_fsseq"+g_position).value;
+
+	if (gcds_del01.IsUpdated && eval("hid_fsseq"+g_position).value!=""){
+		if (confirm("삭제하시겠습니까?")){	
+			gctr_data02.Action = g_servlet+"/Account.a020001_t2f?";
+			prompt("gcds_del01",gcds_del01.text);
+			gctr_data02.post();
+		}else{
+		  gcds_del01.deleterow(gcds_del01.rowposition);
+			return;
+		}
+	}
+
+	//line 을 첫번째 란을 삭제 할 때 구분
+	for(k=1;k<=g_row;k++){
+	  alert("hid_flag"+eval("hid_flag"+k+"0").value);
+		if(eval("hid_flag"+k+"0").value=="T"){
+			cnt+=1;
+		}
+	}
+
+  for(k=1;k<=g_row;k++){
+		if(eval("hid_flag"+k+"0").value=="T" && line_cnt==0 ){
+		  line_cnt = 1;  
+			line_position_1=k;
+		}else if (eval("hid_flag"+k+"0").value=="T" && line_cnt==1){
+			line_position_2=k;
+			break;
+		}
+	}
+
+//  if (cnt==1){
+//		alert("더이상 삭제할 수 없습니다.");
+//		return;
+//	}
+
+  //첫 칸 삭제시 Line 도 삭제함...
+	if (g_position ==line_position_1){
+	  if(line_position_2!=0){
+			eval("document.all.l"+line_position_2+".style.display='none';");
+		}
+	}
+
+  //alert("eval"+eval("cnt"+g_position).value);
+
+	if((eval("cnt"+g_position).value<=3)){
+		eval("document.all.t"+g_position+"0.style.display='none';");
+		eval("document.all.t"+g_position+"1.style.display='none';");
+    eval("hid_flag"+g_position+"0").value ="F";
+		eval("hid_flag"+g_position+"1").value ="F";
+		//alert(eval("document.all.t"+g_position+"1.style.display"));
+	}else if((eval("cnt"+g_position).value>=4)&&(eval("cnt"+g_position).value<=6)){
+		eval("document.all.t"+g_position+"0.style.display='none';");
+		eval("document.all.t"+g_position+"1.style.display='none';");
+		eval("document.all.t"+g_position+"2.style.display='none';");
+		eval("hid_flag"+g_position+"0").value ="F";
+		eval("hid_flag"+g_position+"1").value ="F";
+		eval("hid_flag"+g_position+"2").value ="F";
+	}else if((eval("cnt"+g_position).value>=7)){
+		eval("document.all.t"+g_position+"0.style.display='none';");
+		eval("document.all.t"+g_position+"1.style.display='none';");
+		eval("document.all.t"+g_position+"2.style.display='none';");
+		eval("document.all.t"+g_position+"3.style.display='none';");
+		eval("hid_flag"+g_position+"0").value ="F";
+		eval("hid_flag"+g_position+"1").value ="F";
+		eval("hid_flag"+g_position+"2").value ="F";
+    eval("hid_flag"+g_position+"3").value ="F";
+	}
+
+  
+	if (g_position==1) eval("document.all.l"+2+".style.display='none';");	
+	else if (chk=="true") eval("document.all.l"+g_position+".style.display='none';");	
+	else eval("document.all.l"+g_position+".style.display='none';");	
+
+	g_position=0;
+}
+
+/******************************************************************************
+	Description : 전체 삭제
+	prameter    : p1 - 지점
+	              p2 - 전표일자
+								p3 - 전표행번호
+******************************************************************************/
+function ln_Delete_All(p1,p2,p3){
+ 
+	ln_SetDataHeader("MST_DEL");
+	gcds_del02.addrow();
+	gcds_del02.namevalue(gcds_del02.rowposition,"FDCODE")=p1;
+	gcds_del02.namevalue(gcds_del02.rowposition,"FSDAT")=p2;
+	gcds_del02.namevalue(gcds_del02.rowposition,"FSNBR")=p3;
+	
+	ln_SetDataHeader("DTL_DEL");
+	gcds_del01.addrow();
+	gcds_del01.namevalue(gcds_del01.rowposition,"FDCODE")=p1;
+	gcds_del01.namevalue(gcds_del01.rowposition,"FSDAT")=p2;
+	gcds_del01.namevalue(gcds_del01.rowposition,"FSNBR")=p3;
+
+	if (gcds_del01.IsUpdated && gcds_del02.IsUpdated){
+		if (confirm("삭제하시겠습니까?")){	
+			gctr_data02.Action = g_servlet+"/Account.a020001_t2f?";
+			prompt("gcds_del01",gcds_del01.text);
+			prompt("gcds_del02",gcds_del02.text);
+			gctr_data02.post();
+		}else{
+		  gcds_del01.deleterow(gcds_del01.rowposition);
+			gcds_del02.deleterow(gcds_del02.rowposition);
+			return;
+		}
+	}
+
+}
+
+
+
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+/******************************************************************************
+	Description : FILE 
+******************************************************************************/
+function ln_File(){
+
+}
+
+
+/******************************************************************************
+	Description : 체크
+******************************************************************************/
+function ln_Chk(){
+	for(i=1;i<=g_row;i++){
+	  alert("i::"+i);
+		alert("gcem_chaamt::"+eval("gcem_chaamt"+i).text+"gcem_daeamt"+eval("gcem_daeamt"+i).text);
+		if(eval("hid_flag"+i+"0").value=="T"){
+			if((eval("gcem_chaamt"+i).text==0)&&(eval("gcem_daeamt"+i).text==0)){
+				alert("금액을 입력하십시요");
+				eval("gcem_chaamt"+i).focus();
+				return false
+				break;
+			}
+
+      if((eval("gcem_chaamt"+i).text!=0)&&(eval("gcem_daeamt"+i).text!=0)){
+				alert("차변금액과 대변금액을 확인 하십시요");
+				eval("gcem_chaamt"+i).focus();
+				return false
+				break;
+			}
+
+		}
+	}
+
+	return true;
+}
+
+
+/******************************************************************************
+	Description : 라인색깔
+******************************************************************************/
+function ln_bgcolor(row){
+  var cnt =0;
+	for (i=1; i<=row; i++){
+	//	if(eval("hid_flag"+i).value=="T"){
+	//		cnt = cnt+1;
+	//	}
+	}
+	//alert("cnt"+cnt);
+	cnt=cnt%2
+	//alert("cnt2"+cnt);
+  return cnt ; 
+}
+
+/******************************************************************************
+	Description : 체크
+******************************************************************************/
+function Select_onclick(i){
+ //	alert("II"+i);
+ // var strtemp = 	eval("sel_documcd"+i).value;
+ // alert("strtemp" + sel_documcd1.value);
+ ln_position(i)
+
+}
+
+/******************************************************************************
+	Description : 전표 Detail Record 갯수 
+******************************************************************************/
+function ln_row_Cnt(i){
+	g_row = g_row +i;
+//	alert("g_row"+g_row);
+	return g_row;
+}
+
+
+/******************************************************************************
+	Description : 
+******************************************************************************/
+function ln_Read(i,gubun){
+
+	if(gubun=="false"){
+	  //alert("txt_atcode"+i+"::"+ eval("txt_atcode"+i).readOnly);
+		//alert("txt_atkornam"+i+"::"+ eval("txt_atkornam"+i).readOnly);
+		//alert("gcem_daeamt"+i+"::"+ eval("gcem_daeamt"+i).readOnly);
+		eval("txt_atcode"+i).readOnly = false;
+		eval("txt_atkornam"+i).readOnly = false;
+		eval("gcem_chaamt"+i).readOnly = false;
+		eval("gcem_daeamt"+i).readOnly = false;
+    eval("sel_documcd"+i).disabled = false;
+		eval("txt_remark"+i).readOnly = false;
+		eval("sel_fswrkdiv"+i).disabled = false;
+		
+		for (j=1;j<=3;j++){
+			eval("txt_fsrefseq"+i+j+"1").readOnly = false;
+			eval("txt_fsrefcd"+i+j+"1").readOnly= false;
+			eval("txt_fsrefnm"+i+j+"1").readOnly= false;
+      eval("txt_fsrefval"+i+j+"1").readOnly= false;
+			eval("txt_fsrvalnm"+i+j+"1").readOnly= false;
+
+			eval("txt_fsrefseq"+i+j+"2").readOnly = false;
+			eval("txt_fsrefcd"+i+j+"2").readOnly= false;
+			eval("txt_fsrefnm"+i+j+"2").readOnly= false;
+			eval("txt_fsrefval"+i+j+"2").readOnly= false;
+			eval("txt_fsrvalnm"+i+j+"2").readOnly= false;
+
+			eval("txt_fsrefseq"+i+j+"3").readOnly = false;
+			eval("txt_fsrefcd"+i+j+"3").readOnly= false;
+			eval("txt_fsrefnm"+i+j+"3").readOnly= false;
+			eval("txt_fsrefval"+i+j+"3").readOnly= false;
+			eval("txt_fsrvalnm"+i+j+"3").readOnly= false;
+
+		}
+		
+	}else if(gubun=="true"){
+		eval("txt_atcode"+i).readOnly = true;
+		eval("txt_atkornam"+i).readOnly = true;
+		eval("gcem_chaamt"+i).readOnly = true;
+		eval("gcem_daeamt"+i).readOnly = true;
+   eval("sel_documcd"+i).disabled = true;
+		eval("txt_remark"+i).readOnly = true;
+		eval("sel_fswrkdiv"+i).disabled = true;
+		
+		for (j=1;j<=3;j++){
+			eval("txt_fsrefseq"+i+j+"1").readOnly = true;
+			eval("txt_fsrefcd"+i+j+"1").readOnly= true;
+			eval("txt_fsrefnm"+i+j+"1").readOnly= true;
+      eval("txt_fsrefval"+i+j+"1").readOnly= true;
+			eval("txt_fsrvalnm"+i+j+"1").readOnly= true;
+
+			eval("txt_fsrefseq"+i+j+"2").readOnly = true;
+			eval("txt_fsrefcd"+i+j+"2").readOnly= true;
+			eval("txt_fsrefnm"+i+j+"2").readOnly= true;
+			eval("txt_fsrefval"+i+j+"2").readOnly= true;
+			eval("txt_fsrvalnm"+i+j+"2").readOnly= true;
+
+			eval("txt_fsrefseq"+i+j+"3").readOnly = true;
+			eval("txt_fsrefcd"+i+j+"3").readOnly= true;
+			eval("txt_fsrefnm"+i+j+"3").readOnly= true;
+			eval("txt_fsrefval"+i+j+"3").readOnly= true;
+			eval("txt_fsrvalnm"+i+j+"3").readOnly= true;
+		}
+	}
+
+}
+
+/******************************************************************************
+	Description : 레코드 위치 저장
+	parameter   : i - 위치, 
+	          gubun - 계정코드 선택(계정코드 선택 시 해당 row의 
+						                      hid_flag를 Update로 변경하고 하고 모든 항목 활성화 시킴)
+******************************************************************************/
+function ln_position(i,gubun){
+  g_position = i
+	if (gubun=="chk"){
+		if(g_yn=="N"){   //전표상태확인 - 대기
+			if (eval("chkbox"+i).checked==true){ //체크되었을 경우만 모든 항목 수정가능함.
+				ln_Read(i,"false");
+      }else{
+        ln_Read(i,"true");
+			}
+		}
+	}
+}
+
+/******************************************************************************
+	Description : 증명내용코드 확인
+******************************************************************************/
+function ln_Sel_change(i){
+	
+	//alert("sel_documcd"+eval("sel_documcd"+i).value);
+  eval("txt_documcd"+i).value=eval("sel_documcd"+i).value;
+
+}
+
+
+/******************************************************************************
+	Description : line 추가 
+	parameter  : gubun - 구분 0 - 라인긋기, 1 - 관리항목 1줄 추가 , 2- 관리항목 2줄 추가
+******************************************************************************/
+function ln_line_Add(gubun,i,j,strbgcolor){
+  
+	//alert("l"+i);
+	var ls_html="";
+	if (gubun==0){
+	  //alert("l"+i);
+	  ls_html +="<table id=l"+i+" width=857px cellpadding=0 cellspacing=0 border=0 style=position:relative;left:0px>";
+		ls_html +="				<tr>"
+		ls_html +="					<td width=857px  height=2px bgcolor=#D7959D align=center colspan=8 >";	
+		ls_html +="				</tr>";
+		ls_html +="</table>";
+	}else{
+
+	}
+	
+	//prompt("div1.innerHTML",div1.innerHTML);
+	//prompt("ls_html",ls_html);
+	div1.innerHTML=div1.innerHTML + ls_html; 
+	//alert("add");
+}
+
+
+function ln_Popup_Chk(i){
+
+	alert("flag");
+
+//		ls_html +="			<input type=hidden  id=hid_flag"+i+"0  value='T'>";
+	//	ls_html +="			<input type=hidden  id=hid_flag_sel"+i+"0  value='S'>";
+
+//	if(){
+
+
+//	}
+
+
+	return false;
+}
+
+/******************************************************************************
+	Description : 계정코드 찾기
+	parameter   : p1 - 구분    ( 01 -계정코드
+	              obj - object ( 계정코드 또는 계정명)
+                i - row 위치
+******************************************************************************/
+function ln_Popup(p1,obj,i){
+  
+//	alert("popup i::"+i);
+	var result="";
+	var arrParam	= new Array();
+	var arrResult	= new Array();
+	var strURL;	
+	var strPos;
+	var cnt=0;
+	var xcnt=0;
+	var j=0;
+
+	if(event.keyCode!=113) return;
+
+  if(ln_Popup_Chk(i)==false) return;
+
+  arrParam[0]=eval(obj+i).value;
+
+	if (p1=="01"){  //계정코드
+		strURL = "./Actcode_popup_ifrm.html";
+		strPos = "dialogWidth:400px;dialogHeight:379px;status:no;scroll:no;resizable:no";
+		result = showModalDialog(strURL,arrParam,strPos);
+    
+		if (result != null) {
+			arrResult = result.split(";");
+			
+      if (arrResult[0]!="undefined"){
+				eval("txt_atcode"+i).value = arrResult[0];
+				eval(obj+i).value =arrResult[1];
+				cnt = arrResult[2];  //현재 관리항목 갯수
+       
+				//alert("cnt"+cnt);
+        //alert("eval"+eval("cnt"+i).value);
+				//alert("pbefore_cnt"+eval("cnt"+i).value);
+
+				if ((eval("cnt"+i).value>=0)&&(eval("cnt"+i).value<=3)){//변경전 관리항목 갯수 
+				    //alert("xcnt::"+cnt);
+						if((cnt>=4)&&(cnt<=6)){ //현재 관리항목 갯수와 다를 경우
+						  //alert("xcnt2::"+cnt);
+							eval("document.all.t"+g_position+"2.style.display='block';"); //2번째 관리항목 라인보여줌
+						}else if(eval("cnt"+i).value>=7){ 
+							eval("document.all.t"+g_position+"2.style.display='block';"); //2번째 관리항목 라인보여줌
+							eval("document.all.t"+g_position+"3.style.display='block';"); //3번째 관리항목 라인보여줌
+						}
+				}else if ((eval("cnt"+i).value>=4)&&(eval("cnt"+i).value<=6)){ //변경전 관리항목 갯수 체크
+				     alert("cnt3::"+cnt);
+						if ((cnt>=0)&&(cnt<=3)){  //관리항목 갯수가 줄어들어서 안보이게함.
+							eval("document.all.t"+g_position+"2.style.display='none';");
+						}else if(cnt>=7){ 
+							eval("document.all.t"+g_position+"3.style.display='block';"); //3번째 관리항목 라인추가
+						}
+				}else if (eval("cnt"+i).value>=7){ 
+						alert("paft3_cnt"+cnt); 
+						if ((cnt>=0)&&(cnt<=3)){
+							eval("document.all.t"+g_position+"2.style.display='none';");
+							eval("document.all.t"+g_position+"3.style.display='none';");
+						}else if ((cnt>=4)&&(cnt<=6)){
+							eval("document.all.t"+g_position+"3.style.display='none';");
+						}
+				}else{ //변경전 관리항목이 없는 경우		
+				     alert("cnt333::"+cnt);
+						if ((cnt>=0)&&(cnt<=3)){
+							eval("document.all.t"+g_position+"2.style.display='none';");
+							eval("document.all.t"+g_position+"3.style.display='none';");
+						}else if ((cnt>=4)&&(cnt<=6)){
+						  eval("document.all.t"+g_position+"2.style.display='block';");
+							eval("document.all.t"+g_position+"3.style.display='none';");
+						}else if (cnt>=7){
+						  eval("document.all.t"+g_position+"2.style.display='block';");
+							eval("document.all.t"+g_position+"3.style.display='block';");
+						}
+				}
+				
+				//변경전 관리항목개수 저장
+				eval("cnt"+i).value= arrResult[2];
+				//alert("cnti"+eval("cnt"+i).value);
+				
+				if (cnt==0||cnt==1|| cnt==2||cnt==3) xcnt=1;
+				else if(cnt==4|| cnt==5||cnt==6)xcnt=2;
+				else if(cnt==7|| cnt==8||cnt==9)xcnt=3;
+				else xcnt =1;
+			
+				//관리항목가져오기
+				if (xcnt==1){
+					j=1;
+					eval("txt_fsrefcd"+i+j+"1").value=arrResult[3];
+					eval("txt_fsrefnm"+i+j+"1").value=arrResult[4];
+					eval("txt_fsrefcd"+i+j+"2").value=arrResult[5];
+					eval("txt_fsrefnm"+i+j+"2").value=arrResult[6];
+					eval("txt_fsrefcd"+i+j+"3").value=arrResult[7];
+					eval("txt_fsrefnm"+i+j+"3").value=arrResult[8];
+					
+					eval("txt_fsrefval"+i+j+"1").value="";
+					eval("txt_fsrvalnm"+i+j+"1").value="";
+					eval("txt_fsrefval"+i+j+"2").value="";
+					eval("txt_fsrvalnm"+i+j+"2").value="";
+					eval("txt_fsrefval"+i+j+"3").value="";
+					eval("txt_fsrvalnm"+i+j+"3").value="";
+				}else if (xcnt==2){
+					j=1;
+					eval("txt_fsrefcd"+i+j+"1").value=arrResult[3];
+					eval("txt_fsrefnm"+i+j+"1").value=arrResult[4];
+					eval("txt_fsrefcd"+i+j+"2").value=arrResult[5];
+					eval("txt_fsrefnm"+i+j+"2").value=arrResult[6];
+					eval("txt_fsrefcd"+i+j+"3").value=arrResult[7];
+					eval("txt_fsrefnm"+i+j+"3").value=arrResult[8];
+
+					eval("txt_fsrefval"+i+j+"1").value="";
+					eval("txt_fsrvalnm"+i+j+"1").value="";
+					eval("txt_fsrefval"+i+j+"2").value="";
+					eval("txt_fsrvalnm"+i+j+"2").value="";
+					eval("txt_fsrefval"+i+j+"3").value="";
+					eval("txt_fsrvalnm"+i+j+"3").value="";
+					j=2
+					//alert("arrResult[10];"+arrResult[10]);
+					//alert("222txt_fsrefnm"+i+j+"1");
+					eval("txt_fsrefcd"+i+j+"1").value=arrResult[9];
+					eval("txt_fsrefnm"+i+j+"1").value=arrResult[10];
+					eval("txt_fsrefcd"+i+j+"2").value=arrResult[11];
+					eval("txt_fsrefnm"+i+j+"2").value=arrResult[12];
+					eval("txt_fsrefcd"+i+j+"3").value=arrResult[13];
+					eval("txt_fsrefnm"+i+j+"3").value=arrResult[14];
+
+					eval("txt_fsrefval"+i+j+"1").value="";
+					eval("txt_fsrvalnm"+i+j+"1").value="";
+					eval("txt_fsrefval"+i+j+"2").value="";
+					eval("txt_fsrvalnm"+i+j+"2").value="";
+					eval("txt_fsrefval"+i+j+"3").value="";
+					eval("txt_fsrvalnm"+i+j+"3").value="";
+				}else if (xcnt==3){
+					j=1;
+					eval("txt_fsrefcd"+i+j+"1").value=arrResult[3];
+					eval("txt_fsrefnm"+i+j+"1").value=arrResult[4];
+					eval("txt_fsrefcd"+i+j+"2").value=arrResult[5];
+					eval("txt_fsrefnm"+i+j+"2").value=arrResult[6];
+					eval("txt_fsrefcd"+i+j+"3").value=arrResult[7];
+					eval("txt_fsrefnm"+i+j+"3").value=arrResult[8];
+
+					eval("txt_fsrefval"+i+j+"1").value="";
+					eval("txt_fsrvalnm"+i+j+"1").value="";
+					eval("txt_fsrefval"+i+j+"2").value="";
+					eval("txt_fsrvalnm"+i+j+"2").value="";
+					eval("txt_fsrefval"+i+j+"3").value="";
+					eval("txt_fsrvalnm"+i+j+"3").value="";
+
+					j=2;
+					eval("txt_fsrefcd"+i+j+"1").value=arrResult[9];
+					eval("txt_fsrefnm"+i+j+"1").value=arrResult[10];
+					eval("txt_fsrefcd"+i+j+"2").value=arrResult[11];
+					eval("txt_fsrefnm"+i+j+"2").value=arrResult[12];
+					eval("txt_fsrefcd"+i+j+"3").value=arrResult[13];
+					eval("txt_fsrefnm"+i+j+"3").value=arrResult[14];
+
+					eval("txt_fsrefval"+i+j+"1").value="";
+					eval("txt_fsrvalnm"+i+j+"1").value="";
+					eval("txt_fsrefval"+i+j+"2").value="";
+					eval("txt_fsrvalnm"+i+j+"2").value="";
+					eval("txt_fsrefval"+i+j+"3").value="";
+					eval("txt_fsrvalnm"+i+j+"3").value="";
+
+					j=3;
+					eval("txt_fsrefcd"+i+j+"1").value=arrResult[15];
+					eval("txt_fsrefnm"+i+j+"1").value=arrResult[16];
+					eval("txt_fsrefcd"+i+j+"2").value=arrResult[17];
+					eval("txt_fsrefnm"+i+j+"2").value=arrResult[18];
+					eval("txt_fsrefcd"+i+j+"3").value=arrResult[19];
+					eval("txt_fsrefnm"+i+j+"3").value=arrResult[20];
+
+					eval("txt_fsrefval"+i+j+"1").value="";
+					eval("txt_fsrvalnm"+i+j+"1").value="";
+					eval("txt_fsrefval"+i+j+"2").value="";
+					eval("txt_fsrvalnm"+i+j+"2").value="";
+					eval("txt_fsrefval"+i+j+"3").value="";
+					eval("txt_fsrvalnm"+i+j+"3").value="";
+				}
+			} else { //NULL인경우
+        eval("txt_atcode"+i).value = "";
+				eval(obj+i).value ="";
+				j=1;
+					eval("txt_fsrefcd"+i+j+"1").value="";
+					eval("txt_fsrefnm"+i+j+"1").value="";
+					eval("txt_fsrefcd"+i+j+"2").value="";
+					eval("txt_fsrefnm"+i+j+"2").value="";
+					eval("txt_fsrefcd"+i+j+"3").value="";
+					eval("txt_fsrefnm"+i+j+"3").value="";
+
+					eval("txt_fsrefval"+i+j+"1").value="";
+					eval("txt_fsrvalnm"+i+j+"1").value="";
+					eval("txt_fsrefval"+i+j+"2").value="";
+					eval("txt_fsrvalnm"+i+j+"2").value="";
+					eval("txt_fsrefval"+i+j+"3").value="";
+					eval("txt_fsrvalnm"+i+j+"3").value="";
+
+					j=2;
+					eval("txt_fsrefcd"+i+j+"1").value="";
+					eval("txt_fsrefnm"+i+j+"1").value="";
+					eval("txt_fsrefcd"+i+j+"2").value="";
+					eval("txt_fsrefnm"+i+j+"2").value="";
+					eval("txt_fsrefcd"+i+j+"3").value="";
+					eval("txt_fsrefnm"+i+j+"3").value="";
+
+					eval("txt_fsrefval"+i+j+"1").value="";
+					eval("txt_fsrvalnm"+i+j+"1").value="";
+					eval("txt_fsrefval"+i+j+"2").value="";
+					eval("txt_fsrvalnm"+i+j+"2").value="";
+					eval("txt_fsrefval"+i+j+"3").value="";
+					eval("txt_fsrvalnm"+i+j+"3").value="";
+
+					j=3;
+					eval("txt_fsrefcd"+i+j+"1").value="";
+					eval("txt_fsrefnm"+i+j+"1").value="";
+					eval("txt_fsrefcd"+i+j+"2").value="";
+					eval("txt_fsrefnm"+i+j+"2").value="";
+					eval("txt_fsrefcd"+i+j+"3").value="";
+					eval("txt_fsrefnm"+i+j+"3").value="";
+
+					eval("txt_fsrefval"+i+j+"1").value="";
+					eval("txt_fsrvalnm"+i+j+"1").value="";
+					eval("txt_fsrefval"+i+j+"2").value="";
+					eval("txt_fsrvalnm"+i+j+"2").value="";
+					eval("txt_fsrefval"+i+j+"3").value="";
+					eval("txt_fsrvalnm"+i+j+"3").value="";
+			}
+		}
+	}
+}
+
+
+/******************************************************************************
+	Description : 관리항목 찾기
+	parameter   : p1 - 관리항목 구분 코드 (예, 거래처, 선급비용, 선수기간...)
+	              p2 - 해당 object 명
+                p3 - object (i+j 값)
+								p4 - object (열 구분값 1,2,3)
+								참고 : p2+p3+p4 - 해당 관리항목 코드 또는 명칭
+******************************************************************************/
+function ln_Popup2(p1,p2,p3,p4){
+	//alert(p1+":"+p2+":"+p3+":"+p4);
+
+	//alert(eval(p1).value);
+	//(eval(p2+p3+p4).value);
+
+	var result="";
+	var arrParam	= new Array();
+	var arrResult	= new Array();
+	var strURL;	
+	var strPos;
+
+	if(event.keyCode!=113) return;
+  arrParam[0]=eval(p1).value;
+  arrParam[1]=eval(p2+p3+p4).value;
+
+	strURL = "./Commdtil_popup_ifrm.html";
+	strPos = "dialogWidth:400px;dialogHeight:379px;status:no;scroll:no;resizable:no";
+	result = showModalDialog(strURL,arrParam,strPos);
+
+	if (result != null) {
+		arrResult = result.split(";");
+		eval("txt_fsrefval"+p3+p4).value =arrResult[0];
+		eval("txt_fsrvalnm"+p3+p4).value = arrResult[1];
+	}else{
+    eval("txt_fsrefval"+p3+p4).value="";
+		eval("txt_fsrvalnm"+p3+p4).value="";
+	}
+	
+}
+
+/******************************************************************************
+	Description : seqno의 자리수를 설정
+	parameter   : p1 - 현재숫자, p2 - 자리수
+******************************************************************************/
+function ln_Seqno_Format(p1,p2){
+  var seq="0";
+	if (p2==5){
+		if (p1>=1&&p1<10) seq="0000"+p1;
+		if (p1>=10&&p1<100) seq="000"+p1;
+		if (p1>=100&&p1<1000) seq="00"+p1;
+		if (p1>=1000&&p1<10000) seq="0"+p1;
+		if (p1>=10000&&p1<100000) seq=p1;
+	}
+
+	return seq;
+}
+
+
+/******************************************************************************
+	Description : 포커서 변경 발생
+	parameter   : p1 - 구분
+	              p2 - object 
+								p3 - 위치
+******************************************************************************/
+function ln_onblur(p1,p2,p3){
+   var chaamt=0;
+	 var daeamt=0;
+
+	 if (p1=="01"){
+			for(i=1;i<=g_row;i++){
+				if(eval("hid_flag"+i+"0").value=="T"){
+					if (eval("gcem_chaamt"+i).text=="") eval("gcem_chaamt"+i).text=0;
+					if (eval("gcem_daeamt"+i).text=="") eval("gcem_daeamt"+i).text=0;
+					chaamt += parseInt(eval("gcem_chaamt"+i).text);
+					daeamt += parseInt(eval("gcem_daeamt"+i).text);
+				}
+			}
+			parent.ln_Sum_Amt(chaamt,daeamt);
+	 }else if(p1=="02"){
+			for(i=1;i<=g_row;i++){
+				if(eval("hid_flag"+i+"0").value=="T"){
+					parent.ln_remark(eval("txt_remark"+i).value);
+					break;
+				}
+			}
+	 }
+}
+
+/******************************************************************************
+	Description : 미결전표 Detail 및 관리항목, 증빙구분 format 설정 
+	parameter   : row - record 갯수
+	     참고   : hid_flag_sel - S 조회시   A 추가 
+******************************************************************************/
+function ln_SetFormat(row){
+ 
+ // alert("ln_SetFormat");
+  var ls_html="";
+	var p =0;
+	var strbgcolor="";
+	var strTF="";
+	var ino1=0,ino2=0,ino3=0; //관리항목 번호
+	var strdisplay="block";
+	var strFlag="T";
+	//var strFsseq="00000"
+  //div1.innerHTML=ls_html; 
+	
+  if (row<1) return ; 
+
+	for(i=1;i<=row;i++){
+		p = i%2;
+		if (p==0) strbgcolor = "";
+		else if (p==1) strbgcolor = "";
+   
+		//조회시 모든 항목이 수정 안되게 함. 계정코드를 더블클릭시 색깔 변경하면서 수정 가능하게 함.
+		strTF = "true"; //readonly
+		//if (g_yn =="Y") strTF = true; //readonly
+		//else  strTF = false;
+
+		//strFsseq = ln_Seqno_Format(i,5);
+		//alert("strFsseq"+strFsseq);
+
+		if (i!=1){  //두번째 라인 상단부터 줄을 긋는다
+		  //alert("ll"+i);
+		  ls_html +="<table id=l"+i+" width=857px cellpadding=0 cellspacing=0 border=0 style=position:relative;left:0px>";
+			ls_html +="	<tr>"
+			ls_html +="		<td width=857px  height=2px bgcolor=#D7959D align=center colspan=8>";	
+			ls_html +="	</tr>";
+      ls_html +="</table>";
+		}
+    
+		ls_html  +="<table id=t"+i+"0 width=857px cellpadding=0 cellspacing=0 border=0 style=position:relative;left:0px>";
+		ls_html +="	<tr>";			
+		ls_html +="		<td width=20px    align=center class=tab13 >";
+    ls_html +="			<input type=checkbox  id=chkbox"+i+"  style=width:15px;position:relative;top:-3px;  onclick=ln_position('"+i+"','chk')>";
+		ls_html +="   </td>";
+		ls_html +="		<td width=75px    align=center class=tab20>";
+		ls_html +="			<input type=hidden  id=row   value="+i+">";
+		ls_html +="			<input type=hidden  id=hid_flag"+i+"0  value='T'>";
+		ls_html +="			<input type=hidden  id=hid_flag_sel"+i+"0  value='S'>";
+		ls_html +="			<input type=hidden  id=hid_fsseq"+i+"    value='"+gcds_data01.namevalue(i,"FSSEQ")+"' >";
+		ls_html +="			<input type=hidden  id=cnt"+i+"    value='"+gcds_data01.namevalue(i,"CNT")+"' >";
+		ls_html +="			<input type=text  class=txt41 id=txt_atcode"+i+"   value='"+gcds_data01.namevalue(i,"ATCODE")+"'    style=width:48px;height:18px; readOnly="+strTF+"; maxlength=7; onclick=ln_position('"+i+"','ATCODE')>";
+		ls_html +="   </td>";
+		ls_html +="	  <td width=160px     align=center class=tab20 >";
+		ls_html +="			<input type=text  class=txt41 id=txt_atkornam"+i+" value='"+gcds_data01.namevalue(i,"ATKORNAM")+"'  style=width:160px;height:18px; readOnly="+strTF+"; onkeydown=ln_Popup('01','txt_atkornam','"+i+"'); onclick=ln_position('"+i+"')>";
+		ls_html +="   </td>";
+		ls_html +="		<td width=90px  align=center  class=tab20 >";
+		ls_html +="     <comment id="__NSID__"><object  id=gcem_chaamt"+i+" class=txt41 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style=color:#0000ff;position:relative;left:0px;width:85px;height:16px; onfocus=ln_position('"+i+"')  onblur=ln_onblur('01','gcem_chaamt','"+i+"')>";				
+		ls_html +="				<param name=Text			     value='"+gcds_data01.namevalue(i,"CHAAMT")+"'> ";
+		ls_html +="       <param name=Border         value=false>";
+		ls_html +="				<param name=Alignment		   value=2>";
+		ls_html +="				<param name=Numeric			   value=true>";
+		ls_html +="				<param name=IsComma			   value=true>";
+		ls_html +="				<param name=MaxLength		   value=12>";
+	  ls_html +="       <param name=ReadOnly       value='"+strTF+"'>";
+		ls_html +="       <param name=InheritColor   value=true>";
+	  ls_html +="       <param name=ReadOnlyForeColor   value=#0000FF>";
+  //ls_html +="       <param name=ReadOnlyBackColor   value="+strbgcolor+"> "; 
+		ls_html +="			</object></comment><script>__ws__(__NSID__);</script> ";
+		ls_html +="    </td>";
+		
+		ls_html +="		<td width=90px   align=center  class=tab20  >";
+		ls_html +="     <comment id="__NSID__"><object  id=gcem_daeamt"+i+"  class=txt41 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style=color:#ff0000;position:relative;left:0px;width:85px;height:16px; onfocus=ln_position('"+i+"') onblur=ln_onblur('01','gcem_daeamt','"+i+"') >";				
+		ls_html +="				<param name=Text			     value='"+gcds_data01.namevalue(i,"DAEAMT")+"'> ";
+		ls_html +="       <param name=Border         value=>";
+		ls_html +="				<param name=Alignment		   value=2>";
+		ls_html +="				<param name=Numeric			   value=true>";
+		ls_html +="				<param name=IsComma			   value=true>";
+		ls_html +="				<param name=MaxLength		   value=12>";
+		ls_html +="       <param name=ReadOnly       value='"+strTF+"'>";
+	//	ls_html +="       <param name=InheritColor   value=true>";
+		ls_html +="       <param name=ReadOnlyForeColor   value=#FF0000>";
+		ls_html +="			</object></comment><script>__ws__(__NSID__);</script> ";
+		
+		ls_html +="    </td>";
+		ls_html +="		<td width=97px   align=center  class=tab20 >";
+		//ls_html +="			<input type=text class=txt41 id=txt_01 style=width:79px;height:19px;background-color:'"+strbgcolor+"';>";
+		ls_html +="  <select class=txt41 id=sel_documcd"+i+"  style=position:relative;left:0px;top:0px;font-size:12px;width:95px;  disabled onclick='Select_onclick("+i+")'   onchange='ln_Sel_change("+i+")'>";
+		ls_html +="  	<option value=000> </option>";
+		ls_html +="  	<option value=001>세금계산서</option>";
+		ls_html +="  	<option value=002>계산서</option>";
+		ls_html +="  	<option value=003>신용카드법인</option>";
+		ls_html +="  	<option value=004>신용카드개인</option>";
+		ls_html +="  	<option value=005>현금소득공제</option>";
+		ls_html +="  	<option value=006>간이영수증</option>";
+		ls_html +="  	<option value=007>금전등록기</option>";
+		ls_html +="  	<option value=008>지로</option>";
+		ls_html +="  	<option value=009>기타</option>";
+		ls_html +="  </select>";
+		ls_html +="	 <input type=hidden id=txt_documcd"+i+" value=''>"; 
+		ls_html +="   </td>";
+		ls_html +="		<td width=276px  align=center  class=tab20 >";
+		ls_html +="			<input type=text class=txt41 id=txt_remark"+i+" value='"+gcds_data01.namevalue(i,"REMARK")+"'  style=width:276px;height:18px; readOnly='"+strTF+"' maxlength='33'; onclick=ln_position('"+i+"') onblur = ln_onblur('02','','"+i+"')>";
+		ls_html +="   </td>";
+		ls_html +="		<td width=72px  align=center  class=tab20 >";
+		ls_html +="    <select class=txt41 id=sel_fswrkdiv"+i+" style=position:relative;left:0px;top:0px;font-size:12px;width:68px;  disabled onclick='Select_onclick("+i+")'>";
+		ls_html +="   	<option value=1>미적용</option>";
+		ls_html +="  	  <option value=2>부서비</option>";
+		ls_html +="   	<option value=3>공통</option>";
+		ls_html +="   	<option value=4>예비비</option>";
+		ls_html +="    </select>";
+		
+    ls_html +="			<img src='../img/plus.gif' value='plus2.gif' id=img_plus1  style=position:relative;width:20px;left:2px;cursor:hand;>";
+    ls_html +="   </td>";
+
+		ls_html +="  </tr>";
+		ls_html +="</table>";
+	 
+		var cnt = gcds_data01.namevalue(i,"CNT");
+		//alert("cnt"+cnt);
+		var xcnt=0;
+		if (cnt==0||cnt==1|| cnt==2||cnt==3) xcnt=1;
+		else if(cnt==4|| cnt==5||cnt==6)xcnt=2;
+		else if(cnt==7|| cnt==8||cnt==9)xcnt=3
+		else xcnt =1
+    
+		for (j=1;j<=3;j++){
+		
+      ino1 = 1+(j-1)*3;
+			ino2 = 2+(j-1)*3;
+			ino3 = 3+(j-1)*3;
+
+			if (j>xcnt){
+				strdisplay="none";
+				strFlag="F";
+			}else {
+				strdisplay="block";
+				strFlag="T";
+			}
+
+			//alert("j"+j+"strdisplay"+strdisplay);
+			//alert("i::"+i+"::j::"+j+"1_FSREFSEQ0"+ino1+"::"+gcds_data01.namevalue(i,"FSREFSEQ0"+ino1));
+			//alert("i::"+i+"::j::"+j+"2_FSREFSEQ0"+ino1+"::"+gcds_data01.namevalue(i,"FSREFSEQ0"+ino2));
+			//alert("i::"+i+"::j::"+j+"3_FSREFSEQ0"+ino1+"::"+gcds_data01.namevalue(i,"FSREFSEQ0"+ino3));
+
+      ls_html  +="<table id=t"+i+""+j+" width=857px cellpadding=0 cellspacing=0 border=0 style=position:relative;left:0px;display:"+strdisplay+">";
+			ls_html +="				<tr>";			
+			ls_html +="					<td width=75px       class=tab20 align=center >";
+			ls_html +="			      <input type=hidden  id=hid_flag"+i+""+j+"   value="+strFlag+">";
+			
+			ls_html +="						<input type=hidden id=txt_fsrefseq"+i+j+"1 value='"+gcds_data01.namevalue(i,"FSREFSEQ0"+ino1)+"'>"; 	    
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrefnm"+i+j+"1 value='"+gcds_data01.namevalue(i,"FSREFNM0"+ino1)+"' style=width:75px;height:19px; readOnly="+strTF+"; onclick=ln_position('"+i+"') >"; 	
+			ls_html +="						<input type=hidden id=txt_fsrefcd"+i+j+"1 value='"+gcds_data01.namevalue(i,"FSREFCD0"+ino1)+"'>"; 	    
+			ls_html +="				  </td>";
+			ls_html +="					<td width=160px    class=tab20 align=center >";
+			ls_html +="						<input type=text class=txt41 id=txt_fsrvalnm"+i+j+"1 value='"+gcds_data01.namevalue(i,"FSRVALNM0"+ino1)+"' style=color:#990000;width:160px;height:19px; readOnly="+strTF+";  onkeydown=ln_Popup2('txt_fsrefcd"+i+j+"1','txt_fsrvalnm','"+i+j+"','1'); onclick=ln_position('"+i+"')>";
+			ls_html +="						<input type=hidden  id=txt_fsrefval"+i+j+"1 value='"+gcds_data01.namevalue(i,"FSREFVAL0"+ino1)+"' >";
+			ls_html +="					</td>";
+
+			ls_html +="					<td width=90px      class=tab20 align=center >";
+			ls_html +="						<input type=hidden id=txt_fsrefseq"+i+j+"2 value='"+gcds_data01.namevalue(i,"FSREFSEQ0"+ino2)+"'>"; 	    
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrefnm"+i+j+"2  value='"+gcds_data01.namevalue(i,"FSREFNM0"+ino2)+"' style=width:85px;height:19px; readOnly="+strTF+"; onclick=ln_position('"+i+"') >";
+			ls_html +="						<input type=hidden id=txt_fsrefcd"+i+j+"2  value='"+gcds_data01.namevalue(i,"FSREFCD0"+ino2)+"' >";
+			ls_html +="				  </td>";
+			ls_html +="					<td width=186px      class=tab20 align=center  >";
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrvalnm"+i+j+"2  value='"+gcds_data01.namevalue(i,"FSRVALNM0"+ino2)+"' style=position:relative;left:0px;color:#990000;width:182px;height:19px; readOnly="+strTF+"; onkeydown=ln_Popup2('txt_fsrefcd"+i+j+"2','txt_fsrvalnm','"+i+j+"','2'); onclick=ln_position('"+i+"')>";
+			ls_html +="						<input type=hidden  id=txt_fsrefval"+i+j+"2  value='"+gcds_data01.namevalue(i,"FSREFVAL0"+ino2)+"'>";
+			ls_html +="					</td>";
+
+			ls_html +="					<td width=90px       class=tab20 align=center >";
+			ls_html +="						<input type=hidden id=txt_fsrefseq"+i+j+"3 value='"+gcds_data01.namevalue(i,"FSREFSEQ0"+ino3)+"'>"; 	    
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrefnm"+i+j+"3 value='"+gcds_data01.namevalue(i,"FSREFNM0"+ino3)+"'  style=width:78px;height:19px; readOnly="+strTF+"; onclick=ln_position('"+i+"')>";
+			ls_html +="						<input type=hidden id=txt_fsrefcd"+i+j+"3 value='"+gcds_data01.namevalue(i,"FSREFCD0"+ino3)+"'  >";
+			ls_html +="				  </td>";
+			ls_html +="					<td width=320px      class=tab20 align=center >";	
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrvalnm"+i+j+"3 value='"+gcds_data01.namevalue(i,"FSRVALNM0"+ino3)+"' style=position:relative;left:-18px;color:#990000;width:220px;height:19px; readOnly="+strTF+"; onkeydown=ln_Popup2('txt_fsrefcd"+i+j+"3','txt_fsrvalnm','"+i+j+"','3'); onclick=ln_position('"+i+"') >";
+			ls_html +="						<input type=hidden id=txt_fsrefval"+i+j+"3 value='"+gcds_data01.namevalue(i,"FSREFVAL0"+ino3)+"' >";
+			ls_html +="					</td>";
+			ls_html +="				</tr>";	
+		
+			ls_html +="</table>";
+		
+		} //for j
+  } //for i
+	//prompt("", ls_html);
+	div1.innerHTML=ls_html;  
+	
+	for (i=1;i<=row;i++){	
+		eval("sel_documcd"+i).value = gcds_data01.namevalue(i,"DOCUMCD");
+		eval("sel_fswrkdiv"+i).value = gcds_data01.namevalue(i,"FSWRKDIV");
+	}
+
+	
+	g_row = row;
+ // alert("row:66:"+row);
+	//alert("g_row::"+g_row);
+
+	//ln_Bind(g_row);
+}
+
+
+/******************************************************************************
+	Description : 전표 신규 등록시 
+	parameter   : gubun - 'new' : 신규등록
+	                      'add' : 추가등록
+	              row - 라인갯수
+******************************************************************************/
+function ln_SetFormat_add(gubun, row){
+
+  //alert("ln_SetFormat_add");
+  //alert("gubun"+gubun);
+	var strbgcolor="";
+  var ls_html="";
+  var bggubun =ln_bgcolor(row-1);
+	var i=row;
+	var strdisplay="block";
+	var strFlag="T";
+
+	if(bggubun==1)strbgcolor="";
+	else strbgcolor= "";
+
+	if (gubun =='new'){
+	  g_row=0
+		ln_SetDataHeader("DTL");
+	}else if (gubun =='add' && row!=1) { //추가이면서 두번째 이상 레코드는 라인부터 작성
+		ln_line_Add(0,g_row,1,'');
+	}
+
+		ls_html +="<table id=t"+i+"0 width=857px cellpadding=0 cellspacing=0 border=0 style=position:relative;left:0px>";
+		ls_html +="	<tr>";			
+		ls_html +="		<td width=20px    align=center class=tab13 >";
+    ls_html +="			<input type=checkbox  id=chkbox"+i+"  style=width:15px;position:relative;top:-3px; disabled onclick=ln_position('"+i+"','')>";
+		ls_html +="   </td>";
+		ls_html +="		<td width=75px    align=center class=tab20 >";
+		ls_html +="			<input type=hidden  id=row  value="+i+">";
+		ls_html +="			<input type=hidden  id=hid_flag"+i+"0  value='T'>";
+		ls_html +="			<input type=hidden  id=hid_flag_sel"+i+"0  value='A'>";
+		ls_html +="			<input type=hidden  id=hid_fsseq"+i+"    value='' >";
+		ls_html +="			<input type=hidden  id=cnt"+i+"   value='' >";
+		ls_html +="			<input type=text  class=txt41 id=txt_atcode"+i+" value=''  style=width:48px;height:18px;  readOnly=true  maxlength=7; onclick=ln_position('"+i+"')>";
+		ls_html +="   </td>";
+		ls_html +="	  <td width=160px     align=center class=tab20 >";
+		ls_html +="			<input type=text   class=txt41 id=txt_atkornam"+i+" value='' style=width:160px;height:18px; onkeydown=ln_Popup('01','txt_atkornam','"+i+"'); onclick=ln_position('"+i+"')>";
+		ls_html +="   </td>";
+		ls_html +="		<td width=90px  align=center  class=tab20 >";
+		ls_html +="     <comment id="__NSID__"><object  id=gcem_chaamt"+i+" class=txt41 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style=color:#0000ff;position:relative;left:0px;width:85px;height:16px; onfocus=ln_position('"+i+"') onblur=ln_onblur('01','gcem_chaamt','"+i+"') >";				
+		ls_html +="				<param name=Text			     value=0> ";
+		ls_html +="       <param name=Border         value=false>";
+		ls_html +="				<param name=Alignment		   value=2>";
+		ls_html +="				<param name=Numeric			   value=true>";
+		ls_html +="				<param name=IsComma			   value=true>";
+		ls_html +="				<param name=MaxLength		   value=12>";
+		//ls_html +="       <param name=ReadOnly       value=true>";
+		ls_html +="       <param name=InheritColor   value=true>";
+		ls_html +="       <param name=ReadOnlyForeColor   value=#0000FF>";
+		ls_html +="			</object></comment><script>__ws__(__NSID__);</script> ";
+		
+		ls_html +="    </td>";
+		ls_html +="		<td width=90px   align=center  class=tab20 >";
+		ls_html +="     <comment id="__NSID__"><object  id=gcem_daeamt"+i+"  class=txt41 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style=color:#ff0000;position:relative;left:0px;width:85px;height:16px; onfocus=ln_position('"+i+"')  onblur=ln_onblur('01','gcem_daeamt','"+i+"')>";				
+		ls_html +="				<param name=Text			     value=0> ";
+		ls_html +="       <param name=Border         value=false>";
+		ls_html +="				<param name=Alignment		   value=2>";
+		ls_html +="				<param name=Numeric			   value=true>";
+		ls_html +="				<param name=IsComma			   value=true>";
+		ls_html +="				<param name=MaxLength		   value=12>";
+		//ls_html +="       <param name=ReadOnly       value=true>";
+		ls_html +="       <param name=InheritColor   value=true>";
+		ls_html +="       <param name=ReadOnlyForeColor   value=#FF0000>";
+		ls_html +="			</object></comment><script>__ws__(__NSID__);</script> ";
+		ls_html +="    </td>";
+		ls_html +="		<td width=97px   align=center  class=tab20>";
+		ls_html +="  <select class=txt41 id=sel_documcd"+i+"  style=position:relative;left:0px;top:0px;font-size:12px;width:95px; onclick='Select_onclick("+i+")'  onchange='ln_Sel_change("+i+")'>";
+		ls_html +="  	<option value=000> </option>";
+		ls_html +="  	<option value=001>세금계산서</option>";
+		ls_html +="  	<option value=002>계산서</option>";
+		ls_html +="  	<option value=003>신용카드법인</option>";
+		ls_html +="  	<option value=004>신용카드개인</option>";
+		ls_html +="  	<option value=005>현금소득공제</option>";
+		ls_html +="  	<option value=006>간이영수증</option>";
+		ls_html +="  	<option value=007>기타</option>";
+		ls_html +="  </select>";
+		ls_html +="	 <input type=hidden id=txt_documcd"+i+" value=''>"; 
+		ls_html +="   </td>";
+		ls_html +="		<td width=276px  align=center  class=tab20 >";
+		ls_html +="			<input type=text class=txt41 id=txt_remark"+i+" value=''  style=width:276px;height:18px; maxlength='33'; onclick=ln_position('"+i+"') onblur = ln_onblur('02','','"+i+"')>";
+		ls_html +="   </td>";
+		ls_html +="		<td width=72px  align=center  class=tab20 >";
+		ls_html +="    <select class=txt41 id=sel_fswrkdiv"+i+" style=position:relative;left:0px;top:0px;font-size:12px;width:68px;  onclick='Select_onclick("+i+")'>";
+		ls_html +="   	<option value=1>미적용</option>";
+		ls_html +="  	  <option value=2>부서비</option>";
+		ls_html +="   	<option value=3>공통</option>";
+		ls_html +="   	<option value=4>예비비</option>";
+		ls_html +="    </select>";
+		ls_html +="   </td>";
+		ls_html +="  </tr>";
+		ls_html +="</table>";
+
+		for (j=1;j<=3;j++){
+			if (j>1){
+				strdisplay="none";
+				strFlag="F";
+			}else {
+				strdisplay="block";
+				strFlag="T";
+			}
+
+			ls_html  +="<table id=t"+i+""+j+" width=857px cellpadding=0 cellspacing=0 border=0 style=position:relative;left:0px;display:"+strdisplay+">";
+			ls_html +="				<tr>";			
+			ls_html +="					<td width=75px       class=tab20 align=center >";
+			ls_html +="			      <input type=hidden  id=hid_flag"+i+""+j+"  value="+strFlag+">";
+			
+			ls_html +="						<input type=hidden id=txt_fsrefseq"+i+j+"1 value='txt_fsrefseq"+i+j+"1'>"; 	    
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrefnm"+i+j+"1 value='' style=width:75px;height:19px; onclick=ln_position('"+i+"')>"; 	
+			ls_html +="						<input type=hidden id=txt_fsrefcd"+i+j+"1 value=''>"; 	    
+			ls_html +="				  </td>";
+			ls_html +="					<td width=160px    class=tab20 align=center >";
+			ls_html +="						<input type=text class=txt41 id=txt_fsrvalnm"+i+j+"1 value='' style=color:#990000;width:160px;height:19px; onkeydown=ln_Popup2('txt_fsrefcd"+i+j+"1','txt_fsrvalnm','"+i+j+"','1'); onclick=ln_position('"+i+"');>";
+			ls_html +="						<input type=hidden  id=txt_fsrefval"+i+j+"1 value='' >";
+			ls_html +="					</td>";
+
+			ls_html +="					<td width=90px      class=tab20 align=center >";
+			ls_html +="						<input type=hidden id=txt_fsrefseq"+i+j+"2 value=''>"; 
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrefnm"+i+j+"2  value='' style=width:85px;height:19px; onclick=ln_position('"+i+"')>";
+			ls_html +="						<input type=hidden id=txt_fsrefcd"+i+j+"2  value='' >";
+			ls_html +="				  </td>";
+			ls_html +="					<td width=186px      class=tab20 align=center  >";
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrvalnm"+i+j+"2 value='' style=position:relative;left:0px;color:#990000;width:182px;height:19px; onkeydown=ln_Popup2('txt_fsrefcd"+i+j+"2','txt_fsrvalnm','"+i+j+"','2'); onclick=ln_position('"+i+"');>";
+			ls_html +="						<input type=hidden  id=txt_fsrefval"+i+j+"2 value=''>";
+			ls_html +="					</td>";
+
+			ls_html +="					<td width=90px       class=tab20 align=center >";
+			ls_html +="						<input type=hidden id=txt_fsrefseq"+i+j+"3 value=''>"; 
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrefnm"+i+j+"3 value=''  style=width:78px;height:19px; onclick=ln_position('"+i+"')>";
+			ls_html +="						<input type=hidden id=txt_fsrefcd"+i+j+"3 value=''  >";
+			ls_html +="				  </td>";
+			ls_html +="					<td width=320px      class=tab20 align=center >";	
+			ls_html +="						<input type=text   class=txt41 id=txt_fsrvalnm"+i+j+"3 value='' style=position:relative;left:-18px;color:#990000;width:220px;height:19px; onkeydown=ln_Popup2('txt_fsrefcd"+i+j+"3','txt_fsrvalnm','"+i+j+"','3'); onclick=ln_position('"+i+"'); >";
+			ls_html +="						<input type=hidden id=txt_fsrefval"+i+j+"3 value='' >";
+			ls_html +="					</td>";
+			ls_html +="				</tr>";	
+			ls_html +="</table>";
+	}
+
+	if (gubun =='new'){
+		div1.innerHTML="";	
+		div1.innerHTML=ls_html;  
+	}else if(gubun =='add'){
+		div1.innerHTML=div1.innerHTML+ls_html;  
+	}
+
+	//gcds_data01.addrow();
+
+ // alert("row"+row);
+
+	//alert("sel_documcd_add1::"+sel_documcd1.value);
+	//alert("sel_documcd_add"+row+"::" + eval("sel_documcd"+row).value);
+
+	//alert("datasetADD"+ gcds_data01.namevalue(1,"DOCUMCD"));
+
+	//ln_Bind_add(row);
+}
+
+</script>
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object  id=gcds_mst classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<comment id="__NSID__"><object  id=gcds_data01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- detail과 관리항목 update 용 -->
+<comment id="__NSID__"><object  id=gcds_data02 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+
+<!-- detail과 관리항목 건별삭제 -->
+<comment id="__NSID__"><object  id=gcds_del01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+
+<!-- detail과 관리항목 전체삭제 -->
+<comment id="__NSID__"><object  id=gcds_del02 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+
+
+<comment id="__NSID__"><object  id=gcds_comcode01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<!-- 입력/수정 -->
+<comment id="__NSID__"><object  id=gctr_data01 classid=clsid:0a2233ad-e771-11d2-973d-00104b15e56f viewastext>
+	<param name="keyname"			value="toinb_dataid4">
+	<param name="keyvalue"    value="a020001_t1f(I:USER=gcds_mst,I:USER2=gcds_data01,I:USER3=gcds_data02)">   
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- Detail 건별 및 전체 삭제  -->
+<comment id="__NSID__"><object  id=gctr_data02 classid=clsid:0a2233ad-e771-11d2-973d-00104b15e56f viewastext>
+	<param name="keyname"			value="toinb_dataid4">
+	<param name="keyvalue"    value="a020001_t2f(I:USER=gcds_del02, I:USER2=gcds_del01)">   
+</object></comment><script>__ws__(__NSID__);</script> 
+
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language=JavaScript  for=gcds_data01 event="OnLoadStarted()" >
+	parent.document.all.LowerFrame.style.visibility="visible";
+
+	//alert("test");
+</script>
+
+<script language=JavaScript  for=gcds_data01 event="OnLoadError()">
+	  alert("에러가 발생 했습니다.");
+	  window.status="조회가 완료 되었습니다.";
+</script>
+
+<script language=JavaScript  for=gcds_data01 event="OnLoadCompleted(rowcount)">
+  //ft_cnt1.innerText = "조회건수 : " + rowcount + " 건";
+	ln_SetFormat(rowcount);
+	
+	if (rowcount ==0 ){
+		alert("검색된 데이타가 없습니다.");
+	}else{
+		ln_onblur('01','','') //차변대변 금액합계
+	} 
+	window.status = " 조회가 완료 되었습니다.";
+//	parent.document.all.LowerFrame.style.visibility="hidden";
+</script>
+
+<script language=JavaScript  for=gcds_comcode01 event=OnLoadCompleted(rowcount)>
+	
+</script>
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gctr_data01" event="onsuccess()">
+	alert("작업이 성공적으로 완료되었습니다.");
+</script>
+<script language="javascript" for="gctr_data02" event="onsuccess()">
+	alert("작업이 성공적으로 완료되었습니다.");
+</script>
+
+<script language="javascript" for="gctr_data01" event="onfail()">
+	alert("작업이 성공적으로 완료되지 못했습니다.");
+</script>
+<script language="javascript" for="gctr_data02" event="onfail()">
+	alert("작업이 성공적으로 완료되지 못했습니다.");
+</script>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+
+<body bgcolor="#FFFFFF" topmargin="0" marginheight="0" leftmargin="0" marginwidth="0" onload="ln_Start();">
+<div id=div1></div>
+<!-- <table width=876 cellpadding=0 cellspacing=0 border=0 style=position:relative;left:3px>	<tr>		<td width=80px bgcolor=#eeeeee class=tab15 align=center>		테스트</td>	</tr></table> -->
+	<!--   <comment id="__NSID__"><object  id=gclx_documcd3 classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 	style=position:relative;left:0px;top:0px;font-size:12px;width:79px;> ";
+	   		<param name=ComboDataID			value=gcds_comcode01>
+	 		<param name=CBDataColumns		value=CDCODE,CDNAM>
+	 		<param name=SearchColumn		value=CDNAM>
+	  		<param name=ListExprFormat	value=CDNAM^0^80>
+   		<param name=BindColumn			value=CDCODE>
+    </object></comment><script>__ws__(__NSID__);</script>  -->
+<!-----------------------------------------------------------------------------
+			B I N D   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<!-----------------------------------------------------------------------------
+						B I N D   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<!-- 전표등록 Detail-->
+<comment id="__NSID__"><object  id=gcbn_data02 classid=CLSID:9C9AB433-EA85-11D2-A4F9-00608CEBEE49> 
+	<param name=DataID    value=gcds_data01>
+	<param name=BindInfo  value=''>
+</object></comment><script>__ws__(__NSID__);</script> 
+</body>
+</html>

@@ -1,0 +1,3103 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 직무관리 -->
+<!--
+***********************************************************************
+* @UseCase     : cdpa010
+* @description : 유사직무등록
+***********************************************************************
+* 2007/03/29      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 직무정보 트리구성 데이터 조회 -->
+    <sql name="CDPA010_SHR">
+        <description>직무 트리 검색</description>
+        <query>
+            <![CDATA[
+            SELECT   GUBUN,
+                     DUTY_CD,
+                     DUTY_NM,
+                     TO_CHAR(END_YMD, 'YYYY-MM-DD') AS END_YMD,
+                     UPDUTY_CD,
+                     (SELECT DUTY_NM FROM T_CM_DUTYMST B WHERE A.GUBUN=B.GUBUN AND A.UPDUTY_CD=B.DUTY_CD) AS UPDUTY_NM,
+                     DOWNDUTY_CD,
+                     DUTY_LBL,
+                     COUNT_REM,
+                     TO_CHAR(IPT_YMD, 'YYYY-MM-DD') AS IPT_YMD,
+                     (SELECT THR_NM FROM VI_T_CM_DUTYMST C WHERE A.GUBUN=C.GUBUN AND A.DUTY_CD=C.DUTY_CD) AS HIGHDUTY_NM
+            FROM     T_CM_DUTYMST A
+            WHERE    GUBUN = '01'
+            ORDER BY COUNT_REM, IPT_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 유사직무등록 데이터 조회 -->
+    <sql name="CDPA010_SHR_01">
+        <description>유사직무등록 데이터 조회 </description>
+        <query>
+            <![CDATA[
+            SELECT     DUTY_CD,
+                       (SELECT DUTY_NM FROM T_CM_DUTYMST WHERE GUBUN = '01' AND DUTY_CD = A.DUTY_CD)
+                                                                         AS DUTY_NM,   -- 직무,
+                       SDUTY_CD,
+                       (SELECT DUTY_NM FROM T_CM_DUTYMST WHERE GUBUN = '01' AND DUTY_CD = A.SDUTY_CD)
+                                                                         AS SDUTY_NM,  -- 유사직무
+                       SEM_RATE
+            FROM       T_EV_DUTYSAME A
+            WHERE      DUTY_CD = ?
+            ORDER BY   SDUTY_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 유사직무등록 데이터 생성 -->
+    <sql name="CDPA010_INS">
+        <description>유사직무등록 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_EV_DUTYSAME
+                 ( DUTY_CD,  SDUTY_CD,  SEM_RATE, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,       ?,          ?,        ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 유사직무등록 데이터 수정 -->
+    <sql name="CDPA010_UPT">
+        <description>유사직무등록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_EV_DUTYSAME
+            SET    SEM_RATE  = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  DUTY_CD   = ?
+            AND    SDUTY_CD  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 유사직무등록 데이터 삭제 -->
+    <sql name="CDPA010_DEL">
+        <description>유사직무등록 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_EV_DUTYSAME
+            WHERE  DUTY_CD   = ?
+            AND    SDUTY_CD  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!-- 직책기술서관리 -->
+<!--
+***********************************************************************
+* @UseCase     : CDPB010
+* @description : 직책기술서코드등록
+***********************************************************************
+* 2007/03/20     김학수        최초작성.
+***********************************************************************
+-->
+    <!-- 직책정보 트리구성 데이터 조회 -->
+    <sql name="CDPB010_SHR">
+        <description>직책기술서 트리 검색</description>
+        <query>
+            <![CDATA[
+            SELECT     RESP_CD,
+                       RESP_NM,
+                       TO_CHAR(STR_YMD, 'YYYY-MM-DD') AS STR_YMD,
+                       TO_CHAR(END_YMD, 'YYYY-MM-DD') AS END_YMD,
+                       UPRESP_CD,
+                       (SELECT RESP_NM FROM T_CD_RESPCODE B WHERE A.UPRESP_CD=B.RESP_CD) AS UPRESP_NM,
+                       DOWNRESP_CD,
+                       RESP_LBL,
+                       COUNT_REM,
+                       TO_CHAR(IPT_YMD, 'YYYY-MM-DD') AS IPT_YMD,
+                       (SELECT RESP_NM FROM T_CD_RESPCODE C WHERE A.DOWNRESP_CD=C.RESP_CD) AS HTGHRESP_NM
+            FROM       T_CD_RESPCODE A
+            ORDER BY   COUNT_REM, IPT_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직책정보 상세 데이터 조회 -->
+    <sql name="CDPB010_SHR_01">
+        <description>직책기술서정보 상세 데이터 조회 </description>
+        <query>
+            <![CDATA[
+            SELECT     RESP_CD,
+                       RESP_NM,
+                       TO_CHAR(STR_YMD, 'YYYY-MM-DD') AS STR_YMD,
+                       TO_CHAR(END_YMD, 'YYYY-MM-DD') AS END_YMD,
+                       UPRESP_CD,
+                       (SELECT RESP_NM FROM T_CD_RESPCODE B WHERE A.UPRESP_CD=B.RESP_CD) AS UPRESP_NM, -- 차후 function으로 대체
+                       DOWNRESP_CD,
+                       RESP_LBL,
+                       COUNT_REM,
+                       TO_CHAR(IPT_YMD, 'YYYY-MM-DD') AS IPT_YMD
+            FROM       T_CD_RESPCODE A
+            WHERE      LENGTH(COUNT_REM)= LENGTH(?)+3
+            AND        COUNT_REM LIKE ?
+            ORDER BY   COUNT_REM, IPT_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직책기술서정보가 하나도 없으면 회사정보를 넣는다. -->
+    <sql name="CDPB010_INS">
+        <description>트리 신규구성을 위한 회사정보 입력</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_RESPCODE
+                 ( RESP_CD,
+                   RESP_NM, STR_YMD, END_YMD, UPRESP_CD, DOWNRESP_CD, RESP_LBL, COUNT_REM,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            SELECT  '100000',
+                    COMP_NM, '', '', ' ', '1', '1', '000',
+                    ?, SYSDATE,?, SYSDATE
+            FROM    T_CM_COMPANY
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직책기술서정보 신규 저장 -->
+    <sql name="CDPB010_INS_01">
+        <description>직책정보 신규 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_RESPCODE
+                 ( RESP_CD, RESP_NM,
+                   STR_YMD, END_YMD, UPRESP_CD, DOWNRESP_CD, RESP_LBL, COUNT_REM,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 ( ?, ?,
+                   ?, ?, ?, ?, ?, ?,
+                   ?, SYSDATE, ?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직책기술서코드 따른 직책정보 수정 -->
+    <sql name="CDPB010_UPT_01">
+        <description>직책정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_RESPCODE
+            SET    RESP_NM = ?, --직책이름
+                   STR_YMD = ?, --등록일
+                   END_YMD = ?, --폐기일
+                   UPRESP_CD = ?, --상위직책코드
+                   DOWNRESP_CD = ?, --하위직책유무(1:없다,2:있다)
+                   RESP_LBL = ?, --레벨
+                   COUNT_REM = ?, --부문별 SUM을 하기위한 SEQ
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  RESP_CD = ? --직책코드
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상위직책의 하위직책유무 update한다.(상위직책에 하위직책 있다고 update) -->
+    <sql name="CDPB010_UPT_02">
+        <description>상위 직책정보 하위직책유무(있다) 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_CD_RESPCODE SET DOWNRESP_CD='2'
+            WHERE   RESP_LBL= ?
+            AND     COUNT_REM = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상위직책의 하위직책유무 update한다.(상위직책에 하위직책 없다고 update) -->
+    <sql name="CDPB010_UPT_03">
+        <description>상위 직책정보 하위직책유무(없다) 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_CD_RESPCODE SET DOWNRESP_CD='1'
+            WHERE   COUNT_REM = ?
+            AND     1 = (SELECT COUNT(*) FROM T_CD_RESPCODE WHERE COUNT_REM LIKE ? )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직책정보 삭제 -->
+    <sql name="CDPB010_DEL_01">
+        <description>직책정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_CD_RESPCODE
+            WHERE  RESP_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : CDPB020
+* @description : 직책기술서
+***********************************************************************
+* 2007/03/21      김학수        최초작성.
+***********************************************************************
+-->
+
+    <!-- 직책 기술서 정보를 가지고 온다 -->
+    <sql name="CDPB020_SHR">
+        <description>직책 기술서 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  (SELECT C.RESP_NM FROM T_CD_RESPCODE C WHERE B.UPRESP_CD=C.RESP_CD AND RESP_LBL>='2') AS HIGHRESP_NM
+                    ,B.RESP_NM AS UPRESP_NM
+                    ,A.RESP_NM AS RESP_NM
+                    ,A.COUNT_REM AS COUNT_REM
+                    ,A.RESP_CD
+                    ,TO_CHAR(D.IPT_YMD, 'YYYY-MM-DD') AS RESP_YMD
+            FROM    T_CD_RESPCODE A,
+                    T_CD_RESPCODE B,
+                    T_CD_RESPMST D
+            WHERE   A.UPRESP_CD=B.RESP_CD(+)
+            AND     A.RESP_CD=D.RESP_CD(+)
+            AND     A.RESP_LBL>2
+            AND     A.IPT_YMD<= TO_DATE(?)
+            AND     (A.END_YMD IS NULL OR A.END_YMD>TO_DATE(?))
+            ORDER BY   A.COUNT_REM, A.RESP_LBL
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : CDPB030
+* @description : 직책기술서 등록
+***********************************************************************
+* 2007/03/24      김학수        최초작성.
+***********************************************************************
+-->
+
+    <!-- 직책정보 상세 데이터 조회 -->
+    <sql name="CDPB030_SHR">
+        <description>직책기술서정보 상세 데이터 조회 </description>
+        <query>
+            <![CDATA[
+            SELECT     RESP_CD,
+                       RESP_NM
+            FROM       T_CD_RESPCODE
+            WHERE      RESP_CD  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직책기술서등록 데이터 조회 -->
+    <sql name="CDPB030_SHR_01">
+        <description>직책기술서등록 데이터 조회</description>
+        <query>
+            <![CDATA[
+            SELECT POSITION_TXT,                                                             -- POSITION
+                   CAREERF_TXT,                                                              -- CAREER FIELD
+                   DEFINT_TXT,                                                               -- DEFINITON
+                   AFFAIR_TXT,                                                               -- 주요업무
+                   ABILITY_TXT,                                                              -- 요구역량
+                   EXPOCC_TXT,                                                               -- 필수경험직종
+                   ENCOCC_TXT,                                                               -- 권장경험직종
+                   ETC_TXT,                                                                  -- 기타
+                   ROADMAP_TXT,                                                               -- CAREER ROADMAP
+                   ROADMAP_TXT AS ROADMAP_SRC
+            FROM   T_CD_RESPMST
+            WHERE  RESP_CD  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직책기술서등록 데이터 생성 -->
+    <sql name="CDPB030_INS">
+        <description>직책기술서등록 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_RESPMST
+                 ( RESP_CD, POSITION_TXT, CAREERF_TXT, DEFINT_TXT, AFFAIR_TXT, ABILITY_TXT, EXPOCC_TXT, ENCOCC_TXT, ETC_TXT, ROADMAP_TXT, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,       ?,            ?,           ?,          ?,          ?,           ?,          ?,          ?,       ?,           ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직책기술서등록 데이터 수정 -->
+    <sql name="CDPB030_UPT">
+        <description>직책기술서등록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_RESPMST
+            SET    POSITION_TXT = ?,
+                   CAREERF_TXT  = ?,
+                   DEFINT_TXT   = ?,
+                   AFFAIR_TXT   = ?,
+                   ABILITY_TXT  = ?,
+                   EXPOCC_TXT   = ?,
+                   ENCOCC_TXT   = ?,
+                   ETC_TXT      = ?,
+                   ROADMAP_TXT  = ?,
+                   UPT_MAN      = ?,
+                   UPT_YMD      = SYSDATE
+            WHERE  RESP_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : CDPB040
+* @description : 직책기술서 등록
+***********************************************************************
+* 2007/03/25      김학수        최초작성.
+***********************************************************************
+-->
+
+    <!-- 직책정보 트리구성 데이터 조회 -->
+    <sql name="CDPB040_SHR">
+        <description>직책기술서 트리 검색</description>
+        <query>
+            <![CDATA[
+            SELECT     RESP_CD,
+                       RESP_NM,
+                       TO_CHAR(END_YMD, 'YYYY-MM-DD') AS END_YMD,
+                       UPRESP_CD,
+                       (SELECT RESP_NM FROM T_CD_RESPCODE B WHERE A.UPRESP_CD=B.RESP_CD) AS UPRESP_NM,
+                       DOWNRESP_CD,
+                       RESP_LBL,
+                       COUNT_REM,
+                       TO_CHAR(IPT_YMD, 'YYYY-MM-DD') AS IPT_YMD,
+                       (SELECT RESP_NM FROM T_CD_RESPCODE C WHERE A.DOWNRESP_CD=C.RESP_CD) AS HTGHRESP_NM
+            FROM       T_CD_RESPCODE A
+            ORDER BY   COUNT_REM, IPT_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직책정보 상세 데이터 조회 -->
+    <sql name="CDPB040_SHR_01">
+        <description>직책기술서정보 상세 데이터 조회 </description>
+        <query>
+            <![CDATA[
+            SELECT     RESP_CD,
+                       RESP_NM,
+                       TO_CHAR(UPT_YMD, 'YYYY-MM-DD') AS UPT_YMD
+            FROM       T_CD_RESPCODE
+            WHERE      RESP_CD = ?
+            ORDER BY   RESP_CD
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+
+<!-- 멘토링관리 -->
+<!--
+***********************************************************************
+* @UseCase     : cdpc010
+* @description : 후견인등록
+***********************************************************************
+* 2007/03/21      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 로그인사번의 시스템권한 조회 -->
+    <sql name="CDPC010_SHR">
+        <description>로그인사번의 시스템권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ROLE_CD        -- 시스템권한
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN  = '01'
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인등록 사번에 대한 SEQ_NO 생성 -->
+    <sql name="CDPC010_SHR_00">
+        <description>SEQ_NO 생성</description>
+        <query>
+            <![CDATA[
+            SELECT /*+ INDEX_DESC(T_CD_MENTO T_CD_MENTO_IDX) */
+                   ENO_NO, TO_NUMBER(SEQ_NO) + 1 AS SEQ_NO, ? AS DUMMY
+            FROM   T_CD_MENTO
+            WHERE  ENO_NO = ?
+            AND    ROWNUM = 1
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인등록 데이터 조회 -->
+    <sql name="CDPC010_SHR_01">
+        <description>후견인등록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO                                                                 -- 피후견인사번
+                 , A.SEQ_NO                                                                 -- 순번
+                 , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 피후견인성명
+                 , A.DPT_CD                                                                 -- 피후견인소속코드
+                 , SF_GET_DPTNAME('01', 'A4', A.DPT_CD)                     AS DPT_NM       -- 피후견인소속
+                 , A.JOB_CD                                                                 -- 피후견인직위코드
+                 , SF_GET_COMMNAME('01', 'A2', A.JOB_CD)                    AS JOB_NM       -- 피후견인직위
+                 , TO_CHAR(B.HIRG_YMD, 'YYYY-MM-DD')                        AS HIRG_YMD     -- 입사일
+                 , A.MENO_NO                                                                -- 후견인사번
+                 , SF_GET_ENONAME('01',  A.MENO_NO)                         AS MENO_NM      -- 후견인성명
+                 , A.MDPT_CD                                                                -- 후견인소속코드
+                 , SF_GET_DPTNAME('01', 'A4', A.MDPT_CD)                    AS MDPT_NM      -- 후견인소속
+                 , A.MJOB_CD                                                                -- 후견인직위코드
+                 , SF_GET_COMMNAME('01', 'A2', A.MJOB_CD)                   AS MJOB_NM      -- 후견인직위
+                 , TO_CHAR(TO_DATE(A.STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')  AS STR_YMD      -- 후견시작일자
+                 , TO_CHAR(TO_DATE(A.END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')  AS END_YMD      -- 후견종료일자
+                 , A.OBJ_TXT                                                                -- 목적
+                 , '' DUMMY                                                                 -- DUMMY
+              FROM T_CD_MENTO A
+        INNER JOIN VI_T_CM_PERSON2 B
+                ON A.ENO_NO = B.ENO_NO
+             WHERE 1=1
+               [1]
+               [2]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인등록 데이터 생성 -->
+    <sql name="CDPC010_INS">
+        <description>후견인등록 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_MENTO
+                  (ENO_NO,  SEQ_NO,  DPT_CD,  JOB_CD,  MENO_NO, MDPT_CD, MJOB_CD, STR_YMD, END_YMD, OBJ_TXT, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                  )
+            VALUES
+                  (?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       ?,       SYSDATE, ?,       SYSDATE
+                  )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인등록 데이터 수정 -->
+    <sql name="CDPC010_UPT">
+        <description>후견인등록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_MENTO
+            SET    DPT_CD    = ?,
+                   JOB_CD    = ?,
+                   MENO_NO   = ?,
+                   MDPT_CD   = ?,
+                   MJOB_CD   = ?,
+                   STR_YMD   = ?,
+                   END_YMD   = ?,
+                   OBJ_TXT   = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인등록 데이터 삭제 -->
+    <sql name="CDPC010_DEL">
+        <description>후견인등록 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_CD_MENTO
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : cdpc020
+* @description : 후견인양성계획
+***********************************************************************
+* 2007/03/22      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 로그인사번의 시스템권한 조회 -->
+    <sql name="CDPC020_SHR_00">
+        <description>로그인사번의 시스템권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ROLE_CD        -- 시스템권한
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN  = '01'
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--  후견인양성계획 데이터 조회 -->
+    <sql name="CDPC020_SHR">
+        <description>후견인양성계획 조회</description>
+        <query>
+            <![CDATA[
+            SELECT B.ENO_NO                                                 AS MENO_NO      -- 후견인사번
+                 , B.ENO_NM                                                 AS MENO_NM      -- 후견인성명
+                 , B.DPT_CD                                                 AS MDPT_CD      -- 후견인소속코드
+                 , B.DPT_NM                                                 AS MDPT_NM      -- 후견인소속
+                 , B.JOB_CD                                                 AS MJOB_CD      -- 후견인직위코드
+                 , B.JOB_NM                                                 AS MJOB_NM      -- 후견인직위
+                 , C.ENO_NO                                                                 -- 피후견인사번
+                 , SEQ_NO                                                                   -- 순번
+                 , C.ENO_NM                                                                 -- 피후견인성명
+                 , C.DPT_CD                                                                 -- 피후견인소속코드
+                 , C.DPT_NM                                                                 -- 피후견인소속
+                 , C.JOB_CD                                                                 -- 피후견인직위코드
+                 , C.JOB_NM                                                                 -- 피후견인직위
+                 , TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS STR_YMD      -- 후견시작일자
+                 , TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS END_YMD      -- 후견종료일자
+                 , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_MENTOPLAN
+                     WHERE ENO_NO = A.ENO_NO
+                       AND SEQ_NO = A.SEQ_NO
+                    )                                                       AS IPT_YMD      -- 작성일자
+                 , OBJ_TXT                                                                  -- 목적
+              FROM T_CD_MENTO A
+                 , VI_T_CM_PERSON2 B
+                 , VI_T_CM_PERSON2 C
+             WHERE A.MENO_NO    = B.ENO_NO
+               AND A.ENO_NO     = C.ENO_NO
+               AND C.DPT_CD     = NVL(?, C.DPT_CD)
+               [1]
+          ORDER BY B.DPT_SEQ
+                 , B.JOB_SEQ
+                 , B.HOB_SEQ DESC
+                 , B.HIRG_YMD
+                 , B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : cdpc021
+* @description : 후견인양성계획등록
+***********************************************************************
+* 2007/03/22      박인이        최초작성.
+***********************************************************************
+-->
+
+    <!-- 후견인등록 데이터 조회 -->
+    <sql name="CDPC021_SHR">
+        <description>후견인등록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SEQ_NO                                                                     -- 순번
+
+                 , ENO_NO                                                                     -- 피후견인사번
+                 , DPT_CD                                                                     -- 피후견인소속코드
+                 , JOB_CD                                                                     -- 피후견인직위코드
+                 , MENO_NO                                                                    -- 후견인사번
+                 , MDPT_CD                                                                    -- 후견인소속코드
+                 , MJOB_CD                                                                    -- 후견인직위코드
+
+                 , SF_GET_ENONAME( '01', ENO_NO)                            AS ENO_NM         -- 피후견인성명
+                 , SF_GET_DPTNAME( '01', 'A4', DPT_CD)                      AS DPT_NM         -- 피후견인소속
+                 , SF_GET_COMMNAME('01', 'A2', JOB_CD)                      AS JOB_NM         -- 피후견인직위
+                 , SF_GET_ENONAME( '01', MENO_NO)                           AS MENO_NM        -- 후견인성명
+                 , SF_GET_DPTNAME( '01', 'A4', MDPT_CD)                     AS MDPT_NM        -- 후견인소속
+                 , SF_GET_COMMNAME('01', 'A2', MJOB_CD)                     AS MJOB_NM        -- 후견인직위
+
+                 , TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS STR_YMD        -- 후견시작일자
+                 , TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS END_YMD        -- 후견종료일자
+                 , OBJ_TXT                                                                    -- 목적
+              FROM T_CD_MENTO
+             WHERE ENO_NO       = ?
+                   AND SEQ_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인양성계획등록의 사번/SEQ순번/구분에 대한 SSEQ_NO 생성 -->
+    <sql name="CDPC021_SHR_00">
+        <description>SSEQ_NO 생성</description>
+        <query>
+            <![CDATA[
+            SELECT /*+ INDEX_DESC(T_CD_MENTOPLAN T_CD_MENTOPLAN_IDX) */
+                   TO_NUMBER(SSEQ_NO) + 1 AS SSEQ_NO
+            FROM   T_CD_MENTOPLAN
+            WHERE  ENO_NO  = ?
+            AND    SEQ_NO  = ?
+            AND    SGBN_CD = ?
+            AND    ROWNUM  = 1
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인양성계획등록 데이터 조회 -->
+    <sql name="CDPC021_SHR_01">
+        <description>후견인양성계획등록 데이터 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                     -- 피후견인사번
+                   SEQ_NO,                                                                     -- 순번
+                   SGBN_CD,                                                                    -- 구분
+                   SSEQ_NO,                                                                    -- 구분 SEQ번호
+                   PLAN_TXT                                                                    -- 내용
+            FROM   T_CD_MENTOPLAN
+            WHERE  ENO_NO  = ?
+            AND    SEQ_NO  = ?
+            AND    SGBN_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인양성계획등록 데이터 생성 -->
+    <sql name="CDPC021_INS">
+        <description>후견인양성계획등록 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_MENTOPLAN
+                  (ENO_NO,   SEQ_NO,  SGBN_CD, SSEQ_NO,
+                   PLAN_TXT, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                  )
+            VALUES
+                  (?,        ?,       ?,       ?,
+                   ?,        ?,       SYSDATE, ?,       SYSDATE
+                  )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인양성계획등록 데이터 수정 -->
+    <sql name="CDPC021_UPT">
+        <description>후견인양성계획등록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_MENTOPLAN
+            SET    PLAN_TXT  = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            AND    SGBN_CD   = ?
+            AND    SSEQ_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인양성계획등록 데이터 삭제 -->
+    <sql name="CDPC021_DEL">
+        <description>후견인양성계획등록 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_CD_MENTOPLAN
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            AND    SGBN_CD   = ?
+            AND    SSEQ_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : cdpc030
+* @description : 후견인상담일지
+***********************************************************************
+* 2007/03/23      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 로그인사번의 시스템권한 조회 -->
+    <sql name="CDPC030_SHR_00">
+        <description>로그인사번의 시스템권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ROLE_CD        -- 시스템권한
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN  = '01'
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--  후견인등록 데이터 조회 -->
+    <sql name="CDPC030_SHR">
+        <description>후견인등록 조회</description>
+        <query>
+            <![CDATA[
+           SELECT  B.ENO_NO AS MENO_NO,                                                  -- 후견인사번
+                   B.ENO_NM AS MENO_NM,                                                  -- 후견인성명
+                   B.DPT_CD AS MDPT_CD,                                                  -- 후견인소속코드
+                   B.DPT_NM AS MDPT_NM,                                                  -- 후견인소속
+                   B.JOB_CD AS MJOB_CD,                                                  -- 후견인직위코드
+                   B.JOB_NM AS MJOB_NM,                                                  -- 후견인직위
+                   C.ENO_NO,                                                             -- 피후견인사번
+                   SEQ_NO,                                                               -- 순번
+                   C.ENO_NM,                                                             -- 피후견인성명
+                   C.DPT_CD,                                                             -- 피후견인소속코드
+                   C.DPT_NM,                                                             -- 피후견인소속
+                   C.JOB_CD,                                                             -- 피후견인직위코드
+                   C.JOB_NM,                                                             -- 피후견인직위
+                   TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')   AS STR_YMD,   -- 후견시작일자
+                   TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')   AS END_YMD,   -- 후견종료일자
+                   (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD')) FROM T_CD_MENTORESULT WHERE ENO_NO = A.ENO_NO AND SEQ_NO = A.SEQ_NO)
+                                                                           AS IPT_YMD    -- 작성일자
+            FROM   T_CD_MENTO A,
+                   VI_T_CM_PERSON2 B,
+                   VI_T_CM_PERSON2 C
+            WHERE  A.MENO_NO = B.ENO_NO
+            AND    A.ENO_NO = C.ENO_NO
+            AND    C.DPT_CD = NVL(?, C.DPT_CD)
+            [1]
+            ORDER BY B.DPT_SEQ, B.JOB_SEQ, B.HOB_SEQ DESC, B.HIRG_YMD, B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!--  후견인상담일지 데이터 조회 -->
+    <sql name="CDPC030_SHR_01">
+        <description>후견인상담일지 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                     -- 피후견인사번
+                   SEQ_NO,                                                                     -- 순번
+                   TO_CHAR(TO_DATE(CONS_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')   AS CONS_YMD        -- 상담일자
+            FROM   T_CD_MENTORESULT
+            WHERE  ENO_NO  = ?
+            AND    SEQ_NO  = ?
+            ORDER BY CONS_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인상담일지 데이터 삭제 -->
+    <sql name="CDPC030_DEL">
+        <description>후견인상담일지 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_CD_MENTORESULT
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            AND    CONS_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : cdpc031
+* @description : 후견인상담일지등록
+***********************************************************************
+* 2007/03/23      박인이        최초작성.
+***********************************************************************
+-->
+
+    <!-- 후견인등록 데이터 조회 -->
+    <sql name="CDPC031_SHR_01">
+        <description>후견인등록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                     -- 피후견인사번
+                   SEQ_NO,                                                                     -- 순번
+                   SF_GET_ENONAME('01', ENO_NO)                            AS ENO_NM,          -- 피후견인성명
+                   DPT_CD,                                                                     -- 피후견인소속코드
+                   SF_GET_DPTNAME('01', 'A4', DPT_CD)                     AS DPT_NM,          -- 피후견인소속
+                   JOB_CD,                                                                     -- 피후견인직위코드
+                   SF_GET_COMMNAME('01', 'A2', JOB_CD)                     AS JOB_NM,          -- 피후견인직위
+                   MENO_NO,                                                                    -- 후견인사번
+                   SF_GET_ENONAME('01', MENO_NO)                           AS MENO_NM,         -- 후견인성명
+                   MDPT_CD,                                                                    -- 후견인소속코드
+                   SF_GET_DPTNAME('01', 'A4', MDPT_CD)                    AS MDPT_NM,         -- 후견인소속
+                   MJOB_CD,                                                                    -- 후견인직위코드
+                   SF_GET_COMMNAME('01', 'A2', MJOB_CD)                    AS MJOB_NM,         -- 후견인직위
+                   TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')   AS STR_YMD,         -- 후견시작일자
+                   TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')   AS END_YMD,         -- 후견종료일자
+                   OBJ_TXT                                                                     -- 목적
+            FROM   T_CD_MENTO
+            WHERE  ENO_NO = ?
+            AND    SEQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인상담일지등록 데이터 조회 -->
+    <sql name="CDPC031_SHR_02">
+        <description>후견인상담일지등록 데이터 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                     -- 피후견인사번
+                   SEQ_NO,                                                                     -- 순번
+                   DECODE(NVL(CONS_YMD,''),'','',SUBSTR(CONS_YMD,1,4)||'-'||SUBSTR(CONS_YMD,5,2)||'-'||SUBSTR(CONS_YMD,7,2))AS CONS_YMD, -- 상담일자
+                   PLACE_TXT,                                                                  -- 상담장소
+                   SBJ_TXT,                                                                    -- 주제
+                   EDU_TXT,                                                                    -- 상담 및 교육내용
+                   PPS_TXT,                                                                    -- 건의 및 의견
+                   IDEA_TXT,                                                                   -- 후견인 의견
+                   FILE_NAME,                                                                  -- 첨부파일명
+                   FILE_URL                                                                    -- 첨부파일경로
+            FROM   T_CD_MENTORESULT
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            AND    CONS_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인상담일지등록 데이터 생성 -->
+    <sql name="CDPC031_INS">
+        <description>후견인상담일지등록 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_MENTORESULT
+                 ( ENO_NO,   SEQ_NO,  CONS_YMD, PLACE_TXT, SBJ_TXT, EDU_TXT, PPS_TXT, IDEA_TXT, FILE_NAME, FILE_URL, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,        ?,       ?,        ?,         ?,       ?,       ?,       ?,        ?,         ?,        ?,       SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인상담일지등록 데이터 수정 -->
+    <sql name="CDPC031_UPT">
+        <description>후견인상담일지등록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_MENTORESULT
+            SET    PLACE_TXT   = ?,
+                   SBJ_TXT   = ?,
+                   EDU_TXT   = ?,
+                   PPS_TXT   = ?,
+                   IDEA_TXT  = ?,
+                   FILE_NAME = ?,
+                   FILE_URL  = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            AND    CONS_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : cdpc040
+* @description : 후견인보고서
+***********************************************************************
+* 2007/03/23      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 로그인사번의 시스템권한 조회 -->
+    <sql name="CDPC040_SHR_00">
+        <description>로그인사번의 시스템권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ROLE_CD        -- 시스템권한
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN  = '01'
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--  후견인보고서 데이터 조회 -->
+    <sql name="CDPC040_SHR">
+        <description>후견인보고서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO                                                                       -- 피후견인사번
+                 , SEQ_NO                                                                       -- 순번
+                 , SF_GET_ENONAME('01', ENO_NO)                             AS ENO_NM           -- 피후견인성명
+                 , DPT_CD                                                                       -- 피후견인소속코드
+                 , SF_GET_DPTNAME('01', 'A4', DPT_CD)                       AS DPT_NM           -- 피후견인소속
+                 , JOB_CD                                                                       -- 피후견인직위코드
+                 , SF_GET_COMMNAME('01', 'A2', JOB_CD)                      AS JOB_NM           -- 피후견인직위
+                 , MENO_NO                                                                      -- 후견인사번
+                 , SF_GET_ENONAME('01', MENO_NO)                            AS MENO_NM          -- 후견인성명
+                 , MDPT_CD                                                                      -- 후견인소속코드
+                 , SF_GET_DPTNAME('01', 'A4', MDPT_CD)                      AS MDPT_NM          -- 후견인소속
+                 , MJOB_CD                                                                      -- 후견인직위코드
+                 , SF_GET_COMMNAME('01', 'A2', MJOB_CD)                     AS MJOB_NM          -- 후견인직위
+                 , TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS STR_YMD          -- 후견시작일자
+                 , TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS END_YMD          -- 후견종료일자
+                 , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_MENTORPT
+                     WHERE ENO_NO = A.ENO_NO
+                       AND SEQ_NO = A.SEQ_NO
+                    )                                                       AS IPT_YMD          -- 작성일자
+                 , OBJ_TXT                                                                      -- 목적
+              FROM T_CD_MENTO A
+             WHERE DPT_CD = NVL(?, DPT_CD)
+               [1]
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : cdpc041
+* @description : 후견인보고서등록
+***********************************************************************
+* 2007/03/26      박인이        최초작성.
+***********************************************************************
+-->
+
+    <!-- 후견인등록 데이터 조회 -->
+    <sql name="CDPC041_SHR">
+        <description>후견인등록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                                    -- 피후견인사번
+                   SEQ_NO,                                                                                    -- 순번
+                   SF_GET_ENONAME('01', ENO_NO)                                           AS ENO_NM,          -- 피후견인성명
+                   DPT_CD,                                                                                    -- 피후견인소속코드
+                   SF_GET_DPTNAME('01', 'A4', DPT_CD)                                    AS DPT_NM,          -- 피후견인소속
+                   JOB_CD,                                                                                    -- 피후견인직위코드
+                   SF_GET_COMMNAME('01', 'A2', JOB_CD)                                    AS JOB_NM,          -- 피후견인직위
+                   MENO_NO,                                                                                   -- 후견인사번
+                   SF_GET_ENONAME('01', MENO_NO)                                          AS MENO_NM,         -- 후견인성명
+                   MDPT_CD,                                                                                   -- 후견인소속코드
+                   SF_GET_DPTNAME('01', 'A4', MDPT_CD)                                   AS MDPT_NM,         -- 후견인소속
+                   MJOB_CD,                                                                                   -- 후견인직위코드
+                   SF_GET_COMMNAME('01', 'A2', MJOB_CD)                                   AS MJOB_NM,         -- 후견인직위
+                   TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')                  AS STR_YMD,         -- 후견시작일자
+                   TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')                  AS END_YMD,         -- 후견종료일자
+                   TO_CHAR(ADD_MONTHS(TO_DATE(END_YMD, 'YYYY-MM-DD'), 1), 'YYYY-MM-DD')   AS FIN_YMD,         -- 후견종료일자
+                   OBJ_TXT                                                                                    -- 목적
+            FROM   T_CD_MENTO
+            WHERE  ENO_NO = ?
+            AND    SEQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인보고서등록의 사번/SEQ순번/구분에 대한 SSEQ_NO 생성 -->
+    <sql name="CDPC041_SHR_00">
+        <description>SSEQ_NO 생성</description>
+        <query>
+            <![CDATA[
+            SELECT /*+ INDEX_DESC(T_CD_MENTOPLAN T_CD_MENTOPLAN_IDX) */
+                   TO_NUMBER(MAX(SSEQ_NO)) + 1 AS SSEQ_NO
+            FROM   T_CD_MENTORPT
+            WHERE  ENO_NO  = ?
+            AND    SEQ_NO  = ?
+            AND    SGBN_CD = ?
+            AND    ROWNUM  = 1
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인보고서등록 데이터 조회 -->
+    <sql name="CDPC041_SHR_01">
+        <description>후견인보고서등록 데이터 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                     -- 피후견인사번
+                   SEQ_NO,                                                                     -- 순번
+                   SGBN_CD,                                                                    -- 구분
+                   SSEQ_NO,                                                                    -- 구분 SEQ번호
+                   RPT_TXT                                                                     -- 내용
+            FROM   T_CD_MENTORPT
+            WHERE  ENO_NO  = ?
+            AND    SEQ_NO  = ?
+            AND    SGBN_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인상담일지등록 데이터 조회 -->
+    <sql name="CDPC041_SHR_02">
+        <description>후견인상담일지등록 데이터 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                     -- 피후견인사번
+                   SEQ_NO,                                                                     -- 순번
+                   DECODE(NVL(CONS_YMD,''),'','',SUBSTR(CONS_YMD,1,4)||'-'||SUBSTR(CONS_YMD,5,2)||'-'||SUBSTR(CONS_YMD,7,2))AS CONS_YMD, -- 상담일자
+                   PLACE_TXT,                                                                  -- 상담장소
+                   SBJ_TXT,                                                                    -- 주제
+                   EDU_TXT,                                                                    -- 상담 및 교육내용
+                   PPS_TXT,                                                                    -- 건의 및 의견
+                   IDEA_TXT                                                                    -- 후견인 의견
+            FROM   T_CD_MENTORESULT
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인보고서등록 데이터 생성 -->
+    <sql name="CDPC041_INS">
+        <description>후견인보고서등록 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_MENTORPT
+                  (ENO_NO,   SEQ_NO,  SGBN_CD, SSEQ_NO,
+                   RPT_TXT,  IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                  )
+            VALUES
+                  (?,        ?,       ?,       ?,
+                   ?,        ?,       SYSDATE, ?,       SYSDATE
+                  )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인보고서등록 데이터 수정 -->
+    <sql name="CDPC041_UPT">
+        <description>후견인보고서등록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_MENTORPT
+            SET    RPT_TXT   = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            AND    SGBN_CD   = ?
+            AND    SSEQ_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 후견인보고서등록 데이터 삭제 -->
+    <sql name="CDPC041_DEL">
+        <description>후견인보고서등록 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_CD_MENTORPT
+            WHERE  ENO_NO    = ?
+            AND    SEQ_NO    = ?
+            AND    SGBN_CD   = ?
+            AND    SSEQ_NO   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : cdpc050
+* @description : 후견인보고서현황
+***********************************************************************
+* 2007/03/26      박인이        최초작성.
+* 2007/08/28      추현철        추가수정.
+***********************************************************************
+-->
+    <!-- 로그인사번의 시스템권한 조회 -->
+    <sql name="CDPC050_SHR_00">
+        <description>로그인사번의 시스템권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ROLE_CD        -- 시스템권한
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN  = '01'
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+	<!--  후견인보고서 데이터 조회내용 프린트  -->
+    <sql name="CDPC050_SHR_PRINT">
+        <description>후견인보고서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO                                                                       -- 피후견인사번
+                 , SEQ_NO                                                                       -- 순번
+                 , SF_GET_ENONAME('01', ENO_NO)                             AS ENO_NM           -- 피후견인성명
+                 , DPT_CD                                                                       -- 피후견인소속코드
+                 , SF_GET_DPTNAME('01', 'A4', DPT_CD)                       AS DPT_NM           -- 피후견인소속
+                 , JOB_CD                                                                       -- 피후견인직위코드
+                 , SF_GET_COMMNAME('01', 'A2', JOB_CD)                      AS JOB_NM           -- 피후견인직위
+                 , MENO_NO                                                                      -- 후견인사번
+                 , SF_GET_ENONAME('01', MENO_NO)                            AS MENO_NM          -- 후견인성명
+                 , MDPT_CD                                                                      -- 후견인소속코드
+                 , SF_GET_DPTNAME('01', 'A4', MDPT_CD)                      AS MDPT_NM          -- 후견인소속
+                 , MJOB_CD                                                                      -- 후견인직위코드
+                 , SF_GET_COMMNAME('01', 'A2', MJOB_CD)                     AS MJOB_NM          -- 후견인직위
+                 , TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS STR_YMD          -- 후견시작일자
+                 , TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')    AS END_YMD          -- 후견종료일자
+                 , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_MENTORPT
+                     WHERE ENO_NO = A.ENO_NO
+                       AND SEQ_NO = A.SEQ_NO
+                    )                                                       AS IPT_YMD          -- 작성일자
+                 , OBJ_TXT                                                                      -- 목적
+              FROM T_CD_MENTO A
+             WHERE STR_YMD >= ?
+               AND STR_YMD <= ?
+               [1]
+            ]]>
+        </query>
+    </sql>
+    <!--  후견인보고서현황 데이터 조회 -->
+    <sql name="CDPC050_SHR">
+        <description>후견인보고서현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                                     -- 피후견인사번
+                   SEQ_NO,                                                                     -- 순번
+                   SF_GET_ENONAME('01', ENO_NO)                            AS ENO_NM,          -- 피후견인성명
+                   DPT_CD,                                                                     -- 피후견인소속코드
+                   SF_GET_DPTNAME('01', 'A4', DPT_CD)                     AS DPT_NM,          -- 피후견인소속
+                   JOB_CD,                                                                     -- 피후견인직위코드
+                   SF_GET_COMMNAME('01', 'A2', JOB_CD)                     AS JOB_NM,          -- 피후견인직위
+                   MENO_NO,                                                                    -- 후견인사번
+                   SF_GET_ENONAME('01', MENO_NO)                           AS MENO_NM,         -- 후견인성명
+                   MDPT_CD,                                                                    -- 후견인소속코드
+                   SF_GET_DPTNAME('01', 'A4', MDPT_CD)                    AS MDPT_NM,         -- 후견인소속
+                   MJOB_CD,                                                                    -- 후견인직위코드
+                   SF_GET_COMMNAME('01', 'A2', MJOB_CD)                    AS MJOB_NM,         -- 후견인직위
+                   TO_CHAR(TO_DATE(STR_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')   AS STR_YMD,         -- 후견시작일자
+                   TO_CHAR(TO_DATE(END_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')   AS END_YMD,         -- 후견종료일자
+                   (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD')) FROM T_CD_MENTORPT WHERE ENO_NO = A.ENO_NO AND SEQ_NO = A.SEQ_NO)
+                                                                           AS IPT_YMD,         -- 작성일자
+                   OBJ_TXT                                                                     -- 목적
+            FROM   T_CD_MENTO A
+            WHERE  ENO_NO  LIKE ?||'%'
+            AND    MENO_NO = ?
+            AND    STR_YMD >= ?
+            AND    STR_YMD <= ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- OJT관리 -->
+<!--
+***********************************************************************
+* @UseCase     : cdpd010
+* @description : OJT등록
+***********************************************************************
+* 2007/03/21      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- OJT대상자등록 데이터 조회 -->
+    <sql name="CDPD010_SHR">
+        <description>OJT대상자등록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 대상자성명
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS DPT_NM       -- 대상자소속
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS JOB_NM       -- 대상자직위
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                     AS TRA_DPT_NM       -- OJT소속
+			    , A.TRA_ENO_NO												--지도사원사번
+			    , SF_GET_ENONAME('01',  A.TRA_ENO_NO)                      AS TRA_ENO_NM       -- 지도사원성명
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                     AS MDPT_NM       -- 지도사원소속
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                    AS MJOB_NM       -- 지도사원직위
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  	--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , A.EDU_GOAL1
+			    , A.EDU_GOAL2
+			    , A.EDU_GOAL3
+			    , A.EVAL_COMPLETE_YN
+			FROM T_CD_OJTMST A, T_CM_PERSON B, T_CM_PERSON C
+			WHERE A.ENO_NO=B.ENO_NO
+			  AND A.TRA_ENO_NO=C.ENO_NO(+)
+               [1]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- OJT대상자등록 데이터 생성 -->
+    <sql name="CDPD010_INS">
+        <description>OJT대상자등록 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_OJTMST (
+			   ENO_NO, TRA_DPT_CD, TRA_ENO_NO,
+			   HIR_YMD, STR_YMD, END_YMD, EVAL_COMPLETE_YN,
+			   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+			VALUES ( ?, ?, ?,
+			    ?, ?, ?, 'N',
+			    ?, SYSDATE, ?, SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- OJT대상자등록 데이터 수정 -->
+    <sql name="CDPD010_UPT">
+        <description>OJT대상자등록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_OJTMST
+            SET    TRA_DPT_CD    = ?,
+                   TRA_ENO_NO    = ?,
+                   HIR_YMD   = ?,
+                   STR_YMD = ?,
+                   END_YMD = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- OJT대상자등록 데이터 삭제 -->
+    <sql name="CDPD010_DEL">
+        <description>OJT대상자등록 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_CD_OJTMST
+            WHERE  ENO_NO    = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--  OJT계획 데이터 조회 -->
+    <sql name="CDPD020_SHR">
+        <description>OJT대상자 계획 기본정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 대상자성명
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS DPT_NM       -- 대상자소속
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS JOB_NM       -- 대상자직위
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                     AS TRA_DPT_NM       -- OJT소속
+			    , A.TRA_ENO_NO												--지도사원사번
+			    , SF_GET_ENONAME('01',  A.TRA_ENO_NO)                      AS TRA_ENO_NM       -- 지도사원성명
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                     AS MDPT_NM       -- 지도사원소속
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                    AS MJOB_NM       -- 지도사원직위
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  	--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                      AS HEAD_EMP_NM       -- 담당팀장성명
+			    , A.EDU_GOAL1															--교육목표L1
+			    , A.EDU_GOAL2															--교육목표L2
+			    , A.EDU_GOAL3															--교육목표L3
+			    , A.EVAL_COMPLETE_YN
+			    , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_OJTPLAN
+                     WHERE ENO_NO = A.ENO_NO
+                    )                                                       AS WRITE_YMD      -- 작성일자
+			FROM T_CD_OJTMST A, T_CM_PERSON B, T_CM_PERSON C
+			WHERE A.ENO_NO=B.ENO_NO
+			  AND A.TRA_ENO_NO=C.ENO_NO(+)
+			  AND A.TRA_DPT_CD     = NVL(?, A.TRA_DPT_CD)
+               [1]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- OJT대상자 교육계획 데이터 수정 -->
+    <sql name="CDPD020_UPT">
+        <description>OJT대상자 교육계획 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_OJTMST
+            SET    TRA_ENO_NO    = ?,
+            	   TRA_DUTY = ?,
+            	   HEAD_EMP_NO = ?,
+            	   EDU_GOAL1 = ?,
+            	   EDU_GOAL2 = ?,
+            	   EDU_GOAL3 = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--  OJT계획 데이터 조회 -->
+    <sql name="CDPD021_SHR">
+        <description>대상자 사번으로 OJT등록정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 대상자성명
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS DPT_NM       -- 대상자소속
+			    , B.DPT_CD												  AS DPT_CD
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS JOB_NM       -- 대상자직위
+			    , B.JOB_CD												  AS JOB_CD
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                     AS TRA_DPT_NM       -- OJT부서
+			    , A.TRA_ENO_NO												--지도사원사번
+			    , SF_GET_ENONAME('01',  A.TRA_ENO_NO)                      AS TRA_ENO_NM       -- 지도사원성명
+			    , C.DPT_CD												  AS MDPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                     AS MDPT_NM       -- 지도사원소속
+			    , C.JOB_CD												  AS MJOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                    AS MJOB_NM       -- 지도사원직위
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  	--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                      AS HEAD_EMP_NM       -- 담당팀장성명
+			    , A.EDU_GOAL1															--교육목표L1
+			    , A.EDU_GOAL2															--교육목표L2
+			    , A.EDU_GOAL3															--교육목표L3
+			    , A.EVAL_COMPLETE_YN
+			    , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_OJTPLAN
+                     WHERE ENO_NO = A.ENO_NO
+                    )                                                       AS WRITE_YMD      -- 작성일자
+			FROM T_CD_OJTMST A, T_CM_PERSON B, T_CM_PERSON C
+			WHERE A.ENO_NO=B.ENO_NO
+			  AND A.TRA_ENO_NO=C.ENO_NO(+)
+			  AND A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--  OJT계획 데이터 조회 -->
+    <sql name="CDPD021_SHR_01">
+        <description>대상자 사번으로 OJT계획서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO				--대상자사번
+			    , A.TRA_WEEK			--OJT주차
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--종료일
+			    , A.TRA_ENO_NO AS TRA_ENO_NO			-- 교육담당사번
+			    , SF_GET_ENONAME('01',  A.TRA_ENO_NO)                      AS TRA_ENO_NM       -- 교육담당성명
+			    , A.TRA_SUBITEM															-- 지도항목
+			FROM T_CD_OJTPLAN A
+			WHERE 1=1
+			  AND A.ENO_NO = ?
+			ORDER BY A.STR_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- OJT계획 데이터 생성 -->
+    <sql name="CDPD021_INS">
+        <description>OJT대상자등록 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_OJTPLAN (
+			   ENO_NO, TRA_WEEK, STR_YMD,
+			   END_YMD, TRA_ENO_NO, TRA_SUBITEM,
+			   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+			VALUES ( ?, ?, ?,
+			    ?, ?, ?,
+			    ?, SYSDATE, ?, SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- OJT계획 데이터 수정 -->
+    <sql name="CDPD021_UPT">
+        <description>OJT대상자등록 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_OJTPLAN
+            SET    STR_YMD    = ?,
+                   END_YMD    = ?,
+                   TRA_ENO_NO   = ?,
+                   TRA_SUBITEM = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+              AND TRA_WEEK = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--  OJT계획 데이터 조회 -->
+    <sql name="CDPD030_SHR">
+        <description> OJT계획정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 대상자성명
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS DPT_NM       -- 대상자소속
+			    , B.DPT_CD												  AS DPT_CD
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS JOB_NM       -- 대상자직위
+			    , B.JOB_CD												  AS JOB_CD
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                     AS TRA_DPT_NM       -- OJT부서
+			    , DECODE(P.TRA_ENO_NO, NULL, A.TRA_ENO_NO, P.TRA_ENO_NO)		AS TRA_ENO_NO	--지도사원사번
+			    , SF_GET_ENONAME('01',  DECODE(P.TRA_ENO_NO, NULL, A.TRA_ENO_NO, P.TRA_ENO_NO))                      AS TRA_ENO_NM       -- 지도사원성명
+			    , C.DPT_CD												  AS MDPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                     AS MDPT_NM       -- 지도사원소속
+			    , C.JOB_CD												  AS MJOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                    AS MJOB_NM       -- 지도사원직위
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  	--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                      AS HEAD_EMP_NM       -- 담당팀장성명
+			    , A.EDU_GOAL1															--교육목표L1
+			    , A.EDU_GOAL2															--교육목표L2
+			    , A.EDU_GOAL3															--교육목표L3
+			    , A.EVAL_COMPLETE_YN
+			    , P.TRA_WEEK												AS PLAN_TRA_WEEK
+                , TO_CHAR(TO_DATE(P.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS PLAN_STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(P.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS PLAN_END_YMD		--OJT종료일
+                , P.TRA_ENO_NO												AS PLAN_TRA_ENO_NO
+                , SF_GET_ENONAME('01',  P.TRA_ENO_NO)                          AS PLAN_TRA_ENO_NM
+                , P.TRA_SUBITEM												AS PLAN_TRA_SUBITEM
+			FROM T_CD_OJTMST A, T_CD_OJTPLAN P, T_CM_PERSON B, T_CM_PERSON C
+			WHERE A.ENO_NO=P.ENO_NO(+)
+			  AND A.ENO_NO=B.ENO_NO
+			  AND A.TRA_ENO_NO=C.ENO_NO(+)
+			  AND A.TRA_DPT_CD     = NVL(?, A.TRA_DPT_CD)
+               [1]
+            ORDER BY A.ENO_NO, P.STR_YMD
+            ]]>
+        </query>
+    </sql>
+    <!--  OJT일지 데이터 조회 -->
+    <sql name="CDPD030_SHR_01">
+        <description> OJT일지정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    ENO_NO
+			    , TRA_WEEK
+			    , TRA_YMD
+			    , TRA_SUBJECT
+			    , TRA_ENO_NO
+			    , TRA_CONTENT
+			    , TRA_REMARK
+			FROM T_CD_OJTDAYBOOK
+			WHERE ENO_NO = ?
+			  AND TRA_WEEK = ?
+            ORDER BY TRA_WEEK, TRA_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD030_DEL">
+        <description> OJT일지정보 삭제</description>
+        <query>
+            <![CDATA[
+			DELETE FROM T_CD_OJTDAYBOOK
+			WHERE ENO_NO = ?
+			  AND TRA_WEEK = ?
+			  AND TRA_YMD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--  OJT계획 데이터 조회 -->
+    <sql name="CDPD031_SHR_01">
+        <description> OJT계획정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 대상자성명
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS DPT_NM       -- 대상자소속
+			    , B.DPT_CD												  AS DPT_CD
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS JOB_NM       -- 대상자직위
+			    , B.JOB_CD												  AS JOB_CD
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                     AS TRA_DPT_NM       -- OJT부서
+			    , DECODE(P.TRA_ENO_NO, NULL, A.TRA_ENO_NO, P.TRA_ENO_NO)		AS TRA_ENO_NO	--지도사원사번
+			    , SF_GET_ENONAME('01',  DECODE(P.TRA_ENO_NO, NULL, A.TRA_ENO_NO, P.TRA_ENO_NO))                      AS TRA_ENO_NM       -- 지도사원성명
+			    , C.DPT_CD												  AS MDPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                     AS MDPT_NM       -- 지도사원소속
+			    , C.JOB_CD												  AS MJOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                    AS MJOB_NM       -- 지도사원직위
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  	--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                      AS HEAD_EMP_NM       -- 담당팀장성명
+			    , A.EDU_GOAL1															--교육목표L1
+			    , A.EDU_GOAL2															--교육목표L2
+			    , A.EDU_GOAL3															--교육목표L3
+			    , A.EVAL_COMPLETE_YN
+			    , P.TRA_WEEK												AS PLAN_TRA_WEEK
+                , TO_CHAR(TO_DATE(P.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS PLAN_STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(P.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS PLAN_END_YMD		--OJT종료일
+                , P.TRA_ENO_NO												AS PLAN_TRA_ENO_NO
+                , SF_GET_ENONAME('01',  P.TRA_ENO_NO)                          AS PLAN_TRA_ENO_NM
+                , P.TRA_SUBITEM												AS PLAN_TRA_SUBITEM
+			FROM T_CD_OJTMST A, T_CD_OJTPLAN P, T_CM_PERSON B, T_CM_PERSON C
+			WHERE A.ENO_NO=P.ENO_NO
+			  AND A.ENO_NO=B.ENO_NO
+			  AND A.TRA_ENO_NO=C.ENO_NO(+)
+			  AND A.ENO_NO = ?
+			  AND P.TRA_WEEK = ?
+            ORDER BY A.ENO_NO, P.STR_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD031_SHR_02">
+        <description> OJT일지정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    ENO_NO
+			    , TRA_WEEK
+			    , TO_CHAR(TO_DATE(TRA_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS TRA_YMD
+			    , TRA_PLACE
+			    , TRA_SUBJECT
+			    , TRA_ENO_NO
+			    , SF_GET_ENONAME('01',  TRA_ENO_NO)                          AS TRA_ENO_NM       -- 대상자성명
+			    , TRA_CONTENT
+			    , TRA_REMARK
+			FROM T_CD_OJTDAYBOOK
+			WHERE ENO_NO = ?
+			  AND TRA_WEEK = ?
+			  AND TRA_YMD = ?
+            ORDER BY TRA_WEEK, TRA_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- OJT일지 데이터 생성 -->
+    <sql name="CDPD031_INS">
+        <description>OJT일지등록 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CD_OJTDAYBOOK (
+			   ENO_NO, TRA_WEEK, TRA_YMD,
+			   TRA_PLACE, TRA_SUBJECT, TRA_ENO_NO, TRA_CONTENT, TRA_REMARK,
+				IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+			VALUES ( ?, ?, ?,
+			    ?, ?, ?, ?, ?,
+			    ?, SYSDATE, ?, SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- OJT일지 데이터 수정 -->
+    <sql name="CDPD031_UPT">
+        <description>OJT일지등록 수정</description>
+        <query>
+            <![CDATA[
+			UPDATE T_CD_OJTDAYBOOK
+			SET    TRA_PLACE   = ?,
+			       TRA_SUBJECT = ?,
+			       TRA_ENO_NO  = ?,
+			       TRA_CONTENT = ?,
+			       TRA_REMARK  = ?,
+			       UPT_MAN     = ?,
+			       UPT_YMD     = SYSDATE
+			WHERE  ENO_NO      = ?
+			AND    TRA_WEEK    = ?
+			AND    TRA_YMD     = ?
+
+
+            ]]>
+        </query>
+    </sql>
+
+
+    <sql name="CDPD040_SHR">
+        <description>OJT대상자 계획 기본정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 대상자성명
+			    , B.DPT_CD       -- 대상자소속
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS DPT_NM       -- 대상자소속
+			    , B.JOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS JOB_NM       -- 대상자직위
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                     AS TRA_DPT_NM       -- OJT소속
+			    , A.TRA_ENO_NO												--지도사원사번
+			    , SF_GET_ENONAME('01',  A.TRA_ENO_NO)                      AS TRA_ENO_NM       -- 지도사원성명
+			    , C.DPT_CD													AS MDPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                     AS MDPT_NM       -- 지도사원소속
+			    , C.JOB_CD													AS MJOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                    AS MJOB_NM       -- 지도사원직위
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  	--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                      AS HEAD_EMP_NM       -- 담당팀장성명
+			    , A.EDU_GOAL1															--교육목표L1
+			    , A.EDU_GOAL2															--교육목표L2
+			    , A.EDU_GOAL3															--교육목표L3
+			    , A.EDU_POINT															--중점지도사항
+			    , A.EVAL_COMPLETE_YN
+			    , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_OJTPLAN
+                     WHERE ENO_NO = A.ENO_NO
+                    )                                                       AS WRITE_YMD      -- 작성일자
+			FROM T_CD_OJTMST A, T_CM_PERSON B, T_CM_PERSON C
+			WHERE A.ENO_NO=B.ENO_NO
+			  AND A.TRA_ENO_NO=C.ENO_NO(+)
+			  AND A.TRA_DPT_CD     = NVL(?, A.TRA_DPT_CD)
+               [1]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- OJT일지 데이터 수정 -->
+    <sql name="CDPD040_UPT">
+        <description>OJT 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_OJTMST
+            SET    EDU_POINT    = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD041_SHR">
+        <description>OJT대상자 계획 기본정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 대상자성명
+			    , B.DPT_CD       -- 대상자소속
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS DPT_NM       -- 대상자소속
+			    , B.JOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS JOB_NM        -- 대상자직위
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                 AS TRA_DPT_NM    -- OJT소속
+
+
+			    , A.HEAD_EMP_NO											AS CHA1_ENO_NO	     --1차평가사번
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                  AS CHA1_ENO_NM       -- 1차평가성명
+			    , C.DPT_CD												AS DPT1_CD
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                  AS DPT1_NM       	 -- 1차평가소속
+			    , C.JOB_CD												AS JOB1_CD
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                 AS JOB1_NM       	 -- 1차평가직위
+
+
+			    , A.DPT_ENO_NO											AS CHA2_ENO_NO	     --2차평가사번
+			    , SF_GET_ENONAME('01',  A.DPT_ENO_NO)                   AS CHA2_ENO_NM       -- 2차평가성명
+			    , D.DPT_CD												AS DPT2_CD
+			    , SF_GET_DPTNAME('01', 'A4', D.DPT_CD)                  AS DPT2_NM       	 -- 2차평가소속
+			    , D.JOB_CD												AS JOB2_CD
+			    , SF_GET_COMMNAME('01', 'A2', D.JOB_CD)                 AS JOB2_NM       	 -- 2차평가직위
+
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  			--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD			--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD			--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                      AS HEAD_EMP_NM       -- 담당팀장성명
+			    , A.EDU_GOAL1															--교육목표L1
+			    , A.EDU_GOAL2															--교육목표L2
+			    , A.EDU_GOAL3															--교육목표L3
+			    , A.EDU_POINT															--중점지도사항
+			    , A.EVAL_COMPLETE_YN
+			    , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_OJTPLAN
+                     WHERE ENO_NO = A.ENO_NO
+                    )                                                       AS WRITE_YMD      -- 작성일자
+			FROM T_CD_OJTMST A, T_CM_PERSON B, T_CM_PERSON C, T_CM_PERSON D
+			WHERE A.ENO_NO=B.ENO_NO
+			  AND A.HEAD_EMP_NO=C.ENO_NO(+)
+			  AND A.DPT_ENO_NO=D.ENO_NO(+)
+			  AND A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD041_SHR_00">
+        <description> OJT평가정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+		        ENO_NO
+		        , SF_GET_ENONAME('01',  ENO_NO)                      AS ENO_NM
+		        , '' EVAL_STEP
+		        ,MAX(EVAL_ENO_NO1) EVAL_ENO_NO1
+		        , SF_GET_ENONAME('01',  MAX(EVAL_ENO_NO1))                      AS EVAL_ENO_NM1
+		        ,MAX(OPINION1) OPINION1
+		        ,MAX(TOTAL_SCORE1) TOTAL_SCORE1
+		        , TO_CHAR(TO_DATE(MAX(EVAL_YMD1),'YYYYMMDD'),'YYYY-MM-DD') AS EVAL_YMD1
+		        ,MAX(COMPLETE_YN1) COMPLETE_YN1
+		        ,MAX(EVAL_ENO_NO2) EVAL_ENO_NO2
+		        , SF_GET_ENONAME('01',  MAX(EVAL_ENO_NO2))                      AS EVAL_ENO_NM2
+		        ,MAX(OPINION2) OPINION2
+		        ,MAX(TOTAL_SCORE2) TOTAL_SCORE2
+		        , TO_CHAR(TO_DATE(MAX(EVAL_YMD2),'YYYYMMDD'),'YYYY-MM-DD') AS EVAL_YMD2
+		        ,MAX(COMPLETE_YN2) COMPLETE_YN2
+		    FROM (
+	            SELECT
+				    ENO_NO
+				    , EVAL_STEP
+				    , DECODE(EVAL_STEP, 'A1', EVAL_ENO_NO, '') AS EVAL_ENO_NO1
+				    , DECODE(EVAL_STEP, 'A1', OPINION, '') AS  OPINION1
+				    , DECODE(EVAL_STEP, 'A1', TOTAL_SCORE, '') AS TOTAL_SCORE1
+				    , DECODE(EVAL_STEP, 'A1', EVAL_YMD, '') AS  EVAL_YMD1
+				    , DECODE(EVAL_STEP, 'A1', COMPLETE_YN, '') AS COMPLETE_YN1
+				    , DECODE(EVAL_STEP, 'A2', EVAL_ENO_NO, '') AS EVAL_ENO_NO2
+				    , DECODE(EVAL_STEP, 'A2', OPINION, '') AS  OPINION2
+				    , DECODE(EVAL_STEP, 'A2', TOTAL_SCORE, '') AS TOTAL_SCORE2
+				    , DECODE(EVAL_STEP, 'A2', EVAL_YMD, '') AS  EVAL_YMD2
+				    , DECODE(EVAL_STEP, 'A2', COMPLETE_YN, '') AS COMPLETE_YN2
+				FROM T_CD_OJTEVAL
+				WHERE ENO_NO = ?
+				  AND EVAL_STEP IN ('A1','A2')
+			) LST
+			    GROUP BY ENO_NO  --,EVAL_STEP
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD041_SHR_01">
+        <description> OJT평가문제지 조회</description>
+        <query>
+            <![CDATA[
+            SELECT * FROM (
+			    SELECT
+			        EVAL_DOCNO
+			        ,ITEM_CD
+			        ,SORT_NO
+			        ,ITEM_DESC
+			        ,CTGRY_DESC
+			        ,MAX(QUESTION1) QUESTION1
+			        ,MAX(QUESTION2) QUESTION2
+			        ,MAX(QUESTION3) QUESTION3
+			        ,MAX(QUESTION4) QUESTION4
+			        ,MAX(QUESTION5) QUESTION5
+			        ,MAX(POINT1) POINT1
+			        ,MAX(POINT2) POINT2
+			        ,MAX(POINT3) POINT3
+			        ,MAX(POINT4) POINT4
+			        ,MAX(POINT5) POINT5
+                    ,MAX(SCORE_A1) SCORE_A1
+                    ,MAX(SCORE_A2) SCORE_A2
+                    ,MAX(ANSWER_A1) ANSWER_A1
+                    ,MAX(ANSWER_A2) ANSWER_A2
+			    FROM (
+                   SELECT
+                    Q.EVAL_DOCNO
+                    ,Q.ITEM_CD
+                    ,Q.SORT_NO
+                    ,Q.ITEM_DESC
+                    ,Q.CTGRY_DESC
+                    ,Q.SEQ
+                    , DECODE(Q.SEQ, 1, Q.QUESTION, '') QUESTION1
+			            , DECODE(Q.SEQ, 2, Q.QUESTION, '') QUESTION2
+			            , DECODE(Q.SEQ, 3, Q.QUESTION, '') QUESTION3
+			            , DECODE(Q.SEQ, 4, Q.QUESTION, '') QUESTION4
+			            , DECODE(Q.SEQ, 5, Q.QUESTION, '') QUESTION5
+			            , DECODE(Q.SEQ, 1, Q.POINT, '') POINT1
+			            , DECODE(Q.SEQ, 2, Q.POINT, '') POINT2
+			            , DECODE(Q.SEQ, 3, Q.POINT, '') POINT3
+			            , DECODE(Q.SEQ, 4, Q.POINT, '') POINT4
+			            , DECODE(Q.SEQ, 5, Q.POINT, '') POINT5
+                    ,DECODE(Q.EVAL_STEP,'A1', S.SCORE, '') SCORE_A1
+                    ,DECODE(Q.EVAL_STEP,'A2', S.SCORE, '') SCORE_A2
+                    ,DECODE(Q.EVAL_STEP,'A1', S.ANSWER, '') ANSWER_A1
+                    ,DECODE(Q.EVAL_STEP,'A2', S.ANSWER, '') ANSWER_A2
+                   FROM
+                      (
+                      SELECT
+			            M.EVAL_STEP
+                        ,A.EVAL_DOCNO
+			            ,A.ITEM_CD
+			            ,A.SORT_NO
+			            , B.ITEM_DESC
+			            , B.CTGRY_DESC
+                        , C.SEQ
+			            , C.QUESTION
+			            , C.POINT
+			        FROM T_CD_OJTEVALMST M, T_CD_OJTEVALSHEET A, T_CD_OJTEVALITEM B, T_CD_OJTEVALITEM_POINT C
+			        WHERE M.EVAL_DOCNO = A.EVAL_DOCNO
+                      AND A.ITEM_CD = B.ITEM_CD
+			          AND B.ITEM_CD = C.ITEM_CD
+			          AND M.EVAL_STEP='A1'
+                      UNION ALL
+                      SELECT
+			            M.EVAL_STEP
+                        ,A.EVAL_DOCNO
+			            ,A.ITEM_CD
+			            ,A.SORT_NO
+			            , B.ITEM_DESC
+			            , B.CTGRY_DESC
+                        , C.SEQ
+			            , C.QUESTION
+			            , C.POINT
+			        FROM T_CD_OJTEVALMST M, T_CD_OJTEVALSHEET A, T_CD_OJTEVALITEM B, T_CD_OJTEVALITEM_POINT C
+			        WHERE M.EVAL_DOCNO = A.EVAL_DOCNO
+                      AND A.ITEM_CD = B.ITEM_CD
+			          AND B.ITEM_CD = C.ITEM_CD
+			          AND M.EVAL_STEP='A2'
+                      ) Q, T_CD_OJTEVALRESULT S
+                      WHERE Q.EVAL_STEP=S.EVAL_STEP(+) AND Q.ITEM_CD=S.ITEM_CD(+) AND Q.SEQ=S.ANSWER(+)
+                        AND S.ENO_NO(+)=?
+                      ) LST
+			    GROUP BY EVAL_DOCNO,ITEM_CD,SORT_NO,ITEM_DESC,CTGRY_DESC
+			) A
+			ORDER BY A.SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD041_UPT1">
+        <description>OJT평가정보 수정</description>
+        <query>
+            <![CDATA[
+    		MERGE INTO T_CD_OJTEVAL A
+			USING
+			(SELECT ? AS ENO_NO, ? AS EVAL_STEP
+			 FROM DUAL) B
+			   ON (   A.ENO_NO = B.ENO_NO
+			      AND A.EVAL_STEP = B.EVAL_STEP)
+			WHEN MATCHED THEN
+			UPDATE SET A.EVAL_ENO_NO  = ?,
+					   A.OPINION  = ?,
+					   A.TOTAL_SCORE  = ?,
+					   A.EVAL_YMD  = ?,
+			           A.UPT_YMD = SYSDATE,
+					   A.UPT_MAN = ?
+			 WHEN NOT MATCHED THEN
+			INSERT ( ENO_NO, EVAL_STEP, EVAL_ENO_NO, OPINION, TOTAL_SCORE, EVAL_YMD, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES ( ?, ?, ?, ?, ?, ?, ?, SYSDATE, ?, SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD041_UPT2">
+        <description>OJT평가결과 수정</description>
+        <query>
+            <![CDATA[
+    		MERGE INTO T_CD_OJTEVALRESULT A
+			USING
+			(SELECT ? AS ENO_NO, ? AS EVAL_STEP, ? AS ITEM_CD
+			 FROM DUAL) B
+			   ON (   A.ENO_NO = B.ENO_NO
+			      AND A.EVAL_STEP = B.EVAL_STEP
+			      AND A.ITEM_CD = B.ITEM_CD)
+			WHEN MATCHED THEN
+			UPDATE SET A.ANSWER  = ?,
+					   A.SCORE  = ?,
+			           A.UPT_YMD = SYSDATE,
+					   A.UPT_MAN = ?
+			 WHEN NOT MATCHED THEN
+			INSERT ( ENO_NO, EVAL_STEP, ITEM_CD, ANSWER, SCORE, SORT_NO, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES ( ?, ?, ?, ?, ?, ?, ?, SYSDATE, ?, SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <sql name="CDPD050_SHR">
+        <description>OJT대상자 계획 기본정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 대상자성명
+			    , B.DPT_CD       -- 대상자소속
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS DPT_NM       -- 대상자소속
+			    , B.JOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS JOB_NM       -- 대상자직위
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                     AS TRA_DPT_NM       -- OJT소속
+			    , A.TRA_ENO_NO												--지도사원사번
+			    , SF_GET_ENONAME('01',  A.TRA_ENO_NO)                      AS TRA_ENO_NM       -- 지도사원성명
+			    , C.DPT_CD													AS MDPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                     AS MDPT_NM       -- 지도사원소속
+			    , C.JOB_CD													AS MJOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                    AS MJOB_NM       -- 지도사원직위
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  	--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                      AS HEAD_EMP_NM       -- 담당팀장성명
+			    , A.EDU_GOAL1															--교육목표L1
+			    , A.EDU_GOAL2															--교육목표L2
+			    , A.EDU_GOAL3															--교육목표L3
+			    , A.EDU_POINT															--중점지도사항
+			    , A.EVAL_COMPLETE_YN
+			    , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_OJTPLAN
+                     WHERE ENO_NO = A.ENO_NO
+                    )                                                       AS WRITE_YMD      -- 작성일자
+			FROM T_CD_OJTMST A, T_CM_PERSON B, T_CM_PERSON C
+			WHERE A.ENO_NO=B.ENO_NO
+			  AND A.TRA_ENO_NO=C.ENO_NO(+)
+			  AND A.TRA_DPT_CD     = NVL(?, A.TRA_DPT_CD)
+               [1]
+            ]]>
+        </query>
+    </sql>
+
+
+    <sql name="CDPD051_SHR">
+        <description>OJT대상자 계획 기본정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM       -- 대상자성명
+			    , B.DPT_CD       -- 대상자소속
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS DPT_NM       -- 대상자소속
+			    , B.JOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS JOB_NM       -- 대상자직위
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                     AS TRA_DPT_NM       -- OJT소속
+			    , A.TRA_ENO_NO												--지도사원사번
+			    , SF_GET_ENONAME('01',  A.TRA_ENO_NO)                      AS TRA_ENO_NM       -- 지도사원성명
+			    , C.DPT_CD													AS MDPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                     AS MDPT_NM       -- 지도사원소속
+			    , C.JOB_CD													AS MJOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                    AS MJOB_NM       -- 지도사원직위
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  	--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                      AS HEAD_EMP_NM       -- 담당팀장성명
+			    , A.EDU_GOAL1															--교육목표L1
+			    , A.EDU_GOAL2															--교육목표L2
+			    , A.EDU_GOAL3															--교육목표L3
+			    , A.EDU_POINT															--중점지도사항
+			    , A.EVAL_COMPLETE_YN
+			    , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_OJTPLAN
+                     WHERE ENO_NO = A.ENO_NO
+                    )                                                       AS WRITE_YMD      -- 작성일자
+			FROM T_CD_OJTMST A, T_CM_PERSON B, T_CM_PERSON C
+			WHERE A.ENO_NO=B.ENO_NO
+			  AND A.TRA_ENO_NO=C.ENO_NO(+)
+			  AND A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD051_SHR_00">
+        <description> OJT평가정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    ENO_NO
+			    , SF_GET_ENONAME('01',  ENO_NO)                          AS ENO_NM
+			    , EVAL_STEP
+			    , EVAL_ENO_NO
+			    , SF_GET_ENONAME('01',  EVAL_ENO_NO)                          AS EVAL_ENO_NM
+			    , OPINION
+			    , TOTAL_SCORE
+			    , TO_CHAR(TO_DATE(EVAL_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS EVAL_YMD
+			    , COMPLETE_YN
+			FROM T_CD_OJTEVAL
+			WHERE ENO_NO = ?
+			  AND EVAL_STEP IN ('F')
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD051_SHR_01">
+        <description> OJT평가문제지 조회</description>
+        <query>
+            <![CDATA[
+            SELECT * FROM (
+			    SELECT
+			        EVAL_STEP
+			        ,EVAL_DOCNO
+			        ,ITEM_CD
+			        ,SORT_NO
+			        ,ITEM_DESC
+			        ,CTGRY_DESC
+			        ,MAX(QUESTION1) QUESTION1
+			        ,MAX(QUESTION2) QUESTION2
+			        ,MAX(QUESTION3) QUESTION3
+			        ,MAX(QUESTION4) QUESTION4
+			        ,MAX(QUESTION5) QUESTION5
+			        ,MAX(POINT1) POINT1
+			        ,MAX(POINT2) POINT2
+			        ,MAX(POINT3) POINT3
+			        ,MAX(POINT4) POINT4
+			        ,MAX(POINT5) POINT5
+                    ,MAX(SCORE) SCORE
+                    ,MAX(ANSWER) ANSWER
+			    FROM (
+                   SELECT
+                    Q.EVAL_STEP
+                    ,Q.EVAL_DOCNO
+                    ,Q.ITEM_CD
+                    ,Q.SORT_NO
+                    ,Q.ITEM_DESC
+                    ,Q.CTGRY_DESC
+                    ,Q.SEQ
+                    , DECODE(Q.SEQ, 1, Q.QUESTION, '') QUESTION1
+		            , DECODE(Q.SEQ, 2, Q.QUESTION, '') QUESTION2
+		            , DECODE(Q.SEQ, 3, Q.QUESTION, '') QUESTION3
+		            , DECODE(Q.SEQ, 4, Q.QUESTION, '') QUESTION4
+		            , DECODE(Q.SEQ, 5, Q.QUESTION, '') QUESTION5
+		            , DECODE(Q.SEQ, 1, Q.POINT, '') POINT1
+		            , DECODE(Q.SEQ, 2, Q.POINT, '') POINT2
+		            , DECODE(Q.SEQ, 3, Q.POINT, '') POINT3
+		            , DECODE(Q.SEQ, 4, Q.POINT, '') POINT4
+		            , DECODE(Q.SEQ, 5, Q.POINT, '') POINT5
+                    ,S.SCORE
+                    ,S.ANSWER
+                   FROM
+                      (
+                      SELECT
+			            M.EVAL_STEP
+                        ,A.EVAL_DOCNO
+			            ,A.ITEM_CD
+			            ,A.SORT_NO
+			            , B.ITEM_DESC
+			            , B.CTGRY_DESC
+                        , C.SEQ
+			            , C.QUESTION
+			            , C.POINT
+			        FROM T_CD_OJTEVALMST M, T_CD_OJTEVALSHEET A, T_CD_OJTEVALITEM B, T_CD_OJTEVALITEM_POINT C
+			        WHERE M.EVAL_DOCNO = A.EVAL_DOCNO
+                      AND A.ITEM_CD = B.ITEM_CD
+			          AND B.ITEM_CD = C.ITEM_CD
+			          AND M.EVAL_STEP='F'
+                      ) Q, T_CD_OJTEVALRESULT S
+                      WHERE Q.EVAL_STEP=S.EVAL_STEP(+) AND Q.ITEM_CD=S.ITEM_CD(+) AND Q.SEQ=S.ANSWER(+)
+                        AND S.ENO_NO(+)=?
+                      ) LST
+			    GROUP BY EVAL_STEP,EVAL_DOCNO,ITEM_CD,SORT_NO,ITEM_DESC,CTGRY_DESC
+			) A
+			ORDER BY A.SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD051_UPT1">
+        <description>OJT평가정보 수정</description>
+        <query>
+            <![CDATA[
+    		MERGE INTO T_CD_OJTEVAL A
+			USING
+			(SELECT ? AS ENO_NO, ? AS EVAL_STEP
+			 FROM DUAL) B
+			   ON (   A.ENO_NO = B.ENO_NO
+			      AND A.EVAL_STEP = B.EVAL_STEP)
+			WHEN MATCHED THEN
+			UPDATE SET A.EVAL_ENO_NO  = ?,
+					   A.OPINION  = ?,
+					   A.TOTAL_SCORE  = ?,
+					   A.EVAL_YMD  = ?,
+			           A.UPT_YMD = SYSDATE,
+					   A.UPT_MAN = ?
+			 WHEN NOT MATCHED THEN
+			INSERT ( ENO_NO, EVAL_STEP, EVAL_ENO_NO, OPINION, TOTAL_SCORE, EVAL_YMD, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES ( ?, ?, ?, ?, ?, ?, ?, SYSDATE, ?, SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD051_UPT2">
+        <description>OJT평가결과 수정</description>
+        <query>
+            <![CDATA[
+    		MERGE INTO T_CD_OJTEVALRESULT A
+			USING
+			(SELECT ? AS ENO_NO, ? AS EVAL_STEP, ? AS ITEM_CD
+			 FROM DUAL) B
+			   ON (   A.ENO_NO = B.ENO_NO
+			      AND A.EVAL_STEP = B.EVAL_STEP
+			      AND A.ITEM_CD = B.ITEM_CD)
+			WHEN MATCHED THEN
+			UPDATE SET A.ANSWER  = ?,
+					   A.SCORE  = ?,
+			           A.UPT_YMD = SYSDATE,
+					   A.UPT_MAN = ?
+			 WHEN NOT MATCHED THEN
+			INSERT ( ENO_NO, EVAL_STEP, ITEM_CD, ANSWER, SCORE, SORT_NO, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+			VALUES ( ?, ?, ?, ?, ?, ?, ?, SYSDATE, ?, SYSDATE)
+            ]]>
+        </query>
+    </sql>
+    <!-- 사외교육결과등록 수정 -->
+    <sql name="CDPD051_UPT_RPT">
+        <description>교육결과보고 문서번호 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CD_OJTMST
+            SET    REQ_NO  = ?,
+                   UPT_MAN       = ?,
+                   UPT_YMD       = SYSDATE
+            WHERE  ENO_NO        = ?
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="APPROVAL_REGNO_MAX">
+        <description>결재등록번호 최대값 조회</description>
+        <query>
+            <![CDATA[
+			SELECT  TO_CHAR(SYSDATE,'YYYYMMDD')|| TRIM(TO_CHAR( DECODE( MAX(SUBSTR(REQ_NO, 9, 3)), NULL, '001', MAX(SUBSTR(REQ_NO, 9,3))+1 ), '000')) REQ_NO
+			FROM    T_DI_APPROVAL
+			WHERE   SUBSTR(REQ_NO,0,8) = TO_CHAR(SYSDATE,'YYYYMMDD')
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재지정 정보를 저장 한다. -->
+    <sql name="APPROVAL_INS">
+        <description>결재선 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO T_DI_APPROVAL
+                    (GUN_YMD, GUN_GBN, GUN_DPT, SEQ_NO, ENO_NO, JOB_CD, PENO_NO, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD, REQ_NO)
+             VALUES (      ?,       ?,       ?,      ?,      ?,      ?,       ?,       ?, sysdate,       ?, sysdate, ?)
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="APPROVAL_SHR">
+        <description>ojt 승인선 정보 조회</description>
+        <query>
+            <![CDATA[
+
+       SELECT GUN_YMD, GUN_GBN, GUN_DPT AS DPT_CD, SEQ_NO, ENO_NO, JOB_CD, APP_TIME, PENO_NO
+             ,APP_YN
+             ,DECODE(APP_YN,NULL,'미결','Y','결재','N','부결') AS APP_YN_NM
+             ,SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+             ,SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+			 ,SF_GET_DPTNAME('01', 'A4', GUN_DPT) AS DPT_NM
+			 ,REQ_NO
+       FROM   T_DI_APPROVAL
+       WHERE  REQ_NO = ?
+       AND    GUN_GBN = 'L'
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="RPT_APPROVAL_SHR">
+        <description>ojt 결재선 정보 조회</description>
+        <query>
+            <![CDATA[
+
+       SELECT GUN_YMD, GUN_GBN, GUN_DPT AS DPT_CD, SEQ_NO, ENO_NO, JOB_CD, APP_TIME, PENO_NO
+             ,APP_YN
+             ,DECODE(APP_YN,NULL,'미결','Y','승인','N','부결') AS APP_YN_NM
+             ,SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+             ,SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+			 ,SF_GET_DPTNAME('01', 'A4', GUN_DPT) AS DPT_NM
+			 ,REQ_NO
+       FROM   T_DI_APPROVAL
+       WHERE  REQ_NO = (SELECT REQ_NO FROM T_CD_OJTMST WHERE ENO_NO = ?)
+       AND    GUN_GBN = 'L'
+            ]]>
+        </query>
+    </sql>
+    <!-- 교육신청 결재처리 조회 -->
+    <sql name="CDPD060_SHR">
+        <description>교육신청 결재처리 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.GUN_YMD -- 근태일
+                   ,A.GUN_DPT -- 근태부서
+                   ,SF_GET_DPTNAME('01','A4',A.GUN_DPT)    AS DPT_NM -- 근태부서
+                   ,A.PENO_NO -- 상신자
+                   ,SF_GET_ENONAME('01',A.PENO_NO)   AS PENO_NM
+                   ,A.ENO_NO -- 결재자
+                   ,SF_GET_ENONAME('01',A.ENO_NO)   AS ENO_NM
+                   ,A.GUN_GBN  -- 결재구분
+                   ,'교육신청' GUN_GBN_NM -- 결재구분명
+                   ,DECODE(A.APP_YN, NULL, 'A', A.APP_YN) AS APP_YN
+                   ,DECODE(A.APP_YN,'Y','승인','N','부결','미결') APP_YN_NM -- 결재여부
+                   ,A.APP_TIME
+                   ,A.REQ_NO    -- 결재품의문서번호
+                   ,A.SEQ_NO  -- 결재선
+                   ,A.REMARK
+                   ,SF_GET_COMMNAME('01','A2',(select job_cd from t_cm_person where eno_no=a.peno_no)) AS PJOB_NM
+                   ,TO_CHAR(a.IPT_YMD,'YYYY-MM-DD HH24:MI') ORD_DATE-- 상신일
+                   ,SF_GET_ENONAME('01', a.ENO_NO) AS APP_ENO_NM-- 현결재완료자
+                   ,SF_GET_COMMNAME('01', 'A2', A.job_cd) AS APP_JOB_NM-- 현결재완료자직위
+                   ,decode(A.APP_YN, null, '', TO_CHAR(a.UPT_YMD,'YYYY-MM-DD HH24:MI')) APP_DATE -- 결재일시간
+                   ,a.remark AS APP_CMT-- 결재의견
+                   ,DECODE(A.APP_YN,'Y','승인','N','부결','미결') AS APP_STATUS-- 결재상태
+                   ,to_char(to_date(T.STR_YMD,'YYYYMMDD'),'YYYY/MM/DD') ||'~'||to_char(to_date(T.END_YMD,'YYYYMMDD'),'YYYY/MM/DD') AS OJT_YMD
+                   ,T.ENO_NO		AS OJT_ENO_NO
+                   ,SF_GET_ENONAME('01',T.ENO_NO)   AS OJT_ENO_NM
+                   ,SF_GET_DPTNAME('01','A4',T.TRA_DPT_CD)    AS TRA_DPT_NM -- OJT부서
+            FROM T_CD_OJTMST T, T_DI_APPROVAL A
+			WHERE T.REQ_NO = A.REQ_NO
+			AND   A.GUN_GBN  ='L'
+			AND   (A.ENO_NO  LIKE  ?||'%'  OR A.PENO_NO LIKE  ?||'%' ) -- 결재자사번,상신자사번
+			[1]
+			 ORDER BY a.IPT_YMD desc, A.REQ_NO, a.seq_no
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 교육신청 결재처리 조회 -->
+    <sql name="CDPD061_SHR">
+        <description>교육신청 결재처리 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+			LST.*, APP.PENO_NO, APP.PENO_NM, APP.PJOB_CD, APP.PJOB_NM, APP.PDPT_CD, APP.PDPT_NM
+			FROM (
+		    	SELECT
+			    A.ENO_NO											AS NEW_ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS NEW_ENO_NM       -- 대상자성명
+			    , B.DPT_CD      									AS NEW_DPT_CD -- 대상자소속
+			    , SF_GET_DPTNAME('01', 'A4', B.DPT_CD)                     AS NEW_DPT_NM       -- 대상자소속
+			    , B.JOB_CD											AS NEW_JOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', B.JOB_CD)                    AS NEW_JOB_NM       -- 대상자직위
+			    , A.TRA_DPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', A.TRA_DPT_CD)                     AS TRA_DPT_NM       -- OJT소속
+			    , A.TRA_ENO_NO												--지도사원사번
+			    , SF_GET_ENONAME('01',  A.TRA_ENO_NO)                      AS TRA_ENO_NM       -- 지도사원성명
+			    , C.DPT_CD													AS MDPT_CD
+			    , SF_GET_DPTNAME('01', 'A4', C.DPT_CD)                     AS MDPT_NM       -- 지도사원소속
+			    , C.JOB_CD													AS MJOB_CD
+			    , SF_GET_COMMNAME('01', 'A2', C.JOB_CD)                    AS MJOB_NM       -- 지도사원직위
+			    , TO_CHAR(TO_DATE(A.HIR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS HIR_YMD  	--입사일자
+			    , TO_CHAR(TO_DATE(A.STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS STR_YMD		--OJT시작일
+			    , TO_CHAR(TO_DATE(A.END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS END_YMD		--OJT종료일
+			    , A.TRA_DUTY																-- 담당업무
+			    , A.HEAD_EMP_NO																-- 담당팀장
+			    , SF_GET_ENONAME('01',  A.HEAD_EMP_NO)                      AS HEAD_EMP_NM       -- 담당팀장성명
+			    , A.EDU_GOAL1															--교육목표L1
+			    , A.EDU_GOAL2															--교육목표L2
+			    , A.EDU_GOAL3															--교육목표L3
+			    , A.EDU_POINT															--중점지도사항
+			    , A.EVAL_COMPLETE_YN
+			    , (SELECT MAX(TO_CHAR(UPT_YMD, 'YYYY-MM-DD'))
+                      FROM T_CD_OJTPLAN
+                     WHERE ENO_NO = A.ENO_NO
+                    )                                                       AS WRITE_YMD      -- 작성일자
+                ,A.REQ_NO
+			FROM T_CD_OJTMST A, T_CM_PERSON B, T_CM_PERSON C
+			WHERE A.ENO_NO=B.ENO_NO
+			  AND A.TRA_ENO_NO=C.ENO_NO(+)
+			  AND A.REQ_NO = ?) LST,
+		(SELECT DISTINCT D.REQ_NO, D.PENO_NO, SF_GET_ENONAME('01',  D.PENO_NO) AS PENO_NM
+			  , E.JOB_CD AS PJOB_CD,SF_GET_COMMNAME('01', 'A2', E.JOB_CD) AS PJOB_NM, E.DPT_CD AS PDPT_CD
+                , SF_GET_DPTNAME('01', 'A4', E.DPT_CD)  AS PDPT_NM
+               FROM T_DI_APPROVAL D, T_CM_PERSON E WHERE D.PENO_NO=E.ENO_NO AND GUN_GBN = 'L'
+               AND REQ_NO = ?) APP
+		WHERE LST.REQ_NO = APP.REQ_NO
+            ]]>
+        </query>
+    </sql>
+    <sql name="CDPD061_SHR_00">
+        <description> OJT평가정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+			    A.ENO_NO
+			    , SF_GET_ENONAME('01',  A.ENO_NO)                          AS ENO_NM
+			    , A.EVAL_STEP
+			    , A.EVAL_ENO_NO
+			    , SF_GET_ENONAME('01',  A.EVAL_ENO_NO)                          AS EVAL_ENO_NM
+			    , A.OPINION
+			    , A.TOTAL_SCORE
+			    , TO_CHAR(TO_DATE(A.EVAL_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS EVAL_YMD
+			    , A.COMPLETE_YN
+			FROM T_CD_OJTEVAL A, T_CD_OJTMST B
+			WHERE A.ENO_NO = B.ENO_NO
+              AND B.REQ_no = ?
+			  AND EVAL_STEP IN ('F')
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="CDPD061_SHR_01">
+        <description> OJT평가문제지 조회</description>
+        <query>
+            <![CDATA[
+            SELECT * FROM (
+			    SELECT
+			        EVAL_STEP
+			        ,EVAL_DOCNO
+			        ,ITEM_CD
+			        ,SORT_NO
+			        ,ITEM_DESC
+			        ,CTGRY_DESC
+			        ,MAX(QUESTION1) QUESTION1
+			        ,MAX(QUESTION2) QUESTION2
+			        ,MAX(QUESTION3) QUESTION3
+			        ,MAX(QUESTION4) QUESTION4
+			        ,MAX(QUESTION5) QUESTION5
+			        ,MAX(POINT1) POINT1
+			        ,MAX(POINT2) POINT2
+			        ,MAX(POINT3) POINT3
+			        ,MAX(POINT4) POINT4
+			        ,MAX(POINT5) POINT5
+                    ,MAX(SCORE) SCORE
+                    ,MAX(ANSWER) ANSWER
+			    FROM (
+                   SELECT
+                    Q.EVAL_STEP
+                    ,Q.EVAL_DOCNO
+                    ,Q.ITEM_CD
+                    ,Q.SORT_NO
+                    ,Q.ITEM_DESC
+                    ,Q.CTGRY_DESC
+                    ,Q.SEQ
+                    , DECODE(Q.SEQ, 1, Q.QUESTION, '') QUESTION1
+		            , DECODE(Q.SEQ, 2, Q.QUESTION, '') QUESTION2
+		            , DECODE(Q.SEQ, 3, Q.QUESTION, '') QUESTION3
+		            , DECODE(Q.SEQ, 4, Q.QUESTION, '') QUESTION4
+		            , DECODE(Q.SEQ, 5, Q.QUESTION, '') QUESTION5
+		            , DECODE(Q.SEQ, 1, Q.POINT, '') POINT1
+		            , DECODE(Q.SEQ, 2, Q.POINT, '') POINT2
+		            , DECODE(Q.SEQ, 3, Q.POINT, '') POINT3
+		            , DECODE(Q.SEQ, 4, Q.POINT, '') POINT4
+		            , DECODE(Q.SEQ, 5, Q.POINT, '') POINT5
+                    ,S.SCORE
+                    ,S.ANSWER
+                   FROM
+                      (
+                      SELECT
+			            M.EVAL_STEP
+                        ,A.EVAL_DOCNO
+			            ,A.ITEM_CD
+			            ,A.SORT_NO
+			            , B.ITEM_DESC
+			            , B.CTGRY_DESC
+                        , C.SEQ
+			            , C.QUESTION
+			            , C.POINT
+			        FROM T_CD_OJTEVALMST M, T_CD_OJTEVALSHEET A, T_CD_OJTEVALITEM B, T_CD_OJTEVALITEM_POINT C
+			        WHERE M.EVAL_DOCNO = A.EVAL_DOCNO
+                      AND A.ITEM_CD = B.ITEM_CD
+			          AND B.ITEM_CD = C.ITEM_CD
+			          AND M.EVAL_STEP='F'
+                      ) Q, (SELECT R.* FROM T_CD_OJTEVALRESULT R, T_CD_OJTMST C WHERE R.ENO_NO = C.ENO_NO AND C.REQ_NO=?) S
+                      WHERE Q.EVAL_STEP=S.EVAL_STEP(+) AND Q.ITEM_CD=S.ITEM_CD(+) AND Q.SEQ=S.ANSWER(+)
+                      ) LST
+			    GROUP BY EVAL_STEP,EVAL_DOCNO,ITEM_CD,SORT_NO,ITEM_DESC,CTGRY_DESC
+			) A
+			ORDER BY A.SORT_NO
+            ]]>
+        </query>
+    </sql>
+    <sql name="CDPD061_APPROVAL_SHR">
+        <description>교육신청 결재선 정보 조회</description>
+        <query>
+            <![CDATA[
+
+       SELECT GUN_YMD, GUN_GBN, GUN_DPT AS DPT_CD, SEQ_NO, ENO_NO, JOB_CD, APP_TIME, PENO_NO
+             ,APP_YN
+             ,DECODE(APP_YN,NULL,'미결','Y','승인','N','부결') AS APP_YN_NM
+             ,SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+             ,SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+			 ,SF_GET_DPTNAME('01', 'A4', GUN_DPT) AS DPT_NM
+			 ,REQ_NO
+			 , decode(app_yn,null,'',to_char(upt_ymd,'YYYY/MM/DD HH24:MI:SS')) app_ymd
+             ,REMARK
+             ,NVL2(REMARK,'Click','') AS REMARK1
+       FROM   T_DI_APPROVAL
+       WHERE  REQ_NO = ?
+       AND    GUN_GBN = 'L'
+            ]]>
+        </query>
+    </sql>
+    <!-- 결재처리 -->
+    <sql name="CDPD061_UPT">
+        <description>결재정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_DI_APPROVAL
+            SET    APP_YN = ?,
+                   APP_TIME = TO_CHAR(sysdate,'HH24:MI'),
+                   REMARK   = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD = sysdate
+            WHERE  SEQ_NO  = ?
+            AND    REQ_NO  = ?
+            AND    GUN_GBN = ?
+            ]]>
+        </query>
+    </sql>
+    <!-- 결재한개수 세기 -->
+    <sql name="CDPD061_CNT">
+        <description>결재정보개수세기</description>
+        <query>
+            <![CDATA[
+			SELECT DECODE(T.TOTAL,0,'-',DECODE(CNT/TOTAL, 1, DECODE(Y.APP/T.TOTAL,1,'C','E'),'-')) APP_YN FROM
+                (SELECT COUNT(*) APP
+	                FROM T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?
+	                AND APP_YN = 'Y') Y,
+                (SELECT COUNT(*) CNT
+	                FROM T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?
+	                AND APP_YN IS NOT NULL) I,
+                (SELECT COUNT(*) TOTAL
+	                FROM T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?) T
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 일일 근태정보 수정 한다. -->
+    <sql name="CDPD061_UPT_01">
+        <description>결재상태 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_CD_OJTMST
+             SET     DECISION_CD = ?,
+                     UPT_MAN = ?,
+                     UPT_YMD = sysdate
+             WHERE   REQ_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+
+
+
+
+
+
+    <!-- 도서구입신청 데이터 조회 -->
+    <sql name="BOOK010_SHR">
+        <description>도서구입신청 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+                    A.RQST_NO,        
+                    A.RQST_REMARK,          
+                    A.RQST_DEPT,        
+                    A.END_TAG,
+                    A.IPT_MAN AS ENO_NO,        
+                    TO_CHAR(A.IPT_YMD, 'YYYY-MM-DD')  AS RQST_YMD,
+                       B.DPT_CD,                                                         -- 소속코드
+                       ASNHR.SF_GET_DPTNAME('01', 'A4', B.DPT_CD)     AS DPT_NM,               -- 소속
+                       B.OCC_CD,                                                         -- 직종코드
+                       ASNHR.SF_GET_COMMNAME('01', 'A1', B.OCC_CD)    AS OCC_NM,               -- 직종
+                       B.JOB_CD,                                                         -- 직위코드
+                       ASNHR.SF_GET_COMMNAME('01', 'A2', B.JOB_CD)    AS JOB_NM,               -- 직위
+                       B.ENO_NO,                                                         -- 사번
+	                   ASNHR.SF_GET_ENONAME('01', B.ENO_NO)           AS ENO_NM                -- 성명
+                FROM ASNHR.T_ED_BOOKM A,
+                    ASNHR.T_CM_PERSON B
+            WHERE A.IPT_MAN = B.ENO_NO
+			AND RQST_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 도서구입신청 데이터 조회 -->
+    <sql name="BOOK010_SHR_02">
+        <description>도서구입신청 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				RQST_NO, 
+				RQST_SEQ, 
+				BOOK_NM, 
+				BOOK_PUL, 
+				BOOK_WRT, 
+				BOOK_QTY, 
+				BOOK_AMT, 
+				BOOK_REMARK, 
+				HOMEPAGE,
+				IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+				FROM ASNHR.T_ED_BOOKD
+			WHERE RQST_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 도서구입신청 신청번호  조회 -->
+    <sql name="BOOK010_SHR_03">
+        <description>도서구입신청번호 조회</description>
+        <query>
+            <![CDATA[
+   			SELECT  TO_CHAR(SYSDATE,'YYYYMM')|| TRIM(TO_CHAR( DECODE( MAX(SUBSTR(RQST_NO, 7, 4)), NULL, '001', MAX(SUBSTR(RQST_NO, 7,4))+1 ), '0000')) RQST_NO
+               FROM    ASNHR.T_ED_BOOKM
+            WHERE   SUBSTR(RQST_NO,0,6) = TO_CHAR(SYSDATE,'YYYYMM')
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 도서구입신청 Master 데이터 저장 -->
+    <sql name="BOOK010_INS">
+        <description>도서구입신청 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_ED_BOOKM
+                 ( RQST_NO,  RQST_REMARK,  RQST_DEPT, END_TAG, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+                 ( ?,       ?,          ?,        ?,       ?, 	SYSDATE, ?,       SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 도서구입신청 Detail 데이터 저장 -->
+    <sql name="BOOK010_INS_02">
+        <description>도서구입신청 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_ED_BOOKD
+                 ( RQST_NO,  RQST_SEQ,	BOOK_NM, BOOK_PUL,	BOOK_WRT, BOOK_QTY, BOOK_AMT,	BOOK_REMARK, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD, HOMEPAGE )
+            VALUES
+                 ( 		?,  	?,			?, 		?, 			?, 		 ?, 		?, 			?,			?,		SYSDATE, 	?,   SYSDATE, ? )
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="BOOK010_SHR_APP">
+        <description>도서구입신청 결재선 정보 조회</description>
+        <query>
+            <![CDATA[
+	SELECT * FROM     
+           (SELECT GUN_YMD, GUN_GBN, GUN_DPT AS DPT_CD, SEQ_NO, ENO_NO, JOB_CD, APP_TIME, PENO_NO
+		             ,APP_YN
+		             ,DECODE(APP_YN,NULL,'미결','Y','승인','N','부결') AS APP_YN_NM
+		             ,ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+		             ,ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+					 ,ASNHR.SF_GET_DPTNAME('01', 'A4', GUN_DPT) AS DPT_NM
+					 ,REQ_NO
+					 ,decode(app_yn,null,'','R','','A','',to_char(upt_ymd,'YYYY/MM/DD HH24:MI:SS')) app_ymd
+		             ,REMARK
+		             ,NVL2(REMARK,'Click','') AS REMARK1
+		       FROM   ASNHR.T_DI_APPROVAL
+		       WHERE  REQ_NO = ?
+		        AND  GUN_GBN = 'Q'
+		        AND  SEQ_NO > '90'
+            ORDER BY SEQ_NO DESC)
+    UNION ALL        
+	SELECT * FROM     
+           (SELECT GUN_YMD, GUN_GBN, GUN_DPT AS DPT_CD, SEQ_NO, ENO_NO, JOB_CD, APP_TIME, PENO_NO
+		             ,APP_YN
+		             ,DECODE(APP_YN,NULL,'미결','Y','승인','N','부결') AS APP_YN_NM
+		             ,ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+		             ,ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+					 ,ASNHR.SF_GET_DPTNAME('01', 'A4', GUN_DPT) AS DPT_NM
+					 ,REQ_NO
+					 ,decode(app_yn,null,'','R','','A','',to_char(upt_ymd,'YYYY/MM/DD HH24:MI:SS')) app_ymd
+		             ,REMARK
+		             ,NVL2(REMARK,'Click','') AS REMARK1
+		       FROM   ASNHR.T_DI_APPROVAL
+		       WHERE  REQ_NO = ?
+		        AND  GUN_GBN = 'Q'
+		        AND  SEQ_NO < '90'		        
+            ORDER BY JOB_CD)            
+            
+            
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 도서구입신청 팝업 데이터 조회 -->
+    <sql name="BOOK010_SHR_11">
+        <description>도서구입신청 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+                    A.RQST_NO,        
+                    A.RQST_REMARK,          
+                    A.RQST_DEPT,        
+                    A.END_TAG,
+                    TO_CHAR(A.IPT_YMD, 'YYYY-MM-DD')  AS RQST_YMD,
+                       B.DPT_CD,                                                         -- 소속코드
+                       ASNHR.SF_GET_DPTNAME('01', 'A4', B.DPT_CD)     AS DPT_NM,               -- 소속
+                       B.OCC_CD,                                                         -- 직종코드
+                       ASNHR.SF_GET_COMMNAME('01', 'A1', B.OCC_CD)    AS OCC_NM,               -- 직종
+                       B.JOB_CD,                                                         -- 직위코드
+                       ASNHR.SF_GET_COMMNAME('01', 'A2', B.JOB_CD)    AS JOB_NM,               -- 직위
+                       B.ENO_NO,                                                         -- 사번
+	                   ASNHR.SF_GET_ENONAME('01', B.ENO_NO)           AS ENO_NM                -- 성명
+                FROM ASNHR.T_ED_BOOKM A,
+                    ASNHR.T_CM_PERSON B
+            WHERE A.IPT_MAN = B.ENO_NO
+			AND RQST_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 도서구입신청 데이터 조회 -->
+    <sql name="BOOK020_SHR">
+        <description>도서구입신청 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				 A.RQST_NO
+				,E.BOOK_NM||DECODE((D.RQST_SEQ),1,'', ' 외 ')||DECODE((D.RQST_SEQ),1,'',(D.RQST_SEQ-1))||DECODE((D.RQST_SEQ),1,'','권')||' / 용도 : '||A.RQST_REMARK AS RQST_REMARK
+				,ASNHR.SF_GET_ENONAME('01', A.IPT_MAN) PENO_NM
+				,B.ENO_NO
+				,B.ENO_NM
+				,ASNHR.SF_GET_DPTNAME('01', 'A4', B.DPT_CD) DPT_NM
+				,ASNHR.SF_GET_COMMNAME('01', 'A2', B.JOB_CD) JOB_NM
+				,TO_CHAR(A.IPT_YMD, 'YYYYMMDD') ORD_DATE
+                ,(CASE WHEN APP_YN_N_CNT > 0 THEN '부결'
+                       WHEN APP_YN_N_CNT = 0 AND APP_YN_A_CNT = 0 AND APP_YN_R_CNT = 0 AND APP_YN_Y_CNT > 0 THEN '결재완료'
+                       WHEN APP_YN_N_CNT = 0 AND APP_YN_A_CNT = 0 AND APP_YN_R_CNT > 0 AND APP_YN_Y_CNT = 0 THEN '저장'
+                       WHEN APP_YN_N_CNT = 0 AND APP_YN_A_CNT > 0 AND APP_YN_R_CNT = 0 AND APP_YN_Y_CNT = 0 THEN '상신'
+                    ELSE '결재진행중'
+                    END) AS APP_YN_NM
+
+			FROM
+			ASNHR.T_ED_BOOKM A, 
+			ASNHR.T_CM_PERSON B,
+                    (
+                            SELECT REQ_NO
+               ,COUNT(DECODE(APP_YN, 'R', 'R'))  APP_YN_R_CNT -- 저장중
+               ,COUNT(DECODE(APP_YN, 'A', 'A'))  APP_YN_A_CNT -- 상신중
+               ,COUNT(DECODE(APP_YN, 'Y', 'Y')) APP_YN_Y_CNT -- 결재
+               ,COUNT(DECODE(APP_YN, 'N', 'N')) APP_YN_N_CNT -- 부결
+                            FROM ASNHR.T_DI_APPROVAL
+                            WHERE 1 = 1
+                            AND   GUN_GBN = 'Q'
+                            GROUP BY REQ_NO
+                    ) C, 
+                  (
+                          SELECT RQST_NO, COUNT(RQST_NO) AS RQST_SEQ
+                          FROM ASNHR.T_ED_BOOKD
+                          WHERE 1 = 1
+                          GROUP BY RQST_NO
+                  ) D, ASNHR.T_ED_BOOKD E                      
+                   
+			WHERE A.IPT_MAN = B.ENO_NO
+			AND   A.RQST_NO = D.RQST_NO 
+			AND  ( A.RQST_NO = E.RQST_NO AND E.RQST_SEQ = '1' ) 
+			AND   D.RQST_NO = E.RQST_NO 
+            AND   A.RQST_NO = C.REQ_NO
+			AND TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') BETWEEN ? AND ?
+			AND B.DPT_CD LIKE '%'||?||'%'
+			[1]
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 도서구입신청 데이터 조회 -->
+    <sql name="BOOK020_SHR_BACK">
+        <description>도서구입신청 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				 A.RQST_NO
+				,A.RQST_REMARK
+				,ASNHR.SF_GET_ENONAME('01', A.IPT_MAN) PENO_NM
+				,B.ENO_NO
+				,B.ENO_NM
+				,ASNHR.SF_GET_DPTNAME('01', 'A4', B.DPT_CD) DPT_NM
+				,ASNHR.SF_GET_COMMNAME('01', 'A2', B.JOB_CD) JOB_NM
+				,TO_CHAR(A.IPT_YMD, 'YYYYMMDD') ORD_DATE
+				,(CASE WHEN APP_YN_N_CNT > 0 THEN '부결'
+                           WHEN APP_YN_N_CNT = 0 AND APP_YN_A_CNT = 0 AND APP_YN_R_CNT = 0 AND APP_YN_Y_CNT > 0 THEN '결재완료'
+                           WHEN APP_YN_N_CNT = 0 AND APP_YN_A_CNT = 0 AND APP_YN_R_CNT = 0 AND APP_YN_Y_CNT = 0 THEN '저장'
+                           WHEN APP_YN_N_CNT = 0 AND APP_YN_A_CNT > 0 AND APP_YN_R_CNT = 0 AND APP_YN_Y_CNT = 0 THEN '상신'
+				ELSE '결재진행중'
+				END) AS APP_YN_NM
+			FROM
+			ASNHR.T_ED_BOOKM A,
+			ASNHR.T_CM_PERSON B,
+				(
+					SELECT REQ_NO
+                           ,COUNT(DECODE(APP_YN, '', ''))  APP_YN_R_CNT -- 저장중
+                           ,COUNT(DECODE(APP_YN, 'A', 'A'))  APP_YN_A_CNT -- 상신중
+                           ,COUNT(DECODE(APP_YN, 'Y', 'Y')) APP_YN_Y_CNT -- 결재
+                           ,COUNT(DECODE(APP_YN, 'N', 'N')) APP_YN_N_CNT -- 부결
+					FROM ASNHR.T_DI_APPROVAL
+					WHERE 1 = 1
+					AND   GUN_GBN = 'Q'
+					GROUP BY REQ_NO
+				) C
+			WHERE A.IPT_MAN = B.ENO_NO
+			AND   A.RQST_NO = C.REQ_NO
+			AND TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') BETWEEN ? AND ?
+			AND B.DPT_CD LIKE '%'||?||'%'
+			[1]
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+    <!-- 도서구입신청 데이터 조회 -->
+    <sql name="BOOK030_SHR">
+        <description>도서구입신청 조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+                    A.RQST_NO,       
+                     A.RQST_REMARK,          
+                     A.RQST_DEPT,        
+                     A.END_TAG,
+                    A.IPT_MAN,        A.IPT_YMD,
+           			   B.DPT_CD,                                                         -- 소속코드
+	                   ASNHR.SF_GET_DPTNAME('01', 'A4', B.DPT_CD)     AS DPT_NM,               -- 소속
+	                   B.OCC_CD,                                                         -- 직종코드
+	                   ASNHR.SF_GET_COMMNAME('01', 'A1', B.OCC_CD)    AS OCC_NM,               -- 직종
+	                   B.JOB_CD,                                                         -- 직위코드
+	                   ASNHR.SF_GET_COMMNAME('01', 'A2', B.JOB_CD)    AS JOB_NM,               -- 직위
+	                   B.ENO_NO,                                                         -- 사번
+	                   ASNHR.SF_GET_ENONAME('01', B.ENO_NO)           AS ENO_NM                -- 성명
+                FROM ASNHR.T_ED_BOOKM A,
+                    	  ASNHR.T_CM_PERSON B
+            WHERE A.IPT_MAN = B.ENO_NO
+              AND TO_CHAR(A.IPT_YMD, 'YYYYMM') BETWEEN ? AND ?
+              AND A.RQST_DEPT   LIKE ? || '%'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 도서구입신청 데이터 조회 -->
+    <sql name="BOOK030_SHR_02">
+        <description>도서구입신청 조회</description>
+        <query>
+            <![CDATA[
+			SELECT
+				RQST_NO, 
+				BOOK_NM, 
+				BOOK_PUL, 
+				BOOK_WRT, 
+				BOOK_QTY, 
+				BOOK_AMT, 
+				BOOK_REMARK,
+				IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+				FROM ASNHR.T_ED_BOOKD
+			WHERE RQST_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 도서구입신청 데이터 조회 -->
+    <sql name="BOOK030_SHR_PRINT">
+        <description>도서구입신청 조회</description>
+        <query>
+            <![CDATA[
+           SELECT 
+		        	 ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+           			 ,ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+					 ,ASNHR.SF_GET_DPTNAME('01', 'A4', GUN_DPT) AS DPT_NM
+					 ,DECODE(APP_YN,NULL,'미결  ','Y','승인  ','N','부결  ')  || decode(app_yn,null,'','R','','A','',to_char(upt_ymd,'YYYY/MM/DD HH24:MI:SS  ')) AS APP_STATUS
+		             ,REMARK
+		             ,NVL2(REMARK,'Click','') AS REMARK1
+		       FROM   ASNHR.T_DI_APPROVAL
+		       WHERE  REQ_NO = ?
+		        AND  GUN_GBN = 'Q'
+		        AND  SEQ_NO <'90'
+            ORDER BY SEQ_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 도서구입신청 데이터 조회 -->
+    <sql name="BOOK030_SHR_PRINT2">
+        <description>도서구입신청 조회</description>
+        <query>
+            <![CDATA[
+           SELECT 
+		        	 ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+           			 ,ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+					 ,ASNHR.SF_GET_DPTNAME('01', 'A4', GUN_DPT) AS DPT_NM
+					 ,DECODE(APP_YN,'A','미결  ','Y','승인  ','N','부결  ')  || decode(app_yn,null,'','R','','A','',to_char(upt_ymd,'YYYY/MM/DD HH24:MI:SS  ')) AS APP_STATUS
+		             ,REMARK
+		             ,NVL2(REMARK,'Click','') AS REMARK1
+		       FROM   ASNHR.T_DI_APPROVAL
+		       WHERE  REQ_NO = ?
+		        AND  GUN_GBN = 'Q'
+		        AND  SEQ_NO > '90'		        
+            ORDER BY JOB_CD
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 도서구입 결재정보 저장 -->
+    <sql name="BOOK010_SAV_APP">
+        <description>도서구입신청 결재정보 저장</description>
+        <query>
+            <![CDATA[
+
+           INSERT INTO ASNHR.T_DI_APPROVAL
+                ( GUN_YMD
+                , GUN_GBN
+                , GUN_DPT
+                , PENO_NO
+                , REQ_NO
+                , APP_YN
+                , SEQ_NO
+                , ENO_NO
+                , JOB_CD
+                , IPT_MAN
+                , IPT_YMD
+                , UPT_MAN
+                , UPT_YMD)
+         VALUES ( ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , SYSDATE
+                , ?
+                , SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 결재선정보 삭제 -->
+    <sql name="BOOK010_DEL2">
+         <description>도서신청 결재선 삭제</description>
+         <query>
+              <![CDATA[
+              DELETE FROM ASNHR.T_DI_APPROVAL
+               WHERE REQ_NO = ?
+               AND GUN_GBN = 'Q'
+              ]]>
+         </query>
+    </sql>
+
+
+    <!-- 결재처리 -->
+    <sql name="BOOK010_UPT_MST">
+        <description>결재정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_ED_BOOKM
+            SET    END_TAG = 'A'
+            WHERE  1=1
+            AND    RQST_NO  = ?
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 결재처리 -->
+    <sql name="BOOK011_UPT_DETAIL">
+        <description>디테일 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_ED_BOOKD
+            SET
+					BOOK_NM = ?,
+					BOOK_PUL = ?,
+					BOOK_WRT = ?,
+					BOOK_QTY = ?,
+					BOOK_AMT = ?,
+					BOOK_REMARK = ?,
+                    UPT_MAN = ?,
+                    UPT_YMD = sysdate
+            WHERE  1=1
+            AND    RQST_NO  = ?
+            AND	   RQST_SEQ = ?
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+    <!-- 결재처리 -->
+    <sql name="BOOK011_UPT_NEW">
+        <description>결재정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_DI_APPROVAL
+            SET    APP_YN = ?,
+                   APP_TIME = TO_CHAR(sysdate,'HH24:MI'),
+                   REMARK   = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD = sysdate
+            WHERE  1=1
+            AND    REQ_NO  = ?
+            AND    GUN_GBN = ?
+            AND    ENO_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 결재한개수 세기 -->
+    <sql name="BOOK011_CNT">
+        <description>결재정보개수세기</description>
+        <query>
+            <![CDATA[
+
+            SELECT TOTAL,APP,REJ,CNT,
+              	case
+                 when REJ > 0 then 'N'
+                 when APP = TOTAL then 'Y'
+                 else '-'
+            	end APP_YN
+            FROM
+                (SELECT COUNT(*) APP
+	                FROM ASNHR.T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?
+	                AND APP_YN = 'Y') Y,
+	            (SELECT COUNT(*) REJ
+	                FROM ASNHR.T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?
+	                AND APP_YN = 'N') N,
+                (SELECT COUNT(*) CNT
+	                FROM ASNHR.T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?
+	                AND APP_YN IS NOT NULL) I,
+                (SELECT COUNT(*) TOTAL
+	                FROM ASNHR.T_DI_APPROVAL
+	                WHERE  REQ_NO  = ?
+	                AND    GUN_GBN = ?) T
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="BOOK011_UPT_HOL_NEW">
+        <description>도서구입 결재과정 T_ED_BOOKM 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_ED_BOOKM
+               SET END_TAG 		= ?
+                 , UPT_MAN      = ?
+                 , UPT_YMD      = SYSDATE
+             WHERE 		1       = 1
+               AND RQST_NO      = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+	<!-- 도서구입신청 조회 -->
+    <sql name="BOOK030_PRT">
+        <description>도서구입신청 내용 조회</description>
+        <query>
+            <![CDATA[
+              SELECT
+              A.RQST_NO,
+              C.ENO_NO,
+              C.ENO_NM AS NAM_KOR,
+              C.DPT_CD,
+              C.JOB_CD,
+              ASNHR.SF_GET_DPTNAME('01','A4',C.DPT_CD) AS DPT_NM,
+              ASNHR.SF_GET_COMMNAME('01','A2',C.JOB_CD) AS JOB_NM,
+              A.RQST_REMARK, '','',''
+            FROM   ASNHR.T_ED_BOOKM A, ASNHR.T_ED_BOOKD B, ASNHR.T_CM_PERSON C
+            WHERE 1 = 1
+            AND A.RQST_NO = B.RQST_NO
+            AND A.IPT_MAN = C.ENO_NO
+            AND	A.RQST_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 도서구입신청 디테일조회 -->
+    <sql name="BOOK030_PRT_01">
+        <description>디테일조회</description>
+        <query>
+            <![CDATA[
+              SELECT
+					RQST_SEQ,
+					BOOK_NM,
+					BOOK_PUL,
+					BOOK_WRT,
+					BOOK_QTY,
+					BOOK_AMT,
+					BOOK_REMARK
+				FROM ASNHR.T_ED_BOOKD
+				       WHERE  RQST_NO = ?
+		      	ORDER BY RQST_SEQ
+            ]]>
+        </query>
+    </sql>
+
+
+	<!-- 결재자정보 조회 -->
+    <sql name="BOOK030_PRT_02">
+        <description>결재자정보 조회</description>
+        <query>
+            <![CDATA[
+           SELECT ENO_NO
+		    	  , ASNHR.SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+		   		  , REQ_NO
+				  , GUN_DPT
+				  , ASNHR.SF_GET_DPTNAME('01','A4',GUN_DPT) AS DPT_NM
+				  , JOB_CD
+				  , ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM
+				  , SEQ_NO
+				  , '' SEQ_NM,'99991231' GUN_YMD, GUN_DPT as DPT_CD
+				  , APP_YN
+                  , (CASE WHEN APP_YN = 'R' THEN  '상신  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'N' THEN  '부결  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'E' THEN  '반송  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                          	   WHEN APP_YN = 'Y' THEN  '승인  ' || TO_CHAR(UPT_YMD, 'YYYY-MM-DD  HH24:MI')
+                    	       ELSE '미결'
+                      END ) APP_STATUS
+                   ,REMARK
+                   ,NVL2(REMARK,'Click','') AS REMARK1
+            FROM   ASNHR.T_DI_APPROVAL
+            WHERE  REQ_NO = ?
+			AND    GUN_GBN = 'Q'
+            ORDER BY SEQ_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 도서구입신청 조회 -->
+    <sql name="BOOK030_SHR_40">
+        <description>조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+	                    A.RQST_NO,        
+	                    A.RQST_REMARK,          
+	                    A.RQST_DEPT,        
+	                    A.END_TAG,
+	                    A.IPT_MAN,        
+	                    A.IPT_YMD,
+						B.RQST_SEQ,	
+						B.BOOK_NM,	
+						B.BOOK_PUL,
+						B.BOOK_WRT,	
+						B.BOOK_QTY,	
+						B.BOOK_AMT,	
+						B.BOOK_REMARK,
+           			   C.DPT_CD,                                                         -- 소속코드
+	                   ASNHR.SF_GET_DPTNAME('01', 'A4', C.DPT_CD)     AS DPT_NM,               -- 소속
+	                   C.OCC_CD,                                                         -- 직종코드
+	                   ASNHR.SF_GET_COMMNAME('01', 'A1', C.OCC_CD)    AS OCC_NM,               -- 직종
+	                   C.JOB_CD,                                                         -- 직위코드
+	                   ASNHR.SF_GET_COMMNAME('01', 'A2', C.JOB_CD)    AS JOB_NM,               -- 직위
+	                   C.ENO_NO,                                                         -- 사번
+	                   ASNHR.SF_GET_ENONAME('01', C.ENO_NO)           AS ENO_NM                -- 성명
+                FROM ASNHR.T_ED_BOOKM A,
+                     ASNHR.T_ED_BOOKD B,
+                     ASNHR.T_CM_PERSON C
+            WHERE
+            	A.RQST_NO = B.RQST_NO
+            	AND A.IPT_MAN = C.ENO_NO
+              	AND TO_CHAR(A.IPT_YMD, 'YYYYMM') BETWEEN ? AND ?
+              	AND B.BOOK_NM   LIKE '%'||?||'%'
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

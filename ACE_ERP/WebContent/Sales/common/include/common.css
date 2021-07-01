@@ -1,0 +1,82 @@
+BODY,TD,input,DIV,form,TEXTAREA,center,pre,blockquote {font-size:9pt ; font-family: "굴림체","Verdana"; color:#000000} 
+
+body
+{ 
+  scrollbar-face-color:#ffffff;
+  scrollbar-highlight-color:#909090;
+  scrollbar-3dlight-color:#ffffff;
+  scrollbar-shadow-color:#909090;
+  scrollbar-darkshadow-color:#ffffff;
+  scrollbar-track-color:#ffffff;
+  scrollbar-arrow-color:#909090;}
+
+.textarea {border:1px solid #c6c6c6; font-size:12px ;  color:#ffffff; background : #f6f6f6; border:1x solid : #adafb0; line-height:18px; IME-MODE:active;}
+.select { font-size:12px ;  color : #3f3f3f; background : #FBFCF6; line-height:16px;}
+.input {font-size:12px ; height:19px; border:solid 1px; border-color:#a8a8a8; word-spacing:0px;}
+
+A:link {TEXT-DECORATION: none; COLOR: #000000;}
+A:active {TEXT-DECORATION: none; COLOR: #000000;}
+A:visited {TEXT-DECORATION: none; COLOR: #000000;}
+A:hover {COLOR: #00619F; TEXT-DECORATION: none}
+
+td {font-size:12px; color:#474747; line-height:16px; letter-spacing:0;}
+
+<!-- 타이틀 -->
+.tt {font-size:15px ; font-family: "돋움체"; color: #000000; font-weight: bold;}
+
+<!-- 왼쪽메뉴 타이틀 -->
+.tt01 {color: #000066; font-weight: bold; text-align: center;}
+
+<!-- 위치 텍스트 -->
+.loca {color: #000000; text-align: right;}	
+
+
+<!-- 필수항목 -->
+.boardt02 {font-weight: bold; background: #eeeeee; text-align: center; text-valign: middle; line-width: 72px; line-height: 25px;}
+
+<!-- NON 필수항목 -->
+.text {background: #eeeeee; text-align: center; text-valign: middle; line-width: 72px; line-height: 25px;}
+
+
+<!-- 그리드(파랑) 타이틀 -->
+.boardt03 {font-weight: bold; background: #b8d2ed; text-align: center;}
+
+
+<!-- 테이블 타이틀 (회색 보이는 화면) -->
+.boardt04 {color: #000000; background: #dddddd; text-align: center;}
+
+
+<!-- 그리드 (노랑)-->
+.boardt05 {background: #fefec0; text-align: center;}
+
+
+<!-- 그리드(파랑) 타이틀 -->
+.boardt06 {color: #ffffff; text-align: center; text-valign: middle;}
+
+
+<!-- 게시판 상단 -->
+.board {text-align: center; text-valign: middle}
+
+
+	
+<!-- 인풋 (리드온리) -->
+.input01 {height:19px;  background : #eeeeee ; border:solid 1px; border-color:#a8a8a8; word-spacing: 0px; }
+	
+<!-- 테이블 텍스트 내용 -->	
+.td01 {color:#474747; line-height:16px; text-align:center;}
+
+<!-- 팝업 타이틀 텍스트 -->
+.poptt {font-size: 12px; font-weight: bold;}
+
+<!-- 달력 텍스트 -->	
+.cal {height:20px; font-weight: bold; color : #000000 ; text-align:center; background: #b3b3b3; }
+
+<!-- 달력 텍스트 -->	
+.cal01 {height:20px; font-weight: bold; color : #000000 ; text-align:center; background: #969696; }
+
+<!-- 달력_DAY 텍스트 -->	
+.cal_day {width:105px; height:80px; text-align:center;}
+
+<!-- 달력_합계 -->	
+.cal_total {height:20px; font-weight: bold; color: #0095cd ; text-align:center; background: #ffffff; }
+

@@ -1,0 +1,205 @@
+<!-----------------------------------------------------------------------------
+                          케이씨티시 웹 
+-------------------------------------------------------------------------------
+시 스 템 명 : 인사조직찾기-인사관리
+프로그램 ID : HUEA001R.HTML
+유       형 : html
+사 용 언 어 : html
+기 능 정 의 :
+변 경 이 력 : 
+특 기 사 항 : 
+------------------------------------------------------------------------------>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>인사소속선택</TITLE>
+<META NAME="Generator" CONTENT="EditPlus">
+<META NAME="Author" CONTENT="">
+<META NAME="Keywords" CONTENT="">
+<META NAME="Description" CONTENT="">
+<!-----------------------------------------------------------------------------
+  문자형 정의 [charset]
+------------------------------------------------------------------------------>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ks_c_5601">
+<!-----------------------------------------------------------------------------
+  StyleSheet 정의 [.css]
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+<!-----------------------------------------------------------------------------
+  Global Function 정의 [.js]
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+<script language=JavaScript src="../../common/include/kctc.js"></script>
+<script language=javascript src="../../common/include/calendar.js"></script>
+<!---------------------------------------------------------------------------
+마우스 오른쪽 버튼 사용금지
+----------------------------------------------------------------------------->
+<script language="JavaScript1.2">
+if (document.all)
+//document.onmousedown= new Function("if (event.button==2||event.button==3) alert('<주> 케이씨티시 웹싸이트에 오신것을 환영합니다!')")
+</script>
+<!--****************************************************************************--> 
+
+<script language="JavaScript1.2">
+
+//<!--성명 조회  -->
+function search()
+{
+  var sv_chk1= "Y";
+  var sv_chk2= select_cod.value;;
+  ADE_Data_1.DataID ="http://was.kctc.co.kr/services/servlet/CLSEMP.Jaea102r?gstr1="+sv_chk1+ "&gstr2=" +  sv_chk2;
+  //prompt("",ADE_Data_Tea11m.DataID);
+  document.all.LowerFrame.style.visibility="visible";
+  ADE_Data_1.reset(); 
+}
+
+<!---------화면닫기------------>
+ function fncClose()
+ {
+  	var	arrRtn	=	new Array();
+	arrRtn[0] = "";
+    arrRtn[1] = "";
+    arrRtn[2] = "";
+    arrRtn[3] = "";
+    arrRtn[4] = "";
+    arrRtn[5] = "";
+    arrRtn[6] = "";
+    arrRtn[7] = "";
+    arrRtn[8] = "";
+    arrRtn[9] = "";
+    arrRtn[10] = "";
+	if(ADE_Data_1.countrow > 0)
+	{
+		arrRtn[0]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AA");  //점소
+		arrRtn[1]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AB");  //부서
+		arrRtn[2]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AC");  //과(팀)
+		arrRtn[3]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AD");  //점소명
+		arrRtn[4]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AE");  //부서명
+		arrRtn[5]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AF");  //과(팀)
+		arrRtn[6]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AG");  //부서약호
+		arrRtn[7]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AH");  //부서약호명
+		arrRtn[8]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AV");  //부서약식명
+		arrRtn[9]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11AT");  //조직관리자
+		arrRtn[10]	=	ADE_Data_1.namevalue(ADE_Data_1.rowposition,"EA11ATT"); //조직관리자명
+
+	}
+	//** Parent Window로 전달
+	window.returnValue	=	arrRtn;
+	window.close();
+  }
+
+</script>
+<!------------------------------------------------------------------------
+GAUCE Component Script 정의
+-------------------------------------------------------------------------->
+<!-- Grid를 Mouse로 Click할 때 발생하는 Event -->
+<script language=JavaScript for=ADE_Grid_1 event=OnDblClick(row,colid)>
+  if  (row == 0)
+    {return;}
+  else
+    {fncClose(); }
+</script>
+<!--  //윈도위 상태바에 데이타건수 뿌려줌-->
+<SCRIPT language=JavaScript event=OnLoadCompleted(rowcount) for=ADE_Data_1>
+  document.all.LowerFrame.style.visibility="hidden";
+  if(countrow == 0 )
+	{
+ 	alert("검색된 데이터가 없습니다.");
+	}else{
+	msg_id.value= "(" + ADE_Data_1.countrow + ")건의 데이타가 검색 되었습니다.";
+	}
+</SCRIPT>
+<comment id="__NSID__"><OBJECT id=ADE_Data_1 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="purple" alink="red" leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" >
+<table border="0" cellpadding="0" cellspacing="0" width="300" height="300" class=cond_table>
+<!--제목및 버튼부분-->
+<tr>
+ <td width=100% height="20px" colspan="2">
+  <table border="0" cellpadding="0" cellspacing="0" width=100% height="20px">
+   <tr>
+    <td width="20" height="20"  background='../img/page_topbg.jpg'><img src="../img/title_img.gif"></td>
+    <td width=100%  align="left" background='../img/title_line.jpg' class=title>인사소속선택</td>
+   </tr>
+  </table>
+ </td>
+</tr>
+<!--줄긋기-->
+<tr height="5"><td background="../img/title_line.gif" colspan="2"></td></tr>
+<!--조건정의-->
+<tr>
+ <td width="100%" align="center" valign="top">
+   <table border="0"  class=cond_table width="100%">
+    <tr height="40px">
+      <td height="40px" valign="top" ><fieldset><legend>검색조건</legend>
+	    <table width=100% cellpadding=0 cellspacing=0  border="0" valign="top">
+          <tr>
+ 		   <td width=45%><SELECT id=select_cod><option selected value="1">점소단위</option>
+			   <option value="2">부서단위</option>
+			   <option value="A">전    체</option></SELECT></td>
+          <td width=40%></td>
+		  <td width=15% align="right"><IMG SRC="../../common/img/btn/com_b_query.gif" WIDTH="52" HEIGHT="21" BORDER="0" ALT="직원을 조회합니다" style="cursor:hand;" onclick="search()" align="top"></td>
+	    </tr>
+       </table></fieldset>	
+	  </td>
+     </tr>
+   </table>
+  </td>
+</tr>
+ <!--LIST-->
+   <tr>
+     <td width="288" >
+       <table>
+ 		 <tr>
+		   <td>	
+			 <comment id="__NSID__"><OBJECT id=ADE_Grid_1 width="300" height="300" classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+				<param name=dataid        value="ADE_Data_1"> 
+  				<param name=Fillarea      value="true"> 
+				<param name=Editable      value=false> 
+				<param name=IndWidth      value=12>
+				<param name=colsizing     value=true>
+				<param name=FontName      value='굴림'>
+				<param name=FontSize      value=9 >
+				<param Name=BorderStyle   value=2> 
+				<param Name=HeadBorder    value=4>
+				<param Name=HeadLineColor value="#DDDDDD">
+				<PARAM NAME="titleHeight" VALUE="30">
+				<param name="LineColor" value="#DDDDDD">
+				<PARAM NAME="RowHeight" VALUE="20">
+				<Param Name=SortView        value=Left>
+				<PARAM NAME="Format" VALUE='
+					<C>ID="{currow}",HeadBgColor=#eaeaea bgcolor=#FFFFCC Name="No", width=20px, align=center</C>
+					<C> Name=코드 HeadAlign=Center HeadBgColor=#eaeaea SumBgColor=#d4d0c8 Width=50 sort=true value={(EA11AA&EA11AB&EA11AC)}</C> 
+					<C> Name=소속명 ID=EA11AV HeadAlign=Center HeadBgColor=#eaeaea SumBgColor=#d4d0c8 Width=100 sort=true</C>
+					<C> Name=관리자 ID=EA11ATT HeadAlign=Center HeadBgColor=#eaeaea SumBgColor=#d4d0c8 Width=60 </C>
+					<C> Name=약호   ID=EA11AG HeadAlign=Center HeadBgColor=#eaeaea SumBgColor=#d4d0c8 Width=50 SORT=TRUE</C>
+					<C> Name=원가   HeadAlign=Center HeadBgColor=#eaeaea SumBgColor=#d4d0c8 Width=70 sort=true</C value={(EA11AQ&EA11AR)}>'>
+			  </OBJECT></comment><script>__ws__(__NSID__);</script>
+            </td>
+          </tr>
+	    </table>
+	 </td>
+   </tr>
+ <!--메시지-->
+  <tr>
+   <td width=100%  align="center" valign="top" >
+      <TABLE width=100% >
+	   <TR>
+		<TD width=20% class=cond_msg align=center>메세지</TD>
+		<TD width=70% align=left><INPUT id=msg_id type="text" size=30 readOnly=true></TD>
+		<TD align="right" width=10%>PUEA001R</TD>
+	   </TR>
+	  </TABLE></td>
+  </tr>
+</table>
+<!------------------------------------------------------------------------
+wait  이미지
+-------------------------------------------------------------------------->
+<iframe id="LowerFrame" name="work" style="visibility:hidden; position:absolute; left:50px; top:200px" FrameBorder="0" src="../common/wait.html" width="250px" height="50px">
+
+<iframe id="LowerFrame" name="work" style="visibility:hidden;position:absolute;left:50px;top:200px;width:268px;height:22px" FrameBorder="0" src="./per_wait.html"></iframe>
+
+</body>
+</html>

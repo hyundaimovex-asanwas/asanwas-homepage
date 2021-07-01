@@ -1,0 +1,1198 @@
+
+
+<sqls>
+
+<!-- 증명서발급관리 -->
+<!--
+***********************************************************************
+* @UseCase     : IDTA010
+***********************************************************************
+* 2007/01/16      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 증명서발급 대상자 정보를 등록한다.(임시 테이블) -->
+    <sql name="IDTA010_INS_SHR">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT B.ENO_NO
+                 , B.ENO_NM
+              FROM ASNHR.T_ID_CEFBOOK_TEMP A
+                 , ASNHR.T_CM_PERSON B
+             WHERE A.ENO_NO = B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 대상자 정보를 등록한다.(임시 테이블) -->
+    <sql name="IDTA010_INS_TEMP">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_ID_CEFBOOK_TEMP
+                 ( SES_NO
+                 , REQ_NO
+                 , ENO_NO )
+          VALUES ( ?
+                 , ?
+                 , ? )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 대상자 정보를 삭제한다.(임시 테이블) -->
+    <sql name="IDTA010_DEL_TEMP">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+            DELETE
+              FROM ASNHR.T_ID_CEFBOOK_TEMP
+             WHERE SES_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : IDTA020
+***********************************************************************
+* 2007/01/17      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 증명서발급 정보를 조회 한다. -->
+    <sql name="IDTA020_SHR">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  A.CEF_NO
+                    ,B.DPT_NM
+                    ,B.JOB_NM
+                    ,A.ENO_NO
+                    ,B.ENO_NM
+                    ,ASNHR.SF_GET_COMMNAME('01', 'R3', A.CEF_SEC) AS CEF_SEC
+                    ,ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN) AS CEF_RSN
+                    ,A.CEF_CNT
+	                ,TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SPL_YMD
+             FROM    ASNHR.T_ID_CEFBOOK A,
+                    ( SELECT ENO_NO, DPT_NM, JOB_NM, ENO_NM FROM ASNHR.VI_T_CM_PERSON2 ) B
+             WHERE  A.ENO_NO = B.ENO_NO
+             [1]
+             AND   (CEF_STS = 'E' OR CEF_STS = 'F' )
+             ORDER  BY A.CEF_NO ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 정보를 조회 한다. -->
+    <sql name="IDTA020_SHR_PRINT">
+        <description>증명서발급 대장</description>
+        <query>
+            <![CDATA[
+             SELECT  A.CEF_NO
+                    ,B.DPT_NM
+                    ,B.JOB_NM
+                    ,A.ENO_NO
+                    ,B.ENO_NM
+                    ,ASNHR.SF_GET_COMMNAME('01', 'R3', A.CEF_SEC) AS CEF_SEC  --증명서 종류
+                    ,ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN) AS CEF_RSN  --증명서 용도
+                    ,A.CEF_CNT    --증명서 매수
+	                ,TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SPL_YMD
+	                ,A.CEF_STS
+	                ,TO_CHAR(TO_DATE((SELECT Max(SPL_YMD) FROM ASNHR.T_ID_CEFBOOK WHERE  REQ_NO = C.REQ_NO  AND   C.SES_NO = ?),'YYYYMMDD'),'YYYY/MM/DD') AS MAX_YMD
+             FROM    ASNHR.T_ID_CEFBOOK A,
+                    ( SELECT ENO_NO, DPT_NM, JOB_NM, ENO_NM FROM ASNHR.VI_T_CM_PERSON2 ) B,
+                     ASNHR.T_ID_CEFBOOK_TEMP C
+             WHERE  A.ENO_NO = B.ENO_NO
+             AND   A.REQ_NO = C.REQ_NO AND A.ENO_NO = C.ENO_NO
+             AND   C.SES_NO = ?
+             ORDER  BY A.CEF_NO ASC
+            ]]>
+        </query>
+    </sql>
+	
+<!--
+***********************************************************************
+* @UseCase     : IDTA030
+***********************************************************************
+* 2007/02/20      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 증명서발급 정보를 조회 한다. -->
+    <sql name="IDTA030_SHR">
+        <description>증명서발급 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.CEF_NO
+                 , A.REQ_NO
+                 , A.ENO_NO
+                 , A.DRV_TAG
+                 , A.REMARK
+                 , A.CEF_SEC
+                 , ASNHR.SF_GET_COMMNAME('01', 'R3', A.CEF_SEC) AS CEF_SEC_NM
+                 , A.CEF_RSN
+                 , ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN) AS CEF_RSN_NM
+                 , A.CEF_CNT
+                 , B.CET_NO
+                 , B.DPT_NM
+                 , B.JOB_NM
+                 , B.DPT_CD
+                 , TO_CHAR(B.JPR_YMD,'YYYYMMDD') AS JPR_YMD
+                 , TO_CHAR(B.HIR_YMD,'YYYYMMDD') AS HIR_YMD
+                 , B.JOB_CD
+                 , B.ADDRESS
+                 , B.PER_ADR
+                 , B.ENO_NM
+	             , TO_CHAR(TO_DATE(A.REQ_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS REQ_YMD
+	             , TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SPL_YMD
+	             , TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYYMMDD'),'YYYYMMDD') AS SPL_YMD2
+	             , TO_CHAR(B.RET_YMD,'YYYYMMDD') AS RET_YMD
+	             , TO_CHAR(TO_DATE(A.PRT_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS PRT_YMD
+                 , A.CEF_STS
+	             , DECODE(A.CEF_STS, 'A', '저장'
+	                               , 'B', '신청'
+	                               , 'C', '반송'
+	                               , 'E', '발급'
+	                               , 'I', '출입국'
+	                               , 'F', '직접출력'
+	                      ) AS CEF_STS_NM
+                 , TO_CHAR(A.IPT_YMD, 'YYYY-MM-DD') AS IPT_YMD
+                 , 'T' AS IS_CHK
+                 , A.STR_YMD
+                 , A.END_YMD
+                 , A.CITY
+              FROM ASNHR.T_ID_CEFBOOK A
+                 , (SELECT ENO_NO
+                         ,'19'||SUBSTR(CET_NO, 1, 2)||'년 '||SUBSTR(CET_NO, 3, 2)||'월 '||SUBSTR(CET_NO, 5, 2)||'일' AS CET_NO
+                         ,OCC_CD
+                         , DPT_CD
+                         , DPT_NM
+                         , TEAM_NM
+                 		 , HIR_YMD
+                         , JOB_CD
+                         , CASE WHEN JOB_CD = '160' THEN  '부장'
+                                WHEN JOB_CD = '120' THEN  '상무'
+                                WHEN JOB_CD = '890' THEN  '사원'
+                           ELSE JOB_NM END JOB_NM
+                         , JPR_YMD
+                         , ENO_NM
+                         , RET_YMD
+                         , PER_ADR
+                         , ADR_CT||' '||ADDRESS AS ADDRESS
+                      FROM ASNHR.VI_T_CM_PERSON2
+                    ) B
+             WHERE A.ENO_NO     = B.ENO_NO
+               AND A.ENO_NO     = NVL(?, A.ENO_NO)
+             [1]
+          ORDER BY A.SPL_YMD DESC, A.CEF_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다.(HDPS) -->
+    <sql name="IDTA030_SHR_01">
+        <description>사원 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  ROLE_CD
+             FROM    ASNHR.T_CM_EMPLIST
+             WHERE   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다. -->
+    <sql name="IDTA030_SHR_02">
+        <description>사원 정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                 , ENO_NM
+                 , DPT_CD
+                 , DPT_NM
+                 , JOB_CD
+                 , JOB_NM
+                 , PER_ADR
+                 , ADR_CT || ' ' || ADDRESS AS ADDRESS
+                 , RET_YMD
+              FROM ASNHR.VI_T_CM_PERSON2
+             WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 증명서발급 정보를 저장 한다. -->
+    <sql name="IDTA030_INS">
+        <description>증명서발급 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_ID_CEFBOOK
+                 ( REQ_NO
+                 , ENO_NO
+                 , CEF_SEC
+                 , CEF_RSN
+                 , CEF_CNT
+                 , CEF_NO
+                 , REQ_YMD
+                 , SPL_YMD
+                 , CEF_STS
+                 , PRT_YMD
+                 , REMARK
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD
+                 , STR_YMD
+                 , END_YMD
+                 , CITY
+                  )
+          VALUES ( (SELECT ?||TRIM(TO_CHAR( DECODE( MAX(SUBSTR(REQ_NO, 7, 10)), NULL, '0001', MAX(SUBSTR(REQ_NO, 7,10))+1 ), '0000'))
+                      FROM ASNHR.T_ID_CEFBOOK
+                     WHERE SUBSTR(REQ_NO, 0, 6) = ?
+                    )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , DECODE( ?
+                         , ''
+                         , ''
+                         , (SELECT ? ||'-'|| TRIM(TO_CHAR( DECODE( MAX(SUBSTR(CEF_NO, 6, 8)), NULL, '0001', MAX(SUBSTR(CEF_NO, 6,8))+1 ), '0000'))
+                              FROM ASNHR.T_ID_CEFBOOK
+                             WHERE SUBSTR(CEF_NO, 0, 4) = ?
+                            )
+                          )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , ?
+                 , ?
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 정보를 수정 한다. -->
+    <sql name="IDTA030_UPT">
+        <description>증명서발급 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_ID_CEFBOOK
+             SET     CEF_SEC        = ?,       -- 신청서종류
+                     CEF_RSN        = ?,       -- 용도
+                     CEF_CNT        = ?,       -- 매수
+                     SPL_YMD        = ?,       -- 발급일자
+                     CEF_NO         = DECODE(?, '', ''
+                                              ,( SELECT  ? ||'-'|| TRIM(TO_CHAR( DECODE( MAX(SUBSTR(CEF_NO, 6, 8)), NULL, '0001', MAX(SUBSTR(CEF_NO, 6,8))+1 ), '0000'))
+                                                 FROM    ASNHR.T_ID_CEFBOOK
+                                                 WHERE   SUBSTR(CEF_NO, 0, 4) = ?)
+                                      ),       -- 발급번호
+                     CEF_STS        = ?,       -- 상태
+                     PRT_YMD        = ?,       -- 첨부문서출력일
+                     REMARK         = ?,       -- 비고
+                     UPT_MAN        = ?,       -- 최종 수정자
+                     UPT_YMD        = sysdate, -- 최종 수정일자
+                     STR_YMD    	= ?,        -- 부임기간
+                     END_YMD    	= ?,        -- 부임기간
+                     CITY    		= ?        -- 부임지
+             WHERE   REQ_NO         = ?        -- 신청일자
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 증명서발급 일자를 수정한다. -->
+    <sql name="IDTA030_UPT_PRT">
+        <description>증명서발급 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_ID_CEFBOOK
+               SET PRT_YMD      = TO_CHAR(SYSDATE, 'YYYYMMDD')  -- 첨부문서출력일
+                 , UPT_MAN      = ?                             -- 최종 수정자
+                 , UPT_YMD      = SYSDATE                       -- 최종 수정일자
+             WHERE REQ_NO       = ?                             -- 신청일자
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신청서 정보를 삭제 한다. -->
+    <sql name="IDTA030_DEL">
+        <description>신청서 정보 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE
+             FROM    ASNHR.T_ID_CEFBOOK
+             WHERE   REQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 증명서 발급 정보를 조회한다. -->
+     <sql name="IDTA010_CAR_PRT">
+         <description>증명서발급 정보 프린트</description>    	
+        <query>
+            <![CDATA[
+			 SELECT  A.CEF_NO
+                    ,B.DPT_NM
+                    ,B.JOB_NM
+                    ,A.ENO_NO
+                    ,B.ENO_NM
+                    ,A.CEF_SEC as Gubun
+                    ,ASNHR.SF_GET_COMMNAME('01', 'R3', A.CEF_SEC) AS CEF_SEC
+                    ,DECODE(A.CEF_RSN,'19',ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN)||' ('||A.REMARK||')',ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN)) AS CEF_RSN
+                    ,A.CEF_CNT
+	                ,TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SPL_YMD
+                    ,TO_CHAR(B.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+					,B.RET_YMD
+					,CET_NO
+					, (B.ADR_CT || ' ' || B.ADDRESS)As ADDRESS1
+					, (B.RADR_CT || ' ' || B.RADR)As ADDRESS2
+					,TRUNC(MONTHS_BETWEEN(NVL(B.RET_YMD, SYSDATE), B.HIR_YMD)/12)||'년 '||TRUNC(MOD(MONTHS_BETWEEN(NVL(B.RET_YMD, SYSDATE), B.HIR_YMD), 12))||'개월' AS LSE_YYMM
+					,B.NAM_ENG
+					,A.ENG_PER_ADR
+					,A.ENG_ADDRESS
+					,(CASE WHEN B.MF_TAG = 'M' THEN 'Male'
+					       WHEN B.MF_TAG = 'F' THEN 'Female'
+						   ELSE MF_TAG
+						   END ) ENG_MF_NM
+				    ,C.REMARK3 AS ENG_JOB_NM
+					,TO_CHAR(B.BIR_YMD, 'DD-MON-YY','NLS_DATE_LANGUAGE=AMERICAN') ENG_BIR_YMD
+					,D.COMP_ENM
+             FROM    ASNHR.T_ID_CEFBOOK A,
+                    ASNHR.VI_T_CM_PERSON2 B,
+					ASNHR.T_CM_COMMON C,
+					ASNHR.T_CM_COMPANY D
+             WHERE  A.ENO_NO  = B.ENO_NO
+			 AND    B.JOB_CD  = C.COMM_CD
+			 AND    C.GUBUN   = '01'
+			 AND    C.CD_GBN  = 'A2'
+             AND    A.ENO_NO  = ?
+             AND  A.CEF_SEC = ?
+			 AND  A.CEF_STS = ?
+             AND  A.REQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<sql name="IDTA010_CAR_PRT1">
+		<description>증명서발급 정보 프린트</description>
+        <query>
+            <![CDATA[
+			 SELECT  A.CEF_NO
+                    ,B.DPT_NM
+                    ,B.JOB_NM
+                    ,A.ENO_NO
+                    ,B.ENO_NM
+                    ,A.CEF_SEC as Gubun
+                    ,ASNHR.SF_GET_COMMNAME('01', 'R3', A.CEF_SEC) AS CEF_SEC
+                    ,DECODE(A.CEF_RSN,'19',ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN)||' ('||A.REMARK||')',ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN)) AS CEF_RSN
+                    ,A.CEF_CNT
+	                ,TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SPL_YMD
+                    ,TO_CHAR(B.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+					,B.RET_YMD
+					,CET_NO
+					, (B.ADR_CT || ' ' || B.ADDRESS)As ADDRESS1
+					, (B.RADR_CT || ' ' || B.RADR)As ADDRESS2
+					,TRUNC(MONTHS_BETWEEN(NVL(B.RET_YMD, SYSDATE), B.HIR_YMD)/12)||'년 '||TRUNC(MOD(MONTHS_BETWEEN(NVL(B.RET_YMD, SYSDATE), B.HIR_YMD), 12))||'개월' AS LSE_YYMM
+             FROM    ASNHR.T_ID_CEFBOOK A,
+                    ( SELECT * FROM ASNHR.VI_T_CM_PERSON2 ) B
+             WHERE  A.ENO_NO  = B.ENO_NO
+             AND    A.ENO_NO  = ?
+             AND  A.CEF_SEC = ?
+             AND  A.REQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 증명서 발급 정보를 조회한다. -->
+     <sql name="IDTA010_PRT">
+     	<description>증명서발급 정보 프린트</description>
+        <query>
+            <![CDATA[
+			 SELECT  A.CEF_NO
+                    ,B.DPT_NM
+                    ,B.JOB_NM||DECODE(A.DRV_TAG, 'Y', ' (운전직)','') AS JOB_NM
+                    ,A.ENO_NO
+                    ,B.ENO_NM
+                    ,A.CEF_SEC as Gubun
+                    ,ASNHR.SF_GET_COMMNAME('01', 'R3', A.CEF_SEC) AS CEF_SEC
+                    ,DECODE(A.CEF_RSN,'19',ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN)||' ('||A.REMARK||')',ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN)) AS CEF_RSN
+                    ,A.CEF_CNT
+                    ,TO_CHAR(B.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+	                ,TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY/MM/DD'),'YYYY/MM/DD') AS SPL_YMD
+					,TO_CHAR(B.RET_YMD,'YYYY/MM/DD') AS RET_YMD
+					,TO_CHAR(To_Date(A.REQ_YMD),'YYYY/MM/DD') AS REQ_YMD
+					,CET_NO
+					,(B.ADR_CT || ' ' || B.ADDRESS) As ADDRESS1
+					, B.PER_ADR As ADDRESS2
+					, (SELECT president_nm FROM ASNHR.t_cm_company where gubun='01') as P_HNM
+
+             FROM    ASNHR.T_ID_CEFBOOK A,
+                    ( SELECT ENO_NO, DPT_NM, JOB_NM, CET_NO, ENO_NM , HIR_YMD, RET_YMD , ADR_CT, ADDRESS, PER_ADR  FROM ASNHR.VI_T_CM_PERSON2 ) B
+             WHERE  A.ENO_NO  = B.ENO_NO
+             AND    A.ENO_NO  = ?
+             AND  A.CEF_SEC = ?
+             AND  A.CEF_STS = ?
+             AND  A.REQ_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+	<sql name="IDTA010_PRT1">
+        <description>증명서발급 정보 프린트(일괄출력)</description>
+        <query>
+            <![CDATA[
+			 SELECT  A.CEF_NO
+                    ,B.DPT_NM
+                    ,B.JOB_NM||DECODE(A.DRV_TAG, 'Y', ' (운전직)','') AS JOB_NM
+                    ,A.ENO_NO
+                    ,B.ENO_NM
+                    ,A.CEF_SEC as Gubun
+                    ,ASNHR.SF_GET_COMMNAME('01', 'R3', A.CEF_SEC) AS CEF_SEC
+                    ,DECODE(A.CEF_RSN,'19',ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN)||' ('||A.REMARK||')',ASNHR.SF_GET_COMMNAME('01', 'R4', A.CEF_RSN)) AS CEF_RSN
+                    ,A.CEF_CNT
+                    ,TO_CHAR(B.HIR_YMD,'YYYY/MM/DD') AS HIR_YMD
+	                ,TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY/MM/DD'),'YYYY/MM/DD') AS SPL_YMD
+					,TO_CHAR(B.RET_YMD,'YYYY/MM/DD') AS RET_YMD
+					,TO_CHAR(To_Date(A.REQ_YMD),'YYYY/MM/DD') AS REQ_YMD
+					,CET_NO
+					,(B.ADR_CT || ' ' || B.ADDRESS) As ADDRESS1
+					, B.PER_ADR As ADDRESS2
+					, (SELECT president_hnm FROM ASNHR.t_cm_company where gubun='01') as P_HNM
+
+             FROM    ASNHR.T_ID_CEFBOOK A,
+                    ( SELECT ENO_NO, DPT_NM, JOB_NM, CET_NO, ENO_NM , HIR_YMD, RET_YMD , ADR_CT, ADDRESS, PER_ADR  FROM ASNHR.VI_T_CM_PERSON2 ) B
+             WHERE  A.ENO_NO  = B.ENO_NO
+             AND    A.ENO_NO  = ?
+             AND  A.CEF_SEC = ?
+             AND  A.REQ_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+    
+    <!--계약서발급 정보를 저장 한다. -->
+    <sql name="IDTB010_INS">
+        <description>계약서발급 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_CM_CONTRACT_EM
+                 ( SID
+                 , CD_GBN
+                 , ENO_NM
+                 , FROM_YMD
+                 , TO_YMD
+                 , MONTH
+                 , PROJECT_NM
+                 , PRO_FROM
+                 , PRO_TO
+                 , WPLACE_NM
+                 , JOB_NM
+                 , POS_NM
+                 , WORK_NM
+                 , IPT_MAN
+                 , IPT_YMD
+                 )
+          VALUES ( 
+          		  ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+    
+    
+    
+    
+<!--
+***********************************************************************
+* @UseCase     : IDTB001
+***********************************************************************
+* 2019/03/12      이동훈       최초작성
+***********************************************************************
+-->
+    <!-- 문서(근로계약서) 정보를 조회 한다. -->
+    <sql name="IDTB001_SHR">
+        <description>문서 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.SID
+                 , A.CD_GBN
+                 , A.ENO_NM
+                 , A.FROM_YMD
+                 , A.TO_YMD
+                 , A.MONTH
+                 , A.PROJECT_NM
+                 , A.PRO_FROM
+                 , A.PRO_TO
+                 , A.WPLACE_NM
+                 , A.SITE_CD
+                 , A.SITE_NM                 
+                 , A.JOB_CD
+                 , A.HOB_CD                 
+                 , ASNHR.SF_GET_COMMNAME('01', 'A2', A.JOB_CD)||'('||ASNHR.SF_GET_COMMNAME('01', 'DC', A.HOB_CD)||')' AS POS_NM
+                 , A.SRV_CD
+                 , ASNHR.SF_GET_COMMNAME('01', 'DB', A.SRV_CD) AS SRV_NM                 
+                 , A.WORK_NM
+                 , A.CALL_NM
+                 , A.P01_AMT
+                 , A.P02_AMT
+                 , A.P03_AMT
+                 , A.P04_AMT
+                 , A.P05_AMT
+                 , A.SUM_AMT
+                 , 0 Y01_AMT
+                 , 0 Y02_AMT
+                 , 0 Y03_AMT
+                 , 0 Y04_AMT
+                 , 0 Y05_AMT
+                 , 0 YSUM_AMT                      
+              FROM ASNHR.T_CM_CONTRACT_EM A
+             WHERE 1 = 1
+              AND A.ENO_NM LIKE '%'||?||'%'             
+             		[1]
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 문서(근로계약서) 정보를 저장 한다. -->
+    <sql name="IDTB001_INS">
+        <description>문서 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_CM_CONTRACT_EM
+                 ( SID
+                 , CD_GBN
+                 , ENO_NM
+                 , FROM_YMD
+                 , TO_YMD
+                 , MONTH
+                 , PROJECT_NM
+                 , PRO_FROM
+                 , PRO_TO
+                 , WPLACE_NM
+                 , SITE_CD
+                 , SITE_NM   
+                 , JOB_CD
+                 , HOB_CD
+                 , SRV_CD
+                 , WORK_NM
+                 , CALL_NM
+                 , P01_AMT
+                 , P02_AMT
+                 , P03_AMT
+                 , P04_AMT
+                 , P05_AMT
+                 , SUM_AMT
+                  )
+          VALUES ( (SELECT ? || TRIM(TO_CHAR( DECODE( MAX(SUBSTR(SID, 7, 10)), NULL, '0001', MAX(SUBSTR(SID, 7,10))+1 ), '0000'))
+					                      FROM ASNHR.T_CM_CONTRACT_EM
+					                     WHERE SUBSTR(SID, 0, 6) = ?                     
+                    )
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?                 
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?             
+                 )
+            ]]>
+        </query>
+    </sql>
+    
+    
+    <!-- 문서(근로계약서) 정보를 수정 한다. -->
+    <sql name="IDTB001_UPT">
+        <description>문서 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_CM_CONTRACT_EM
+             SET     CD_GBN         = ?,       
+                     ENO_NM         = ?,       
+                     FROM_YMD       = ?,      
+                     TO_YMD         = ?,       
+                     MONTH          = ?,     
+                     PROJECT_NM     = ?,    
+                     PRO_FROM       = ?,      
+                     PRO_TO    		= ?,       
+                     WPLACE_NM    	= ?,    
+                     
+                     SITE_CD    	= ?,  
+                     SITE_NM    	= ?,                   
+                       
+                     JOB_CD    		= ?,       
+                     HOB_CD    		= ?,       
+                     SRV_CD    		= ?,      
+                     WORK_NM    	= ?,    
+                     CALL_NM    	= ?,
+                     
+                     
+                     P01_AMT     	= ?,    
+                     P02_AMT       	= ?,      
+                     P03_AMT    	= ?,       
+                     P04_AMT    	= ?,      
+                     P05_AMT    	= ?,         
+                     SUM_AMT    	= ?      
+                     
+                                
+             WHERE   SID            = ?        -- SID
+            ]]>
+        </query>
+    </sql>    
+    
+    
+    <!-- 문서 정보를 삭제 한다. -->
+    <sql name="IDTB001_DEL">
+        <description>문서 정보 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE
+             FROM    ASNHR.T_CM_CONTRACT_EM
+             WHERE   SID = ?
+            ]]>
+        </query>
+    </sql>
+    
+    
+    
+    
+    <!-- 코드를 조회 한다. -->
+    <sql name="IDTB001_SHR_COD">
+        <description>코드 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.JOB_CD
+                 , ASNHR.SF_GET_COMMNAME('01','A2', A.JOB_CD) AS JOB_NM
+                 , A.GRADE_CD
+                 , A.P01_AMT
+                 , A.P02_AMT
+                 , A.P03_AMT                 
+                 , A.P04_AMT
+                 , A.P05_AMT
+
+              FROM ASNHR.T_CM_CONTRACT_TBL A
+             WHERE 1 = 1
+              AND A.GRADE_CD LIKE '%'||?||'%'             
+			[1]
+            ]]>
+        </query>
+    </sql>
+    
+    
+<!--
+***********************************************************************
+* @UseCase     : IDTB002
+***********************************************************************
+* 2019/03/13      이동훈       최초작성
+***********************************************************************
+-->
+    
+    <!-- 문서(연봉계약서) 정보를 조회 한다. -->
+    <sql name="IDTB002_SHR">
+        <description>문서 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.SID
+                 , A.CD_GBN 
+                 , A.ENO_NM
+                 , A.FROM_YMD
+                 , A.TO_YMD
+                 , A.MONTH
+                 , A.P01_AMT
+                 , A.P02_AMT
+                 , A.P03_AMT
+                 , A.P04_AMT
+                 , A.P05_AMT
+                 , A.SUM_AMT
+                 , 0 Y01_AMT
+                 , 0 Y02_AMT
+                 , 0 Y03_AMT
+                 , 0 Y04_AMT
+                 , 0 Y05_AMT
+                 , 0 YSUM_AMT               
+              FROM ASNHR.T_CM_CONTRACT_BEFORE A
+             WHERE 1 = 1
+              AND A.ENO_NM LIKE '%'||?||'%'             
+             		[1]
+            ]]>
+        </query>
+    </sql>
+    
+    
+    <!-- 문서(연봉계약서) 정보를 저장 한다. -->
+    <sql name="IDTB002_INS">
+        <description>문서 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_CM_CONTRACT_BEFORE
+                 ( SID
+                 , ENO_NM
+                 , CD_GBN                 
+                 , FROM_YMD
+                 , TO_YMD
+                 , MONTH
+                 , P01_AMT
+                 , P02_AMT
+                 , P03_AMT
+                 , P04_AMT
+                 , P05_AMT
+                 , SUM_AMT
+                  )
+          VALUES ( (SELECT ? || TRIM(TO_CHAR( DECODE( MAX(SUBSTR(SID, 7, 10)), NULL, '0001', MAX(SUBSTR(SID, 7,10))+1 ), '0000'))
+					                      FROM ASNHR.T_CM_CONTRACT_BEFORE
+					                     WHERE SUBSTR(SID, 0, 6) = ?                     
+                    )
+                 , ?                    
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?                
+                 )
+            ]]>
+        </query>
+    </sql>
+    
+    
+    <!-- 문서(연봉계약서) 정보를 수정 한다. -->
+    <sql name="IDTB002_UPT">
+        <description>문서 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_CM_CONTRACT_BEFORE
+             SET          
+                     ENO_NM         = ?,  
+                     CD_GBN         = ?, 
+                     FROM_YMD       = ?,      
+                     TO_YMD         = ?,       
+                     MONTH          = ?,     
+                     P01_AMT     	= ?,    
+                     P02_AMT       	= ?,      
+                     P03_AMT    	= ?,       
+                     P04_AMT    	= ?,      
+                     P05_AMT    	= ?,         
+                     SUM_AMT    	= ?                 
+             WHERE   SID            = ?        -- SID
+            ]]>
+        </query>
+    </sql>   
+    
+    
+    <!-- 문서 정보를 삭제 한다. -->
+    <sql name="IDTB002_DEL">
+        <description>문서 정보 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE
+             FROM    ASNHR.T_CM_CONTRACT_BEFORE
+             WHERE   SID = ?
+            ]]>
+        </query>
+    </sql>    
+    
+    
+    
+    
+<!--
+***********************************************************************
+* @UseCase     : IDTC010
+***********************************************************************
+* 2020/11/30      이동훈       최초작성
+***********************************************************************
+-->
+    
+    <!-- 주간업무 보고 조회 한다. -->
+    <sql name="IDTC010_SHR">
+        <description>주간업무 보고 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO,
+                   B.ENO_NM,
+                 	A.WORK_WEEK,
+                 	A.STR_YMD,
+                 	A.END_YMD,
+                 	A.WORK_ITEM,             	
+                 	A.WORK_DETAIL               
+              FROM ASNHR.T_WF_WORKFORM A, VI_T_CM_EMPLIST B
+             WHERE 1 =1 
+               AND A.ENO_NO = B.ENO_NO
+               ORDER BY A.WORK_WEEK
+            ]]>
+        </query>
+    </sql>    
+    
+    
+    <!-- 주간업무 보고 조회 한다. -->
+    <sql name="IDTC020_SHR">
+        <description>주간업무 보고 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO,
+                    B.ENO_NM,
+                 	A.WORK_WEEK,
+                 	SUBSTR(A.WORK_WEEK, 1, 2)||'년'||SUBSTR(A.WORK_WEEK, 3, 2)||'월'||SUBSTR(A.WORK_WEEK, 5, 2)||'주   ' AS CET_NO,
+                 	A.PLAN_EXE,
+                 	A.WEEK_NO,          	
+                 	A.WORK_DETAIL1,              	
+                 	A.WORK_DETAIL2,         	
+                 	A.WORK_DETAIL3,               	
+                 	A.FEED_BACK,
+                    CASE WHEN WEEK_NO = ? AND PLAN_EXE = 'PLAN' THEN 'NO' 
+	                     WHEN WEEK_NO = ? AND PLAN_EXE = 'EXE' THEN 'YES' 
+	                     WHEN WEEK_NO = ? AND PLAN_EXE = 'PLAN' THEN 'YES' 
+	                     WHEN WEEK_NO = ? AND PLAN_EXE = 'EXE' 
+                    THEN 'NO' ELSE 'NO' END STAT
+              FROM ASNHR.T_WF_WORKFORM A, VI_T_CM_EMPLIST B
+             WHERE 1 =1 
+               AND A.ENO_NO = B.ENO_NO
+               AND A.ENO_NO = ?
+               AND A.WEEK_NO IN (?,?)
+               ORDER BY A.WORK_WEEK, PLAN_EXE DESC
+            ]]>
+        </query>
+    </sql>    
+    
+    
+    
+    <!-- 현재 년월 주차 조회 한다. -->
+    <sql name="IDTC020_SHR_WEEK">
+        <description>현재 년월 주차 조회</description>
+        <query>
+            <![CDATA[
+		          SELECT 
+                         TO_CHAR(TO_DATE(REG_YMD), 'YYYY-MM-DD') REG_YMD
+		                 ,WEEK_NO
+				  FROM ASNHR.T_DI_HOLIDAY
+				  WHERE REG_YMD = ?				  
+            ]]>
+        </query>
+    </sql>        
+    
+    
+    
+    <!-- 주간업무 보고  정보를 등록한다.(임시 테이블) -->
+    <sql name="IDTC020_INS">
+        <description>주간업무 보고 저장</description>
+        <query>
+            <![CDATA[
+			INSERT
+			INTO ASNHR.T_WF_WORKFORM
+			( ENO_NO
+			, WORK_WEEK
+			, WORK_DETAIL1
+			, WORK_DETAIL2
+			, WORK_DETAIL3
+			, FEED_BACK
+			, PLAN_EXE
+			, WEEK_NO
+			, IPT_MAN 
+			, IPT_YMD 
+			, UPT_MAN 
+			, UPT_YMD
+			)
+			VALUES ( 
+			  ?
+			, ?
+			, ?
+			, ?
+			, ?
+			, ?
+			, ?
+			, ?
+			, ?
+			, SYSDATE
+			, ?
+			, SYSDATE )
+            ]]>
+        </query>
+    </sql>
+    
+    
+    
+    <!-- 주간업무 보고  정보를 수정 한다. -->
+    <sql name="IDTC020_UPT">
+        <description>문서 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_WF_WORKFORM
+             SET          
+                     WORK_DETAIL1  = ?,  
+                     WORK_DETAIL2  = ?, 
+                     WORK_DETAIL3  = ?,      
+                     UPT_MAN       = ?,       
+                     UPT_YMD       = SYSDATE           
+             WHERE   ENO_NO        = ?
+		              AND WEEK_NO  = ?
+		              AND PLAN_EXE = ?
+            ]]>
+        </query>
+    </sql>   
+        
+    
+    
+    <!-- 주간업무 보고  정보를 삭제한다(임시 테이블) -->
+    <sql name="IDTC020_DEL">
+        <description>주간업무 보고  삭제</description>
+        <query>
+            <![CDATA[
+            DELETE
+              FROM ASNHR.T_WF_WORKFORM
+             WHERE ENO_NO = ?
+              AND WEEK_NO = ?
+            ]]>
+        </query>
+    </sql>
+    
+    
+    
+<!--
+***********************************************************************
+* @UseCase     : IDTC070
+***********************************************************************
+* 2021/02/16      이동훈       최초작성
+***********************************************************************
+-->
+    
+    <!-- 팀장이 팀원들 주간업무보고 일지 List를 확인한다. -->
+    <sql name="IDTC070_SHR">
+        <description>주간업무 보고 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO, A.WEEK_NO,
+                    B.ENO_NM, B.DPT_CD, B.DPT_NM, B.JOB_CD, B.JOB_NM,
+                 	SUBSTR(A.WORK_WEEK, 1, 2)||'년 '||SUBSTR(A.WORK_WEEK, 3, 2)||'월 '||SUBSTR(A.WORK_WEEK, 5, 2)||'주   ' AS WORK_WEEK   
+              FROM ASNHR.T_WF_WORKFORM A, VI_T_CM_EMPLIST B
+             WHERE 1 = 1 
+               AND A.ENO_NO = B.ENO_NO
+               AND A.PLAN_EXE = 'PLAN'
+               [1]        
+               AND A.WEEK_NO = ( SELECT WEEK_NO FROM ASNHR.T_DI_HOLIDAY WHERE REG_YMD = ? )
+               ORDER BY B.DPT_CD, B.JOB_CD
+            ]]>
+        </query>
+    </sql>     
+    
+
+    <!-- 팀장이 팀원들 주간업무보고 일지를 확인한다. -->
+    <sql name="IDTC070_SHR_DTL">
+        <description>주간업무 보고 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO,
+                    B.ENO_NM,
+                 	A.WORK_WEEK,
+                 	SUBSTR(A.WORK_WEEK, 1, 2)||'년'||SUBSTR(A.WORK_WEEK, 3, 2)||'월'||SUBSTR(A.WORK_WEEK, 5, 2)||'주 ' AS CET_NO,
+                 	A.PLAN_EXE,
+                 	A.WORK_ITEM1,             	
+                 	A.WORK_DETAIL1,  
+                 	A.WORK_ITEM2,             	
+                 	A.WORK_DETAIL2,
+                 	A.WORK_ITEM3,             	
+                 	A.WORK_DETAIL3,               	
+                 	A.WORK_ITEM4,             	
+                 	A.WORK_DETAIL4,
+                 	A.WORK_ITEM5,             	
+                 	A.WORK_DETAIL5, 
+                 	A.FEED_BACK         
+              FROM ASNHR.T_WF_WORKFORM A, VI_T_CM_EMPLIST B
+             WHERE 1 =1 
+               AND A.ENO_NO = B.ENO_NO
+               ORDER BY A.WORK_WEEK
+            ]]>
+        </query>
+    </sql>        
+    
+    
+    <!-- 팀장이 주간업무 보고에 대해 피드백 한다. -->
+    <sql name="IDTC070_INS">
+        <description>피드백 작성</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_WF_WORKFORM
+             SET          
+                     FEED_BACK     = ?,      
+                     UPT_MAN       = ?,       
+                     UPT_YMD       = SYSDATE           
+             WHERE   ENO_NO        = ?
+		              AND WEEK_NO  = ?
+		              AND PLAN_EXE = ?
+            ]]>
+        </query>
+    </sql>       
+    
+    
+    
+<!--
+***********************************************************************
+* @UseCase     : IDTC080
+***********************************************************************
+* 2021/02/16      이동훈       최초작성
+***********************************************************************
+-->
+    
+    <!-- 주간업무보고 일지 List를 확인한다. -->
+    <sql name="IDTC080_SHR">
+        <description>주간업무 보고 조회</description>
+        <query>
+            <![CDATA[
+			   SELECT ENO_NO, SF_GET_ENONAME('01', ENO_NO) ENO_NM, DPT_NM,
+			   AT11, AT12, AT13, AT14, AT21, AT22, AT23, AT24,
+			   AT31, AT32, AT33, AT34, AT35, AT42, AT43, AT44,
+			   AT45, AT52, AT53, AT54, AT55, AT62, AT63, AT64,
+			   AT71, AT72, AT73, AT74, AT81, AT82, AT83, AT84			   
+			   FROM 
+			    (SELECT A.ENO_NO, A.WEEK_NO, B.DPT_NM, B.JOB_CD,
+					    (CASE WHEN A.TOTAL > 0 THEN 'O'
+						     --WHEN A.TOTAL > 0 AND A.TOTAL < 100 THEN '△'
+			                 WHEN A.TOTAL = 0 THEN 'X'
+					      ELSE ' '
+					      END) AS RESULT2
+					      
+					      
+			             FROM (
+			             
+	                         SELECT ENO_NO, WEEK_NO, TOTAL
+	                         FROM (
+	                            SELECT MAX(ENO_NO) ENO_NO, MAX(WEEK_NO) WEEK_NO, MAX(PLAN_EXE) PLAN_EXE, 
+				                    NVL(SUM(LENGTH(WORK_DETAIL1)),0) + NVL(SUM(LENGTH(WORK_DETAIL2)),0) + NVL(SUM(LENGTH(WORK_DETAIL3)),0) TOTAL
+				                   FROM T_WF_WORKFORM 
+	                               WHERE PLAN_EXE = 'PLAN'
+	                               	AND WEEK_NO = WEEK_NO - 1
+	                               GROUP BY ENO_NO, WEEK_NO,PLAN_EXE
+	                           UNION ALL    
+	                            SELECT MAX(ENO_NO) ENO_NO, MAX(WEEK_NO) WEEK_NO, MAX(PLAN_EXE) PLAN_EXE, 
+				                    NVL(SUM(LENGTH(WORK_DETAIL1)),0) + NVL(SUM(LENGTH(WORK_DETAIL2)),0) + NVL(SUM(LENGTH(WORK_DETAIL3)),0) TOTAL
+				                   FROM T_WF_WORKFORM 
+	                               WHERE PLAN_EXE = 'EXE'
+	                               AND WEEK_NO = WEEK_NO
+	                               GROUP BY ENO_NO, WEEK_NO,PLAN_EXE 
+				       			)
+				       				WHERE WEEK_NO <= TO_NUMBER((SELECT WEEK_NO FROM T_DI_HOLIDAY WHERE REG_YMD = TO_CHAR(SYSDATE, 'YYYYMMDD')))
+			                   
+			                   ) A, VI_T_CM_PERSON2 B
+			             WHERE A.ENO_NO = B.ENO_NO
+			             ORDER BY B.DPT_NM, B.JOB_CD, B.ENO_NO
+			               ) 
+			               
+			               
+			               
+			PIVOT (MAX(RESULT2) FOR WEEK_NO IN  ( '1' AS AT11,'2' AS AT12,'3' AS AT13,'4' AS AT14,'5' AS AT21,'6' AS AT22,'7' AS AT23,'8' AS AT24,
+												  '9' AS AT31,'10' AS AT32,'11' AS AT33,'12' AS AT34,'13' AS AT35,'14' AS AT42,'15' AS AT43,'16' AS AT44,
+												  '17' AS AT45,'18' AS AT52,'19' AS AT53,'20' AS AT54,'21' AS AT55,'22' AS AT62,'23' AS AT63,'24' AS AT64,
+												  '25' AS AT71,'26' AS AT72,'27' AS AT73,'28' AS AT74,'29' AS AT81,'30' AS AT82,'31' AS AT83,'32' AS AT84
+			  )) 
+			ORDER BY DPT_NM, ENO_NM
+            ]]>
+        </query>
+    </sql>   
+    
+    
+    
+    <!-- 주간업무 보고 조회 한다. -->
+    <sql name="IDTC080_SHR_DTL">
+        <description>주간업무 보고 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO,
+                    B.ENO_NM,
+                 	A.WORK_WEEK,
+                 	SUBSTR(A.WORK_WEEK, 1, 2)||'년'||SUBSTR(A.WORK_WEEK, 3, 2)||'월'||SUBSTR(A.WORK_WEEK, 5, 2)||'주   ' AS CET_NO,
+                 	A.PLAN_EXE,
+                 	A.WEEK_NO,          	
+                 	A.WORK_DETAIL1,              	
+                 	A.WORK_DETAIL2,         	
+                 	A.WORK_DETAIL3,               	
+                 	A.FEED_BACK,
+                    CASE WHEN WEEK_NO = ? AND PLAN_EXE = 'PLAN' THEN 'NO' 
+	                     WHEN WEEK_NO = ? AND PLAN_EXE = 'EXE' THEN 'YES' 
+	                     WHEN WEEK_NO = ? AND PLAN_EXE = 'PLAN' THEN 'YES' 
+	                     WHEN WEEK_NO = ? AND PLAN_EXE = 'EXE' 
+                    THEN 'NO' ELSE 'NO' END STAT
+              FROM ASNHR.T_WF_WORKFORM A, VI_T_CM_EMPLIST B
+             WHERE 1 =1 
+               AND A.ENO_NO = B.ENO_NO
+               AND A.ENO_NO = ?
+               AND A.WEEK_NO IN (?,?)
+               ORDER BY A.WORK_WEEK, PLAN_EXE DESC
+            ]]>
+        </query>
+    </sql>        
+    
+    
+    <!-- 주간업무 보고 조회 한다. -->
+    <sql name="IDTC080_SHR_ALL">
+        <description>주간업무 보고 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO,
+                    B.ENO_NM,
+                 	A.WORK_WEEK,
+                 	SUBSTR(A.WORK_WEEK, 1, 2)||'년'||SUBSTR(A.WORK_WEEK, 3, 2)||'월'||SUBSTR(A.WORK_WEEK, 5, 2)||'주   ' AS CET_NO,
+                 	A.PLAN_EXE,
+                 	A.WEEK_NO,          	
+                 	A.WORK_DETAIL1,              	
+                 	A.WORK_DETAIL2,         	
+                 	A.WORK_DETAIL3,               	
+                 	A.FEED_BACK
+              FROM ASNHR.T_WF_WORKFORM A, VI_T_CM_EMPLIST B
+             WHERE 1 =1 
+               AND A.ENO_NO = B.ENO_NO
+               AND A.ENO_NO = ?
+			   AND WEEK_NO <= TO_NUMBER((SELECT WEEK_NO FROM T_DI_HOLIDAY WHERE REG_YMD = TO_CHAR(SYSDATE, 'YYYYMMDD')))
+               ORDER BY A.WORK_WEEK, PLAN_EXE DESC
+            ]]>
+        </query>
+    </sql>        
+    
+    
+</sqls>

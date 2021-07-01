@@ -1,0 +1,870 @@
+
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	인사/업적신고작성_ifrm
++ 프로그램 ID	: h060020
++ 기 능 정 의	: 
++ 변 경 이 력	: 정영식
++ 서 블 릿 명	: h060020_s1, h060020_s2, h060020_t1
+-----------------------------------------------------------------------------
++ 수 정 내 용 :	
++ 수   정  자 : 
++ 수 정 일 자 : 
+-----------------------------------------------------------------------------
+------------------------------------------------------------------------------>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr  ">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+get_cookdata();
+gs_date = gcurdate.substring(0,4) + gcurdate.substring(5,7);// + gcurdate.substring(8,10);
+gs_date2 = gcurdate.substring(0,4) + gcurdate.substring(5,7) + gcurdate.substring(8,10);
+
+var gs_title_format="";
+var gs_format="";
+var gs_seq;
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+  ln_SetDataHeader(2);
+
+  //ln_Initial();
+	//gcds_dtl.addrow();
+	//ln_Data(1);
+
+ }
+
+/******************************************************************************
+	Description : 초기
+******************************************************************************/
+function ln_Initial(){
+	gs_seq=1;
+	gs_format ="";
+
+	gcds_dtl.deleteall();
+  
+	var oRow = tb_1.insertRow();
+  var oCell = oRow.insertCell();
+	//alert("첫행 추가")
+	ln_SetFormat(gs_seq);
+  oCell.innerHTML = gs_format;
+	txt_11.value=1;
+	ln_SetDataHeader(2);
+	gcds_dtl.addrow();
+}
+
+/******************************************************************************
+	Description : 조회 
+******************************************************************************/
+function ln_Query(){
+
+	 //gcds_dtl.UseChangeInfo = "true"; 
+
+    //행삭제
+		ln_Row_Clear(1);
+    //디테일
+		gcds_dtl.DataID = "/services/servlet/Person.h060030_s1?"
+		               + "v_str1="+parent.gcem_evaym.text
+									 + "&v_str2="+parent.gs_empno;
+	//	prompt('dtl::ln_Query',gcds_dtl.DataID);									
+		gcds_dtl.Reset();
+
+    if(gcds_dtl.namevalue(1,"JOB")==""&&gcds_dtl.namevalue(1,"TASK")==""&&gcds_dtl.namevalue(1,"TASKDESC")==""&&gcds_dtl.namevalue(1,"IMPORT")==""&&gcds_dtl.namevalue(1,"DEGREE")==""&&gcds_dtl.namevalue(1,"FREQUENCY")==0){
+			eval("txt_2"+i).value="※직무(JOB)항목";
+			eval("txt_3"+i).value="※과업(TASK)을 입력";
+			eval("txt_4"+i).value="※과업 내용을 입력";
+			eval("txt_5"+i).value=""
+			eval("txt_6"+i).value=""
+			eval("txt_7"+i).value=""
+		}
+}
+
+/******************************************************************************
+	Description : 행삭제
+	parameter : 1 - 1행만 남겨두고 삭제
+	            2 - 모두 삭제후 초기 한 행 추가
+******************************************************************************/
+function ln_Row_Clear(gbn){
+	if(gbn==1){
+		for(i=gs_seq;i>1;i--){
+			tb_1.deleteRow();
+		}
+		gs_seq=1;
+	}else if(gbn==2){
+		for(i=gs_seq;i>=1;i--){
+			tb_1.deleteRow();
+		}
+		ln_Initial();
+	}
+
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+   //ln_SetDataHeader(1);
+   ln_SetDataHeader(2);
+   gs_seq+=1;
+   gs_format="";
+	 ln_SetFormat(gs_seq);
+
+	 var oRow = tb_1.insertRow();
+	 var oCell = oRow.insertCell();
+	 oCell.innerHTML = gs_format;
+	 eval("txt_1"+gs_seq).value=gs_seq;
+	 gcds_dtl.addrow();
+	 ln_Data(gs_seq);
+}
+
+/******************************************************************************
+	Description : 저장
+	              p1  - 고과년월
+								p2  - 사번 
+								p3  - 본부 
+								p4  - 부서
+								p5  - 소속팀
+      
+								p21 - 생성일자 
+								p22 - 생성자
+								p23 - 수정일자
+								P24 - 수정자
+******************************************************************************/
+function ln_Save(){
+
+  	 if(!ln_Save_Chk()) return;
+
+		 ln_SetDataHeader(1);
+		 gcds_mst.addrow();
+		 var row = gcds_mst.rowposition;
+		 var row2 = parent.gcds_mst.rowposition;
+		 gcds_mst.namevalue(row,"EMPNO")=parent.gcds_mst.namevalue(row2,"EMPNO");
+		 gcds_mst.namevalue(row,"EVAYM")=parent.gcds_mst.namevalue(row2,"EVAYM");
+		 gcds_mst.namevalue(row,"HEADCD")=parent.gcds_mst.namevalue(row2,"HEADCD");
+		 gcds_mst.namevalue(row,"DIVCD")=parent.gcds_mst.namevalue(row2,"DIVCD");
+		 gcds_mst.namevalue(row,"DEPTCD")=parent.gcds_mst.namevalue(row2,"DEPTCD");
+		 gcds_mst.namevalue(row,"PAYGRD")=parent.gcds_mst.namevalue(row2,"PAYGRD");
+		 gcds_mst.namevalue(row,"JOBCODE")=parent.gcds_mst.namevalue(row2,"JOBCODE");
+		 gcds_mst.namevalue(row,"JOBGRPH")=parent.gcds_mst.namevalue(row2,"JOBGRPH"); 
+		 gcds_mst.namevalue(row,"JOBRR")=parent.gcds_mst.namevalue(row2,"JOBRR");   
+		 gcds_mst.namevalue(row,"JOBKIND")=parent.gcds_mst.namevalue(row2,"JOBKIND");   
+		 gcds_mst.namevalue(row,"JOBNAME")=parent.gcds_mst.namevalue(row2,"JOBNAME");  
+		 gcds_mst.namevalue(row,"JOBSM")=parent.gcds_mst.namevalue(row2,"JOBSM");    
+		 gcds_mst.namevalue(row,"EDU")=parent.gcds_mst.namevalue(row2,"EDU"); 
+		 gcds_mst.namevalue(row,"MAJOR")=parent.gcds_mst.namevalue(row2,"MAJOR");   
+		 gcds_mst.namevalue(row,"SEX")=parent.gcds_mst.namevalue(row2,"SEX");   
+		 gcds_mst.namevalue(row,"ETC")=parent.gcds_mst.namevalue(row2,"ETC");  
+		 gcds_mst.namevalue(row,"EXP")=parent.gcds_mst.namevalue(row2,"EXP");    
+		 gcds_mst.namevalue(row,"CERTIFICATE")=parent.gcds_mst.namevalue(row2,"CERTIFICATE"); 
+		 gcds_mst.namevalue(row,"ENGLVL")=parent.gcds_mst.namevalue(row2,"ENGLVL");   
+		 gcds_mst.namevalue(row,"JPLVL")=parent.gcds_mst.namevalue(row2,"JPLVL");   
+		 gcds_mst.namevalue(row,"CHINALVL")=parent.gcds_mst.namevalue(row2,"CHINALVL");
+		 gcds_mst.namevalue(row,"ETCLVL")=parent.gcds_mst.namevalue(row2,"ETCLVL");  
+		 gcds_mst.namevalue(row,"HWGRDCD")=parent.gcds_mst.namevalue(row2,"HWGRDCD");    
+		 gcds_mst.namevalue(row,"EXGRDCD")=parent.gcds_mst.namevalue(row2,"EXGRDCD"); 
+		 gcds_mst.namevalue(row,"PWGRDCD")=parent.gcds_mst.namevalue(row2,"PWGRDCD");   
+		 gcds_mst.namevalue(row,"OAGRDCD")=parent.gcds_mst.namevalue(row2,"OAGRDCD");   
+		 gcds_mst.namevalue(row,"ABILITY")=parent.gcds_mst.namevalue(row2,"ABILITY");  
+		 gcds_mst.namevalue(row,"TECHNIQUE")=parent.gcds_mst.namevalue(row2,"TECHNIQUE");    
+		 gcds_mst.namevalue(row,"STUDY")=parent.gcds_mst.namevalue(row2,"STUDY"); 
+		 gcds_mst.namevalue(row,"STUDY2")=parent.gcds_mst.namevalue(row2,"STUDY2");   
+		 gcds_mst.namevalue(row,"STUDY3")=parent.gcds_mst.namevalue(row2,"STUDY3");         
+		 gcds_mst.namevalue(row,"I_EMPNO")=parent.gcds_mst.namevalue(row2,"I_EMPNO");           
+		 gcds_mst.namevalue(row,"U_EMPNO")=parent.gcds_mst.namevalue(row2,"U_EMPNO"); 
+
+		for(i=1;i<=gs_seq;i++){
+			if(gcds_dtl.SysStatus(i)!=2){
+				ln_Data(i);
+			}
+		}
+
+
+		gctr_data.KeyValue = "h060010_t1?(I:USER=gcds_mst,I:USER2=gcds_dtl)";
+		gctr_data.Action = "/services/servlet/Person.h060030_t1?";
+	//prompt('gcds_mst',gcds_mst.text);
+	//	prompt('',gcds_dtl.text);
+		gctr_data.post();
+}
+///여기서부터 고치기 시작 /// 
+
+/******************************************************************************
+	Description : 화면 데이타 ==> 데이타셋 저장 (DTL)
+******************************************************************************/
+function ln_Data(i){
+	gcds_dtl.namevalue(i,"EVAYM") =parent.gcem_evaym.text; 
+	gcds_dtl.namevalue(i,"EMPNO") = parent.txt_empno.value;
+	gcds_dtl.namevalue(i,"SEQ") = eval("txt_1"+i).value;
+	gcds_dtl.namevalue(i,"JOB") = eval("txt_2"+i).value;
+	gcds_dtl.namevalue(i,"TASK") = eval("txt_3"+i).value;
+	gcds_dtl.namevalue(i,"TASKDESC") = eval("txt_4"+i).value;
+	gcds_dtl.namevalue(i,"IMPORT") = eval("txt_5"+i).value;
+	gcds_dtl.namevalue(i,"DEGREE") = eval("txt_6"+i).value;
+	gcds_dtl.namevalue(i,"FREQUENCY") = eval("txt_7"+i).value;
+	gcds_dtl.namevalue(i,"I_EMPNO")=gusrid; 
+	gcds_dtl.namevalue(i,"U_EMPNO")=gusrid; 
+}
+
+
+
+/******************************************************************************
+	Description : 데이타셋 ==> 화면데이타 저장 (DTL)
+******************************************************************************/
+function ln_Display(i){
+	eval("txt_1"+i).value=gcds_dtl.namevalue(i,"SEQ"); 
+	eval("txt_2"+i).value=gcds_dtl.namevalue(i,"JOB");
+	eval("txt_3"+i).value=gcds_dtl.namevalue(i,"TASK");
+	eval("txt_4"+i).value=gcds_dtl.namevalue(i,"TASKDESC");
+	eval("txt_5"+i).value=gcds_dtl.namevalue(i,"IMPORT");
+	eval("txt_6"+i).value=gcds_dtl.namevalue(i,"DEGREE");
+	eval("txt_7"+i).value=gcds_dtl.namevalue(i,"FREQUENCY");
+}
+
+/******************************************************************************
+	Description : 입력값 체크[근태관리]
+******************************************************************************/
+function ln_Save_Chk() {
+  var dbltemp=0;
+
+  //필수항목 체크
+ 	for(i=1;i<=gs_seq;i++){
+
+		if(eval("txt_2"+i).value==""){
+			alert("직무를 입력하십시요.");
+			return false;
+		}
+
+		if(eval("txt_3"+i).value==""){
+			alert("과업을 입력하십시요.");
+			return false;
+		}
+
+		if(eval("txt_4"+i).value==""){
+			alert("과업 내용을 입력하십시요.");
+			return false;
+		}
+
+		if(eval("txt_5"+i).value==""){
+			alert("비중을 입력하십시요.");
+			return false;
+		}
+
+		if(eval("txt_6"+i).value==""){
+			alert("난이도를 입력하십시요.");
+			return false;
+		}
+
+		if(eval("txt_7"+i).value==""){
+			alert("발생빈도를 입력하십시요.");
+			return false;
+		}
+
+		var str2="";
+		var intdegree=0;	
+		str2=eval("txt_6"+i).value;	
+		intdegree=str2.length;		
+		if(intdegree!=1) {
+			alert("상/중/하 중에 입력하여 주십시오.");			
+			return false;
+		
+		}
+
+	}
+
+  //숫자체크
+	var str="";
+	for(j=1;j<=gs_seq;j++){
+		str="txt_5"+j+"";
+	  if(!ln_ChkNumber(str)) return false;
+  }
+
+
+  for(j=1;j<=gs_seq;j++){
+		dbltemp=parseInt(dbltemp)+parseInt(eval("txt_5"+j).value);
+  }
+
+	if(dbltemp!=100) {
+		alert("가중치 합계가 100이 아닙니다. 확인 바랍니다.");
+		return false;
+	} 
+	return true;
+}
+
+
+/******************************************************************************************
+	Descrition : 날짜의 숫자 체크
+	parameter  : obj
+	retun      : true - 가능 , false - 불가능
+******************************************************************************************/
+function ln_ChkNumber(obj){
+	var str="";
+	var sChk=0;
+	var src=eval(obj).value;
+
+	for(var i=0;i<src.length;i++){
+		if(isNaN(src.charAt(i))||src.charAt(i)==" ") sChk+=1;
+		else str+=src.charAt(i);
+	}
+
+	if(sChk!=0){
+		alert("숫자만 입력하십시요.");
+		obj.value=src;
+		return false;
+	}
+  
+  
+	return true;
+}
+
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+  
+   if (tb_1.rows.length>1) {
+			gcds_dtl.DeleteRow(gs_seq);  
+	    gs_seq-=1;	
+      tb_1.deleteRow();
+   }
+
+	 //데이타 삭제
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+ 
+  gcds_prthead.ClearAll();
+
+	ln_SetDataHeader(3);
+  gcds_prthead.Addrow();
+	
+	gcds_prthead.namevalue(1,"TITLE")="2009년 개인별 JOB PROFILE"
+
+	gcds_prthead.namevalue(1,"EVAYM")=parent.gcds_mst.namevalue(1,"EVAYM");
+	gcds_prthead.namevalue(1,"EMPNO")=parent.gcds_mst.namevalue(1,"EMPNO");
+	gcds_prthead.namevalue(1,"EMPNMK")=parent.gcds_mst.namevalue(1,"EMPNMK");
+	gcds_prthead.namevalue(1,"HEADCD")=parent.gcds_mst.namevalue(1,"HEADCD");
+	gcds_prthead.namevalue(1,"HEADNM")=parent.gcds_mst.namevalue(1,"HEADNM");
+	gcds_prthead.namevalue(1,"DIVCD")=parent.gcds_mst.namevalue(1,"DIVCD");
+	gcds_prthead.namevalue(1,"DIVNM")=parent.gcds_mst.namevalue(1,"DIVNM");
+	gcds_prthead.namevalue(1,"DEPTCD")=parent.gcds_mst.namevalue(1,"DEPTCD");
+	gcds_prthead.namevalue(1,"DEPTNMK")=parent.gcds_mst.namevalue(1,"DEPTNMK");
+	gcds_prthead.namevalue(1,"PAYGRD")=parent.gcds_mst.namevalue(1,"PAYGRD");
+	gcds_prthead.namevalue(1,"PAYGRDNM")=parent.gcds_mst.namevalue(1,"PAYGRDNM");
+	gcds_prthead.namevalue(1,"JOBCODE")=parent.gcds_mst.namevalue(1,"JOBCODE");
+	gcds_prthead.namevalue(1,"JOBGRPH")=parent.gcds_mst.namevalue(1,"JOBGRPH");
+	gcds_prthead.namevalue(1,"JOBRR")=parent.gcds_mst.namevalue(1,"JOBRR");
+	gcds_prthead.namevalue(1,"JOBKIND")=parent.gcds_mst.namevalue(1,"JOBKIND");
+	gcds_prthead.namevalue(1,"JOBNAME")=parent.gcds_mst.namevalue(1,"JOBNAME");
+	gcds_prthead.namevalue(1,"JOBSM")=parent.gcds_mst.namevalue(1,"JOBSM");
+	gcds_prthead.namevalue(1,"EDU")=parent.gcds_mst.namevalue(1,"EDU");
+	gcds_prthead.namevalue(1,"MAJOR")=parent.gcds_mst.namevalue(1,"MAJOR");
+	gcds_prthead.namevalue(1,"SEX")=parent.gcds_mst.namevalue(1,"SEX");
+	gcds_prthead.namevalue(1,"ETC")=parent.gcds_mst.namevalue(1,"ETC");
+	gcds_prthead.namevalue(1,"EXP")=parent.gcds_mst.namevalue(1,"EXP");
+	gcds_prthead.namevalue(1,"CERTIFICATE")=parent.gcds_mst.namevalue(1,"CERTIFICATE");
+	gcds_prthead.namevalue(1,"ENGLVL")=parent.gcds_mst.namevalue(1,"ENGLVL");
+	gcds_prthead.namevalue(1,"JPLVL")=parent.gcds_mst.namevalue(1,"JPLVL");
+	gcds_prthead.namevalue(1,"CHINALVL")=parent.gcds_mst.namevalue(1,"CHINALVL");
+	gcds_prthead.namevalue(1,"ETCLVL")=parent.gcds_mst.namevalue(1,"ETCLVL");
+	gcds_prthead.namevalue(1,"HWGRDCD")=parent.gcds_mst.namevalue(1,"HWGRDCD");
+	gcds_prthead.namevalue(1,"EXGRDCD")=parent.gcds_mst.namevalue(1,"EXGRDCD");
+	gcds_prthead.namevalue(1,"PWGRDCD")=parent.gcds_mst.namevalue(1,"PWGRDCD");
+	gcds_prthead.namevalue(1,"OAGRDCD")=parent.gcds_mst.namevalue(1,"OAGRDCD");
+	gcds_prthead.namevalue(1,"ABILITY")=parent.gcds_mst.namevalue(1,"ABILITY");
+	gcds_prthead.namevalue(1,"TECHNIQUE")=parent.gcds_mst.namevalue(1,"TECHNIQUE");
+	gcds_prthead.namevalue(1,"STUDY")=parent.gcds_mst.namevalue(1,"STUDY");
+	gcds_prthead.namevalue(1,"STUDY2")=parent.gcds_mst.namevalue(1,"STUDY2");
+	gcds_prthead.namevalue(1,"STUDY3")=parent.gcds_mst.namevalue(1,"STUDY3");
+
+gcrp_print1.preview();	
+
+
+	
+}
+
+/******************************************************************************
+	Description : 출력물 format 결정
+******************************************************************************/
+function ln_Print_Format(gbn){
+
+}
+
+
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+/******************************************************************************
+	Description : 팝업
+******************************************************************************/
+function ln_Popup(gbn){
+
+}
+
+
+/******************************************************************************
+	Description : 사용여부
+  parameter   :
+******************************************************************************/
+function ln_Enable(gbn){
+
+}
+
+
+/******************************************************************************
+	Description : DTL 화면 DISPLAY
+  parameter   :
+******************************************************************************/
+function ln_SetFormat(i){
+  
+  gs_format +="<table  cellpadding=0 cellspacing=0 style=width:855px;height:30px;font-size:9pt;background-color:#ffffff;>"
+	gs_format +="	<tr>" 
+	gs_format +="		<td style=height:105px;border:1 solid #708090>"					
+	gs_format +="		<textarea id=txt_1"+i+"   style=width:38px;height:100px;overflow:auto;font-size:20pt;text-align:center;vertical-align:center; readOnly></textarea>"					
+	gs_format +="		</td>"					
+	gs_format +="		<td style=height:105px;border:1 solid #708090>"					
+	gs_format +="		 <textarea id=txt_2"+i+" style=width:115px;height:100px;overflow:auto;ime-mode:active; maxlength=50 onBlur=bytelength(this,this.value,50);></textarea>"					
+	gs_format +="		</td>"					
+	gs_format +="		<td style=height:105px;border:1 solid #708090>"					
+	gs_format +="		 <textarea id=txt_3"+i+" style=width:140px;height:100px;overflow:auto;ime-mode:active; maxlength=1000 onBlur=bytelength(this,this.value,100);></textarea>"					
+	gs_format +="		</td>"					
+	gs_format +="		<td style=height:105px;border:1 solid #708090>"					
+	gs_format +="		 <textarea id=txt_4"+i+" style=width:309px;height:100px;overflow:auto;ime-mode:active;  maxlength=50   onBlur=bytelength(this,this.value,300);></textarea>"					
+	gs_format +="		</td>"					
+	gs_format +="		<td style=height:105px;border:1 solid #708090>"					
+	gs_format +="		 <textarea id=txt_5"+i+" style=width:60px;height:100px;text-align:center;overflow:auto;ime-mode:active;  maxlength=50   onBlur=bytelength(this,this.value,3);></textarea>"					
+	gs_format +="		</td>"	
+	gs_format +="		<td style=height:105px;border:1 solid #708090>"					
+	gs_format +="		 <textarea id=txt_6"+i+" style=width:94px;height:100px;text-align:center;overflow:auto;ime-mode:active; maxlength=50 onBlur=bytelength(this,this.value,4);></textarea>"					
+	gs_format +="		</td>"					
+	gs_format +="		<td style=height:105px;border:1 solid #708090>"					
+	gs_format +="		 <textarea id=txt_7"+i+" style=width:100px;height:100px;text-align:center;overflow:auto;ime-mode:active; maxlength=50 onBlur=bytelength(this,this.value,20);></textarea>"					
+	gs_format +="		</td>"										
+	gs_format +="	</tr>"
+	gs_format +="</table>";
+
+}
+
+/******************************************************************************
+	Description : 데이타 셋 헤드 설정
+******************************************************************************/
+function ln_SetDataHeader(gbn){
+  
+	if(gbn==1){       //직무분류등
+		if (gcds_mst.countrow<1){
+		var s_temp = " EVAYM:STRING(6),EMPNO:STRING(7),EMPNMK:STRING(30),HEADCD:STRING(4),HEADNM:STRING(50),"
+							 + " DIVCD:STRING(4),DIVNM:STRING(50),DEPTCD:STRING(4),DEPTNMK:STRING(50),PAYGRD:STRING(4),PAYGRDNM:STRING(50), "
+							 + " JOBCODE:STRING(4),JOBGRPH:STRING(20),JOBRR:STRING(20),JOBKIND:STRING(20),JOBNAME:STRING(50),"
+							 + " JOBSM:STRING(2000),"
+							 + " EDU:STRING(1),MAJOR:STRING(40),SEX:STRING(1),ETC:STRING(20),EXP:STRING(100),CERTIFICATE:STRING(100),"
+							 + " ENGLVL:STRING(1),JPLVL:STRING(1),CHINALVL:STRING(1),ETCLVL:STRING(20),HWGRDCD:STRING(1),EXGRDCD:STRING(1), "
+							 + " PWGRDCD:STRING(1),OAGRDCD:STRING(20),ABILITY:STRING(100),TECHNIQUE:STRING(400),STUDY:STRING(100),"
+							 + " STUDY2:STRING(100),STUDY3:STRING(100), I_EMPNO:STRING(10) ,U_EMPNO:STRING(10)";
+			gcds_mst.SetDataHeader(s_temp);
+		}
+	}else if(gbn==2){ //직무기술
+		if (gcds_dtl.countrow<1){
+			var s_temp = " EVAYM:STRING(6),EMPNO:STRING(7),SEQ:DECIMAL(2),JOB:STRING(50),TASK:STRING(100),"
+								 + " TASKDESC:STRING(300), IMPORT:DECIMAL(3),DEGREE:STRING(4), FREQUENCY:STRING(20),"
+								 + " I_EMPNO:STRING(10),U_EMPNO:STRING(10)";
+			gcds_dtl.SetDataHeader(s_temp);
+		}
+	}else if(gbn==3){ //print head
+		if (gcds_prthead.countrow<1){
+			var s_temp = " TITLE:STRING(50),"
+							 +" EVAYM:STRING(6),EMPNO:STRING(7),EMPNMK:STRING(30),HEADCD:STRING(4),HEADNM:STRING(50),"
+							 + " DIVCD:STRING(4),DIVNM:STRING(50),DEPTCD:STRING(4),DEPTNMK:STRING(50),PAYGRD:STRING(4),PAYGRDNM:STRING(50), "
+							 + " JOBCODE:STRING(4),JOBGRPH:STRING(20),JOBRR:STRING(20),JOBKIND:STRING(20),JOBNAME:STRING(50),"
+							 + " JOBSM:STRING(2000),"
+							 + " EDU:STRING(1),MAJOR:STRING(40),SEX:STRING(1),ETC:STRING(20),EXP:STRING(100),CERTIFICATE:STRING(100),"
+							 + " ENGLVL:STRING(1),JPLVL:STRING(1),CHINALVL:STRING(1),ETCLVL:STRING(20),HWGRDCD:STRING(1),EXGRDCD:STRING(1), "
+							 + " PWGRDCD:STRING(1),OAGRDCD:STRING(20),ABILITY:STRING(100),TECHNIQUE:STRING(400),STUDY:STRING(100),"
+							 + " STUDY2:STRING(100),STUDY3:STRING(100)";
+			gcds_prthead.SetDataHeader(s_temp);
+			}
+		} 
+}
+
+
+/******************************************************************************
+	Description : 조회시 Loading bar start
+  parameter   :
+******************************************************************************/
+function ln_Loading_Start(){
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.1";
+	document.all.LowerFrame.style.visibility="visible";
+}
+/******************************************************************************
+	Description : 조회시 Loading bar end
+  parameter   :
+******************************************************************************/
+function ln_Loading_End(row){
+	window.status="조회가 완료 되었습니다.";
+	//lbl_search.innerText = "( " + row + " 건 )";
+	document.all.LowerFrame.style.visibility="hidden";
+	if (row <1) {
+		alert("검색된 데이터가 없습니다.");
+		ln_SetDataHeader(2);
+  	gcds_dtl.addrow();
+	}
+}
+
+</script>
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__">
+<OBJECT id=gcds_dtl classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</OBJECT>
+
+<OBJECT id=gcds_mst classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+
+<OBJECT id=gcds_prthead classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+
+</comment><script>__ws__(__NSID__);</script>
+
+<!----------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><OBJECT id=gctr_data classid=clsid:0A2233AD-E771-11D2-973D-00104B15E56F VIEWASTEXT>
+	<PARAM NAME="KeyName"  VALUE="toinb_dataid4">
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+	
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcds_dtl" event="OnLoadStarted()">
+	ln_Loading_Start();
+</script>
+
+<script language="javascript" for="gcds_dtl" event="onloadCompleted(row,colid)">
+  var oRow 
+	var oCell
+	for(i=1;i<=row;i++){
+		if(i>1){
+			gs_format=""; 
+			oRow= tb_1.insertRow();
+			oCell = oRow.insertCell();
+			ln_SetFormat(i);
+			oCell.innerHTML = gs_format;
+		}
+
+		//조회 데이타 보여줌
+		ln_Display(i);
+	}
+
+	if (row==0)gs_seq = 1;
+	else gs_seq = row;
+  ln_Loading_End(row);
+</script>
+
+<script language=JavaScript event="OnLoadError()" for=gcds_data>
+	alert("에러가 발생 했습니다.");
+	document.all.LowerFrame.style.visibility="hidden";
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gctr_data" event="onsuccess()">
+	alert("작업이 성공적으로 완료되었습니다.");
+</script>
+<script language=JavaScript for=gctr_data event=OnFail()>
+	alert("Error Code : " + gctr_data.ErrorCode + "\n" + "Error Message : " + gctr_data.ErrorMsg + "\n");
+</script>
+
+<script language="javascript" for="gctr_data2" event="onsuccess()">
+	alert("작업이 성공적으로 완료되었습니다.");
+</script>
+<script language=JavaScript for=gctr_data2 event=OnFail()>
+	alert("Error Code : " + gctr_data2.ErrorCode + "\n" + "Error Message : " + gctr_data2.ErrorMsg + "\n");
+</script>
+
+</HEAD>
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<body bgcolor="#FFFFFF" topmargin="0" marginheight="0" leftmargin="0" marginwidth="0" onload="ln_Start();">
+<table id="tb_1" value="" cellpadding="0" cellspacing="0" border="0">
+</table>
+
+<comment id="__NSID__"><object  id=gcrp_print1 classid=CLSID:37D13B2F-E5EB-11D2-973D-00104B15E56F>
+	<param name="MasterDataID"			value="gcds_prthead">
+	<param name="PaperSize"					value="A4">
+	<param name="fixpapersize"			value="true">
+	<param name="printMargine"			value="false">
+	<param name="LandScape"					value="false">
+  <param name="PrintSetupDlgFlag" value="true">
+	<param name="Format"						value="
+	<A>id=Area1 ,left=0,top=0 ,right=2871 ,bottom=132, PageSkip=true
+	<R>id='1쪽.sbt' ,left=0 ,top=0 ,right=2831 ,bottom=132, DetailDataID='gcds_prthead'
+<B>id=DHeader ,left=0,top=0 ,right=2000 ,bottom=478 ,face='Arial' ,size=10 ,penwidth=1
+	<X>left=71 ,top=331 ,right=1942 ,bottom=402 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<T>id='직무명' ,left=1304 ,top=333 ,right=1937 ,bottom=397 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<T>id='직종' ,left=863 ,top=333 ,right=1291 ,bottom=397 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<X>left=619 ,top=108 ,right=1455 ,bottom=185 ,backcolor=#000000 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=609 ,top=98 ,right=1445 ,bottom=175 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<L> left=235 ,top=331 ,right=235 ,bottom=402 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<T>id='직무코드' ,left=79 ,top=333 ,right=228 ,bottom=397 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<L> left=71 ,top=328 ,right=1942 ,bottom=328 ,penstyle=solid ,penwidth=3 ,pencolor=#000000 </L>
+	<T>id='* 직무분류' ,left=71 ,top=254 ,right=908 ,bottom=318 ,align='left' ,face='굴림' ,size=11 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>
+	<C>id='JOBCODE', left=79, top=418, right=228, bottom=466, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<T>id='직렬' ,left=511 ,top=333 ,right=849 ,bottom=397 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<T>id='직군' ,left=241 ,top=333 ,right=495 ,bottom=397 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<C>id='JOBGRPH', left=241, top=418, right=495, bottom=466, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='JOBRR', left=511, top=418, right=849, bottom=466, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='JOBKIND', left=863, top=418, right=1291, bottom=466, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='JOBNAME', left=1304, top=418, right=1937, bottom=466, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<L> left=74 ,top=474 ,right=1942 ,bottom=474 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<C>id='TITLE', left=614, top=103, right=1439, bottom=169, face='HY중고딕', size=14, bold=true, underline=false, italic=false, forecolor=#000000, backcolor=#C0C0C0</C>
+	<L> left=500 ,top=333 ,right=500 ,bottom=402 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=500 ,top=407 ,right=500 ,bottom=471 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1296 ,top=333 ,right=1296 ,bottom=405 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=857 ,top=333 ,right=857 ,bottom=405 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1296 ,top=407 ,right=1296 ,bottom=471 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=235 ,top=407 ,right=235 ,bottom=471 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=857 ,top=407 ,right=857 ,bottom=471 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=71 ,top=333 ,right=71 ,bottom=405 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=71 ,top=407 ,right=71 ,bottom=471 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1942 ,top=328 ,right=1942 ,bottom=474 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=74 ,top=402 ,right=1942 ,bottom=402 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+</B>
+<B>id=default ,left=0,top=0 ,right=2000 ,bottom=2339 ,face='Arial' ,size=10 ,penwidth=1
+	<X>left=71 ,top=87 ,right=1942 ,bottom=161 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=344 ,top=1421 ,right=601 ,bottom=1479 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=344 ,top=1476 ,right=601 ,bottom=1543 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=344 ,top=1201 ,right=601 ,bottom=1265 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=1032 ,top=855 ,right=1289 ,bottom=918 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=1032 ,top=791 ,right=1289 ,bottom=855 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=344 ,top=855 ,right=601 ,bottom=918 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=344 ,top=791 ,right=601 ,bottom=855 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<T>id='전공' ,left=1037 ,top=796 ,right=1275 ,bottom=847 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='기타' ,left=1042 ,top=860 ,right=1281 ,bottom=910 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<X>left=1611 ,top=1143 ,right=1770 ,bottom=1201 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=1278 ,top=1143 ,right=1437 ,bottom=1201 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=601 ,top=1143 ,right=759 ,bottom=1201 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=937 ,top=1143 ,right=1095 ,bottom=1201 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=74 ,top=791 ,right=344 ,bottom=918 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<T>id='성별' ,left=355 ,top=860 ,right=595 ,bottom=910 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='학력' ,left=355 ,top=796 ,right=593 ,bottom=847 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<X>left=344 ,top=1543 ,right=601 ,bottom=1601 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=74 ,top=1421 ,right=344 ,bottom=1601 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<T>id='워드/한글' ,left=606 ,top=1148 ,right=757 ,bottom=1199 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<X>left=344 ,top=1082 ,right=601 ,bottom=1143 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=1611 ,top=1082 ,right=1770 ,bottom=1143 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<T>id='파워포인트' ,left=1286 ,top=1148 ,right=1434 ,bottom=1199 ,face='굴림' ,size=8 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<X>left=1278 ,top=1082 ,right=1437 ,bottom=1143 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=937 ,top=1082 ,right=1095 ,bottom=1143 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=344 ,top=1143 ,right=601 ,bottom=1201 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=601 ,top=1082 ,right=759 ,bottom=1143 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=344 ,top=953 ,right=601 ,bottom=1016 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=74 ,top=953 ,right=344 ,bottom=1384 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<X>left=344 ,top=1011 ,right=601 ,bottom=1082 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<L> left=74 ,top=230 ,right=1942 ,bottom=230 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=235 ,top=87 ,right=235 ,bottom=159 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<T>id='사번' ,left=79 ,top=90 ,right=228 ,bottom=153 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<L> left=74 ,top=161 ,right=1942 ,bottom=161 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=71 ,top=87 ,right=71 ,bottom=159 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<C>id='EMPNO', left=79, top=175, right=228, bottom=222, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<L> left=235 ,top=164 ,right=235 ,bottom=228 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=71 ,top=164 ,right=71 ,bottom=228 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<C>id='EMPNMK', left=1593, top=175, right=1926, bottom=222, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<T>id='소속명 (본부/부서/팀)' ,left=241 ,top=90 ,right=1294 ,bottom=153 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<C>id='PAYGRDNM', left=1315, top=172, right=1558, bottom=220, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='HEADNM', left=241, top=175, right=537, bottom=222, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<L> left=1942 ,top=164 ,right=1942 ,bottom=228 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1942 ,top=87 ,right=1942 ,bottom=159 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<C>id='DEPTNMK', left=1058, top=175, right=1265, bottom=222, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='DIVNM', left=619, top=175, right=966, bottom=222, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='{IF (ENGLVL=1,\'상\',IF(ENGLVL=2,\'중\',\'하\'))}', left=773, top=1087, right=929, bottom=1135, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='{IF (JPLVL =1,\'상\',IF(JPLVL =2,\'중\',\'하\'))}', left=1103, top=1087, right=1259, bottom=1135, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='{IF (CHINALVL =1,\'상\',IF(CHINALV=2,\'중\',\'하\'))}', left=1447, top=1087, right=1603, bottom=1135, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='{IF (ETCLVL =1,\'상\',IF(ETCLVL =2,\'중\',\'하\'))}', left=1775, top=1087, right=1931, bottom=1135, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<L> left=1574 ,top=161 ,right=1574 ,bottom=225 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1296 ,top=161 ,right=1296 ,bottom=225 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1296 ,top=90 ,right=1296 ,bottom=159 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1574 ,top=87 ,right=1574 ,bottom=159 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<T>id='* 직무 수행자 인적사항' ,left=71 ,top=11 ,right=908 ,bottom=74 ,align='left' ,face='굴림' ,size=11 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>
+	<T>id='* 직무 개요' ,left=71 ,top=270 ,right=908 ,bottom=333 ,align='left' ,face='굴림' ,size=11 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>
+	<L> left=71 ,top=355 ,right=1942 ,bottom=355 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=71 ,top=85 ,right=1942 ,bottom=85 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<C>id='{IF (EDU=1,\'고졸\',IF(EDU=4,\'초대졸\',IF(EDU=2,\'대졸\',\'대학원졸\')))}', left=614, top=796, right=1003, bottom=844, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<T>id='일반 자격 요건' ,left=87 ,top=820 ,right=328 ,bottom=873 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='소요 역량' ,left=93 ,top=1106 ,right=333 ,bottom=1228 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='해당분야 경험' ,left=355 ,top=958 ,right=593 ,bottom=1008 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='외국어 능력' ,left=355 ,top=1087 ,right=593 ,bottom=1138 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='개인능력' ,left=355 ,top=1212 ,right=593 ,bottom=1262 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<L> left=1945 ,top=953 ,right=1945 ,bottom=1384 </L>
+	<T>id='* 직무 명세' ,left=71 ,top=685 ,right=908 ,bottom=749 ,align='left' ,face='굴림' ,size=11 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>
+	<T>id='소요 자격/면허증' ,left=347 ,top=1021 ,right=598 ,bottom=1072 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<X>left=344 ,top=1262 ,right=601 ,bottom=1384 ,backcolor=#B1B1B1 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<T>id='기타' ,left=1622 ,top=1087 ,right=1765 ,bottom=1138 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='중국어' ,left=1286 ,top=1087 ,right=1434 ,bottom=1138 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='일어' ,left=950 ,top=1087 ,right=1093 ,bottom=1138 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='OA 능력' ,left=355 ,top=1151 ,right=593 ,bottom=1196 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<C>id='EXP', left=609, top=958, right=1937, bottom=1011, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='CERTIFICATE', left=609, top=1019, right=1937, bottom=1072, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='ABILITY', left=609, top=1214, right=1937, bottom=1262, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='{IF (OAGRDCD =1,\'상\',IF(OAGRDCD =2,\'중\',\'하\'))}', left=1775, top=1151, right=1931, bottom=1199, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='{IF (PWGRDCD =1,\'상\',IF(PWGRDCD =2,\'중\',\'하\'))}', left=1447, top=1151, right=1603, bottom=1199, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='{IF (EXGRDCD =1,\'상\',IF(EXGRDCD =2,\'중\',\'하\'))}', left=1103, top=1151, right=1259, bottom=1199, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='{IF (HWGRDCD =1,\'상\',IF(HWGRDCD =2,\'중\',\'하\'))}', left=773, top=1151, right=929, bottom=1199, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='ETC', left=1296, top=865, right=1939, bottom=913, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='{IF (SEX=1,\'남\',IF(SEX=2,\'여\',\'무관\'))}', left=614, top=865, right=1003, bottom=913, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='MAJOR', left=1296, top=796, right=1939, bottom=844, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<T>id='업무수행을 위한' ,left=90 ,top=1439 ,right=331 ,bottom=1492 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='소요교육' ,left=95 ,top=1500 ,right=299 ,bottom=1553 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='과정명' ,left=355 ,top=1429 ,right=593 ,bottom=1476 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<C>id='STUDY', left=609, top=1434, right=1937, bottom=1476, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<L> left=71 ,top=355 ,right=71 ,bottom=661 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<T>id='과정명' ,left=357 ,top=1545 ,right=595 ,bottom=1595 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='과정명' ,left=355 ,top=1495 ,right=593 ,bottom=1537 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<C>id='STUDY2', left=609, top=1487, right=1937, bottom=1529, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='STUDY3', left=606, top=1548, right=1934, bottom=1590, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<T>id='기타' ,left=1622 ,top=1148 ,right=1765 ,bottom=1199 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<T>id='엑셀' ,left=950 ,top=1148 ,right=1093 ,bottom=1199 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<L> left=601 ,top=1143 ,right=1945 ,bottom=1143 </L>
+	<L> left=71 ,top=661 ,right=1942 ,bottom=661 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<T>id='지식 / 기술' ,left=357 ,top=1275 ,right=595 ,bottom=1365 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<L> left=601 ,top=791 ,right=1942 ,bottom=791 </L>
+	<C>id='TECHNIQUE', left=609, top=1275, right=1937, bottom=1376, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<L> left=603 ,top=1082 ,right=1945 ,bottom=1082 </L>
+	<L> left=601 ,top=1201 ,right=1945 ,bottom=1201 </L>
+	<L> left=601 ,top=1384 ,right=1945 ,bottom=1384 </L>
+	<T>id='영어' ,left=614 ,top=1087 ,right=757 ,bottom=1138 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#B1B1B1</T>
+	<L> left=601 ,top=1262 ,right=1945 ,bottom=1262 </L>
+	<L> left=601 ,top=1011 ,right=1945 ,bottom=1011 </L>
+	<L> left=601 ,top=953 ,right=1945 ,bottom=953 </L>
+	<L> left=601 ,top=1601 ,right=1945 ,bottom=1601 </L>
+	<L> left=601 ,top=791 ,right=1945 ,bottom=791 </L>
+	<L> left=601 ,top=1543 ,right=1945 ,bottom=1543 </L>
+	<L> left=601 ,top=1476 ,right=1945 ,bottom=1476 </L>
+	<L> left=601 ,top=1421 ,right=1945 ,bottom=1421 </L>
+	<L> left=1945 ,top=1421 ,right=1945 ,bottom=1601 </L>
+	<L> left=1945 ,top=791 ,right=1945 ,bottom=918 </L>
+	<L> left=601 ,top=918 ,right=1945 ,bottom=918 </L>
+	<L> left=601 ,top=855 ,right=1945 ,bottom=855 </L>
+	<L> left=1942 ,top=355 ,right=1942 ,bottom=659 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<C>id='JOBSM', left=82, top=368, right=1929, bottom=651, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF, Multiline=true</C>
+	<T>id='직위' ,left=1304 ,top=90 ,right=1561 ,bottom=153 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<T>id='성명' ,left=1580 ,top=90 ,right=1918 ,bottom=153 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+</B>
+<B>id=Footer ,left=0 ,top=2737 ,right=2000 ,bottom=2870 ,face='Arial' ,size=10 ,penwidth=1
+	<L> left=71 ,top=0 ,right=1945 ,bottom=0 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<I>id='../../common/img/icon.jpg' ,left=1558 ,top=3 ,right=1937 ,bottom=85</I>
+	<T>id='#p / #t' ,left=873 ,top=56 ,right=1140 ,bottom=103 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>
+</B>
+
+
+</R>
+</A>
+
+
+<A>id=Area2 ,left=0,top=0 ,right=2871 ,bottom=132, PageSkip=true 
+	<R>id='2쪽.sbt' ,left=0 ,top=0 ,right=2831 ,bottom=132,  DetailDataID='gcds_dtl',SuppressColumns='1:JOB'
+<B>id=DHeader ,left=0,top=0 ,right=2000 ,bottom=264 ,face='Arial' ,size=10 ,penwidth=1
+	<X>left=74 ,top=196 ,right=1947 ,bottom=262 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=1</X>
+	<L> left=71 ,top=193 ,right=71 ,bottom=265 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1947 ,top=193 ,right=1947 ,bottom=265 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=71 ,top=193 ,right=1947 ,bottom=193 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=320 ,top=193 ,right=320 ,bottom=265 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<T>id='과업' ,left=328 ,top=198 ,right=654 ,bottom=262 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<L> left=659 ,top=193 ,right=659 ,bottom=265 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<T>id='과업 내용' ,left=664 ,top=198 ,right=1492 ,bottom=262 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<T>id='직무' ,left=79 ,top=198 ,right=315 ,bottom=262 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<T>id='비중' ,left=1508 ,top=198 ,right=1627 ,bottom=228 ,face='굴림' ,size=9 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<T>id='(%)' ,left=1508 ,top=230 ,right=1627 ,bottom=259 ,face='굴림' ,size=9 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<T>id='난이도' ,left=1635 ,top=198 ,right=1752 ,bottom=262 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+	<L> left=1630 ,top=193 ,right=1630 ,bottom=265 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1757 ,top=193 ,right=1757 ,bottom=265 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1500 ,top=193 ,right=1500 ,bottom=265 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<T>id='* 직무기술(수행업무)' ,left=79 ,top=114 ,right=915 ,bottom=177 ,align='left' ,face='굴림' ,size=11 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>
+	<L> left=77 ,top=265 ,right=1947 ,bottom=265 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<T>id='발생빈도' ,left=1762 ,top=198 ,right=1942 ,bottom=262 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>
+</B>
+<B>id=default ,left=0,top=0 ,right=2000 ,bottom=320 ,face='Arial' ,size=10 ,penwidth=1
+	<L> left=1947 ,top=0 ,right=1947 ,bottom=320 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1500 ,top=0 ,right=1500 ,bottom=320 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1630 ,top=0 ,right=1630 ,bottom=320 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=1757 ,top=0 ,right=1757 ,bottom=320 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<C>id='DEGREE', left=1635, top=130, right=1752, bottom=204, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='IMPORT', left=1508, top=130, right=1627, bottom=204, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>
+	<C>id='FREQUENCY', left=1781, top=153, right=1998, bottom=238, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF, Multiline=true</C>
+	<C>id='JOB', left=79, top=5, right=318, bottom=315, align='left', supplevel=1, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF, Multiline=true</C>
+	<L> left=71 ,top=0 ,right=323 ,bottom=0 ,supplevel=1 </L>
+	<L> left=320 ,top=0 ,right=320 ,bottom=320 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<L> left=659 ,top=0 ,right=659 ,bottom=320 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<C>id='TASK', left=328, top=5, right=654, bottom=315, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF, Multiline=true</C>
+	<C>id='TASKDESC', left=664, top=5, right=1492, bottom=315, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF, Multiline=true</C>
+	<L> left=320 ,top=0 ,right=1947 ,bottom=0 </L>
+	<L> left=71 ,top=0 ,right=71 ,bottom=320 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+</B>
+<B>id=DFooter ,left=0,top=0 ,right=2000 ,bottom=34 ,face='Arial' ,size=10 ,penwidth=1
+	<L> left=71 ,top=0 ,right=1947 ,bottom=0 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+</B>
+</R>
+</A>
+
+<B>id=Footer ,left=0 ,top=2727 ,right=2000 ,bottom=2870 ,face='Arial' ,size=10 ,penwidth=1
+	<L> left=71 ,top=0 ,right=1945 ,bottom=0 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L>
+	<I>id='../../common/img/icon.jpg' ,left=1558 ,top=3 ,right=1937 ,bottom=85</I>
+	<T>id='#p / #t' ,left=873 ,top=56 ,right=1140 ,bottom=103 ,face='굴림' ,size=10 ,bold=false ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>
+</B>
+
+	">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+
+
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:280px; top:220px;" FrameBorder="0" src="../../common/img/flash/loading.swf" width="320px" height="42px"> </iframe> 
+
+</body>
+</html>

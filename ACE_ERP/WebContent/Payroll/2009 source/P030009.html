@@ -1,0 +1,2048 @@
+<HTML>
+<HEAD>
+<TITLE>2006년 근로소득공제 신고서 입력</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=euc-kr">
+<LINK href="imgs/css_ehr.css" type=text/css rel=stylesheet>
+<SCRIPT language=JavaScript src="imgs/web.js"></SCRIPT>
+<SCRIPT language=JavaScript src="imgs/06YearEntry.js"></SCRIPT>
+
+<SCRIPT language=JavaScript>
+<!--
+//인적사항 및 기본공제 변경 체크
+
+function checkMDF(form, cgq) {
+	var m, n = 0;
+	var ins, med, edu, cad = "N";
+
+	if (cgq == 0) {
+		m = 1;
+		n = 12;
+	} else {
+ 		m = cgq;
+ 		n = cgq;
+	}
+
+	for (var i = m; i <= n; i++) {
+
+		//변경체크
+		var pycchg = eval("form.pycchg_" + i);
+		var pyfchg = eval("form.pyfchg_" + i);
+		var pydchg = eval("form.pydchg_" + i);
+		var pygchg = eval("form.pygchg_" + i);
+		var pyhchg = eval("form.pyhchg_" + i);
+
+		//가족사항
+		var pyccgq = eval("form.pyccgq_" + i);
+		var pyccg1 = eval("form.pyccg1_" + i);
+		var pychnm = eval("form.pychnm_" + i);
+		var pycju1 = eval("form.pycju1_" + i);
+		var pycju2 = eval("form.pycju2_" + i);
+		var pycsod = eval("form.pycsod_" + i);
+		var pycjan = eval("form.pycjan_" + i);
+
+		//특별공제
+		var pyfinktot = eval("form.pyfinktot_" + i);
+		var pyfinetot = eval("form.pyfinetot_" + i);
+		var pydmektot = eval("form.pydmektot_" + i);
+		var pydmeetot = eval("form.pydmeetot_" + i);
+		var pygedktot = eval("form.pygedktot_" + i);
+		var pygedetot = eval("form.pygedetot_" + i);
+		var pyhcaktot = eval("form.pyhcaktot_" + i);
+		var pyhcaetot = eval("form.pyhcaetot_" + i);
+
+		if (chkValue(pyfinktot) != 0 || chkValue(pyfinetot) != 0) ins = "Y";
+		if (chkValue(pydmektot) != 0 || chkValue(pydmeetot) != 0) med = "Y";
+		if (chkValue(pygedktot) != 0 || chkValue(pygedetot) != 0) edu = "Y";
+		if (chkValue(pyhcaktot) != 0 || chkValue(pyhcaetot) != 0) cad = "Y";
+
+
+	}
+}
+
+//-->
+</SCRIPT>
+<LINK href="css/hrms_year.css" type=text/css rel=stylesheet>
+<LINK href="css/css_ehr.css" type=text/css rel=stylesheet>
+</HEAD>
+
+<BODY text=#000000 bgColor=#ffffff onload="scrollWin('', ''); checkOLD(document.entry, 2006, 'pycju1_1', 'pycju2_1', 'pycol1_1', 'pycol2_1', 'pycold_1', 'pycsod_1');" style='padding:0px'>
+<FORM name=entry action="" method=post>
+	<INPUT type=hidden value=2006 name=eyy> 
+	<INPUT type=hidden value=12 name=emm>
+	<INPUT type=hidden value=0 name=egb> 
+	<INPUT type=hidden value=L name=gb1>
+	<INPUT type=hidden value=200089 name=eno> <!-- 사번 -->
+	<INPUT type=hidden value=IPT name=mod>
+	<INPUT type=hidden name=pybchk> 
+
+
+
+<TABLE cellSpacing=0 cellPadding=0 width=854 border=0>
+  <TR>
+    <TD vAlign=top width=1003 bgColor=#ffffff height=62>
+
+	  <TABLE cellSpacing=0 cellPadding=0 width=1003 align=center border=0>
+        <TR>
+          <TD><IMG src="imgs/tit_01_14.gif"></TD>
+		</TR>
+	  </TABLE>
+	  
+	  
+	  <BR>
+	  <!--인적사항 -->
+      <TABLE cellSpacing=1 cellPadding=3 width=1003 bgColor=#666666 border=0>
+        <TR align=middle bgColor=#e8f3ff>
+          <TD width=30 bgColor=#aad2ff rowSpan=4>인적<BR>사항 
+          <TD width=82>사원번호</TD>
+          <TD width=160>소속</TD>
+          <TD width=140>직위</TD>
+          <TD width=106>그룹입사일</TD>
+          <TD width=140>성명</TD>
+          <TD width=150>주민등록번호</TD>
+          <TD>전화번호</TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD>사번txt 200089</TD>
+          <TD>소속txt 아산ＩＴ실</TD>
+          <TD>직급txt 대리</TD>
+          <TD>입사일txt 2003-01-13</TD>
+          <TD>성명txt 심동현</TD>
+          <TD>주민번호txt 751201-1042715</TD>
+          <TD>전번txt 3669-3883</TD></TR>
+        <TR align=middle bgColor=#e8f3ff>
+          <TD colSpan=4>주 소</TD>
+          <TD colSpan=3>&nbsp;</TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD colSpan=4>주소...txt 서울 강동구 명일동 </TD>
+          <TD colSpan=3>&nbsp;</TD>
+		</TR>
+	  </TABLE>
+		  
+		  
+		  
+	
+	
+	<!-- 근로소득 -->
+	  <TABLE cellSpacing=1 cellPadding=3 width=1003 bgColor=#666666 border=0>
+        <TR align=middle>
+          <TD width=30 bgColor=#aad2ff rowSpan=2>구분</TD>
+          <TD bgColor=#aad2ff colSpan=4>2006년 근로소득</TD>
+          <TD bgColor=#aad2ff colSpan=5>2006년 원천징수</TD>
+          <TD bgColor=#aad2ff>&nbsp;</TD></TR>
+        <TR align=middle bgColor=#e8f3ff>
+          <TD width=79>과세급여</TD>
+          <TD width=79>과세상여</TD>
+          <TD width=79>과세소득 계</TD>
+          <TD width=79>비과세소득 계</TD>
+          <TD width=79>갑근세</TD>
+          <TD width=79>주민세</TD>
+          <TD width=79>국민연금</TD>
+          <TD width=79>건강보험</TD>
+          <TD width=79>고용보험</TD>
+          <TD>&nbsp;</TD>
+		</TR>
+        <TR align=middle>
+          <TD bgColor=#e8f3ff>금액</TD>
+          <TD bgColor=#ffffff>연 총급여?txt </TD>
+          <TD bgColor=#ffffff>총상여?txt </TD>
+          <TD bgColor=#ffffff>총급여+상여?txt </TD>
+          <TD bgColor=#ffffff>0</TD>
+          <TD bgColor=#ffffff>0</TD>
+          <TD bgColor=#ffffff>0</TD>
+          <TD bgColor=#ffffff>0</TD>
+          <TD bgColor=#ffffff>0</TD>
+          <TD bgColor=#ffffff>0</TD>
+          <TD bgColor=#ffffff>&nbsp;</TD>
+		</TR>
+        <TR bgColor=#ffffff>
+          <TD colSpan=14><!--
+						&nbsp;&nbsp;☞ 참고사항 <br>
+						&nbsp;&nbsp;&nbsp;&nbsp;① 주 식 소 득 : 2004년 연말정산시 우리사주조합 소득공제를 받았던 사람이
+						2006년 ESOP주식 인출하여 발생한 소득은 &quot;근로소득&quot;에 합산됩니다. <br>
+						&nbsp;&nbsp;&nbsp;&nbsp;② 비과세소득 : 육원 - 해외근무자 월 100만원, 자녀보육수당 10만원 / 해원 - 외국항해 선원 월 150만원,
+						황열접종비 등 기타 비과세소득 <br>-->
+			&nbsp;&nbsp;<FONT color=#ff6633>☞ 위 금액은 12월 급여 지급 전 조회자료이므로 2006년 최종 확정 금액이 아닙니다.</FONT> </TD>
+		  </TR>
+	  </TABLE><BR><BR>
+
+	  <TABLE cellSpacing=1 cellPadding=3 width=1003 border=0>
+        <TR bgColor=#ffffff>
+          <TD colSpan=6><B>I. 당해년도 "경력입사자 및 근무처가 2곳 이상인 경우" 전(종)근무지 소득 및 원천징수 현황을 입력바랍니다.</B> ☞ 여러개 입력해도 1개만 화면에 표시: "첫번째 입력한 회사명外" 로 표시</TD></TR>
+        <TR bgColor=#ffffff>
+          <TD><FONT color=#ff6633>※ "전(종)근무지 근로소득원천징수영수증 및 징수부" 제출 여부 
+          선택</FONT></TD>
+          <TD width=25>제출</TD>
+          <TD><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            type=radio value=Y name=pybbhk></TD>
+          <TD width=40>미제출</TD>
+          <TD><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            type=radio value=N name=pybbhk></TD>
+          <TD width=470>&nbsp;</TD></TR></TABLE><!-- 전근무지 원천징수 현황 -->
+      <TABLE cellSpacing=1 cellPadding=3 width=1003 bgColor=#666666 border=0>
+        
+        <TR align=middle>
+          <TD width=30 bgColor=#ffedd2 rowSpan=2>구분</TD>
+          <TD bgColor=#ffedd2 colSpan=2>회사명</TD>
+          <TD bgColor=#ffffff colSpan=2><INPUT class=input01 
+            style="CURSOR: hand; TEXT-ALIGN: center" 
+            onfocus="JavaScript:blur();sodOpen(document.entry, '2006', '12', '0', 'L', '200089', 'pyicnm', 'N');" 
+            readOnly maxLength=13 size=25 name=pyicnm_1> </TD>
+          <TD bgColor=#ffedd2 colSpan=2>사업자등록번호</TD>
+          <TD bgColor=#ffffff colSpan=2><INPUT class=input01 
+            style="TEXT-ALIGN: center" readOnly maxLength=13 size=25 
+            name=pyicns_1> </TD>
+          <TD bgColor=#ffedd2>&nbsp;</TD></TR>
+        <TR align=middle bgColor=#ffedd2>
+          <TD align=middle>과세급여</TD>
+          <TD align=middle>과세상여</TD>
+          <TD align=middle>과세소득 계</TD>
+          <TD align=middle>비과세소득 계</TD>
+          <TD align=middle>결정갑근세</TD>
+          <TD align=middle>결정주민세</TD>
+          <TD align=middle>국민연금</TD>
+          <TD align=middle>건강보험</TD>
+          <TD align=middle>고용보험</TD></TR>
+        <TR align=left>
+          <TD align=middle bgColor=#ffedd2>금액</TD>
+          <TD bgColor=#ffffff><INPUT class=input01 style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=12             value=0 name=pyiydptot> </TD>
+          <TD bgColor=#ffffff><INPUT class=input01 style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=12             value=0 name=pyiydbtot> </TD>
+          <TD bgColor=#ffffff><INPUT class=input02 style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=12             value=0 name=pyiytgtot> </TD>
+          <TD bgColor=#ffffff><INPUT class=input02 style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=12             value=0 name=pyiybttot> </TD>
+          <TD bgColor=#ffffff><INPUT class=input01 style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=12             value=0 name=pyitggtot> </TD>
+          <TD bgColor=#ffffff><INPUT class=input01 style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=12             value=0 name=pyitjmtot> </TD>
+          <TD bgColor=#ffffff><INPUT class=input01 style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=12             value=0 name=pyisgmtot> </TD>
+          <TD bgColor=#ffffff><INPUT class=input01 style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=12             value=0 name=pyisbhtot> </TD>
+          <TD bgColor=#ffffff><INPUT class=input01 style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=12             value=0 name=pyisgytot> </TD>
+		</TR>
+	  </TABLE>
+
+
+	  <BR>
+	  <BR>
+
+	  <!-- 인적사항 및 공제항목 -->
+      <TABLE cellSpacing=1 cellPadding=3 width=1003 border=0>
+        
+        <TR bgColor=#ffffff>
+          <TD width=800><B>Ⅱ. 다음 본인과 부양가족의 인적사항 및 공제 항목을 선택(√) 또는 입력바랍니다.</B> 
+          </TD>
+          <TD vAlign=bottom align=right><A 
+            href="javascript:checkForm(document.entry,%20'S');"><IMG 
+            src="imgs/btn_save.gif" border=0></A>&nbsp;</TD>
+          <TD vAlign=bottom align=right>&nbsp;<A 
+            href="javascript:checkForm(document.entry,%20'C');"><IMG 
+            src="imgs/btn_submit.gif" border=0></A></TD></TR>
+        <TR>
+          <TD width=800><FONT color=#3366ff>&nbsp;&nbsp;☞ 주의사항 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;① "정산절차안내"를 반드시 숙지하신 후 입력바랍니다. 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;② 입력 및 수정후에는 반드시 "저장" 버튼을 눌러주시기 바랍니다. 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;<FONT color=#ff6633><B>※&nbsp;국세청 자료란 : 
+            국세청 홈페이지에서 제공하는 증빙서류상의 금액 
+            입력</B></FONT><BR>&nbsp;&nbsp;&nbsp;&nbsp;<B>※&nbsp;그밖의 자료란 : 국세청에서 
+            제공하는 증빙서류 이외의 것 입력</B> </FONT></TD>
+          <TD vAlign=bottom align=right colSpan=2><A 
+            href="javascript:showDiv('write_guide',%20'../../images/Self/btn_guideclose.gif',%20'../../images/Self/btn_guideopen.gif');"><IMG 
+            id=imgsrc src="imgs/btn_guideopen.gif" border=0></A> 
+        </TD></TR></TABLE>
+      <DIV id=write_guide style="DISPLAY: none">
+      <TABLE cellSpacing=1 cellPadding=3 width=1003 bgColor=#666666 border=0>
+        
+        <TR bgColor=#ffffff>
+          <TD width=12 bgColor=#ffedd2 
+            rowSpan=30>인<BR><BR>적<BR><BR>공<BR><BR>제<BR><BR>작<BR><BR>성<BR><BR>요<BR><BR>령</TD>
+          <TD vAlign=top>
+            <TABLE cellSpacing=0 cellPadding=2 width="100%" border=0>
+              
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=3><B>1. 기본공제</B></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>1) 관 계 : 생계를 같이하는(주민등록등본상 동거가족) 근로자(배우자 포함)의 
+                  직계존속(외조부모 포함), 자녀, 형제자매</TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>2) 세대주 : 근로자 본인이 주민등록등본상 세대주임을 반드시 체크하여야 
+                  <U><B>"주택자금 공제"</B></U>를 신청할 수 있음. </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>3) 내·외국인 : 배우자 및 부양가족이 외국인일 경우 "외국인 □"란에 체크한 후 
+                  <U><B>"외국인등록번호 또는 여권번호"</B></U>를 기재함. </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>4) 주민등록번호 : 입력한 출생년도로 부양가족 기본공제 적용 연령과 
+                  추가공제(자녀양육비, 경로우대) 가능 여부를 자동체크함. </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px"><FONT color=#3366ff>① 배 우 자 : 
+                  연령제한 없음. </FONT></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px"><FONT color=#3366ff>② 부양가족 : 
+                  만60세 이상 남성 직계존속·형제 - 1946.12.31 이전 
+                  生&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;만55세 이상 여성 
+                  직계존속·자매 - 1951.12.31 이전生 
+                  <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                  만20세 이하 직계비속·형제자매 - 1986.01.01 이후生 </FONT></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px"><FONT color=#3366ff>③ 자녀양육 : 
+                  만6세 이하 직계비속 - 2000.01.01 이후生 </FONT></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px"><FONT color=#3366ff>④ 경로우대 : 
+                  만65세~69세 - 1941.12.31 
+                  이전生&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;만70세 이상 - 
+                  1936.12.31 이전生 </FONT></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2><FONT color=#ff6633>5) 연간 소득금액 : <U><B>"부양가족 
+                  연령조건"</B></U>에 충족되는 자의 연간 총소득금액(급/상여 + 퇴직금 + 이자소득 + 사업소득 등 
+                  합계액)이 
+                  <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                  "100만원이하(소득공제 차감 후 금액)"인 경우 반드시 체크하여야 배우자 및 부양가족의 기본공제를 받을 수 
+                  있음. </FONT></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px">※ 연간 총소득금액 = 실제 과세소득 - 
+                  소득공제(필요경비적 공제) </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px">&nbsp;&nbsp;&nbsp;&nbsp;예) 
+                  근로소득(급/상여)만 있는 경우 실제소득이 <U><B>약 700만원 이하</B></U>인 경우는 공제 가능하나, 
+                  100만원 이상의 퇴직금이 포함된 경우는 공제 불가능함. </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=3><B>2. 추가공제</B></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>1) 부녀자 여부 : 근로자 본인이 여성인 경우에만 체크할 수 있음. (남성 근로자는 
+                  선택란이 비활성화 되어 체크 불가능함.)</TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px">① 미혼여성인 경우 : 주민등록등본상 기본공제를 적용받는 
+                  부양가족이 있는 세대주이면 공제 가능함. </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px">② 기혼여성인 경우 : 혼인신고를 한 부녀자이면 공제 
+                  가능함. (남편의 소득유무 상관없음.) </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>2) 자녀양육비 : 직계비속이 만6세 이하인 경우에만 체크할 수 있음. (만7세 
+                  초과자는 선택란이 비활성화 되어 체크 불가능함.)</TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px">※ 맞벌이 부부인 경우 - 부모中 1인만 선택 공제 받음 
+                </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 200px">- 한 자녀에 대해 본인이 기본공제를 받고 배우자가 
+                  추가로 자녀양육비공제를 받을 수 있음. </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>3) 장애인 여부 : 연령제한은 없으나, 연간 총소득금액이 100만원 이하인 장애인인 
+                  경우에만 해당란에 체크할 수 있음.</TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 75px">(연간 소득금액 100만원 이하 □ 란에 체크 안 한 
+                  경우 선택란이 비활성화되어 체크 불가능함)</TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=3><B>3. 특별공제</B></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2><FONT color=#3366ff>※ 국세청 자료 : 국세청 홈페이지에서 제공하는 
+                  자료 (대표적 예 - 현금영수증)</FONT></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2><FONT color=#3366ff>&nbsp;&nbsp;&nbsp;&nbsp;그밖의 
+                  자료 : 국세청에서 제공하는 증빙서류 이외의 것 (기존처럼 각 해당 금융기관 등에서 제공하는 자료) 
+                </FONT></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>1) 보험료 : 본인 및 생계를 같이하는 가족을 "피보험자"로 하여 당해 근로자가 직접 
+                  불입한 "소득공제 가능한 보장성 보험료 연간 합계액 " 기재 </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 40px"><FONT color=#ff6633>※ 배우자 및 
+                  부양가족이 기본공제 적용자(연령·소득요건 충족자)여야 해당란이 활성화되어 입력 가능함. </FONT></TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 40px">※ 장애인전용보험은 피보험자가 연간 소득금액 100만원 
+                  이하인 장애인이어야 하며 증명서류상에 "장애인 전용 보장성 보험료"라고 기재되어 있어야 함.</TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>2) 의료비 : 본인 및 생계를 같이하는 가족을 위하여 당해 근로자가 직접 지출한 치료 
+                  및 요양목적의 의료비 기재 <U><B>(수납금액 = 소득공제 대상액)</B></U> </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD width=20>&nbsp;</TD>
+                <TD style="PADDING-LEFT: 40px">※ 안경 및 콘택트렌즈 구입비용은 1인당 50만원 
+                  한도내에서 의료비 지출액에 포함됨. </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>3) 교육비 : 본인 및 생계를 같이하는 가족을 위하여 지출한 수업료, 입학금, 
+                  보육비용, 취학전 아동의 학원수강료 등 기재 </TD></TR>
+              <TR>
+                <TD width=10>&nbsp;</TD>
+                <TD width=10>&nbsp;</TD>
+                <TD colSpan=2>4) 신용카드·학원비 지로납부·현금영수증 : 본인 및 생계를 같이하는 가족(형제자매 
+                  제외)이 지출한 신용카드·현금영수증 공제 대상액 및 학원의 설립운영 및 
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                  과외교습에 관한 법률에 의한 학원의 수강료 등을 반드시 <U><B>"지로(ZERO)용지"</B></U>를 
+                  이용하여 결제한 금액 기재</TD></TR></TABLE></TD></TR></TABLE></DIV>
+      <TABLE cellSpacing=1 cellPadding=3 width=1003 bgColor=#666666 border=0>
+        
+        <TR bgColor=#ffedd2>
+          <TD align=middle width=12 
+            rowSpan=29>인<BR><BR>적<BR><BR>공<BR><BR>제<BR><BR>및<BR><BR>특<BR><BR>별<BR><BR>공<BR><BR>제 
+          </TD>
+          <TD align=middle colSpan=4>인 적 사 항</TD>
+          <TD align=middle colSpan=2>기 본 공 제</TD>
+          <TD align=middle colSpan=4>추 가 공 제</TD>
+          <TD align=middle colSpan=5>특 별 공 제</TD></TR>
+        <TR align=middle bgColor=#fff8ee>
+          <TD colSpan=2><A name=test>관 계</A></TD>
+          <TD>성명</TD>
+          <TD>외국인<BR>여부</TD>
+          <TD>주민등록번호<BR>(1차연령조건)</TD>
+          <TD><FONT color=#ff6633>연간소득금액<BR>(2차소득조건)</FONT></TD>
+          <TD>부녀자<BR>여부</TD>
+          <TD>자녀<BR>양육비</TD>
+          <TD>장애인<BR>여부</TD>
+          <TD width=33>경로<BR>우대</TD>
+          <TD>자료구분</TD>
+          <TD>보험료</TD>
+          <TD>의료비</TD>
+          <TD>교육비</TD>
+          <TD>신용카드 및<BR>현금영수증 </TD></TR>
+        <TR>
+          <TD align=middle width=15 bgColor=#fff8ee rowSpan=2>본인 <INPUT 
+            type=hidden name=pycchg_1> <INPUT type=hidden value=1 name=pyccgq_1> 
+            <INPUT type=hidden value=01 name=pyccg1_1> <INPUT type=hidden 
+            value=심동현 name=pychnm_1> <INPUT type=hidden value=751201 
+            name=pycju1_1> <INPUT type=hidden value=1042715 name=pycju2_1> <!--보험료--><INPUT type=hidden name=pyfchg_1> <INPUT type=hidden 
+            value=0 name=pyfinstot_1> <INPUT type=hidden value=0 
+            name=pyfjnstot_1> <!--의료비--><INPUT type=hidden name=pydchg_1> <INPUT 
+            type=hidden value=0 name=pydmedtot_1> <INPUT type=hidden value=0 
+            name=pydme1tot_1> <INPUT type=hidden value=0 name=pydme2tot_1> 
+            <INPUT type=hidden value=0 name=pydmsdtot_1> <INPUT type=hidden 
+            value=0 name=pydmgdtot_1> <!--교육비--><INPUT type=hidden 
+            name=pygchg_1> <INPUT type=hidden value=0 name=pygsedtot_1> <INPUT 
+            type=hidden value=0 name=pygebctot_1> <INPUT type=hidden value=0 
+            name=pygebttot_1> <INPUT type=hidden value=0 name=pygecctot_1> 
+            <INPUT type=hidden value=0 name=pygecttot_1> <INPUT type=hidden 
+            value=0 name=pygedctot_1> <INPUT type=hidden value=0 
+            name=pygedttot_1> <INPUT type=hidden value=0 name=pygetctot_1> 
+            <INPUT type=hidden value=0 name=pygetstot_1> <!--카드비--><INPUT 
+            type=hidden name=pyhchg_1> <INPUT type=hidden value=0 
+            name=pyhcadtot_1> <INPUT type=hidden value=0 name=pyhhadtot_1> 
+            <INPUT type=hidden value=0 name=pyhmadtot_1> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><FONT 
+            color=#3366ff>(세대주√)</FONT> <INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick=checkSAE(document.entry); type=checkbox value=Y 
+            name=pycsae_1> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>심동현</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_1', 'pycju2_1', 'pycfrn_1');" 
+            type=checkbox value="" name=pycfrn_1> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>751201 - 1042715 </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycsod_1></DIV></TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycnea_1> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkJAN(document.entry, 'pycjan_1', '1');" type=checkbox 
+            value=Y name=pycjan_1> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_1> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_1></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_1></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input03 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '1');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '1');" 
+            readOnly size=10 value=0 name=pyfinktot_1> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input03 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '1');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '1');" 
+            readOnly size=10 value=0 name=pydmektot_1> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input03 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '1');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '1');" 
+            readOnly size=10 value=0 name=pygedktot_1> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input03 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '1');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '1');" 
+            readOnly size=10 value=0 name=pyhcaktot_1> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '1');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '1')" 
+            readOnly size=10 value=0 name=pyfinetot_1> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '1');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '1');" 
+            readOnly size=10 value=0 name=pydmeetot_1> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '1');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '1');" 
+            readOnly size=10 value=0 name=pygedetot_1> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '1');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '1');" 
+            readOnly size=10 value=0 name=pyhcaetot_1> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee colSpan=2 rowSpan=2>배우자</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_2> <INPUT type=hidden value=2 name=pyccgq_2> <INPUT 
+            type=hidden value=02 name=pyccg1_2> <INPUT class=input01 
+            onblur="writableFLD(document.entry, '2', this);" maxLength=8 size=8 
+            name=pychnm_2> <!--보험료--><INPUT type=hidden name=pyfchg_2> <INPUT 
+            type=hidden value=0 name=pyfinstot_2> <INPUT type=hidden value=0 
+            name=pyfjnstot_2> <!--의료비--><INPUT type=hidden name=pydchg_2> <INPUT 
+            type=hidden value=0 name=pydmedtot_2> <INPUT type=hidden value=0 
+            name=pydme1tot_2> <INPUT type=hidden value=0 name=pydme2tot_2> 
+            <INPUT type=hidden value=0 name=pydmsdtot_2> <INPUT type=hidden 
+            value=0 name=pydmgdtot_2> <!--교육비--><INPUT type=hidden 
+            name=pygchg_2> <INPUT type=hidden value=0 name=pygsedtot_2> <INPUT 
+            type=hidden value=0 name=pygebctot_2> <INPUT type=hidden value=0 
+            name=pygebttot_2> <INPUT type=hidden value=0 name=pygecctot_2> 
+            <INPUT type=hidden value=0 name=pygecttot_2> <INPUT type=hidden 
+            value=0 name=pygedctot_2> <INPUT type=hidden value=0 
+            name=pygedttot_2> <INPUT type=hidden value=0 name=pygetctot_2> 
+            <INPUT type=hidden value=0 name=pygetstot_2> <!--카드비--><INPUT 
+            type=hidden name=pyhchg_2> <INPUT type=hidden value=0 
+            name=pyhcadtot_2> <INPUT type=hidden value=0 name=pyhhadtot_2> 
+            <INPUT type=hidden value=0 name=pyhmadtot_2> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_2', 'pycju2_2', 'pycfrn_2');" 
+            type=checkbox value="" name=pycfrn_2> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_2');" 
+            onblur="checkJMN(document.entry, 'pycju1_2', 'pycju2_2', 'pycsod_2', 'pycjan_2', 'pycol1_2', 'pycol2_2', 'pycold_2', 'pycyng_2');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_2', 'pycju2_2');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_2> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_2', 'pycju2_2', 'pycsod_2', 'pycjan_2', 'pycol1_2', 'pycol2_2', 'pycold_2', 'pycyng_2');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_2> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하<BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_2', 'pycju2_2', 'pycsod_2', 'pycjan_2', '2'); checkOLD(document.entry, 2006, 'pycju1_2', 'pycju2_2', 'pycol1_2', 'pycol2_2', 'pycold_2', 'pycsod_2');" 
+            type=checkbox value=Y name=pycsod_2> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value="" 
+            name=pycyng_2>
+            <DIV></DIV></DIV></TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_2', '2');" 
+            type=checkbox value=Y name=pycjan_2> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_2> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_2></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_2></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '2');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '2');" 
+            readOnly size=10 value=0 name=pyfinktot_2> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '2');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '2');" 
+            readOnly size=10 value=0 name=pydmektot_2> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '2');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '2');" 
+            readOnly size=10 value=0 name=pygedktot_2> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '2');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '2');" 
+            readOnly size=10 value=0 name=pyhcaktot_2> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '2');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '2');" 
+            readOnly size=10 value=0 name=pyfinetot_2> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '2');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '2');" 
+            readOnly size=10 value=0 name=pydmeetot_2> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '2');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '2');" 
+            readOnly size=10 value=0 name=pygedetot_2> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '2');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '2');" 
+            readOnly size=10 value=0 name=pyhcaetot_2> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#fff8ee 
+            rowSpan=20>부<BR><BR>양<BR><BR>가<BR><BR>족 </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_3');" name=pyccg1_3> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_3> <INPUT type=hidden value=3 name=pyccgq_3> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '3', this);" 
+            maxLength=8 size=8 name=pychnm_3> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_3> <INPUT type=hidden value=0 name=pyfinstot_3> <INPUT 
+            type=hidden value=0 name=pyfjnstot_3> <!--의료비--><INPUT type=hidden 
+            name=pydchg_3> <INPUT type=hidden value=0 name=pydmedtot_3> <INPUT 
+            type=hidden value=0 name=pydme1tot_3> <INPUT type=hidden value=0 
+            name=pydme2tot_3> <INPUT type=hidden value=0 name=pydmsdtot_3> 
+            <INPUT type=hidden value=0 name=pydmgdtot_3> <!--교육비--><INPUT 
+            type=hidden name=pygchg_3> <INPUT type=hidden value=0 
+            name=pygsedtot_3> <INPUT type=hidden value=0 name=pygebctot_3> 
+            <INPUT type=hidden value=0 name=pygebttot_3> <INPUT type=hidden 
+            value=0 name=pygecctot_3> <INPUT type=hidden value=0 
+            name=pygecttot_3> <INPUT type=hidden value=0 name=pygedctot_3> 
+            <INPUT type=hidden value=0 name=pygedttot_3> <INPUT type=hidden 
+            value=0 name=pygetctot_3> <INPUT type=hidden value=0 
+            name=pygetstot_3> <!--카드비--><INPUT type=hidden name=pyhchg_3> <INPUT 
+            type=hidden value=0 name=pyhcadtot_3> <INPUT type=hidden value=0 
+            name=pyhhadtot_3> <INPUT type=hidden value=0 name=pyhmadtot_3> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_3', 'pycju2_3', 'pycfrn_3');" 
+            type=checkbox value="" name=pycfrn_3> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_3');" 
+            onblur="checkJMN(document.entry, 'pycju1_3', 'pycju2_3', 'pycsod_3', 'pycjan_3', 'pycol1_3', 'pycol2_3', 'pycold_3', 'pycyng_3');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_3', 'pycju2_3');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_3> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_3', 'pycju2_3', 'pycsod_3', 'pycjan_3', 'pycol1_3', 'pycol2_3', 'pycold_3', 'pycyng_3'); checkYNG(document.entry, 2006, 'pycju1_3', 'pycju2_3', 'pycyng_3');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_3> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_3', 'pycju2_3', 'pycsod_3', 'pycjan_3', '3'); checkOLD(document.entry, 2006, 'pycju1_3', 'pycju2_3', 'pycol1_3', 'pycol2_3', 'pycold_3', 'pycsod_3');" 
+            type=checkbox value=Y name=pycsod_3> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_3> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_3', '3');" 
+            type=checkbox value=Y name=pycjan_3> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_3> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_3></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_3></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '3');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '3');" 
+            readOnly size=10 value=0 name=pyfinktot_3> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '3');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '3');" 
+            readOnly size=10 value=0 name=pydmektot_3> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '3');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '3');" 
+            readOnly size=10 value=0 name=pygedktot_3> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '3');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '3');" 
+            readOnly size=10 value=0 name=pyhcaktot_3> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '3');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '3');" 
+            readOnly size=10 value=0 name=pyfinetot_3> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '3');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '3');" 
+            readOnly size=10 value=0 name=pydmeetot_3> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '3');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '3');" 
+            readOnly size=10 value=0 name=pygedetot_3> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '3');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '3');" 
+            readOnly size=10 value=0 name=pyhcaetot_3> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_4');" name=pyccg1_4> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_4> <INPUT type=hidden value=4 name=pyccgq_4> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '4', this);" 
+            maxLength=8 size=8 name=pychnm_4> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_4> <INPUT type=hidden value=0 name=pyfinstot_4> <INPUT 
+            type=hidden value=0 name=pyfjnstot_4> <!--의료비--><INPUT type=hidden 
+            name=pydchg_4> <INPUT type=hidden value=0 name=pydmedtot_4> <INPUT 
+            type=hidden value=0 name=pydme1tot_4> <INPUT type=hidden value=0 
+            name=pydme2tot_4> <INPUT type=hidden value=0 name=pydmsdtot_4> 
+            <INPUT type=hidden value=0 name=pydmgdtot_4> <!--교육비--><INPUT 
+            type=hidden name=pygchg_4> <INPUT type=hidden value=0 
+            name=pygsedtot_4> <INPUT type=hidden value=0 name=pygebctot_4> 
+            <INPUT type=hidden value=0 name=pygebttot_4> <INPUT type=hidden 
+            value=0 name=pygecctot_4> <INPUT type=hidden value=0 
+            name=pygecttot_4> <INPUT type=hidden value=0 name=pygedctot_4> 
+            <INPUT type=hidden value=0 name=pygedttot_4> <INPUT type=hidden 
+            value=0 name=pygetctot_4> <INPUT type=hidden value=0 
+            name=pygetstot_4> <!--카드비--><INPUT type=hidden name=pyhchg_4> <INPUT 
+            type=hidden value=0 name=pyhcadtot_4> <INPUT type=hidden value=0 
+            name=pyhhadtot_4> <INPUT type=hidden value=0 name=pyhmadtot_4> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_4', 'pycju2_4', 'pycfrn_4');" 
+            type=checkbox value="" name=pycfrn_4> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_4');" 
+            onblur="checkJMN(document.entry, 'pycju1_4', 'pycju2_4', 'pycsod_4', 'pycjan_4', 'pycol1_4', 'pycol2_4', 'pycold_4', 'pycyng_4');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_4', 'pycju2_4');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_4> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_4', 'pycju2_4', 'pycsod_4', 'pycjan_4', 'pycol1_4', 'pycol2_4', 'pycold_4', 'pycyng_4'); checkYNG(document.entry, 2006, 'pycju1_4', 'pycju2_4', 'pycyng_4');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_4> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_4', 'pycju2_4', 'pycsod_4', 'pycjan_4', '4'); checkOLD(document.entry, 2006, 'pycju1_4', 'pycju2_4', 'pycol1_4', 'pycol2_4', 'pycold_4', 'pycsod_4');" 
+            type=checkbox value=Y name=pycsod_4> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_4> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_4', '4');" 
+            type=checkbox value=Y name=pycjan_4> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_4> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_4></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_4></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '4');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '4');" 
+            readOnly size=10 value=0 name=pyfinktot_4> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '4');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '4');" 
+            readOnly size=10 value=0 name=pydmektot_4> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '4');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '4');" 
+            readOnly size=10 value=0 name=pygedktot_4> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '4');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '4');" 
+            readOnly size=10 value=0 name=pyhcaktot_4> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '4');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '4');" 
+            readOnly size=10 value=0 name=pyfinetot_4> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '4');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '4');" 
+            readOnly size=10 value=0 name=pydmeetot_4> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '4');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '4');" 
+            readOnly size=10 value=0 name=pygedetot_4> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '4');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '4');" 
+            readOnly size=10 value=0 name=pyhcaetot_4> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_5');" name=pyccg1_5> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_5> <INPUT type=hidden value=5 name=pyccgq_5> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '5', this);" 
+            maxLength=8 size=8 name=pychnm_5> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_5> <INPUT type=hidden value=0 name=pyfinstot_5> <INPUT 
+            type=hidden value=0 name=pyfjnstot_5> <!--의료비--><INPUT type=hidden 
+            name=pydchg_5> <INPUT type=hidden value=0 name=pydmedtot_5> <INPUT 
+            type=hidden value=0 name=pydme1tot_5> <INPUT type=hidden value=0 
+            name=pydme2tot_5> <INPUT type=hidden value=0 name=pydmsdtot_5> 
+            <INPUT type=hidden value=0 name=pydmgdtot_5> <!--교육비--><INPUT 
+            type=hidden name=pygchg_5> <INPUT type=hidden value=0 
+            name=pygsedtot_5> <INPUT type=hidden value=0 name=pygebctot_5> 
+            <INPUT type=hidden value=0 name=pygebttot_5> <INPUT type=hidden 
+            value=0 name=pygecctot_5> <INPUT type=hidden value=0 
+            name=pygecttot_5> <INPUT type=hidden value=0 name=pygedctot_5> 
+            <INPUT type=hidden value=0 name=pygedttot_5> <INPUT type=hidden 
+            value=0 name=pygetctot_5> <INPUT type=hidden value=0 
+            name=pygetstot_5> <!--카드비--><INPUT type=hidden name=pyhchg_5> <INPUT 
+            type=hidden value=0 name=pyhcadtot_5> <INPUT type=hidden value=0 
+            name=pyhhadtot_5> <INPUT type=hidden value=0 name=pyhmadtot_5> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_5', 'pycju2_5', 'pycfrn_5');" 
+            type=checkbox value="" name=pycfrn_5> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_5');" 
+            onblur="checkJMN(document.entry, 'pycju1_5', 'pycju2_5', 'pycsod_5', 'pycjan_5', 'pycol1_5', 'pycol2_5', 'pycold_5', 'pycyng_5');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_5', 'pycju2_5');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_5> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_5', 'pycju2_5', 'pycsod_5', 'pycjan_5', 'pycol1_5', 'pycol2_5', 'pycold_5', 'pycyng_5'); checkYNG(document.entry, 2006, 'pycju1_5', 'pycju2_5', 'pycyng_5');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_5> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_5', 'pycju2_5', 'pycsod_5', 'pycjan_5', '5'); checkOLD(document.entry, 2006, 'pycju1_5', 'pycju2_5', 'pycol1_5', 'pycol2_5', 'pycold_5', 'pycsod_5');" 
+            type=checkbox value=Y name=pycsod_5> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_5> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_5', '5');" 
+            type=checkbox value=Y name=pycjan_5> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_5> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_5></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_5></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '5');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '5');" 
+            readOnly size=10 value=0 name=pyfinktot_5> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '5');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '5');" 
+            readOnly size=10 value=0 name=pydmektot_5> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '5');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '5');" 
+            readOnly size=10 value=0 name=pygedktot_5> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '5');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '5');" 
+            readOnly size=10 value=0 name=pyhcaktot_5> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '5');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '5');" 
+            readOnly size=10 value=0 name=pyfinetot_5> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '5');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '5');" 
+            readOnly size=10 value=0 name=pydmeetot_5> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '5');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '5');" 
+            readOnly size=10 value=0 name=pygedetot_5> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '5');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '5');" 
+            readOnly size=10 value=0 name=pyhcaetot_5> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_6');" name=pyccg1_6> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_6> <INPUT type=hidden value=6 name=pyccgq_6> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '6', this);" 
+            maxLength=8 size=8 name=pychnm_6> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_6> <INPUT type=hidden value=0 name=pyfinstot_6> <INPUT 
+            type=hidden value=0 name=pyfjnstot_6> <!--의료비--><INPUT type=hidden 
+            name=pydchg_6> <INPUT type=hidden value=0 name=pydmedtot_6> <INPUT 
+            type=hidden value=0 name=pydme1tot_6> <INPUT type=hidden value=0 
+            name=pydme2tot_6> <INPUT type=hidden value=0 name=pydmsdtot_6> 
+            <INPUT type=hidden value=0 name=pydmgdtot_6> <!--교육비--><INPUT 
+            type=hidden name=pygchg_6> <INPUT type=hidden value=0 
+            name=pygsedtot_6> <INPUT type=hidden value=0 name=pygebctot_6> 
+            <INPUT type=hidden value=0 name=pygebttot_6> <INPUT type=hidden 
+            value=0 name=pygecctot_6> <INPUT type=hidden value=0 
+            name=pygecttot_6> <INPUT type=hidden value=0 name=pygedctot_6> 
+            <INPUT type=hidden value=0 name=pygedttot_6> <INPUT type=hidden 
+            value=0 name=pygetctot_6> <INPUT type=hidden value=0 
+            name=pygetstot_6> <!--카드비--><INPUT type=hidden name=pyhchg_6> <INPUT 
+            type=hidden value=0 name=pyhcadtot_6> <INPUT type=hidden value=0 
+            name=pyhhadtot_6> <INPUT type=hidden value=0 name=pyhmadtot_6> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_6', 'pycju2_6', 'pycfrn_6');" 
+            type=checkbox value="" name=pycfrn_6> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_6');" 
+            onblur="checkJMN(document.entry, 'pycju1_6', 'pycju2_6', 'pycsod_6', 'pycjan_6', 'pycol1_6', 'pycol2_6', 'pycold_6', 'pycyng_6');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_6', 'pycju2_6');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_6> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_6', 'pycju2_6', 'pycsod_6', 'pycjan_6', 'pycol1_6', 'pycol2_6', 'pycold_6', 'pycyng_6'); checkYNG(document.entry, 2006, 'pycju1_6', 'pycju2_6', 'pycyng_6');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_6> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_6', 'pycju2_6', 'pycsod_6', 'pycjan_6', '6'); checkOLD(document.entry, 2006, 'pycju1_6', 'pycju2_6', 'pycol1_6', 'pycol2_6', 'pycold_6', 'pycsod_6');" 
+            type=checkbox value=Y name=pycsod_6> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_6> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_6', '6');" 
+            type=checkbox value=Y name=pycjan_6> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_6> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_6></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_6></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '6');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '6');" 
+            readOnly size=10 value=0 name=pyfinktot_6> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '6');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '6');" 
+            readOnly size=10 value=0 name=pydmektot_6> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '6');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '6');" 
+            readOnly size=10 value=0 name=pygedktot_6> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '6');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '6');" 
+            readOnly size=10 value=0 name=pyhcaktot_6> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '6');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '6');" 
+            readOnly size=10 value=0 name=pyfinetot_6> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '6');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '6');" 
+            readOnly size=10 value=0 name=pydmeetot_6> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '6');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '6');" 
+            readOnly size=10 value=0 name=pygedetot_6> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '6');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '6');" 
+            readOnly size=10 value=0 name=pyhcaetot_6> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_7');" name=pyccg1_7> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_7> <INPUT type=hidden value=7 name=pyccgq_7> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '7', this);" 
+            maxLength=8 size=8 name=pychnm_7> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_7> <INPUT type=hidden value=0 name=pyfinstot_7> <INPUT 
+            type=hidden value=0 name=pyfjnstot_7> <!--의료비--><INPUT type=hidden 
+            name=pydchg_7> <INPUT type=hidden value=0 name=pydmedtot_7> <INPUT 
+            type=hidden value=0 name=pydme1tot_7> <INPUT type=hidden value=0 
+            name=pydme2tot_7> <INPUT type=hidden value=0 name=pydmsdtot_7> 
+            <INPUT type=hidden value=0 name=pydmgdtot_7> <!--교육비--><INPUT 
+            type=hidden name=pygchg_7> <INPUT type=hidden value=0 
+            name=pygsedtot_7> <INPUT type=hidden value=0 name=pygebctot_7> 
+            <INPUT type=hidden value=0 name=pygebttot_7> <INPUT type=hidden 
+            value=0 name=pygecctot_7> <INPUT type=hidden value=0 
+            name=pygecttot_7> <INPUT type=hidden value=0 name=pygedctot_7> 
+            <INPUT type=hidden value=0 name=pygedttot_7> <INPUT type=hidden 
+            value=0 name=pygetctot_7> <INPUT type=hidden value=0 
+            name=pygetstot_7> <!--카드비--><INPUT type=hidden name=pyhchg_7> <INPUT 
+            type=hidden value=0 name=pyhcadtot_7> <INPUT type=hidden value=0 
+            name=pyhhadtot_7> <INPUT type=hidden value=0 name=pyhmadtot_7> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_7', 'pycju2_7', 'pycfrn_7');" 
+            type=checkbox value="" name=pycfrn_7> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_7');" 
+            onblur="checkJMN(document.entry, 'pycju1_7', 'pycju2_7', 'pycsod_7', 'pycjan_7', 'pycol1_7', 'pycol2_7', 'pycold_7', 'pycyng_7');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_7', 'pycju2_7');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_7> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_7', 'pycju2_7', 'pycsod_7', 'pycjan_7', 'pycol1_7', 'pycol2_7', 'pycold_7', 'pycyng_7'); checkYNG(document.entry, 2006, 'pycju1_7', 'pycju2_7', 'pycyng_7');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_7> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_7', 'pycju2_7', 'pycsod_7', 'pycjan_7', '7'); checkOLD(document.entry, 2006, 'pycju1_7', 'pycju2_7', 'pycol1_7', 'pycol2_7', 'pycold_7', 'pycsod_7');" 
+            type=checkbox value=Y name=pycsod_7> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_7> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_7', '7');" 
+            type=checkbox value=Y name=pycjan_7> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_7> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_7></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_7></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '7');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '7');" 
+            readOnly size=10 value=0 name=pyfinktot_7> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '7');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '7');" 
+            readOnly size=10 value=0 name=pydmektot_7> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '7');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '7');" 
+            readOnly size=10 value=0 name=pygedktot_7> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '7');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '7');" 
+            readOnly size=10 value=0 name=pyhcaktot_7> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '7');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '7');" 
+            readOnly size=10 value=0 name=pyfinetot_7> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '7');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '7');" 
+            readOnly size=10 value=0 name=pydmeetot_7> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '7');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '7');" 
+            readOnly size=10 value=0 name=pygedetot_7> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '7');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '7');" 
+            readOnly size=10 value=0 name=pyhcaetot_7> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_8');" name=pyccg1_8> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_8> <INPUT type=hidden value=8 name=pyccgq_8> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '8', this);" 
+            maxLength=8 size=8 name=pychnm_8> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_8> <INPUT type=hidden value=0 name=pyfinstot_8> <INPUT 
+            type=hidden value=0 name=pyfjnstot_8> <!--의료비--><INPUT type=hidden 
+            name=pydchg_8> <INPUT type=hidden value=0 name=pydmedtot_8> <INPUT 
+            type=hidden value=0 name=pydme1tot_8> <INPUT type=hidden value=0 
+            name=pydme2tot_8> <INPUT type=hidden value=0 name=pydmsdtot_8> 
+            <INPUT type=hidden value=0 name=pydmgdtot_8> <!--교육비--><INPUT 
+            type=hidden name=pygchg_8> <INPUT type=hidden value=0 
+            name=pygsedtot_8> <INPUT type=hidden value=0 name=pygebctot_8> 
+            <INPUT type=hidden value=0 name=pygebttot_8> <INPUT type=hidden 
+            value=0 name=pygecctot_8> <INPUT type=hidden value=0 
+            name=pygecttot_8> <INPUT type=hidden value=0 name=pygedctot_8> 
+            <INPUT type=hidden value=0 name=pygedttot_8> <INPUT type=hidden 
+            value=0 name=pygetctot_8> <INPUT type=hidden value=0 
+            name=pygetstot_8> <!--카드비--><INPUT type=hidden name=pyhchg_8> <INPUT 
+            type=hidden value=0 name=pyhcadtot_8> <INPUT type=hidden value=0 
+            name=pyhhadtot_8> <INPUT type=hidden value=0 name=pyhmadtot_8> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_8', 'pycju2_8', 'pycfrn_8');" 
+            type=checkbox value="" name=pycfrn_8> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_8');" 
+            onblur="checkJMN(document.entry, 'pycju1_8', 'pycju2_8', 'pycsod_8', 'pycjan_8', 'pycol1_8', 'pycol2_8', 'pycold_8', 'pycyng_8');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_8', 'pycju2_8');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_8> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_8', 'pycju2_8', 'pycsod_8', 'pycjan_8', 'pycol1_8', 'pycol2_8', 'pycold_8', 'pycyng_8'); checkYNG(document.entry, 2006, 'pycju1_8', 'pycju2_8', 'pycyng_8');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_8> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_8', 'pycju2_8', 'pycsod_8', 'pycjan_8', '8'); checkOLD(document.entry, 2006, 'pycju1_8', 'pycju2_8', 'pycol1_8', 'pycol2_8', 'pycold_8', 'pycsod_8');" 
+            type=checkbox value=Y name=pycsod_8> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_8> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_8', '8');" 
+            type=checkbox value=Y name=pycjan_8> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_8> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_8></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_8></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '8');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '8');" 
+            readOnly size=10 value=0 name=pyfinktot_8> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '8');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '8');" 
+            readOnly size=10 value=0 name=pydmektot_8> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '8');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '8');" 
+            readOnly size=10 value=0 name=pygedktot_8> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '8');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '8');" 
+            readOnly size=10 value=0 name=pyhcaktot_8> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '8');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '8');" 
+            readOnly size=10 value=0 name=pyfinetot_8> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '8');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '8');" 
+            readOnly size=10 value=0 name=pydmeetot_8> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '8');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '8');" 
+            readOnly size=10 value=0 name=pygedetot_8> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '8');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '8');" 
+            readOnly size=10 value=0 name=pyhcaetot_8> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_9');" name=pyccg1_9> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_9> <INPUT type=hidden value=9 name=pyccgq_9> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '9', this);" 
+            maxLength=8 size=8 name=pychnm_9> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_9> <INPUT type=hidden value=0 name=pyfinstot_9> <INPUT 
+            type=hidden value=0 name=pyfjnstot_9> <!--의료비--><INPUT type=hidden 
+            name=pydchg_9> <INPUT type=hidden value=0 name=pydmedtot_9> <INPUT 
+            type=hidden value=0 name=pydme1tot_9> <INPUT type=hidden value=0 
+            name=pydme2tot_9> <INPUT type=hidden value=0 name=pydmsdtot_9> 
+            <INPUT type=hidden value=0 name=pydmgdtot_9> <!--교육비--><INPUT 
+            type=hidden name=pygchg_9> <INPUT type=hidden value=0 
+            name=pygsedtot_9> <INPUT type=hidden value=0 name=pygebctot_9> 
+            <INPUT type=hidden value=0 name=pygebttot_9> <INPUT type=hidden 
+            value=0 name=pygecctot_9> <INPUT type=hidden value=0 
+            name=pygecttot_9> <INPUT type=hidden value=0 name=pygedctot_9> 
+            <INPUT type=hidden value=0 name=pygedttot_9> <INPUT type=hidden 
+            value=0 name=pygetctot_9> <INPUT type=hidden value=0 
+            name=pygetstot_9> <!--카드비--><INPUT type=hidden name=pyhchg_9> <INPUT 
+            type=hidden value=0 name=pyhcadtot_9> <INPUT type=hidden value=0 
+            name=pyhhadtot_9> <INPUT type=hidden value=0 name=pyhmadtot_9> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_9', 'pycju2_9', 'pycfrn_9');" 
+            type=checkbox value="" name=pycfrn_9> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_9');" 
+            onblur="checkJMN(document.entry, 'pycju1_9', 'pycju2_9', 'pycsod_9', 'pycjan_9', 'pycol1_9', 'pycol2_9', 'pycold_9', 'pycyng_9');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_9', 'pycju2_9');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_9> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_9', 'pycju2_9', 'pycsod_9', 'pycjan_9', 'pycol1_9', 'pycol2_9', 'pycold_9', 'pycyng_9'); checkYNG(document.entry, 2006, 'pycju1_9', 'pycju2_9', 'pycyng_9');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_9> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_9', 'pycju2_9', 'pycsod_9', 'pycjan_9', '9'); checkOLD(document.entry, 2006, 'pycju1_9', 'pycju2_9', 'pycol1_9', 'pycol2_9', 'pycold_9', 'pycsod_9');" 
+            type=checkbox value=Y name=pycsod_9> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_9> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_9', '9');" 
+            type=checkbox value=Y name=pycjan_9> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_9> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_9></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_9></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '9');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '9');" 
+            readOnly size=10 value=0 name=pyfinktot_9> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '9');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '9');" 
+            readOnly size=10 value=0 name=pydmektot_9> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '9');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '9');" 
+            readOnly size=10 value=0 name=pygedktot_9> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '9');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '9');" 
+            readOnly size=10 value=0 name=pyhcaktot_9> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '9');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '9');" 
+            readOnly size=10 value=0 name=pyfinetot_9> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '9');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '9');" 
+            readOnly size=10 value=0 name=pydmeetot_9> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '9');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '9');" 
+            readOnly size=10 value=0 name=pygedetot_9> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '9');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '9');" 
+            readOnly size=10 value=0 name=pyhcaetot_9> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_10');" name=pyccg1_10> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_10> <INPUT type=hidden value=10 name=pyccgq_10> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '10', this);" 
+            maxLength=8 size=8 name=pychnm_10> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_10> <INPUT type=hidden value=0 name=pyfinstot_10> <INPUT 
+            type=hidden value=0 name=pyfjnstot_10> <!--의료비--><INPUT type=hidden 
+            name=pydchg_10> <INPUT type=hidden value=0 name=pydmedtot_10> <INPUT 
+            type=hidden value=0 name=pydme1tot_10> <INPUT type=hidden value=0 
+            name=pydme2tot_10> <INPUT type=hidden value=0 name=pydmsdtot_10> 
+            <INPUT type=hidden value=0 name=pydmgdtot_10> <!--교육비--><INPUT 
+            type=hidden name=pygchg_10> <INPUT type=hidden value=0 
+            name=pygsedtot_10> <INPUT type=hidden value=0 name=pygebctot_10> 
+            <INPUT type=hidden value=0 name=pygebttot_10> <INPUT type=hidden 
+            value=0 name=pygecctot_10> <INPUT type=hidden value=0 
+            name=pygecttot_10> <INPUT type=hidden value=0 name=pygedctot_10> 
+            <INPUT type=hidden value=0 name=pygedttot_10> <INPUT type=hidden 
+            value=0 name=pygetctot_10> <INPUT type=hidden value=0 
+            name=pygetstot_10> <!--카드비--><INPUT type=hidden name=pyhchg_10> 
+            <INPUT type=hidden value=0 name=pyhcadtot_10> <INPUT type=hidden 
+            value=0 name=pyhhadtot_10> <INPUT type=hidden value=0 
+            name=pyhmadtot_10> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_10', 'pycju2_10', 'pycfrn_10');" 
+            type=checkbox value="" name=pycfrn_10> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_10');" 
+            onblur="checkJMN(document.entry, 'pycju1_10', 'pycju2_10', 'pycsod_10', 'pycjan_10', 'pycol1_10', 'pycol2_10', 'pycold_10', 'pycyng_10');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_10', 'pycju2_10');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_10> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_10', 'pycju2_10', 'pycsod_10', 'pycjan_10', 'pycol1_10', 'pycol2_10', 'pycold_10', 'pycyng_10'); checkYNG(document.entry, 2006, 'pycju1_10', 'pycju2_10', 'pycyng_10');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_10> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_10', 'pycju2_10', 'pycsod_10', 'pycjan_10', '10'); checkOLD(document.entry, 2006, 'pycju1_10', 'pycju2_10', 'pycol1_10', 'pycol2_10', 'pycold_10', 'pycsod_10');" 
+            type=checkbox value=Y name=pycsod_10> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_10> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_10', '10');" 
+            type=checkbox value=Y name=pycjan_10> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_10> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_10></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_10></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '10');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '10');" 
+            readOnly size=10 value=0 name=pyfinktot_10> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '10');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '10');" 
+            readOnly size=10 value=0 name=pydmektot_10> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '10');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '10');" 
+            readOnly size=10 value=0 name=pygedktot_10> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '10');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '10');" 
+            readOnly size=10 value=0 name=pyhcaktot_10> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '10');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '10');" 
+            readOnly size=10 value=0 name=pyfinetot_10> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '10');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '10');" 
+            readOnly size=10 value=0 name=pydmeetot_10> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '10');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '10');" 
+            readOnly size=10 value=0 name=pygedetot_10> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '10');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '10');" 
+            readOnly size=10 value=0 name=pyhcaetot_10> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_11');" name=pyccg1_11> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_11> <INPUT type=hidden value=11 name=pyccgq_11> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '11', this);" 
+            maxLength=8 size=8 name=pychnm_11> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_11> <INPUT type=hidden value=0 name=pyfinstot_11> <INPUT 
+            type=hidden value=0 name=pyfjnstot_11> <!--의료비--><INPUT type=hidden 
+            name=pydchg_11> <INPUT type=hidden value=0 name=pydmedtot_11> <INPUT 
+            type=hidden value=0 name=pydme1tot_11> <INPUT type=hidden value=0 
+            name=pydme2tot_11> <INPUT type=hidden value=0 name=pydmsdtot_11> 
+            <INPUT type=hidden value=0 name=pydmgdtot_11> <!--교육비--><INPUT 
+            type=hidden name=pygchg_11> <INPUT type=hidden value=0 
+            name=pygsedtot_11> <INPUT type=hidden value=0 name=pygebctot_11> 
+            <INPUT type=hidden value=0 name=pygebttot_11> <INPUT type=hidden 
+            value=0 name=pygecctot_11> <INPUT type=hidden value=0 
+            name=pygecttot_11> <INPUT type=hidden value=0 name=pygedctot_11> 
+            <INPUT type=hidden value=0 name=pygedttot_11> <INPUT type=hidden 
+            value=0 name=pygetctot_11> <INPUT type=hidden value=0 
+            name=pygetstot_11> <!--카드비--><INPUT type=hidden name=pyhchg_11> 
+            <INPUT type=hidden value=0 name=pyhcadtot_11> <INPUT type=hidden 
+            value=0 name=pyhhadtot_11> <INPUT type=hidden value=0 
+            name=pyhmadtot_11> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_11', 'pycju2_11', 'pycfrn_11');" 
+            type=checkbox value="" name=pycfrn_11> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_11');" 
+            onblur="checkJMN(document.entry, 'pycju1_11', 'pycju2_11', 'pycsod_11', 'pycjan_11', 'pycol1_11', 'pycol2_11', 'pycold_11', 'pycyng_11');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_11', 'pycju2_11');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_11> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_11', 'pycju2_11', 'pycsod_11', 'pycjan_11', 'pycol1_11', 'pycol2_11', 'pycold_11', 'pycyng_11'); checkYNG(document.entry, 2006, 'pycju1_11', 'pycju2_11', 'pycyng_11');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_11> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_11', 'pycju2_11', 'pycsod_11', 'pycjan_11', '11'); checkOLD(document.entry, 2006, 'pycju1_11', 'pycju2_11', 'pycol1_11', 'pycol2_11', 'pycold_11', 'pycsod_11');" 
+            type=checkbox value=Y name=pycsod_11> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_11> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_11', '11');" 
+            type=checkbox value=Y name=pycjan_11> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_11> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_11></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_11></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '11');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '11');" 
+            readOnly size=10 value=0 name=pyfinktot_11> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '11');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '11');" 
+            readOnly size=10 value=0 name=pydmektot_11> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '11');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '11');" 
+            readOnly size=10 value=0 name=pygedktot_11> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '11');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '11');" 
+            readOnly size=10 value=0 name=pyhcaktot_11> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '11');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '11');" 
+            readOnly size=10 value=0 name=pyfinetot_11> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '11');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '11');" 
+            readOnly size=10 value=0 name=pydmeetot_11> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '11');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '11');" 
+            readOnly size=10 value=0 name=pygedetot_11> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '11');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '11');" 
+            readOnly size=10 value=0 name=pyhcaetot_11> </TD></TR>
+        <TR align=middle bgColor=#ffffff>
+          <TD align=middle bgColor=#ffffff rowSpan=2><SELECT class=select01 
+            onchange="selectCOD(document.entry, 'pyccg1_12');" name=pyccg1_12> 
+              <OPTION value="" selected>선택<OPTION value=03>본인조부<OPTION 
+              value=04>본인조모<OPTION value=14>본인외조부<OPTION value=15>본인외조모<OPTION 
+              value=05>본인부<OPTION value=06>본인모<OPTION value=16>배우자조부<OPTION 
+              value=17>배우자조모<OPTION value=18>배우자외조부<OPTION 
+              value=19>배우자외조모<OPTION value=07>배우자부<OPTION value=08>배우자모<OPTION 
+              value=09>자녀<OPTION value=10>형제<OPTION value=11>자매<OPTION 
+              value=12>손자<OPTION value=13>손녀</OPTION></SELECT> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT type=hidden 
+            name=pycchg_12> <INPUT type=hidden value=12 name=pyccgq_12> <INPUT 
+            class=input01 onblur="writableFLD(document.entry, '12', this);" 
+            maxLength=8 size=8 name=pychnm_12> <!--보험료--><INPUT type=hidden 
+            name=pyfchg_12> <INPUT type=hidden value=0 name=pyfinstot_12> <INPUT 
+            type=hidden value=0 name=pyfjnstot_12> <!--의료비--><INPUT type=hidden 
+            name=pydchg_12> <INPUT type=hidden value=0 name=pydmedtot_12> <INPUT 
+            type=hidden value=0 name=pydme1tot_12> <INPUT type=hidden value=0 
+            name=pydme2tot_12> <INPUT type=hidden value=0 name=pydmsdtot_12> 
+            <INPUT type=hidden value=0 name=pydmgdtot_12> <!--교육비--><INPUT 
+            type=hidden name=pygchg_12> <INPUT type=hidden value=0 
+            name=pygsedtot_12> <INPUT type=hidden value=0 name=pygebctot_12> 
+            <INPUT type=hidden value=0 name=pygebttot_12> <INPUT type=hidden 
+            value=0 name=pygecctot_12> <INPUT type=hidden value=0 
+            name=pygecttot_12> <INPUT type=hidden value=0 name=pygedctot_12> 
+            <INPUT type=hidden value=0 name=pygedttot_12> <INPUT type=hidden 
+            value=0 name=pygetctot_12> <INPUT type=hidden value=0 
+            name=pygetstot_12> <!--카드비--><INPUT type=hidden name=pyhchg_12> 
+            <INPUT type=hidden value=0 name=pyhcadtot_12> <INPUT type=hidden 
+            value=0 name=pyhhadtot_12> <INPUT type=hidden value=0 
+            name=pyhmadtot_12> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkFRN(document.entry, 'pycju1_12', 'pycju2_12', 'pycfrn_12');" 
+            type=checkbox value="" name=pycfrn_12> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeydown="TabNext(document.entry, 'down', 6, 'pycju1_12');" 
+            onblur="checkJMN(document.entry, 'pycju1_12', 'pycju2_12', 'pycsod_12', 'pycjan_12', 'pycol1_12', 'pycol2_12', 'pycold_12', 'pycyng_12');" 
+            onkeyup="TabNext(document.entry, 'up', 6, 'pycju1_12', 'pycju2_12');" 
+            style="IME-MODE: disabled" maxLength=6 size=6 name=pycju1_12> - 
+            <INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur="checkJMN(document.entry, 'pycju1_12', 'pycju2_12', 'pycsod_12', 'pycjan_12', 'pycol1_12', 'pycol2_12', 'pycold_12', 'pycyng_12'); checkYNG(document.entry, 2006, 'pycju1_12', 'pycju2_12', 'pycyng_12');" 
+            style="IME-MODE: disabled" maxLength=7 size=7 name=pycju2_12> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>100만원 이하 <BR><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            onclick="checkSOD(document.entry, 'pycju1_12', 'pycju2_12', 'pycsod_12', 'pycjan_12', '12'); checkOLD(document.entry, 2006, 'pycju1_12', 'pycju2_12', 'pycol1_12', 'pycol2_12', 'pycold_12', 'pycsod_12');" 
+            type=checkbox value=Y name=pycsod_12> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>&nbsp;</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycyng_12> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled onclick="checkJAN(document.entry, 'pycjan_12', '12');" 
+            type=checkbox value=Y name=pycjan_12> </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2><INPUT 
+            style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; BORDER-LEFT: 0px; BORDER-BOTTOM: 0px" 
+            disabled type=checkbox value=Y name=pycold_12> 
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol1_12></DIV>
+            <DIV style="DISPLAY: none"><INPUT type=checkbox value=Y 
+            name=pycol2_12></DIV></TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '12');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '12');" 
+            readOnly size=10 value=0 name=pyfinktot_12> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '12');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '12');" 
+            readOnly size=10 value=0 name=pydmektot_12> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '12');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '12');" 
+            readOnly size=10 value=0 name=pygedktot_12> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '12');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '12');" 
+            readOnly size=10 value=0 name=pyhcaktot_12> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '12');" 
+            onclick="insOpen(document.entry, '2006', '12', '0', 'L', '200089', '12');" 
+            readOnly size=10 value=0 name=pyfinetot_12> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '12');" 
+            onclick="medOpen(document.entry, '2006', '12', '0', 'L', '200089', '12');" 
+            readOnly size=10 value=0 name=pydmeetot_12> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '12');" 
+            onclick="eduOpen(document.entry, '2006', '12', '0', 'L', '200089', '12');" 
+            readOnly size=10 value=0 name=pygedetot_12> </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input04 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" disabled 
+            onfocus="JavaScript:blur();checkIJK(document.entry, '12');" 
+            onclick="cadOpen(document.entry, '2006', '12', '0', 'L', '200089', '12');" 
+            readOnly size=10 value=0 name=pyhcaetot_12> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee colSpan=2 rowSpan=3>혼인·이사·장례</TD>
+          <TD align=middle bgColor=#ffffff colSpan=2>혼인여부</TD>
+          <TD align=middle bgColor=#ffffff colSpan=3>근로자 본인 및 부양가족의 혼인횟수</TD>
+          <TD align=middle bgColor=#ffffff colSpan=2><SELECT class=select01 
+            onblur=tip(); style="WIDTH: 40px; HEIGHT: 19px" 
+            onfocus="tip('당해 1월부터 현재 입력시점까지의 소득 누계이므로 미수령 소득까지 합산하여 2,500만원 이하여야 공제가능합니다.');" 
+            name=pyba01> <OPTION value=0 selected>0<OPTION value=1>1<OPTION 
+              value=2>2<OPTION value=3>3<OPTION value=4>4<OPTION 
+              value=5>5<OPTION value=6>6<OPTION value=7>7<OPTION 
+              value=8>8<OPTION value=9>9</OPTION></SELECT> 회 </TD>
+          <TD bgColor=#ffffff colSpan=7 rowSpan=3><FONT color=#3366ff>* 총과세소득 
+            2,500만원 이하인 근로자</FONT> 본인이 다음 사유에 해당하는 경우 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;선택<BR>&nbsp;&nbsp;&nbsp;&nbsp;→근로자 본인 및 
+            부양가족 공제해당자(연령&amp;소득요건 충족자)의 혼인 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;및 
+            장례<BR>&nbsp;&nbsp;&nbsp;&nbsp;→근로자 본인의 주소 이동(결혼후 본인과 배우자만 분가하는 것은 
+            제외) </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#ffffff colSpan=2>장례여부</TD>
+          <TD align=middle bgColor=#ffffff colSpan=3>근로자 본인 및 부양가족의 장례횟수</TD>
+          <TD align=middle bgColor=#ffffff colSpan=2><SELECT class=select01 
+            onblur=tip(); style="WIDTH: 40px; HEIGHT: 19px" 
+            onfocus="tip('당해 1월부터 현재 입력시점까지의 소득 누계이므로 미수령 소득까지 합산하여 2,500만원 이하여야 공제가능합니다.');" 
+            name=pyba03> <OPTION value=0 selected>0<OPTION value=1>1<OPTION 
+              value=2>2<OPTION value=3>3<OPTION value=4>4<OPTION 
+              value=5>5<OPTION value=6>6<OPTION value=7>7<OPTION 
+              value=8>8<OPTION value=9>9</OPTION></SELECT> 회 </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#ffffff colSpan=2>이사여부</TD>
+          <TD align=middle bgColor=#ffffff colSpan=3>근로자 본인의 이사횟수</TD>
+          <TD align=middle bgColor=#ffffff colSpan=2><SELECT class=select01 
+            onblur=tip(); style="WIDTH: 40px; HEIGHT: 19px" 
+            onfocus="tip('당해 1월부터 현재 입력시점까지의 소득 누계이므로 미수령 소득까지 합산하여 2,500만원 이하여야 공제가능합니다.');" 
+            name=pyba02> <OPTION value=0 selected>0<OPTION value=1>1<OPTION 
+              value=2>2<OPTION value=3>3<OPTION value=4>4<OPTION 
+              value=5>5<OPTION value=6>6<OPTION value=7>7<OPTION 
+              value=8>8<OPTION value=9>9</OPTION></SELECT> 회 
+      </TD></TR></TABLE><BR><BR><!-- 기타특별공제 -->
+      <TABLE cellSpacing=1 cellPadding=3 width=1003 border=0>
+        
+        <TR bgColor=#ffffff>
+          <TD><B>Ⅲ. 다음 기타 공제 항목에는 <FONT color=#ff6633>"근로자 본인 명의" </FONT>로 지출한 
+            금액만 입력바랍니다.</B> </TD></TR></TABLE></A>
+      <TABLE cellSpacing=1 cellPadding=3 width=1003 align=center bgColor=#666666 
+      border=0>
+        
+        <TR bgColor=#ffedd2>
+          <TD align=middle rowSpan=19>기<BR>타<BR><BR>특<BR>별<BR><BR>공<BR>제</TD>
+          <TD align=middle width=50>항 목</TD>
+          <TD align=middle colSpan=2>지 출 내 역</TD>
+          <TD align=middle width=130>지 출 구 분</TD>
+          <TD align=middle width=90>지 출 금 액</TD>
+          <TD align=middle>참 고 사 항</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee rowSpan=7>주택자금</TD>
+          <TD align=left width=110 bgColor=#ffffff rowSpan=3>&nbsp;주택마련저축</TD>
+          <TD align=left width=140 bgColor=#ffffff>&nbsp;① 청약저축</TD>
+          <TD align=middle bgColor=#ffffff rowSpan=3>근로자 본인 명의의 <BR>총 불입액 
+            <BR>(40% 공제 미적용 금액)</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur=tip(); 
+            onkeyup="addComma(this); calculatePybhto(document.entry);" 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" 
+            onfocus="checkJJG(document.entry, this); tip('2006.1.1일부터 <font color=#FF0000>&quot;청약부금&quot;</font>에 대한 소득공제가 폐지되었으므로 신청 불가합니다.');" 
+            maxLength=13 size=10 value=0 name=pybho1> 원</TD>
+          <TD bgColor=#ffffff rowSpan=3>&nbsp;* 근로자 본인이 세대주이며, 무주택자 또는 1주택 
+            소유자(국민주택규모)인 <BR>&nbsp;&nbsp;&nbsp;&nbsp;경우 총 불입액 기재 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;<FONT color=#3366ff>→ 2006년 신규 장기주택마련저축 
+            가입자<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 가입당시 국민주택으로서 
+            기준시가가 3억원 이하인 주택소유자여야 함.<BR></FONT></TD></TR>
+        <TR>
+          <TD align=left bgColor=#ffffff>&nbsp;② 근로자주택마련저축</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur=tip(); 
+            onkeyup="addComma(this); calculatePybhto(document.entry);" 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" 
+            onfocus="checkJJG(document.entry, this); tip('2006.1.1일부터 <font color=#FF0000>&quot;청약부금&quot;</font>에 대한 소득공제가 폐지되었으므로 신청 불가합니다.');" 
+            maxLength=13 size=10 value=0 name=pybho2> 원</TD></TR>
+        <TR>
+          <TD align=left bgColor=#ffffff>&nbsp;③ 장기주택마련저축</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur=tip(); 
+            onkeyup="addComma(this); calculatePybhto(document.entry);" 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" 
+            onfocus="checkJJG(document.entry, this); tip('2006.1.1일부터 <font color=#FF0000>&quot;청약부금&quot;</font>에 대한 소득공제가 폐지되었으므로 신청 불가합니다.');" 
+            maxLength=13 size=10 value=0 name=pybho3> 원</TD></TR>
+        <TR>
+          <TD align=left bgColor=#ffffff colSpan=2>&nbsp;주택임차차입금 (위 ①②③ 연계 
+          차입금)</TD>
+          <TD align=middle bgColor=#ffffff>근로자 본인명의의<BR>총 원리금상환액<BR>(40%공제 
+            미적용금액)</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur=tip(); 
+            onkeyup="addComma(this); calculatePybhto(document.entry);" 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" 
+            onfocus="checkJJG(document.entry, this); tip('2006.1.1일부터 <font color=#FF0000>&quot;청약부금과 연계한 차입금&quot;</font>에 대한 소득공제가 폐지되었으므로 신청 불가합니다.');" 
+            maxLength=13 size=10 value=0 name=pybho4> 원</TD>
+          <TD class=tit_f10 bgColor=#ffffff>&nbsp;* 위 주택마련저축에 가입한 자가 국민주택규모 
+            이하의 주택을 임차하기<BR>&nbsp;&nbsp;&nbsp;&nbsp;위해 1996.1.1 이후 <U><B>"저축과 
+            연계"</U></B>하여 차입한 경우 총 원리금상환<BR>&nbsp;&nbsp;&nbsp;&nbsp;기재 </TD></TR>
+        <TR>
+          <TD align=left bgColor=#ffffff rowSpan=2>&nbsp;장기주택<BR>&nbsp;저당차입금 
+          </TD>
+          <TD align=left bgColor=#ffffff>&nbsp;① 상환기간 14년 미만 </TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>근로자 본인명의의<BR>&nbsp;총 
+          이자상환액</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeyup="addComma(this); calculatePybhto(document.entry);" 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" 
+            onfocus="checkJJG(document.entry, this);" maxLength=13 size=10 
+            value=0 name=pybho5> 원</TD>
+          <TD class=tit_f10 bgColor=#ffffff rowSpan=3>&nbsp;* 근로자 본인이 세대주이며, 
+            국민주택규모의 주택(분양권·입주권 3억원<BR>&nbsp;&nbsp;&nbsp;&nbsp;이하)을 취득하기 위하여 주택에 
+            저당권을 설정하고 차입한 경우<BR>&nbsp;&nbsp;&nbsp;&nbsp;총 이자상환액 기재 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;<FONT color=#3366ff>→ 2006년 신규 
+            장기주택저당차입자<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 차입 당시 
+            분양권/입주권 평가액이 3억원 이하여야 함.</FONT> </TD></TR>
+        <TR>
+          <TD align=left bgColor=#ffffff>&nbsp;② 상환기간 15년 이상 </TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeyup="addComma(this); calculatePybhto(document.entry);" 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" 
+            onfocus="checkJJG(document.entry, this);" maxLength=13 size=10 
+            value=0 name=pybho6> 원</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee colSpan=3>주택자금 계</TD>
+          <TD align=middle bgColor=#fff8ee><INPUT class=input02 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=10 
+            value=0 name=pybhto> 원</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee rowSpan=7>기부금</TD>
+          <TD align=left bgColor=#ffffff rowSpan=2>&nbsp;전액공제기부금</TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>근로자 본인명의의<BR>총 기부금액</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input03 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();gibuOpen(document.entry, '2006', '12', '0', 'L', '200089', 'pybgi1');" 
+            readOnly size=10 value=0 name=pybgi1> 원</TD>
+          <TD class=tit_f10 bgColor=#ffffff rowSpan=7>&nbsp;* 
+            국방헌금·수재의연금·국가/사립학교의 시설비 등에 기부한 경우<BR>&nbsp;&nbsp;&nbsp;&nbsp;총 기부액 
+            기재 <BR><BR>&nbsp;* 정당(후원회 및 선거관리위원회 포함)에 기부한 총 정치자금 기재 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;<FONT color=#3366ff>→ 10만원 이하 금액은 세액공제 + 
+            10만원 초과 금액은 소득공제 </FONT><BR><BR>&nbsp;* 종교·문화·예술·교육·사회·복지·자선단체 등 
+            공익성단체에 기부한 경우 <BR>&nbsp;&nbsp;&nbsp;&nbsp;총 기부액 기재 <BR><BR></TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();gibuOpen(document.entry, '2006', '12', '0', 'L', '200089', 'pybgi1');" 
+            readOnly size=10 value=0 name=pybgi2> 원</TD></TR>
+        <TR>
+          <TD align=left bgColor=#ffffff rowSpan=2>&nbsp;정치자금 기부금</TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>근로자 본인명의의<BR>총 기부금액</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input03 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();gibuOpen(document.entry, '2006', '12', '0', 'L', '200089', 'pybgi2');" 
+            readOnly size=10 value=0 name=pybgi3> 원</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();gibuOpen(document.entry, '2006', '12', '0', 'L', '200089', 'pybgi2');" 
+            readOnly size=10 value=0 name=pybgi4> 원</TD></TR>
+        <TR>
+          <TD align=left bgColor=#ffffff 
+            rowSpan=2>&nbsp;근로소득<BR>&nbsp;10%한도기부금<BR>&nbsp;(종교단체 기부 등) </TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>근로자 본인명의의<BR>총 기부금액</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input03 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();gibuOpen(document.entry, '2006', '12', '0', 'L', '200089', 'pybgi3');" 
+            readOnly size=10 value=0 name=pybgi5> 원</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            style="IME-MODE: disabled; CURSOR: hand; TEXT-ALIGN: right" 
+            onfocus="JavaScript:blur();gibuOpen(document.entry, '2006', '12', '0', 'L', '200089', 'pybgi3');" 
+            readOnly size=10 value=0 name=pybgi6> 원</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee colSpan=3>기부금 계</TD>
+          <TD align=middle bgColor=#fff8ee><INPUT class=input02 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=10 
+            value=0 name=pybgto> 원</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee rowSpan=2>개인연금</TD>
+          <TD align=left bgColor=#ffffff colSpan=2 rowSpan=2>&nbsp;2000년 이전 
+            가입한 저축</TD>
+          <TD align=middle bgColor=#ffffff><FONT color=#3366ff>회사 단체 가입 
+            저축<BR>(2000년 이전 입사자)</FONT></TD>
+          <TD align=middle bgColor=#ffffff><FONT 
+color=#3366ff>회사일괄처리</FONT></TD>
+          <TD class=tit_f10 bgColor=#ffffff rowSpan=2><FONT 
+            color=#3366ff>&nbsp;* 회사에서 단체 가입한 대한생명 개인연금 불입액은 본인이 직접 입력하지 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;않음. <BR>&nbsp;&nbsp;&nbsp;&nbsp;→ 단체 가입 
+            상품명 : 노후적립55(60)세 개시, 하이드림 10년납, 
+            <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+            직장인으뜸55세</FONT> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#ffffff>근로자 본인명의의<BR>총 불입액</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur=tip(); onkeyup=addComma(this); 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" 
+            onfocus="tip('회사단체가입한 연금 불입액은 제외시켜 주시기 바랍니다.'); if(this.value == '0') this.value = '';" 
+            maxLength=13 size=10 value=0 name=pyban1> 원</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee rowSpan=2>연금저축</TD>
+          <TD align=left bgColor=#ffffff colSpan=2 rowSpan=2>&nbsp;2001년 이후 가입한 저축</TD>
+          <TD align=middle bgColor=#ffffff><FONT color=#3366ff>회사 단체 가입 저축<BR>(2001년 이후 입사자)</FONT></TD>
+          <TD align=middle bgColor=#ffffff><FONT color=#3366ff>회사일괄처리</FONT></TD>
+          <TD class=tit_f10 bgColor=#ffffff rowSpan=2><FONT color=#3366ff>&nbsp;* 회사에서 단체 가입한 농협 연금저축불입액은 본인이 직접 입력하지 않음. <BR>
+			&nbsp;&nbsp;&nbsp;&nbsp;→ 단체 가입 상품명 : 트리플에이, 큰사랑연금 </FONT>
+		  </TD>
+		</TR>
+        <TR>
+          <TD align=middle bgColor=#ffffff>근로자 본인명의의<BR>총 불입액</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onblur=tip(); onkeyup=addComma(this); 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" 
+            onfocus="tip('회사단체가입한 연금 불입액은 제외시켜 주시기 바랍니다.'); if(this.value == '0') this.value = '';" 
+            maxLength=13 size=10 value=0 name=pybanu> 원</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#ffedd2 rowSpan=3>세<BR>액<BR>공<BR>제</TD>
+          <TD align=middle bgColor=#fff8ee rowSpan=2>정치자금</TD>
+          <TD align=left bgColor=#ffffff rowSpan=2>&nbsp;정치자금 기부금</TD>
+          <TD align=middle bgColor=#fff8ee><FONT color=#ff6633>국세청자료</FONT></TD>
+          <TD align=middle bgColor=#ffffff rowSpan=2>근로자 본인 명의의<BR>총 기부금액</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input02 
+            style="IME-MODE: disabled; COLOR: #ff6633; TEXT-ALIGN: right" 
+            readOnly size=10 value=0 name=pybt01> 원</TD>
+          <TD class=tit_f10 bgColor=#ffffff rowSpan=2><FONT 
+            color=#3366ff>&nbsp;* 정당(후원회 및 선거관리위원회 포함) 기부액이 10만원이하인 
+            경우<BR>&nbsp;&nbsp;&nbsp;&nbsp;이하액 기재 (자동입력)</FONT> </TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>그밖의자료</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input02 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" readOnly size=10 
+            value=0 name=pybt02> 원</TD></TR>
+        <TR>
+          <TD align=middle bgColor=#fff8ee>주택자금</TD>
+          <TD align=left bgColor=#ffffff colSpan=2>&nbsp;미분양주택취득차입금 상환이자</TD>
+          <TD align=middle bgColor=#ffffff>근로자 본인명의의<BR>총 이자상환액</TD>
+          <TD align=middle bgColor=#ffffff><INPUT class=input01 
+            onkeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" 
+            onkeyup=addComma(this); 
+            style="IME-MODE: disabled; TEXT-ALIGN: right" 
+            onfocus="checkJJG(document.entry, this);" maxLength=13 size=10 
+            value=0 name=pybhho> 원</TD>
+          <TD class=tit_f10 bgColor=#ffffff>&nbsp;* 세대주인 근로자 본인 명의로 "1995.11.1~1997.12.31" 중 서울시 이외의 <BR>
+			&nbsp;&nbsp;&nbsp;&nbsp;지역에 국민주택규모 이하의 미분양 주택을 취득하기 위해 국민주택기금 <BR>
+			&nbsp;&nbsp;&nbsp;&nbsp;또는 주택은행으로부터 1995.11.1 이후 차입한 차입금에 대한 총 이자 <BR>
+			&nbsp;&nbsp;&nbsp;&nbsp;상환액 기재</TD>
+		  </TR>
+	  </TABLE>
+	  <BR>
+      <TABLE cellSpacing=1 cellPadding=3 width=1003 border=0>
+        
+        <TR bgColor=#ffffff>
+          <TD width=800>&nbsp;</TD>
+          <TD vAlign=bottom align=right><A href="javascript:checkForm(document.entry, 'S');">
+				<IMG src="imgs/btn_save.gif" border=0></A>&nbsp;</TD>
+          <TD vAlign=bottom align=right>&nbsp;<A href="javascript:checkForm(document.entry, 'C');">
+			<IMG src="imgs/btn_submit.gif" border=0></A></TD>
+		</TR>
+	  </TABLE>
+
+	  <!--연금보험료-->
+	  <INPUT type=hidden value=1,486,800 name=pybsgm>
+	  <INPUT type=hidden value=0 name=pybsto> 
+	  
+	  <!--보험료-->
+	  <INPUT type=hidden value=802,130 name=pybsbh> 
+	  <INPUT type=hidden value=173,047 name=pybsgy> 
+	  <INPUT type=hidden value=0 name=pybins> 
+	  <INPUT type=hidden value=0 name=pybin2> 
+	  <INPUT type=hidden value=0 name=pybito> 
+	  
+	  <!--의료비-->
+	  <INPUT type=hidden value=0 name=pybmsd> 
+	  <INPUT type=hidden value=0 name=pybmgd> 
+	  <INPUT type=hidden value=0 name=pybmtc> 
+	  <INPUT type=hidden value=0 name=pybmto> 
+	  <INPUT type=hidden value=0 name=pybmtm> 
+	  
+	  <!--교육비-->
+	  <INPUT type=hidden value=0 name=pybsed> 
+	  <INPUT type=hidden value=0 name=pybebc> 
+	  <INPUT type=hidden value=0 name=pybebt> 
+	  <INPUT type=hidden value=0 name=pybecc> 
+	  <INPUT type=hidden value=0 name=pybect> 
+      <INPUT type=hidden value=0 name=pybedc> 
+	  <INPUT type=hidden value=0 name=pybedt> 
+	  <INPUT type=hidden value=0 name=pybetc> 
+	  <INPUT type=hidden value=0 name=pybets> 
+	  <INPUT type=hidden value=0 name=pybeto> 
+
+      <!--카드비-->
+	  <INPUT type=hidden value=0 name=pybcad> 
+	  <INPUT type=hidden value=0 name=pybhnd> 
+	  <INPUT type=hidden value=0 name=pybsgd> 
+	  <!--<input type="hidden" name="pybmex" value="0">-->
+	  <INPUT type=hidden value=0 name=pybcto> 
+
+      <DIV id=tipbox style="BORDER-RIGHT: black 1px solid; BORDER-TOP: black 1px solid; BACKGROUND: infobackground; LEFT: 0px; VISIBILITY: hidden; BORDER-LEFT: black 1px solid; BORDER-BOTTOM: black 1px solid; POSITION: absolute; TOP: 0px"></DIV>
+	</TD>
+  </TR>
+</TABLE>
+
+
+
+
+
+</FORM>
+</BODY>
+</HTML>

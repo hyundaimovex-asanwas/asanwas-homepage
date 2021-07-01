@@ -1,0 +1,93 @@
+/* 테이블기본적용값 */
+/* 기존 CSS에서 추가해서 사용하세요  덮어씌우면 큰일나는거 알죠?*/
+.tabV_over { font-size:12px; color:000000;font-weight:bold;padding:4 0 0 8; }
+.tabV { font-size:12px; color:878787;font-weight:bold;padding:4 0 0 8; }
+.tabTitle { font-size:12px; color:0000;font-weight:bold;}
+
+
+
+@charset "euc-kr";
+/* 전체공통
+ . class, # id 
+	기본폰트는 돋움
+ */
+
+/*나눔고딕 웹폰트? */
+/*@import url("http://fonts.googleapis.com/earlyaccess/nanumgothic.css");*/
+
+
+/* BASE SET */
+html, body, div, span, applet, iframe
+{
+	margin:0;
+	padding:0;
+	border:0;
+}
+/*body { background-color:#FFFFFF; color:#444444; font:normal 12px/1.45 '돋움',Dotum,'굴림',Gulim,AppleGothic,Sans-serif; cursor:default; margin:0px; text-align:center; }*/
+body{font-family:'돋움', Dotum,Tahoma,sans-serif;font-size:12px;line-height:1.5;color:#424242;margin:0px;}
+ul,ol{list-style:none} 
+dl, dt, dd, ol, ul, li {margin:0;padding:0;}
+
+/* Alink */
+a{color:#424242;text-decoration:none;}
+a:hover{text-decoration:underline}
+
+/* Basic */
+em, address{font-style:normal}
+img{border:0; vertical-align:top}
+.u, .u a{text-decoration:underline !important;}
+.s, .s a{font-size:.9em !important;}
+.bold, .bold a{font-weight:bold !important;}
+
+/* Display */
+.fl{float:left;}
+.fr{float:right;}
+.clr{clear:both !important;}
+.clr:after{content:'';display:block;clear:both}
+.blind{position:absolute;top:0;left:0;width:0;height:0;overflow:hidden;font-size:0;line-height:0}
+
+
+/* Align */
+.l{text-align:left !important;}
+.c{text-align:center !important;}
+.r{text-align:right !important}
+.t{vertical-align:top !important;}
+.m{vertical-align:middle !important;}
+.b{vertical-align:bottom !important}
+
+/* Form */
+legend{display:block;position:absolute;top:0;left:0;width:0;height:0;overflow:hidden;visibility:hidden;font-size:0;line-height:0} 
+select, textarea, input, label{vertical-align:middle}
+
+
+/* Table */
+table {border-collapse:separate;border-spacing:0}
+caption {padding:0;width:0;height:0;overflow:hidden;visibility:hidden;font-size:0;line-height:0}
+
+
+
+/* HEADER */
+#haHeader { width:100%; }
+	/* 헤더-탑 */
+	#haHeaderTop {  height:42px; }
+	#haHeaderMenu { height:32px;background:url(../../images/Common/topMenu_back.gif);border-bottom:solid 1 #187DFF; }
+	.htImg { width:29px; height:29px; border:0; cursor:pointer ; }
+
+
+
+/* LAYOUT BOX (Header-Footer를 제외한 레이아웃) */
+#haSubBody { float:left; width:1020px; height:90%; margin:0px 0px 0px 0px;  }
+	/* 포털페이지 메인 컨텐츠 */
+/*	#mcMessage {float:left; width:310px; margin:0px 0px 0px 10px;}
+	#mcMessage_title {float:left;width:16px; font-size:12px;font-weight:bold; }
+	#mcShortcut { float:right;width:286px; }
+	.mcSCicon {  float:left; width:76px; height:80px;}
+	.mcSCiconT {width: 76px; height:58px; text-align:center;}
+	.mcSCiconB { width: 76px; height:16px; padding:6px 0px 9px 0px; color:#999999; text-align:center; font-size:11px; font-weight:bold; }
+	.mcImg { width:58px; height:58px; border:0; cursor: hand ; }
+*/
+
+	.rowH9 {  clear:both; width:100%; height:3px; border:1 solid blue;}
+#haBodyMerge { width:980px; }
+
+

@@ -1,0 +1,136 @@
+@charset "euc-kr";
+/* 전체공통
+ . class, # id 
+	기본폰트는 돋움, 인풋은 바탕
+ */
+
+
+
+/* BASE SET */
+body { background-color:#FFFFFF; color:#444444; font:normal 12px/1.45 '돋움',Dotum,'굴림',Gulim,AppleGothic,Sans-serif; cursor:default; margin:0px; text-align:center; }
+a { text-decoration:none; color:#444444; }
+a:hover, a:active { text-decoration:underline; }
+td { font:normal 12px/1.45 '돋움',Dotum,'굴림',Gulim,AppleGothic,Sans-serif; }
+
+h1,h2,h3,h4,h5 { margin:0px; padding:0px; text-align:left; }
+form,input,button { margin:0px; padding:0px; text-align:left; }
+input {font:normal 12px/1.45 '바탕'; }
+ul,li,ol { margin:0px; padding:0px; list-style:none; text-align:left; }
+dl,dt,dd { margin:0px; padding:0px; text-align:left; }
+/*div,ul,dl { clear:both; display:block; text-align:left; }*/
+img { border:0px; }
+
+
+
+/* HEADER */
+#haHeader { width:100%; }
+	/* 헤더-탑 */
+	#haHeaderTop {  height:42px; }
+	#haHeaderMenu { height:35px;background:url(/HDAsan/images/Common/topMenu_back.gif);border-bottom:solid 3 #FFD104; }
+	.htImg { width:29px; height:29px; border:0; cursor:pointer; }
+
+
+
+/* LAYOUT BOX (Header-Footer를 제외한 레이아웃) */
+#haBody { float:left; width:1144px; height:85%; margin:6px 0px 0px 0px;  }
+
+	/* 포털페이지 메인 컨텐츠 */
+	#mcLeftCol{float:left;width:360px; height:100%;}
+		#mcShortcut { float:left;width:40px; }
+		.mcSCicon {  float:left; width:38px; height:50px;}
+		.mcSCiconT {width: 36px; height:30px; text-align:center;}
+		.mcSCiconB { width: 38px; height:14px; padding:0px 0px 4px 0px; color:#999999; text-align:center; font-size:12px; font-weight:bold; }
+		.mcImg { width:28px; height:28x; border:0; cursor: pointer ; }
+		#mcMenu { float:left; width:320px; height:100%; }
+		#mcMenuTitle{float:left;width:320px; height:30px; background-color:#999999;}
+
+	#mcCenterCol{float:left;width:520px; height:100%;background-color:red;}
+	
+	#mcRightCol{float:left;width:200px; height:100%;background-color:green;}
+		#mcProfile{float:left;width:200px; height:130px;background-color:yellow;}
+	#mcSpace { float:left;width:8px;}
+	
+	
+
+
+	#mcFavorite { float:left; width:304px; }
+
+	#mcMessage {float:left; width:310px; margin:0px 0px 0px 10px;}
+	#mcMessage_title {float:left;width:16px; font-size:12px;font-weight:bold; }
+
+
+	.rowH9 {  clear:both; width:100%; height:3px; border:1 solid blue;}
+#haBodyMerge { width:980px; }
+
+
+
+/* COMMON */
+.layoutCenter { margin:0 auto; }
+
+.haThumbPic { float:left; margin:0px 10px 3px 0px; padding:1px; border:solid 1px #CCCCCC; font:0/0 Arial; list-style:none; list-style-image:none; }
+.haThumbTit,			.haThumbTit a { font-weight:bold; line-height:160%; list-style:none; list-style-image:none; }
+.haThumbTitLong,    .haThumbTitLong a { font-weight:bold; line-height:160%; list-style:none; list-style-image:none; }
+.haThumbTitSub, .haThumbTitSub a { font-weight:bold; line-height:160%; list-style:none; list-style-image:none; }
+.haThumbPs,     .haThumbPs a { color:#666666; line-height:150%; padding-top:3px; list-style:none; list-style-image:none; }
+
+.ndPartTxtTit { border:solid 1px #DDDDDD; padding:5px 10px; font-weight:bold; }
+.ndPartTxtTit a { color:#222222; }
+
+.ndPartListp0 li { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/list_dot_t1.gif) no-repeat 0px 8px; }
+.ndPartListp10 li { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/list_dot_t1.gif) no-repeat 10px 8px; }
+
+.sTitCyan, .sTitCyan a { font-weight:bold; color:#4778ac; }
+
+.ndHiddenBlock { margin:0 auto; font:0/0 Arial; }
+.ndDotlineH { background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/line_h_t1.gif) repeat-x; font-size:0px; height:15px; }
+.ndDotlineH2 { background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/line_h_t1.gif) repeat-x; font-size:0px; height:7px; }
+
+/* 화제집중-해외토픽 [초기화면, 기사뷰ㆍ목록:전체] */
+	#haTopic { padding-bottom:15px; }
+	#haTopic dl { border-left:solid 1px #DDDDDD; border-top:solid 1px #DDDDDD; border-right:solid 1px #DDDDDD; height:30px; }
+	#haTopic dd { width:48.5%; background-color:#EFEFEF; text-align:center; height:25px; margin:1px; padding:3px 0px 0px 0px; }
+	#haTopicMu1 { float:left; }
+	#haTopicMu2 { clear:none; float:right; }
+	#haTopicList1, #haTopicList2 { border-left:solid 1px #DDDDDD; border-right:solid 1px #DDDDDD; border-bottom:solid 1px #DDDDDD; padding:15px 10px 10px 10px; }
+	#haTopicList1 .haTopicThumb a,  #haTopicList2 .haTopicThumb a { font-family:'돋움',Dotum; letter-spacing:-1px; }
+	#haTopicList1 .haThumbTit a,    #haTopicList2 .haThumbTit a { color:#4778ac; }
+	#haTopicList1 .haThumbPs,       #haTopicList2 .haThumbPs { overflow:hidden; text-overflow:ellipsis; height:35px; }
+	#haTopicList1 .ndPartListp0,    #haTopicList2 .ndPartListp0 { padding-top:3px; }
+	#haTopicList1 .ndPartListp0 li, #haTopicList2 .ndPartListp0 li { width:200px; line-height:180%; padding-left:7px; }
+/* 초기화면ㆍ기사뷰ㆍ목록ㆍ기타: 오른쪽영역 */
+	/* 오늘의칼럼 */
+	#haColumn { padding-bottom:15px; }
+	#haColumn ul { border-left:solid 1px #DDDDDD; border-right:solid 1px #DDDDDD; border-bottom:solid 1px #DDDDDD; padding:10px 10px 5px 10px; }
+	#haColumn li { width:215px; height:24px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+	/* AD240 */
+	.ndAd240 { padding-bottom:20px; }
+	/* 주간핫클릭 */
+	#haWeekly { padding-bottom:15px; }
+	#haWeekly span { color:#c31f25; }
+	#haWeekly dl { padding-top:5px; }
+	#haWeekly dd { clear:none; float:left; }
+	#haWeekly ul { border-left:solid 1px #DDDDDD; border-right:solid 1px #DDDDDD; border-bottom:solid 1px #DDDDDD; padding:10px 10px 3px 10px; }
+	#haWeekly .ndPartListp0 li { list-style:none; width:215px; height:24px;  }
+/* 목록: 전체, BBS */
+	/* 리스트페이징 [목록:전체,BBS] */
+	.haPageNum { text-align:center; padding:10px 0px 15px 0px; }
+	.haPageNum a { border:solid 1px #DDDDDD; padding:4px 5px 3px 5px; font-size:11px; color:#999999; font-weight:bold; font-family:Arial,Verdana,sans-serif; }
+	.haPageNum a span { color:#c46c6d; }
+
+
+
+
+/* FOOTER */
+#haFooter { width:980px; border-top:solid 5px #d2dde8; color:#666666; }
+#haFooter a { color:#666666; }
+	/* 알립니다-기사제보-제안마당 */
+	#haFooterNotice { float:left; margin-left:5px; padding:10px 0px 5px 0px; width:50%; }
+	#haFooterNotice dt, #haFooterNotice dd { clear:none; float:left; }
+	#haFooterNotice dt { font-weight:bold; }
+	#haFooterNotice dd { padding-left:10px; }
+	#haFooterNotice .haFooterNoticeNavi { padding-top:2px; }
+	#haFooterProposal { clear:none; float:right; margin-right:5px; padding:10px 0px 5px 0px; }
+	/* 회사소개 */
+	#haFooterAboutus { border-top:solid 1px #ececec; text-align:center; padding:5px 0px; }
+	/* 카피라이트 */
+	#haFooterCopyright { border-top:solid 1px #ececec; padding:5px 0px 0px 5px; line-height:150%; }

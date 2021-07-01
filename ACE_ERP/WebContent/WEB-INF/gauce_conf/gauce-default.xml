@@ -1,0 +1,47 @@
+<configuration>
+    <global compressed="false" fragment="40" gdml="false">
+        <charset default="euc-kr" get="euc-kr" post="euc-kr"/>
+        <col-def integer="6" decimal="7.3" string="255" round="R"/>
+        
+        <!--SecurityAdapter provides function that can prevent leakage of 
+            information being transmitted over a network, change of information, 
+            and denial of information reception and transmission.
+        -->
+        <!--crypto spi="com.gauce.common.crypto.impl.SecuiAdapter"/-->
+        <!--crypto spi="com.gauce.common.crypto.impl.XecureAdapter">
+            <param name="conf" value="/home/xecureweb_ver5/xecure_servlet.conf"/>
+        </crypto-->        
+        <!--crypto spi="com.gauce.common.crypto.impl.InisafeNetAdapter">
+            <param name="conf" value="C:\INISAFENET.properties"/>
+        </crypto-->
+        <!--crypto spi="com.gauce.common.crypto.impl.SigngateAdapter">
+            <param name="conf" value="C:\kmPri.key"/>
+            <param name="passwd" value="1234"/>
+        </crypto-->
+        <!--crypto spi="com.gauce.common.crypto.impl.CrossCertAdapter"/-->
+        
+        <monitor log="false" path="C:\gauce\monitor_log"/>
+        
+        <connector>
+            <request className="com.gauce.filter.HttpGauceRequestWrapper"/>
+        </connector>
+    </global>
+    <resource>
+        <dataSource name="default" charsetIn="euc-kr" charsetOut="euc-kr">
+            <jdbc 
+                driver="oracle.jdbc.driver.OracleDriver" 
+                url="jdbc:oracle:thin:@203.242.32.10:1521:ASANDB1"
+                user="ATP" 
+                password="ATP_1121" 
+                schema=""/>
+        </dataSource>
+        <dataSource name="sampledb" charsetIn="ksc5601" charsetOut="ksc5601">
+            <jdbc 
+                driver="org.hsqldb.jdbcDriver" 
+                url="jdbc:hsqldb:hsql://localhost/" 
+                user="sa" 
+                password="" 
+                schema=""/>
+        </dataSource>
+    </resource>
+</configuration>

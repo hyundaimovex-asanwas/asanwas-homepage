@@ -1,0 +1,242 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	개인정보관리 팝업
++ 프로그램 ID	: bm010i_r.html
++ 기 능 정 의	: 조회
++ 변 경 이 력	: 김종현
++ 서 블 릿 명	: bm_common_s01
+------------------------------------------------------------------------------>
+<html>
+<head>
+<title>개정정보관리팝업</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../Common/css/common.css">
+<Script language="javascript" src="../common/js/PubFun.js"></script>
+<script language="javascript">
+
+	get_cookdata();
+	var gs_date = gn_Replace(gcurdate,"/");
+	var gs_gubun="";
+	var strParam = new Array();
+	strParam=window.dialogArguments;
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+		//국적구분fr
+		gcds_cu009_fr.DataID = "/services/servlet/sales.bm.bm_common_s01?v_str1=CU009&v_str2=Y";
+		gcds_cu009_fr.Reset();
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(){
+
+    if(txt_cust_nm_fr.value=="" && gcem_regi_no_fr.text==""){
+		   alert("조회조건을 입력하세요");
+		   return ;
+		}
+
+		var sdata = "/services/servlet/sales.bm.bm010i_r_s01"
+							+ "?v_str1=" + gclx_sy005_fr.bindcolval
+							+ "&v_str2=" + txt_cust_nm_fr.value
+							+ "&v_str3=" + gcem_regi_no_fr.text;
+
+		gcds_data.DataID = sdata; 
+		gcds_data.Reset();
+}
+
+/******************************************************************************
+	Description : 창닫기
+******************************************************************************/
+function ln_Close(p){
+	if (p=="A") {
+		if(gcds_data.countrow<1) {
+			alert("선택하실 계정코드가 없습니다.");
+		}	else {
+		  if(gcds_data.namevalue(gcds_data.rowposition,"CASE")=="등록"){
+			   alert("이미 등록되어있습니다.미등록된 이름을 선택하세요");
+				 return false;
+			} else {
+						var row = gcds_data.rowposition;
+						window.returnValue = gcds_data.namevalue(row,"CUST_SID") + ";"  
+															 + gcds_data.namevalue(row,"COUNTRY_GU") + ";" //국적구분
+															 + gcds_data.namevalue(row,"WORK_NO") + ";"   //실무번호
+															 + gcds_data.namevalue(row,"CUST_NM") + ";"    //이름
+															 + gcds_data.namevalue(row,"MANAGE_NO") + ";"  //주민/여권번호
+															 + gcds_data.namevalue(row,"BIRTHDAY") + ";"   //생년월일
+															 + gcds_data.namevalue(row,"SEX") + ";"        //성별
+															 + gcds_data.namevalue(row,"CUST_GU") + ";"    //고객구분
+															 + gcds_data.namevalue(row,"SAUP_GU") + ";"    //사업구분
+															 + gcds_data.namevalue(row,"CUST_TYPE") + ";"  //고객유형
+															 + gcds_data.namevalue(row,"LAST_NM") + ";"    //영문성
+															 + gcds_data.namevalue(row,"FIRST_NM") + ";"   //영문성명
+															 + gcds_data.namevalue(row,"ZIP_CD") + ";"     //우편번호
+															 + gcds_data.namevalue(row,"ZIP_NAME") + ";"   //직군
+															 + gcds_data.namevalue(row,"ADDRESS1") + ";"   //주소1
+															 + gcds_data.namevalue(row,"ADDRESS2") + ";"   //주소2
+															 + gcds_data.namevalue(row,"TEL_NO") + ";"     //자택전화
+															 + gcds_data.namevalue(row,"MOBILE_NO") + ";"  //핸드폰
+															 + gcds_data.namevalue(row,"COMPANY_NM") + ";" //직장명
+															 + gcds_data.namevalue(row,"POSITIONS") + ";"  //직위
+															 + gcds_data.namevalue(row,"COUNTRY_GU_NAME") + ";" //국적
+															 + gcds_data.namevalue(row,"NATION_CD");  //민족
+						window.close();			
+			}
+		}
+	} else {
+		window.close();
+	}
+}
+</script>
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><OBJECT id=gcds_data classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<comment id="__NSID__"><OBJECT id=gcds_cu009_fr classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT></comment><script>__ws__(__NSID__);</script>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcds_data" event="OnLoadStarted()">
+//	gn_LoadStart();
+</script>
+
+<script language="javascript" for="gcds_data" event="onloadCompleted(row,colid)">
+	gn_LoadComp('1',gcds_data.countrow);
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcgd_disp" event="OnDblClick(row,colid)">
+	if (row<1) return;
+	ln_Close('A');
+</script>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+<table border="0" cellpadding="0" cellspacing="0" style="position:relative;left:5px;top:5px;width:500px;border:0 solid #c5c5c5">
+	<tr>
+		<td class="tab_a1110">국적구분</td>
+		<td class="tab_b0110">
+			<comment id="__NSID__"><OBJECT id=gclx_sy005_fr classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69
+				style="position:relative;left:8px;top:1px;font-size:12px;width:100px;height:200px;">
+				<param name=ComboDataID			value="gcds_cu009_fr">
+				<param name=CBDataColumns		value="DETAIL, DETAIL_NM">
+				<param name=SearchColumn		value=DETAIL_NM>
+				<param name=Sort						value=false>
+				<param name=ListExprFormat	value="DETAIL_NM^0^150">
+				<param name=BindColumn			value=DETAIL>
+			</OBJECT></comment><script>__ws__(__NSID__);</script>
+		</td>	
+		<td class="tab_a0110">고객명</td>
+		<td class="tab_b0110">
+			<input id="txt_cust_nm_fr" type="text" class="txt_a01"  style="width:120px;"  onkeydown="if(event.keyCode==13) ln_Query();" onBlur="bytelength(this,this.value,30);"> 			
+		</td>	
+		<td class="tab_b0110">
+      <img src="/services/Sales/images/refer.gif"	style="position:relative;left:4px;top:2px;cursor:hand;"  onclick="ln_Query()">			
+		</td>	
+	</tr>
+	<tr>
+		<td class="tab_a1111">주민/여권번호</td>
+		<td class="tab_b0111" colspan=4>
+			<fieldset class=field_01 style="width:120px;">
+			<comment id="__NSID__"><OBJECT id=gcem_regi_no_fr classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F
+				class="gcem_01" style="width:110px;">
+					<param name=Alignment			value=0>
+					<param name=Border	      value=false>
+					<param name=Format	      value="0000000000000">
+					<param name=PromptChar	  value="">
+					<param name=UpperFlag     value=1>
+			</OBJECT></comment><script>__ws__(__NSID__);</script>
+			</fieldset>					
+		</td>	
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" border="0" style="position:relative;left:5px;top:10px">
+	<tr>
+		<td colspan="3">
+			<comment id="__NSID__">
+			<OBJECT id=gcgd_disp class="tab_b1111" classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49  style="width:497;height:329px;" viewastext >
+				<param name="DataID"				value="gcds_data">
+				<param name="HeadBorder" 		value="4">
+				<param name="HeadLineColor" value="#A4B8C5">
+				<param name="LineColor" 		value="#A4B8C5">
+				<PARAM NAME="BorderStyle"		VALUE="0">
+				<PARAM NAME="Indwidth"			VALUE="0">
+				<PARAM NAME="Fillarea"			VALUE="true">
+				<param name="sortview"			VALUE="left">
+				<param name="TitleHeight"		value="22">
+				<param name="RowHeight"			value="22">
+				<param name="BorderStyle" 	value="0">
+				<param name="ColSizing" 		value="1">
+				<param name="FillArea" 			value="1">
+				<param name="ViewUnbind" 		value="-1">
+				<param name="ViewHeader" 		value="-1">
+				<param name="UsingOneClick" value="1">
+			  <PARAM NAME="Format"				VALUE="  
+					<C>ID=CUST_SID,		   Name='CUST_SID',	   width=58,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=COUNTRY_GU_NAME, Name='국적',      width=100,	HeadBgColor=#eeeeee, align=center </C>
+					<C>ID=COUNTRY_GU,		 Name='국적구분',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=WORK_NO,		   Name='실무번호',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=CUST_NM,		   Name='이름',	       width=100,	HeadBgColor=#eeeeee, align=center </C>
+					<C>ID=MANAGE_NO,		 Name='주민/여권번호',	width=100,	HeadBgColor=#eeeeee, align=center </C>
+					<C>ID=BIRTHDAY,		   Name='생년월일',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=SEX,		       Name='성별',	       width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=CUST_GU,		   Name='고객구분',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=SAUP_GU,		   Name='사업구분',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=CUST_TYPE,		 Name='고객유형',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=LAST_NM,		   Name='영문성',	     width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=FIRST_NM,		   Name='영문성명',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=ZIP_CD,		     Name='우편번호',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=ZIP_NAME,		   Name='직군',	       width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=ADDRESS1,		   Name='주소1',	     width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=ADDRESS2,		   Name='주소2',	     width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=TEL_NO,		     Name='자택전화',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=MOBILE_NO,		 Name='핸드폰',	     width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=COMPANY_NM,		 Name='직장명',	     width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=POSITIONS,		 Name='직위',	       width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					
+					<C>ID=NATION_CD,		 Name='NATION_CD',   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=REGI_YN,		   Name='등록여부',	   width=100,	HeadBgColor=#eeeeee, align=center show=false</C>
+					<C>ID=CASE,		       Name='등록여부',	   width=100,	HeadBgColor=#eeeeee, align=center </C>
+
+				">
+	    </OBJECT></comment><script>__ws__(__NSID__);</script>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<fieldset id=ft_div1 style="width:498;height:20px;border:1 solid #c5c5c5;border-top-width:0px;text-align:left;">
+				&nbsp;<font id=ft_cnt1 style="position:relative;top:3px;"></font>
+			</fieldset>
+		</td>
+	</tr>
+	<tr><td height="4px"></td></tr>
+	<tr>
+		<td height="30px;" align="center">
+<!-- 			<img name="btn_select" border="0" src="../../Sales/images/com_b_select.gif" style="cursor:hand" onClick="ln_Close('A')">
+			<img name="btn_close" border="0" src="../../Sales/images/com_b_close.gif" style="cursor:hand" onClick="ln_Close('C')"> -->
+		</td>
+	</tr>
+</table>
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:25px; top:130px;" FrameBorder="0" src="../common/img/flash/loading.swf" width="320px" height="42px"> </iframe>
+</body>
+</html>

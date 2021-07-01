@@ -1,0 +1,116 @@
+
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=ks_c_5601">
+<title> 우편번호 검색.</title>
+<link rel="stylesheet" href="../../common/include/common.css">
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<script language="javascript">
+function lfn_UrlEncode(han)	{
+
+		var len = han.length ;
+		var ret = "" ;
+	
+		if( len == 0 ) return ";" ;
+	
+		for( i = 0 ; i < len ; i++ )
+		{
+			ret += han.charCodeAt( i ) ;
+			ret += ";" ;
+		}
+
+		return ret ;
+}
+
+
+function zip_code()
+{
+	var ls_va ;
+	ls_va = lfn_UrlEncode(txt_zip.value);
+	if(ls_va == ""){
+		alert("동을 입력해주십시요");
+		return ;
+	}
+	
+	tbds_zip.DataID = "/servlet/insa.zip_code?dong=" + ls_va;
+	tbds_zip.Reset();
+
+
+}
+function ok(){	
+	if (tbds_zip.countrow < 1) {
+		return;
+	}
+
+	var ls_param = new Array();
+  ls_param[0] = tbds_zip.namevalue(tbds_zip.rowposition,"ZIPCODE");
+  ls_param[1] = tbds_zip.namevalue(tbds_zip.rowposition,"ADD1");
+  window.returnValue	=	ls_param;
+	window.close();
+
+}	
+function	fClose()
+{
+	window.returnValue	=	null;
+	window.close();
+}
+</script>
+<script language="javascript"  for=tbgd_grid event=OnDblClick()>
+	ok();
+</script>
+
+
+<!-----------------------------------------------------------------------
+	Component 정의
+------------------------------------------------------------------------>
+<comment id="__NSID__"><object id="tbds_zip" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" CODEBASE="../../../cab/toinbdata.cab#version=1.0.3.3"> 
+</object></comment><script>__ws__(__NSID__);</script>
+</HEAD>
+<BODY>
+<table width="400" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr bgcolor="#C2D9E9" >
+    
+    <td width="300">&nbsp;
+    	<b>동이름:</b>
+    <input type=text id=txt_zip name=txt_zip style="width:100px" maxlength="">
+    </td>
+    <td width="" align="right">
+    	<input type="button" value="우편번호찾기" name= class="button" style="width:100px" align="right" onclick='zip_code()'>
+    
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align="left">
+    	
+			<comment id="__NSID__"><object classid="clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49" name="Grid" style="height:350;width:440" id="tbgd_grid" CODEBASE="../../../cab/toinbgrid.cab#version=1.0.3.3">
+          <param name="DataID" 	value="tbds_zip">
+          <param name="MultiRowSelect" value="TRUE">
+          <param name="colsizing" 		 value="true">
+		      <param name="FontSize"     	 value="9">
+					<param name="RowHeight"    	 value="18">
+					<param name="ViewSummary"  		value="1">									
+          <param name="Format" value='
+            <F> id=ZIPCODE, name=우편번호,	width=80,	 	align=left,		headBgcolor=#EDEDDA,	 sumbgcolor=#FFEFEF,	</F>
+            <c> id=ADD1, name=주소1,		width=200,		align=left,	headBgcolor=#EDEDDA,	 sumbgcolor=#FFEFEF</c>
+						<c> id=ADD2, name=주소2,		width=150,		align=left,	headBgcolor=#EDEDDA,	 sumbgcolor=#FFEFEF</c>'>
+					
+				</object></comment><script>__ws__(__NSID__);</script>
+			
+    </td>
+   </tr>
+   <tr bgcolor="#C2D9E9" height="30" >
+    <td colspan=2 align="center">
+    	<input type="button" value="취 소" name= class="button" style="width:60px" align="right" onclick='fClose()'>
+			<input type="button" value="선 택" name= class="button" style="width:60px" align="right" onclick='ok()'>
+			
+    </td>
+   </tr>
+   
+</table>
+</BODY>  
+</HTML> 
+
+
+
+

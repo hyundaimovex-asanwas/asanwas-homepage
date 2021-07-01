@@ -1,0 +1,1211 @@
+
+
+<sqls>
+<!-- 경공조금 신청서관리 -->
+<!--
+***********************************************************************
+* @UseCase     : AIDA010
+* @description : 경공조금 신청서관리
+***********************************************************************
+* 2006/12/12      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 경공조금 신청서내역이 들어 있는지 여부를 검증한다. -->
+    <sql name="AIDA010_CHK">
+        <description>공조회비총납부액</description>
+        <query>
+            <![CDATA[
+            SELECT COUNT(*) AS CNT
+              FROM ASNHR.T_AD_AIDAPP
+             WHERE REQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 결재자내역이 들어 있는지 여부를 검증한다. -->
+    <sql name="AIDA010_CHK_01">
+        <description>경공조금 결재자내역이 들어 있는지 여부를 검증한다.</description>
+        <query>
+            <![CDATA[
+            SELECT COUNT(*) AS CNT
+              FROM ASNHR.T_AD_DECISION
+             WHERE ORD_NO = ?
+               and CK_TAG='K'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 결재자 2명 다 결재했는지 여부 파악한다. -->
+    <sql name="AIDA010_CHK_02">
+        <description>경공조금 결재자 2명 다 결재했는지 여부 파악한다..</description>
+        <query>
+            <![CDATA[
+            SELECT COUNT(*) AS CNT
+              FROM ASNHR.T_AD_DECISION
+             WHERE ORD_NO = ?
+               AND APP_YN = 'Y'
+               and CK_TAG='K'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 신청서를 조회 한다. -->
+    <sql name="AIDA010_SHR">
+        <description>경공조금 신청서 조회</description>
+        <query>
+            <![CDATA[
+               SELECT A.REQ_NO
+                    , A.ENO_NO
+                    , A.OCC_CD
+                    , A.DPT_CD
+                    , A.JOB_CD
+                    , A.LSE_YY
+                    , A.LSE_MM
+                    , A.ABA_CD
+                    , ASNHR.SF_GET_COMMNAME('01', 'BK', A.ABA_CD) AS ABA_NM
+                    , A.ACC_NO
+                    , A.REC_NM
+                    , A.AID_CD
+                    , ASNHR.SF_GET_COMMNAME('01', 'R1', A.AID_CD) AS AID_CD_NM
+                    , A.AID_NM
+                    , A.AID_RPT
+                    , DECODE(LENGTH(A.AID_YMD), 8, TO_CHAR(TO_DATE(A.AID_YMD, 'YYYYMMDD'), 'YYYY/MM/DD'), A.AID_YMD) AS AID_YMD
+                    , DECODE(LENGTH(A.SPL_YMD), 8, TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYYMMDD'), 'YYYY/MM/DD'), A.SPL_YMD) AS SPL_YMD
+                    , DECODE(LENGTH(A.REQ_YMD), 8, TO_CHAR(TO_DATE(A.REQ_YMD, 'YYYYMMDD'), 'YYYY/MM/DD'), A.REQ_YMD) AS REQ_YMD
+                    , TO_CHAR(TO_DATE(A.REP_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS REP_YMD     
+                    , A.HLP1_AMT
+                    , A.HLP2_AMT
+                    , (A.HLP1_AMT+A.HLP2_AMT) AS SUM_AMT
+                    , A.WORK_NO1
+                    , A.AID_STS
+                    , ASNHR.SF_GET_COMMNAME('01', 'R5', A.AID_STS) AS AID_STS_NM
+                    , A.RET_RSN
+                    , A.AID_CET
+                    , B.CET_NO
+                    , B.ENO_NM
+                    , B.JOB_NM
+                    , B.DPT_NM
+                    , TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+                    , TO_CHAR(B.RET_YMD, 'YYYY-MM-DD') AS RET_YMD
+                 FROM ASNHR.T_AD_AIDAPP A, ASNHR.VI_T_CM_PERSON2 B
+                WHERE A.ENO_NO = B.ENO_NO
+                  AND (A.ENO_NO     = NVL(?, A.ENO_NO)
+                   		OR  (A.AID_STS  != 'A' AND  A.REQ_NO IN (SELECT ORD_NO FROM ASNHR.T_AD_DECISION WHERE CK_TAG='K' AND ENO_NO=? ))
+                   		)
+                  AND REQ_YMD BETWEEN ? AND ?
+                  AND A.AID_STS     = NVL(?, A.AID_STS)
+             ORDER BY A.REQ_YMD DESC
+                    , A.REQ_NO DESC
+            ]]>
+        </query>
+    </sql>
+    <!-- 경공조금 신청서를 조회 한다. 목록용-->
+    <sql name="AIDA010_SHR_06">
+        <description>경공조금 신청서 조회</description>
+        <query>
+            <![CDATA[
+               SELECT A.REQ_NO
+                    , A.ENO_NO
+                    , A.OCC_CD
+                    , A.DPT_CD
+                    , A.JOB_CD
+                    , A.LSE_YY
+                    , A.LSE_MM
+                    , A.ABA_CD
+                    , ASNHR.SF_GET_COMMNAME('01', 'BK', A.ABA_CD) AS ABA_NM
+                    , A.ACC_NO
+                    , A.REC_NM
+                    , A.AID_CD
+                    , ASNHR.SF_GET_COMMNAME('01', 'R1', A.AID_CD) AS AID_CD_NM
+                    , A.AID_NM
+                    , A.AID_RPT
+                    , DECODE(LENGTH(A.AID_YMD), 8, TO_CHAR(TO_DATE(A.AID_YMD, 'YYYYMMDD'), 'YYYY/MM/DD'), A.AID_YMD) AS AID_YMD
+                    , DECODE(LENGTH(A.SPL_YMD), 8, TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYYMMDD'), 'YYYY/MM/DD'), A.SPL_YMD) AS SPL_YMD
+                    , DECODE(LENGTH(A.REQ_YMD), 8, TO_CHAR(TO_DATE(A.REQ_YMD, 'YYYYMMDD'), 'YYYY/MM/DD'), A.REQ_YMD) AS REQ_YMD
+                    , TO_CHAR(TO_DATE(A.REP_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS REP_YMD
+                    , A.HLP1_AMT
+                    , A.HLP2_AMT
+                    , (A.HLP1_AMT+A.HLP2_AMT) AS SUM_AMT
+                    , A.WORK_NO1
+                    , A.AID_STS
+                    , ASNHR.SF_GET_COMMNAME('01', 'R5', A.AID_STS) AS AID_STS_NM
+                    , A.RET_RSN
+                    , A.AID_CET
+                    , B.CET_NO
+                    , B.ENO_NM
+                    , B.JOB_NM
+                    , B.DPT_NM
+                    , TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+                    , TO_CHAR(B.RET_YMD, 'YYYY-MM-DD') AS RET_YMD
+                    , C.ENO_NO AS APPROVAL
+                 FROM ASNHR.T_AD_AIDAPP A
+           INNER JOIN VI_T_CM_PERSON2 B
+                   ON A.ENO_NO = B.ENO_NO
+            LEFT JOIN ASNHR.T_AD_DECISION C
+                   ON C.CK_TAG      = 'K'
+                  AND C.AUTHO_CD    = 'A2'
+                  AND C.ORD_NO      = A.REQ_NO
+                WHERE (A.ENO_NO     = NVL(?, A.ENO_NO)
+                   OR  (C.ENO_NO    = ?
+                  AND   A.AID_STS  != 'A'
+                        )
+                       )
+                  AND REQ_YMD BETWEEN ?
+                                  AND ?
+                  AND A.AID_STS     = NVL(?, A.AID_STS)
+             ORDER BY A.REQ_YMD DESC
+                    , A.REQ_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 입력한 결재자 정보를 조회 한다. -->
+    <sql name="AIDA010_SHR_PRINT0">
+        <description>결재자 정보 출력..(신규생선..인쇄쪽)</description>
+        <query>
+            <![CDATA[
+              SELECT
+					     MIN (DECODE (C_GRP, 1, NM)) NM1
+				       , MIN (DECODE (C_GRP, 1, APP_YN_NM)) APP_STATUS1
+				       , MIN (DECODE (C_GRP, 2, NM)) NM2
+				       , MIN (DECODE (C_GRP, 2, APP_YN_NM)) APP_STATUS2
+				       , MIN (DECODE (C_GRP, 3, NM)) NM3
+				       , MIN (DECODE (C_GRP, 3, APP_YN_NM)) APP_STATUS3
+
+				FROM
+				(
+				 	SELECT MOD (ROWNUM - 1, 3) + 1 C_GRP, CEIL (ROWNUM / 3) R_GRP, NM, APP_YN_NM
+					FROM (
+                          SELECT 
+                                CASE WHEN JOB_CD = '700' THEN '사원' || ' ' || NAM_KOR  
+                                	 WHEN JOB_CD = '890' THEN '사원' || ' ' || NAM_KOR
+                                ELSE
+                                (ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) || ' ' || NAM_KOR) END NM,
+                                DECODE(APP_YN
+                                ,'N', '검토'
+                                ,'Y', '승인'||' ('||TO_CHAR(To_Date(SubStr(ARR_TIME,1,8),'YYYYMMDD'), 'MM/DD')||')'
+                                ,'R', '부적격'||' ('||TO_CHAR(To_Date(SubStr(ARR_TIME,1,8),'YYYYMMDD'), 'MM/DD')||')' ) AS APP_YN_NM
+                                FROM ASNHR.T_AD_DECISION
+                                WHERE ORD_NO = ?
+                                  and CK_TAG='K'
+                                ORDER BY AUTHO_CD
+                         )
+                )
+				GROUP BY R_GRP
+				ORDER BY R_GRP
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 신청서를 조회 한다. 결재용 -->
+    <sql name="AIDA010_SHR_PRINT">
+        <description>경공조금 신청서 인쇄</description>
+        <query>
+            <![CDATA[
+             SELECT  A.REQ_NO , A.ENO_NO , A.OCC_CD , A.DPT_CD , A.JOB_CD , 
+			 		A.LSE_YY||'년 '||A.LSE_MM||'개월'  AS LSE_YY,
+                     B.ABA_CD , B.ABA_NM , B.ACC_NO , B.REC_NAM , A.AID_CD , A.AID_NM , A.AID_RPT,
+                     TO_CHAR(TO_DATE(A.AID_YMD, 'YYYY-MM-DD'), 'YYYY/MM/DD') AS AID_YMD,
+                     TO_CHAR(TO_DATE(A.REQ_YMD, 'YYYY-MM-DD'), 'YYYY/MM/DD') AS REQ_YMD,
+                     A.HLP1_AMT, A.HLP2_AMT, (A.HLP1_AMT+A.HLP2_AMT) AS SUM_AMT,
+                     A.WORK_NO1, A.AID_STS, A.AID_CET,
+					TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYY-MM-DD'), 'YYYY"년" MM"월"  DD"일"') AS SPL_YMD,
+                     B.CET_NO, B.ENO_NM, B.JOB_NM, B.DPT_NM,
+                     TO_CHAR(B.HIR_YMD, 'YYYY/MM/DD') AS HIR_YMD,
+                     TO_CHAR(B.RET_YMD, 'YYYY/MM/DD') AS RET_YMD,
+                     TO_CHAR(TO_DATE(A.REP_YMD, 'YYYY-MM-DD'), 'MM/DD') AS REP_YMD,
+                     C.COMM_NM
+             FROM    ASNHR.T_AD_AIDAPP A, ASNHR.VI_T_CM_PERSON2 B , ASNHR.T_CM_COMMON C
+             WHERE
+                A.REQ_NO = ?
+                AND     B.ENO_NO = A.ENO_NO
+                AND B.GUBUN = C.GUBUN
+                AND A.AID_CD = C.COMM_CD
+                AND C.CD_GBN = 'R1'
+             ORDER   BY REQ_NO DESC, REQ_YMD DESC
+            ]]>
+        </query>
+    </sql>
+	
+	
+	
+    <sql name="AIDA010_SHR_PRINT1">
+        <description>경공조금 지급현황</description>
+        <query>
+            <![CDATA[
+         SELECT  ASNHR.SF_GET_COMMNAME('01', 'R1', A.AID_CD) AID_CD,
+                 TO_CHAR(TO_DATE(A.AID_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS AID_YMD,
+                 A.AID_NM ,
+                 A.HLP1_AMT, A.HLP2_AMT, (A.HLP1_AMT+A.HLP2_AMT) AS SUM_AMT
+         FROM    ASNHR.T_AD_AIDAPP A,
+                 ASNHR.T_CM_PERSON B
+         WHERE   A.ENO_NO = ?
+            AND A.AID_STS = 'E'
+            AND B.ENO_NO = A.ENO_NO
+         ORDER BY AID_YMD DESC
+
+            ]]>
+        </query>
+    </sql>
+    <sql name="AIDA010_SHR_PRINT2">
+        <description>공조회비총납부액</description>
+        <query>
+            <![CDATA[
+
+             SELECT Sum(DHLP_AMT) AS DHLP_AMT
+				FROM ASNHR.T_CP_PAYMASTER
+				WHERE ENO_NO = ?
+				  AND OCC_CD = ( SELECT OCC_CD FROM ASNHR.T_CM_PERSON WHERE GUBUN = '01' AND ENO_NO = ? )
+
+            ]]>
+        </query>
+    </sql>
+
+    <sql name="AIDA010_SHR_PRINT4">
+        <description>공조회비결재정보</description>
+        <query>
+            <![CDATA[
+
+             SELECT A.AID_STS, B.NAM_KOR , B.APP_YN , TO_CHAR(B.UPT_YMD, 'YYYY-MM-DD') UPT_YMD , ( SELECT PERSON.ENO_NM AS ENO_NM
+              FROM (SELECT *
+                      FROM ASNHR.T_CM_DEPT
+                     WHERE DPT_LBL = '3'
+                       AND COUNT_REM NOT LIKE '999%'
+                       AND DPT_CD NOT IN ('AA', 'AV')) DEPT
+				         LEFT JOIN (SELECT PERSON.*
+				                      FROM (SELECT ENO_NO
+				                                  ,ASNHR.SF_GET_ENONAME('01',ENO_NO) AS ENO_NM
+				                                  ,DPT_CD
+				                                  ,ASNHR.SF_GET_DPTNAME('01', 'A4', DPT_CD) AS DPT_NM
+				                                  ,JOB_CD
+				                                  ,ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+				                                  ,ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD) AS JOB_SEQ
+				                                  ,DUTY_CD
+				                                  ,ASNHR.SF_GET_COMMNAME('01', 'A7', DUTY_CD) AS DUTY_NM
+				                                  ,ASNHR.SF_GET_COMMSEQ('01', 'A7', DUTY_CD) AS DUTY_SEQ
+				                                  ,TEAM_CD
+				                                  ,ASNHR.SF_GET_DPTNAME('01', 'A6', TEAM_CD) AS TEAM_NM
+				                              FROM (SELECT ENO_NO
+				                                          ,DPT_CD
+				                                          ,JOB_CD
+				                                          ,DUTY_CD
+				                                          ,TEAM_CD
+				                                      FROM ASNHR.VI_T_CM_PERSON
+				                                     UNION
+				                                    SELECT ENO_NO
+				                                          ,DPT_CD
+				                                          ,'' AS JOB_CD
+				                                          ,DUTY_CD
+				                                          ,'' AS TEAM_CD
+				                                      FROM ASNHR.T_CM_ADDJOB
+				                                     WHERE SYSDATE BETWEEN STR_YMD AND NVL(END_YMD, SYSDATE+1))) PERSON
+				                 LEFT JOIN ASNHR.T_CM_DEPT DEPT
+				                        ON DEPT.CD_GBN = 'A6'
+				                       AND DEPT.DPT_CD = PERSON.TEAM_CD
+				                     WHERE (COUNT_REM LIKE '999%' OR PERSON.TEAM_CD IS NULL)) PERSON
+				                ON PERSON.DPT_CD = DEPT.DPT_CD
+				               AND PERSON.DUTY_CD = DECODE(DEPT.GBN_CD,'1','L4','2','JS','3','SM','4','OF')
+				             WHERE ENO_NO IS NOT NULL
+				               AND COUNT_REM LIKE ( SELECT SubStr(COUNT_REM,1,6) AS COUNT_REM FROM ASNHR.T_CM_DEPT WHERE DPT_CD = (SELECT DPT_CD FROM ASNHR.VI_T_CM_PERSON2 WHERE ENO_NO = ?) AND SubStr(COUNT_REM,1,6) <> '999999') || '%'
+				) AS JANG_NM
+				 FROM  ASNHR.T_AD_AIDAPP A, ASNHR.T_AD_DECISION B , ASNHR.VI_T_CM_PERSON2 C
+				WHERE  A.ENO_NO = ?
+				    AND A.REQ_NO = ?
+				    AND A.REQ_NO = B.ORD_NO
+				    AND A.ENO_NO = B.ENO_NO
+				    AND B.CK_TAG = 'K'
+				    AND A.ENO_NO = C.ENO_NO
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다. -->
+    <sql name="AIDA010_SHR_01">
+        <description>사원 정보조회</description>
+        <query>
+            <![CDATA[
+              SELECT A.ENO_NO
+	                   , A.ENO_NM
+	                   , A.CET_NO
+	                   , A.OCC_CD
+	                   , A.DPT_CD
+	                   , A.DPT_NM
+	                   , A.JOB_CD
+	                   , A.JOB_NM
+	                   , TO_CHAR(A.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+	                   , TO_CHAR(A.RET_YMD, 'YYYY-MM-DD') AS RET_YMD
+	                   , FLOOR(MONTHS_BETWEEN(SYSDATE, A.HIRG_YMD)/12) AS LSE_YY
+	                   , FLOOR(MONTHS_BETWEEN(SYSDATE+1, A.HIRG_YMD)) - FLOOR(FLOOR(MONTHS_BETWEEN(SYSDATE, A.HIRG_YMD))/12)*12 AS LSE_MM
+	                   , TO_CHAR(SYSDATE,'YYYYMM')||LPAD(ASNHR.S_AID_REQ_NO.NEXTVAL, 4, '0')AS REQ_NO
+	                   , ABA_CD     -- 은행코드
+	                   , ACC_NO     -- 구좌번호
+	                   , REC_NAM    -- 수취인 명
+                FROM ASNHR.VI_T_CM_PERSON2 A
+               WHERE A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다.(HDPS) -->
+    <sql name="AIDA010_SHR_02">
+        <description>사원 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  ROLE_CD
+             FROM    ASNHR.T_CM_EMPLIST
+             WHERE   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 근속년수에 해당하는 지급금액을 조회 한다. -->
+    <sql name="AIDA010_SHR_03">
+        <description>지급금액 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ? AS LSE_YY
+                 , ? AS LSE_MM
+                 , MAX(DECODE(CEF_SEC, '1', AID_AMT)) AS HLP1_AMT
+                 , MAX(DECODE(CEF_SEC, '2', AID_AMT)) AS HLP2_AMT
+                 , MAX(DECODE(CEF_SEC, '1', AID_RPT)) AS AID_RPT
+              FROM (SELECT CEF_SEC
+                         , AID_CD
+                         , AID_AMT
+                         , AID_RPT
+                      FROM (SELECT CEF_SEC
+                                 , AID_CD
+                                 , NVL(AID_AMT, 0)                  AS AID_AMT
+                                 , AID_RPT
+
+                                 , LSE_YY1                          AS LSE_YY1
+                                 , DECODE(LSE_YY2, 0, 999, LSE_YY2) AS LSE_YY2
+
+                                 , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD_FROM) AS FROM_SEQ
+                                 , DECODE( ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD_TO)
+                                         , '0'
+                                         , '900'
+                                         , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD_TO)
+                                           ) AS TO_SEQ
+
+                              FROM ASNHR.T_AD_AIDTRF
+                            )
+                     WHERE AID_CD = ?
+
+                       -- 근속년수로 검색
+                       AND ?
+                   BETWEEN LSE_YY1 AND LSE_YY2
+
+                       -- 직급으로 검색
+                       AND ASNHR.SF_GET_COMMSEQ('01', 'A2', ?)
+                   BETWEEN FROM_SEQ AND TO_SEQ
+                    )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신청번호(REQ_NO)에 해당하는 신청서를 조회 한다. -->
+    <sql name="AIDA010_SHR_04">
+        <description>신청서 조회</description>
+        <query>
+            <![CDATA[
+               SELECT A.REQ_NO
+                    , A.ENO_NO
+                    , A.OCC_CD
+                    , A.DPT_CD
+                    , A.JOB_CD
+                    , A.LSE_YY
+                    , A.LSE_MM
+                    , A.ABA_CD
+                    , ASNHR.SF_GET_COMMNAME('01', 'BK', A.ABA_CD) AS ABA_NM
+                    , A.ACC_NO
+                    , A.REC_NM
+                    , A.AID_CD
+                    , ASNHR.SF_GET_COMMNAME('01', 'R1', A.AID_CD) AS AID_CD_NM
+                    , A.AID_NM
+                    , A.AID_RPT
+                    , DECODE(LENGTH(A.AID_YMD), 8, TO_CHAR(TO_DATE(A.AID_YMD, 'YYYYMMDD'), 'YYYY-MM-DD'), A.AID_YMD) AS AID_YMD
+                    , DECODE(LENGTH(A.SPL_YMD), 8, TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYYMMDD'), 'YYYY-MM-DD'), A.SPL_YMD) AS SPL_YMD
+                    , DECODE(LENGTH(A.REQ_YMD), 8, TO_CHAR(TO_DATE(A.REQ_YMD, 'YYYYMMDD'), 'YYYY-MM-DD'), A.REQ_YMD) AS REQ_YMD
+                    , TO_CHAR(TO_DATE(A.REP_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS REP_YMD      --상신일자
+                    , A.HLP1_AMT
+                    , A.HLP2_AMT
+                    , (A.HLP1_AMT+A.HLP2_AMT) AS SUM_AMT
+                    , A.WORK_NO1
+                    , A.AID_STS
+                    , ASNHR.SF_GET_COMMNAME('01', 'R5', A.AID_STS) AS AID_STS_NM
+                    , A.RET_RSN
+                    , A.AID_CET
+                    , B.CET_NO
+                    , B.ENO_NM
+                    , B.JOB_NM
+                    , B.DPT_NM
+                    , TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+                    , TO_CHAR(B.RET_YMD, 'YYYY-MM-DD') AS RET_YMD
+                    , A.FILE_KEY
+                 FROM ASNHR.T_AD_AIDAPP A
+           INNER JOIN ASNHR.VI_T_CM_PERSON2 B
+                   ON A.ENO_NO      = B.ENO_NO
+                WHERE A.REQ_NO      = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 입력한 결재자 정보를 조회 한다. -->
+    <sql name="AIDA010_SHR_05">
+        <description>입력한 결재자 정보를 조회 한다.</description>
+        <query>
+            <![CDATA[
+              SELECT ENO_NO
+                   , NAM_KOR AS ENO_NM
+                   , DPT_CD
+                   , ASNHR.SF_GET_DPTNAME('01', 'A4', DPT_CD)     AS DPT_NM
+                   , JOB_CD
+                   
+                   , CASE WHEN JOB_CD = '700' THEN '사원'
+                   		  WHEN JOB_CD = '890' THEN '사원'
+                     ELSE
+                     ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD)    END JOB_NM                   
+                   
+
+                   , APP_YN
+                   , DECODE(APP_YN
+                           ,'N', '검토중'
+                           ,'Y', '승인'  ||' ('||TO_CHAR(UPT_YMD,'MM/DD')||')'
+                           ,'R', '부적격'||' ('||TO_CHAR(UPT_YMD,'MM/DD')||')' ) AS APP_YN_NM
+                   , ARR_TIME
+                   , ORD_NO
+                   , AUTHO_CD
+                FROM ASNHR.T_AD_DECISION
+               WHERE CK_TAG='K'
+                 AND ORD_NO = ?
+            ORDER BY AUTHO_CD       -- 'A1':1차결재자 'A2':2차결재자
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 입력한 결재자 정보를 조회 한다. -->
+    <sql name="AIDA010_SHR_05_PRINT">
+        <description>결재자 정보 출력..(신규생선..인쇄쪽)</description>
+        <query>
+            <![CDATA[
+              SELECT
+					     MIN (DECODE (C_GRP, 1, NM)) NM1
+				       , MIN (DECODE (C_GRP, 1, APP_YN_NM)) APP_STATUS1
+				       , MIN (DECODE (C_GRP, 2, NM)) NM2
+				       , MIN (DECODE (C_GRP, 2, APP_YN_NM)) APP_STATUS2
+				       , MIN (DECODE (C_GRP, 3, NM)) NM3
+				       , MIN (DECODE (C_GRP, 3, APP_YN_NM)) APP_STATUS3
+
+				FROM
+				(
+				 	SELECT MOD (ROWNUM - 1, 3) + 1 C_GRP, CEIL (ROWNUM / 3) R_GRP, NM, APP_YN_NM
+					FROM (
+                          SELECT
+                                (ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) || ' ' || NAM_KOR) AS NM,
+                                DECODE(APP_YN
+                                ,'N', '검토'
+                                ,'Y', '승인'||' ('||TO_CHAR(To_Date(SubStr(ARR_TIME,1,8),'YYYYMMDD'), 'MM/DD')||')'
+                                ,'R', '부적격'||' ('||TO_CHAR(To_Date(SubStr(ARR_TIME,1,8),'YYYYMMDD'), 'MM/DD')||')' ) AS APP_YN_NM
+                                FROM ASNHR.T_AD_DECISION
+                                WHERE ORD_NO = ?
+                                  and CK_TAG='K'
+                                ORDER BY AUTHO_CD
+                         )
+                )
+				GROUP BY R_GRP
+				ORDER BY R_GRP
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 근속년수를 조회해 옴 -->
+    <sql name="AIDA010_LSE">
+        <description>근속년수를 조회해 옴</description>
+        <query>
+            <![CDATA[
+               SELECT NVL(SUBSTR(ASNHR.SF_GET_YMDCNT(?, ?),1,INSTR(ASNHR.SF_GET_YMDCNT(?, ?),'년','1','1')-1),'0') LSE_YY,
+                     NVL(REPLACE(SUBSTR(ASNHR.SF_GET_YMDCNT(?,?),INSTR(ASNHR.SF_GET_YMDCNT(?,?),'년','1','1')+1, 2),'월',''),'0') LSE_MM
+                FROM DUAL
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 신청서를 저장 한다. -->
+    <sql name="AIDA010_INS">
+        <description>경공조금 신청서 정보 저장</description>
+        <query>
+            <![CDATA[
+              INSERT
+                INTO ASNHR.T_AD_AIDAPP
+                    (REQ_NO
+                   , ENO_NO
+                   , OCC_CD
+                   , DPT_CD
+                   , JOB_CD
+                   , LSE_YY
+                   , LSE_MM
+                   , ABA_CD
+                   , ACC_NO
+                   , REC_NM
+                   , AID_CD
+                   , AID_NM
+                   , AID_YMD
+                   , AID_RPT
+                   , REQ_YMD
+                   , HLP1_AMT
+                   , HLP2_AMT
+                   , WORK_NO1
+                   , AID_STS
+                   , AID_CET
+                   , IPT_MAN
+                   , IPT_YMD
+                   , UPT_MAN
+                   , UPT_YMD
+                   , FILE_KEY)
+             VALUES (?
+                   , ?      -- ENO_NO
+                   , ?      -- OCC_CD
+                   , ?      -- DPT_CD
+                   , ?      -- JOB_CD
+                   , ?      -- 근속년수
+                   , ?      -- 근속월수
+                   , ?      -- 은행코드
+                   , ?      -- 송금계좌
+                   , ?      -- 예금주
+                   , ?      -- 지급내역
+                   , ?      -- 대상자성명
+                   , ?      -- 발생일
+                   , ?      -- 증빙서류
+                   , ?      -- 신청일자
+                   , ?      -- 공조부조금액
+                   , ?      -- 경조금액
+                   , ''     -- 관리번호
+                   , 'A'    -- 상태(A:저장)
+                   , ?      -- 대상자 주민번호
+                   , ?      -- 최초등록자
+                   , SYSDATE
+                   , ?      -- 최종수정자
+                   , SYSDATE
+                   , ?	--첨부파일키(linked tabel : T_CM_FILEUPLOAD)
+                   )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 결재 정보를 저장 한다. -->
+    <sql name="AIDA010_INS_01">
+        <description>경공조금 결재 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT
+               INTO ASNHR.T_AD_DECISION
+                  ( ORD_NO
+                  , ENO_NO
+                  , NAM_KOR
+                  , DPT_CD
+                  , JOB_CD
+                  , AUTHO_CD        -- 결재자작업권한코드
+                  , APP_YN          -- 결재여부
+                  , ARR_TIME        -- 메일도착시간
+                  , MAIL_CAP        -- 메일도착여부
+                  , PRE_ENO         -- 메일발송자
+                  , CK_TAG
+                  , IPT_MAN
+                  , IPT_YMD
+                  , UPT_MAN
+                  , UPT_YMD)
+            VALUES( ?
+                  , ?
+                  , ?
+                  , ?
+                  , ?
+                  , ?               -- 'A1':신청자 'A2':결재자
+                  , ?
+                  , ?
+                  , 'N'
+                  , ?
+                  , 'K' -- 'K':경공조금
+                  , ?
+                  , SYSDATE
+                  , ?
+                  , SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 정보를 수정 한다. -->
+    <sql name="AIDA010_UPT">
+        <description>경공조금 신청서 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_AD_AIDAPP
+             SET     ABA_CD        = ?,       -- 은행코드
+                     ACC_NO        = ?,       -- 송금계좌번호
+                     REC_NM        = ?,       -- 예금주(수취인명)
+                     AID_CD        = ?,       -- 지급내역 code
+                     AID_NM        = ?,       -- 대상자명
+                     AID_YMD       = ?,       -- 발생일자
+                     REQ_YMD       = ?,       -- 신청일자
+                     HLP1_AMT      = ?,       -- 공조부조금액
+                     HLP2_AMT      = ?,       -- 경조금액
+                     WORK_NO1      = '',      -- 관리번호
+                     SPL_YMD       = ?,       -- 지급일자
+                     AID_CET       = ?,       -- 대상자 주민번호
+                     UPT_MAN       = ?,       -- 최종 수정자
+                     UPT_YMD       = sysdate,  -- 최종 수정일자
+                     FILE_KEY       = ?       -- 첨부파일키
+             WHERE   REQ_NO        = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 정보를 수정 한다. -->
+    <sql name="AIDA010_UPT_01">
+        <description>경공조금 신청서 수정</description>
+        <query>
+            <![CDATA[
+              UPDATE ASNHR.T_AD_AIDAPP
+                 SET AID_STS        = ?
+                   , REP_YMD        = DECODE( ?
+                                            -- 상신 'S' 일 경우 신청일자를 넣어둠
+                                            , 'S', TO_CHAR(SYSDATE, 'YYYYMMDD')
+                                            -- 결재 'O' 일 경우 신청일자가 비어있으면 신청일자를 넣으둠
+                                            , 'O', NVL(REP_YMD, TO_CHAR(SYSDATE, 'YYYYMMDD'))
+                                            , REP_YMD
+                                              )
+                   , RET_RSN        = ?
+                   , UPT_MAN        = ?
+                   , UPT_YMD        = SYSDATE
+               WHERE REQ_NO         = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 정보를 수정 한다. 2명 다 결재 완료 OK-->
+    <sql name="AIDA010_UPT_OK">
+        <description>경공조금 신청서 수정</description>
+        <query>
+            <![CDATA[
+              UPDATE ASNHR.T_AD_AIDAPP
+                 SET AID_STS        = 'O'
+                   , UPT_MAN        = ?
+                   , UPT_YMD        = SYSDATE
+               WHERE REQ_NO         = ?
+            ]]>
+        </query>
+    </sql>
+    <!-- 결재정보를 수정한다. -->
+    <sql name="AIDA010_UPT_02">
+        <description>결재정보를 수정한다.</description>
+        <query>
+            <![CDATA[
+              UPDATE ASNHR.T_AD_DECISION
+                 SET APP_YN         = ?
+                   , ARR_TIME       = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') -- 결재 시간을 넣읍시다.
+                   , UPT_MAN        = ?
+                   , UPT_YMD        = SYSDATE
+               WHERE ORD_NO         = ?
+                 AND ENO_NO         = ? -- 'A1':신청자 'A2':결재자 ==> 사번변경
+                 and CK_TAG='K'
+            ]]>
+        </query>
+    </sql>
+    <!-- 결재정보를 수정한다. -->
+    <sql name="AIDA010_UPT_02_NEXT">
+        <description>결재정보를 수정한다.</description>
+        <query>
+            <![CDATA[
+              UPDATE ASNHR.T_AD_DECISION
+                 SET APP_YN         = 'N'
+                   , UPT_MAN        = ?
+                   , UPT_YMD        = SYSDATE
+               WHERE ORD_NO         = ?
+                 and CK_TAG='K'
+                 AND AUTHO_CD = (SELECT MIN(AUTHO_CD)
+                                   FROM ASNHR.T_AD_DECISION
+                                   WHERE ORD_NO = ?
+                                     AND ENO_NO <> ?
+                                     AND APP_YN <> 'Y')
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 신청서를삭제 한다. -->
+    <sql name="AIDA010_DEL">
+        <description>경공조금 신청서 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE ASNHR.T_AD_AIDAPP
+              WHERE REQ_NO  = ?
+                AND ENO_NO  = ?    -- 신청자 자기것만
+                AND AID_STS = 'A'  -- 저장상태만 삭제 가능
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 등록된 결재자를 삭제한다. -->
+    <sql name="AIDA010_DEL_01">
+        <description>등록된 결재자를 삭제한다.</description>
+        <query>
+            <![CDATA[
+             DELETE
+               FROM ASNHR.T_AD_DECISION
+              WHERE ORD_NO = ?
+                and CK_TAG='K'
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 경공조금 신청서를 조회 한다. -->
+    <sql name="AIDA010_PRC_SHR_01">
+        <description>경공조금 신청서 조회</description>
+        <query>
+            <![CDATA[
+               SELECT A.REQ_NO
+                    , A.ENO_NO
+                    , A.OCC_CD
+                    , A.DPT_CD
+                    , A.JOB_CD
+                    , A.LSE_YY
+                    , A.LSE_MM
+                    , A.ABA_CD
+                    , ASNHR.SF_GET_COMMNAME('01', 'BK', A.ABA_CD) AS ABA_NM
+                    , A.ACC_NO
+                    , A.REC_NM
+                    , A.AID_CD
+                    , ASNHR.SF_GET_COMMNAME('01', 'R1', A.AID_CD) AS AID_CD_NM
+                    , A.AID_NM
+                    , A.AID_RPT
+                    , DECODE(LENGTH(A.AID_YMD), 8, TO_CHAR(TO_DATE(A.AID_YMD, 'YYYYMMDD'), 'YYYY/MM/DD'), A.AID_YMD) AS AID_YMD
+                    , DECODE(LENGTH(A.SPL_YMD), 8, TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYYMMDD'), 'YYYY/MM/DD'), A.SPL_YMD) AS SPL_YMD
+                    , DECODE(LENGTH(A.REQ_YMD), 8, TO_CHAR(TO_DATE(A.REQ_YMD, 'YYYYMMDD'), 'YYYY/MM/DD'), A.REQ_YMD) AS REQ_YMD
+                    , TO_CHAR(TO_DATE(A.REP_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS REP_YMD      --상신일자
+                    , A.HLP1_AMT
+                    , A.HLP2_AMT
+                    , A.HLP2_AMT AS COST_AMT
+                    , A.WORK_NO1
+                    , A.AID_STS
+                    , ASNHR.SF_GET_COMMNAME('01', 'R5', A.AID_STS) AS AID_STS_NM
+                    , A.RET_RSN
+                    , A.AID_CET
+                    , B.CET_NO
+                    , B.ENO_NM AS NAM_KOR
+                    , B.JOB_NM
+                    , B.DPT_NM
+                    , TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+                    , TO_CHAR(B.RET_YMD, 'YYYY-MM-DD') AS RET_YMD
+				    , TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF4') AS FILE_NAME
+				    , (TO_CHAR(SYSDATE,'YYYYMMDD'))               AS IPT_YMD
+					,(SELECT substr(ACC_CD, 1, 1)
+					 FROM  ASNHR.T_CM_PERSON Y, ASNHR.T_CP_ACCOUNT_DEPT Z
+					 WHERE Y.ENO_NO =A.ENO_NO
+					 AND   substr(Y.TAX_DPT, 1, 4) = Z.DPT_CD) AS ACC_CD
+					,A.FILE_KEY
+                FROM ASNHR.T_AD_AIDAPP A
+          INNER JOIN ASNHR.VI_T_CM_PERSON2 B
+                  ON A.ENO_NO      = B.ENO_NO
+               WHERE A.REQ_NO      = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 정보를 수정 한다. 전표생성 OK-->
+    <sql name="AIDA010_PRC_UPT_01">
+        <description>경공조금 신청서 수정</description>
+        <query>
+            <![CDATA[
+              UPDATE ASNHR.T_AD_AIDAPP
+                 SET AID_STS        = 'D'
+                   , UPT_MAN        = ?
+                   , UPT_YMD        = SYSDATE
+               WHERE REQ_NO         = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 경공조금 지급처리 -->
+<!--
+***********************************************************************
+* @UseCase     : AIDA020
+* @description : 경공조금 지급처리
+***********************************************************************
+* 2006/12/14     채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 경공조금 지급처리 현황을 조회 한다. -->
+    <sql name="AIDA020_SHR">
+        <description>경공조금 지급처리 현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.REQ_NO
+                 , ASNHR.SF_GET_DPTNAME('01','A4',A.DPT_CD) DPT_CD
+                 , ASNHR.SF_GET_COMMNAME('01','A2',A.JOB_CD) JOB_CD
+                 , A.ENO_NO
+                 , ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM
+                 , A.AID_CD
+                 , A.AID_STS
+                 , A.HLP1_AMT
+                 , A.HLP2_AMT                  
+                 , TO_CHAR(TO_DATE(A.REQ_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS REQ_YMD
+                 , TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS SPL_YMD
+              FROM ASNHR.T_AD_AIDAPP A
+             WHERE AID_STS = NVL(?, AID_STS)
+               [1]
+          ORDER BY A.REQ_YMD DESC
+                 , ASNHR.SF_GET_DPTSEQ( '01', 'A4', A.DPT_CD)
+                 , ASNHR.SF_GET_COMMSEQ('01', 'A2', A.JOB_CD)
+                 , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+<!-- 경공조금 지급현황 -->
+<!--
+***********************************************************************
+* @UseCase     : AIDA030
+* @description : 경공조금 지급현황
+***********************************************************************
+* 2006/12/13     채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 경공조금 지급현황을 조회 한다. -->
+    <sql name="AIDA030_SHR">
+        <description>경공조금 지급현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+            	 , A.REQ_NO
+                 , A.OCC_CD
+                 , A.DPT_CD
+                 , A.JOB_CD
+                 , A.AID_CD
+                 , TO_CHAR(TO_DATE(A.AID_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS AID_YMD
+                 , ASNHR.SF_GET_ENONAME('01', A.ENO_NO)           AS ENO_NM
+                 , ASNHR.SF_GET_COMMNAME('01', 'A1', A.OCC_CD)    AS OCC_NM
+                 , ASNHR.SF_GET_DPTNAME('01', 'A4', A.DPT_CD)     AS DPT_NM
+                 , ASNHR.SF_GET_COMMNAME('01', 'A2', A.JOB_CD)    AS JOB_NM
+                 , ASNHR.SF_GET_COMMNAME('01', 'R1', A.AID_CD)    AS AID_NM
+                 , DECODE(?, '2', 0, A.HLP1_AMT)            AS HLP1_AMT
+                 , DECODE(?, '1', 0, A.HLP2_AMT)            AS HLP2_AMT
+                 , TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS SPL_YMD
+              FROM ASNHR.T_AD_AIDAPP A
+             WHERE [1]
+               AND SPL_YMD IS NOT NULL
+          ORDER BY [2]
+            ]]>
+        </query>
+    </sql>
+
+<!-- 경공조금 장부관리 -->
+<!--
+***********************************************************************
+* @UseCase     : AIDA040
+* @description : 경공조금 장부관리
+***********************************************************************
+* 2006/12/13     채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 날짜에 따른 경공조금 장부를 조회 한다. -->
+    <sql name="AIDA040_SHR">
+        <description>경공조금 장부 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_CHAR(TO_DATE(FIN_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS FIN_YMD
+                 , LPAD(FIN_SEQ, 2, 0) AS FIN_SEQ
+                 , FIN_RSN
+                 , FIN_IN
+                 , FIN_OUT
+                 , FIN_AMT
+                 , NVL(CD_GBN, DECODE(NVL(FIN_IN, 0), 0, '2', '1')) AS CD_GBN
+                 , CD_TAG
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD
+              FROM ASNHR.T_AD_AIDBOOK
+             WHERE [1]
+          ORDER BY FIN_YMD ASC
+                 , LPAD(FIN_SEQ, 2, 0) ASC
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 경공조금지급 기준관리 -->
+<!--
+***********************************************************************
+* @UseCase     : AIDA050
+* @description : 경공조금지급 기준관리
+***********************************************************************
+* 2006/12/11      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 경공조금 정보를 조회 한다. -->
+    <sql name="AIDA050_SHR">
+        <description>경공조금 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT CEF_SEC
+                 , AID_CD
+                 , ASNHR.SF_GET_COMMNAME('01', 'R1', AID_CD)      AS AID_CD_TXT
+                 , ASNHR.SF_GET_COMMNAME('01', 'R2', CEF_SEC)     AS CEF_SEC_TXT
+
+                 , JOB_CD_FROM
+                 , JOB_CD_TO
+                 , ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD_FROM) AS JOB_NM_FROM
+                 , ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD_TO)   AS JOB_NM_TO
+
+                 , LSE_YY1
+                 , LSE_YY2
+                 , AID_AMT
+                 , AID_RPT
+                 , REMARK
+              FROM ASNHR.T_AD_AIDTRF
+             WHERE CEF_SEC = NVL(?, CEF_SEC)
+          ORDER BY ASNHR.SF_GET_COMMSEQ ('01', 'R2', CEF_SEC)
+                 , ASNHR.SF_GET_COMMSEQ ('01', 'R1', AID_CD)
+                 , ASNHR.SF_GET_COMMSEQ ('01', 'A2', JOB_CD_FROM)
+                 , LSE_YY1
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 정보를 등록 한다. -->
+    <sql name="AIDA050_INS">
+        <description>경공조금 정보 조회</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_AD_AIDTRF
+                 ( CEF_SEC
+                 , AID_CD
+                 , JOB_CD_FROM
+                 , JOB_CD_TO
+                 , LSE_YY1
+                 , LSE_YY2
+                 , AID_AMT
+                 , AID_RPT
+                 , REMARK
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD )
+          VALUES ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 정보를 수정 한다. -->
+    <sql name="AIDA050_UPT">
+        <description>경공조금 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_AD_AIDTRF
+               SET AID_AMT              = ?         -- 지급금
+                 , AID_RPT              = ?         -- 증빙서류
+                 , JOB_CD_TO            = ?
+                 , LSE_YY2              = ?
+                 , REMARK               = ?         -- 비고
+                 , UPT_MAN              = ?         -- 마지막 수정자 사번
+                 , UPT_YMD              = SYSDATE   -- 마지막 수정 일자
+             WHERE CEF_SEC              = ?
+               AND AID_CD               = ?
+               AND NVL(JOB_CD_FROM, ' ')= NVL(?, ' ')
+               AND NVL(LSE_YY1, 0)      = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 경공조금 정보를 수정 한다. -->
+    <sql name="AIDA050_DEL">
+        <description>경공조금 정보 수정</description>
+        <query>
+            <![CDATA[
+            DELETE
+              FROM ASNHR.T_AD_AIDTRF
+             WHERE CEF_SEC              = ?
+               AND AID_CD               = ?
+               AND NVL(JOB_CD_FROM, ' ')= NVL(?, ' ')
+               AND NVL(LSE_YY1, 0)      = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 경공조금 -->
+<!--
+***********************************************************************
+* @UseCase     : AIDA060
+* @description : 공조회비지급기준관리
+***********************************************************************
+* 2006/11/29     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 공조회비지급기준관리 조회 -->
+    <sql name="AIDA060_SHR">
+        <description>공조회비지급기준관리 조회</description>
+        <query>
+            <![CDATA[
+            SELECT BASIC_YMD, OCC_CD, JOB_CD, JOB_NM, DHLP_AMT FROM
+            (SELECT   DECODE(NVL(A.BASIC_YMD,''),'','',SUBSTR(A.BASIC_YMD,1,4)||'-'||SUBSTR(A.BASIC_YMD,5,2)||'-'||SUBSTR(A.BASIC_YMD,7,2)) AS BASIC_YMD,
+                           A.OCC_CD AS OCC_CD,
+                           A.JOB_CD AS JOB_CD,
+                           '전체' AS JOB_NM,
+                           A.DHLP_AMT AS DHLP_AMT,
+                           1 AS SORT_NO
+            FROM     ASNHR.T_AD_HELP_BASIS A
+            WHERE    NVL(A.BASIC_YMD,' ') LIKE '%'||?||'%'
+            AND      A.JOB_CD=' '
+            UNION
+            SELECT   DECODE(NVL(A.BASIC_YMD,''),'','',SUBSTR(A.BASIC_YMD,1,4)||'-'||SUBSTR(A.BASIC_YMD,5,2)||'-'||SUBSTR(A.BASIC_YMD,7,2)) AS BASIC_YMD,
+                           A.OCC_CD AS OCC_CD,
+                           A.JOB_CD AS JOB_CD,
+                           B.COMM_NM AS JOB_NM,
+                           A.DHLP_AMT AS DHLP_AMT,
+                           B.SORT_NO AS SORT_NO
+            FROM     ASNHR.T_AD_HELP_BASIS A, T_CM_COMMON B
+            WHERE    NVL(A.BASIC_YMD,' ') LIKE '%'||?||'%'
+            AND         B.CD_GBN='A2'
+            AND         (B.END_YMD IS NULL OR B.END_YMD >= SYSDATE)
+            AND         A.JOB_CD = B.COMM_CD)
+            ORDER BY ASNHR.SF_GET_COMMSEQ('01','A2',JOB_CD), BASIC_YMD DESC, OCC_CD, SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 공조회비지급기준관리 기준일 조회 -->
+    <sql name="AIDA060_SHR_01">
+        <description>공조회비지급기준관리 기준일 조회</description>
+        <query>
+            <![CDATA[
+            SELECT MAX(BASIC_YMD) AS BASIC_YMD FROM ASNHR.T_AD_HELP_BASIS
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 공조회비지급기준관리 신규 저장. -->
+    <sql name="AIDA060_INS">
+        <description>공조회비지급기준관리 신규 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_AD_HELP_BASIS
+                 ( BASIC_YMD, OCC_CD, JOB_CD, DHLP_AMT,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 (  ?, ?, ?, ?,
+                    ?, SYSDATE,?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 공조회비지급기준관리 수정. -->
+    <sql name="AIDA060_UPT">
+        <description>공조회비지급기준관리 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_AD_HELP_BASIS
+            SET    DHLP_AMT = ?,
+                   UPT_MAN = ?,
+                   UPT_YMD = SYSDATE
+            WHERE  BASIC_YMD = ?
+            AND    OCC_CD = ?
+            AND    JOB_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 공조회비지급기준관리 삭제 -->
+    <sql name="AIDA060_DEL">
+        <description>공조회비지급기준관리 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_AD_HELP_BASIS
+            WHERE  BASIC_YMD = ?
+            AND    OCC_CD = ?
+            AND    JOB_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 불우이웃돕기 성금관리 -->
+<!--
+***********************************************************************
+* @UseCase     : AIDB010
+* @description : 불우이웃돕기 성금관리
+***********************************************************************
+* 2006/11/28      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 날짜에 따른 불우이웃돕기 성금 정보를 조회 한다. -->
+    <sql name="AIDB010_SHR">
+        <description>불우이웃돕기 성금정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_CHAR(TO_DATE(DON_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS DON_YMD
+                 , LPAD(DON_SEQ, 2, 0) AS DON_SEQ
+                 , DON_RSN
+                 , DON_IN
+                 , DON_OUT
+                 , DON_AMT
+                 , NVL(CD_GBN, DECODE(NVL(DON_IN, 0), 0, '2', '1')) AS CD_GBN
+                 , CD_TAG
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD
+              FROM ASNHR.T_AD_DONBOOK
+             WHERE [1]
+          ORDER BY DON_YMD ASC
+                 , LPAD(DON_SEQ, 2, 0) ASC
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : AIDA030_RPT
+* @description : 경공조금 지급현황
+***********************************************************************
+* 2007/03/14     방석호       최초작성
+***********************************************************************
+-->
+    <!-- 경공조금 지급현황을 조회 한다. -->
+    <sql name="AIDA030_RPT">
+        <description>경공조금 지급현황 조회</description>
+        <query>
+            <![CDATA[
+                  SELECT ASNHR.SF_GET_ENONAME('01', A.ENO_NO) AS ENO_NM,
+						ASNHR.SF_GET_COMMNAME('01', 'A1', A.OCC_CD) AS OCC_NM   ,
+	 					ASNHR.SF_GET_DPTNAME('01','A4',A.DPT_CD) AS DPT_NM  ,
+	 		 		   ASNHR.SF_GET_COMMNAME('01', 'A2', A.JOB_CD) AS JOB_NM   ,
+					   ASNHR.SF_GET_COMMNAME('01', 'R1', A.AID_CD) AS AID_NM   ,
+                     A.HLP1_AMT, A.HLP2_AMT,
+                     TO_CHAR(TO_DATE(A.SPL_YMD, 'YYYYMMDD'),'YYYY-MM-DD') AS SPL_YMD
+             FROM    ASNHR.T_AD_AIDAPP A
+             WHERE  [1]
+             AND     SPL_YMD IS NOT NULL
+             ORDER   BY SPL_YMD ASC
+            ]]>
+        </query>
+    </sql>
+</sqls>

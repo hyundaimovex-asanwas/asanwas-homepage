@@ -1,0 +1,37 @@
+## 공통 스크립트 사용 방법 ###
+
+해당 commom.js 는 자동으로 include 합니다. 소스에서 선언할필요 없음
+
+체크할 객체에 값들을 세팅해 놓고 zcCheckForm( form객체 ) 를 호출해서 체크합니다
+
+필수항목 : notnull
+len : 최대 길이
+msgTitle : 해당 객체 이름
+correctLen : 길이 fix( 항상 설정한 값의 길이어야 함)
+number : 숫자( 0~9 ) 인지 체크
+money : 금액 체크
+email : emial 체크
+date : 날짜 체크 (20051010 , 2005-10-10 의 형태) 인지 체크
+
+
+<form name="frm01">
+<input name="title" type="text"  notnull len="200" msgTitle="제목"> 
+<input name="date" type="text" value="20051010" notnull correctLen="8" msgTitle="시작일" format="date" > 
+</form> 
+
+
+저장시 저장 스크립트에 zcCheckForm() 으로 체크합
+
+
+// 저장
+function <portletAPI:encodeNamespace value="goSave"/>() {
+    
+    if(!zcCheckForm(frm01)){
+		return;
+	}
+		
+}
+
+그밖에 유용한 스크립트 함수가 있습니다. 필요한것들이 있으면 사용하시고 
+공통으로 필요한것들은 버젼관리 해주시고 추가해서 올려주세요..!!
+

@@ -1,0 +1,159 @@
+<html>
+
+<head>
+<title>力格绝澜</title>
+<meta name="generator" content="Namo WebEditor v4.0(Beta)">
+
+<script language="JavaScript">
+<!--
+function namosw_init_slide_layers()
+{
+  var layer;
+  var i;
+  var args = namosw_init_slide_layers.arguments;
+
+  for (i = 0; i < args.length; i += 2) {
+      if (navigator.appName == 'Netscape') {
+	layer = document.layers[args[i]];
+        if (args[i+1] == 1)
+          layer.left = -layer.clip.width  + 5;
+        else if (args[i+1] == 2)
+          layer.top  = -layer.clip.height + 5;
+	layer._sl_dir    = (layer.top < 0) ? 'v' : ((layer.left < 0) ? 'h' : '');
+        if (layer._sl_dir == '') return;
+	layer._sl_maxpos = 0
+	layer._sl_minpos = (layer.top < 0) ? layer.top : layer.left;
+        if (layer.document.namoswmenucontainer)
+          layer = layer.document.namoswmenucontainer;
+	if (layer.captureEvents)
+	  layer.captureEvents(Event.MOUSEOVER|Event.MOUSEOUT);
+      } else {
+	layer = document.all[args[i]];
+        if (args[i+1] == 1)
+          layer.style.pixelLeft = -layer.style.pixelWidth  + 5;
+        else if (args[i+1] == 2)
+          layer.style.pixelTop  = -layer.style.pixelHeight + 5;
+	layer._sl_dir    = (layer.style.pixelTop < 0) ? 'v' : ((layer.style.pixelLeft < 0) ? 'h' : '');
+        if (layer._sl_dir == '') return;
+	layer._sl_maxpos = 0;
+	layer._sl_minpos = (layer.style.pixelTop < 0) ? layer.style.pixelTop : layer.style.pixelLeft;
+      }
+      layer.onmouseover  = namosw_sl_mouseover;
+      layer.onmouseout   = namosw_sl_mouseout;
+  }
+}
+
+function namosw_sl_mouseover() 
+{
+  var layer = this;
+  var name  = (navigator.appName == 'Netscape') ? layer.name : layer.id;
+  if (name == 'namoswmenucontainer') {
+    if (navigator.appName == 'Netscape') {		// redundant check
+      layer = layer.parentLayer;
+      name  = layer.name;
+    }
+  }
+  if (layer._down_interval)
+    clearInterval(layer._down_interval)
+  layer._up_interval = setInterval("namosw_sl_mouseover2('" + name + "')", 50)
+}
+
+function namosw_sl_mouseout() 
+{
+  var layer = this;
+  var name  = (navigator.appName == 'Netscape') ? layer.name : layer.id;
+  if (name == 'namoswmenucontainer') {
+    if (navigator.appName == 'Netscape') {		// redundant check
+      layer = layer.parentLayer;
+      name  = layer.name;
+    }
+  }
+  if (layer._up_interval)
+    clearInterval(layer._up_interval)
+  layer._down_interval = setInterval("namosw_sl_mouseout2('" + name + "')", 50)
+}
+
+function namosw_sl_mouseover2(name) 
+{
+  var layer;
+  if (navigator.appName == 'Netscape') {
+    layer = document.layers[name];
+    if (layer._sl_dir == 'h' && layer.left < layer._sl_maxpos)
+      layer.left += 5;
+    else if (layer._sl_dir == 'v' && layer.top < layer._sl_maxpos)
+      layer.top += 5;
+    else if (layer._up_interval)
+      clearInterval(layer._up_interval);
+  } else {
+    layer = document.all[name];
+    if (layer._sl_dir == 'h' && layer.style.pixelLeft < layer._sl_maxpos)
+      layer.style.pixelLeft += 5
+    else if (layer._sl_dir == 'v' && layer.style.pixelTop < layer._sl_maxpos)
+      layer.style.pixelTop += 5;
+    else if (layer._up_interval)
+      clearInterval(layer._up_interval);
+  }
+}
+
+function namosw_sl_mouseout2(name) 
+{
+  var layer;
+  if (navigator.appName == 'Netscape') {
+    layer = document.layers[name];
+    if (layer._sl_dir == 'h' && layer._sl_minpos < layer.left)
+      layer.left -= 5;
+    else if (layer._sl_dir == 'v' && layer._sl_minpos < layer.top)
+      layer.top  -= 5;  
+    else if (layer._down_interval)
+      clearInterval(layer._down_interval);
+  } else { 
+    layer = document.all[name];
+    if (layer._sl_dir == 'h' && layer._sl_minpos < layer.style.pixelLeft)
+      layer.style.pixelLeft -= 5;
+    else if (layer._sl_dir == 'v' && layer._sl_minpos < layer.style.pixelTop)
+      layer.style.pixelTop -= 5;
+    else if (layer._down_interval)
+      clearInterval(layer._down_interval);
+  }
+}
+
+//-->
+</script>
+
+</head>
+
+<body OnLoad="namosw_init_slide_layers('layer1', 2);">
+<p>
+<div id="layer1" style="background-color:navy; border-width:1px; border-style:none; width:800px; height:30px; position:absolute; left:26px; top:14px; z-index:1; layer-background-color:navy; ">
+    <table style="border-collapse:collapse;" cellspacing="0">
+        <tr>
+            <td width="100">
+                <p><a href="http://www.javascript.co.kr" target="_top"><font size="2" color="white">权其捞瘤</font></a></p>
+            </td>
+            <td width="100">
+                <p><a href="http://www.javascript.co.kr" target="_top"><font size="2" color="white">权其捞瘤</font></a></p>
+            </td>
+            <td width="100">
+                <p><a href="http://www.javascript.co.kr" target="_top"><font size="2" color="white">权其捞瘤</font></a></p>
+            </td>
+            <td width="100">
+                <p><a href="http://www.javascript.co.kr" target="_top"><font size="2" color="white">权其捞瘤</font></a></p>
+            </td>
+            <td width="100">
+                <p><a href="http://www.javascript.co.kr" target="_top"><font size="2" color="white">权其捞瘤</font></a></p>
+            </td>
+            <td width="100">
+                <p><a href="http://www.javascript.co.kr" target="_top"><font size="2" color="white">权其捞瘤</font></a></p>
+            </td>
+            <td width="100">
+                <p><a href="http://www.javascript.co.kr" target="_top"><font size="2" color="white">权其捞瘤</font></a></p>
+            </td>
+            <td width="100">
+                <p><a href="http://www.javascript.co.kr" target="_top"><font size="2" color="white">权其捞瘤</font></a></p>
+            </td>
+        </tr>
+    </table>
+</div>
+</p>
+</body>
+</html>

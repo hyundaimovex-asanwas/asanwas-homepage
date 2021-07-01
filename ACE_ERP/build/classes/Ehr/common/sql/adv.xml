@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 사내공모 -->
+<!--
+***********************************************************************
+* @UseCase     : ADVA010
+* @description : 사내공모내용 입력
+***********************************************************************
+* 2006/12/27      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 사내공모 정보를 조회 한다. -->
+    <sql name="ADVA010_SHR">
+        <description>사내공모 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  A.ORD_NO, A.DPT_CD, A.FROM_JOB_CD,  A.TO_JOB_CD,
+                     CASE WHEN A.FROM_JOB_CD IS NOT NULL AND A.TO_JOB_CD IS NOT NULL
+                          THEN SF_GET_COMMNAME('01', 'A2', A.FROM_JOB_CD) ||' ~ '|| SF_GET_COMMNAME('01', 'A2', A.TO_JOB_CD)
+                          WHEN A.FROM_JOB_CD IS NOT NULL AND A.TO_JOB_CD IS NULL
+                          THEN SF_GET_COMMNAME('01', 'A2', A.FROM_JOB_CD)
+                          WHEN A.FROM_JOB_CD IS NULL AND A.TO_JOB_CD IS NOT NULL
+                          THEN SF_GET_COMMNAME('01', 'A2', A.TO_JOB_CD)
+                          WHEN A.FROM_JOB_CD IS NULL AND A.TO_JOB_CD IS NULL
+                          THEN '전체'
+                          END AS JOB_NM,
+                     A.REMARK       ,
+                     A.FIELD_DIS    ,
+                     A.JOB_DIS      ,
+                     A.CONDITION_DIS,
+                     A.AREA_DIS     ,
+                     TO_CHAR(TO_DATE(A.STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS STR_YMD,
+                     TO_CHAR(TO_DATE(A.END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS END_YMD,
+                     SF_GET_DPTNAME('01', 'A4', A.DPT_CD) AS DPT_NM,
+                     CASE WHEN (A.END_YMD < ?) THEN 'F'
+                          ELSE 'T'
+                     END AS END_YN,
+					 NVL(B.ADV_CNT,0) AS ADV_CNT
+             FROM    T_EV_ADVTBOOK A,
+			         ( SELECT ORD_NO, DPT_CD, COUNT(ADV_ENO_NO) AS ADV_CNT
+					   FROM   T_EV_ADVTLIST
+					   GROUP  BY ORD_NO, DPT_CD
+					  ) B
+             WHERE   A.ORD_NO = B.ORD_NO(+)
+             AND     A.DPT_CD = B.DPT_CD(+)
+                     [1]
+             ORDER   BY A.STR_YMD ASC, A.END_YMD ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사내공모 정보를 저장 한다. -->
+    <sql name="ADVA010_INS">
+        <description>사내공모 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO T_EV_ADVTBOOK
+                     ( ORD_NO,
+                       DPT_CD, STR_YMD, END_YMD, FROM_JOB_CD, TO_JOB_CD,
+                       REMARK,
+                       FIELD_DIS,
+                       JOB_DIS,
+                       CONDITION_DIS,
+                       AREA_DIS,
+                       IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                      )
+             VALUES  (
+                      ( ? || TRIM(  TO_CHAR  (   ( SELECT  DECODE(  MAX(  SUBSTR(B.ORD_NO,7,9) ) , NULL, '001', MAX(  SUBSTR(B.ORD_NO,7,9)+1 ))
+                                                   FROM    T_EV_ADVTBOOK B
+                                                   WHERE   SUBSTR (B.ORD_NO,0,6) = ?
+					                              ), '000'
+					                          )
+                                  )
+                       ),
+                            ?,       ?,       ?,       ?,      ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?, sysdate,       ?, sysdate
+                      )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사내공모 정보를 수정 한다. -->
+    <sql name="ADVA010_UPT">
+        <description>사내공모 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_EV_ADVTBOOK
+             SET     STR_YMD       = ?,        -- 접수시작일
+                     END_YMD       = ?,        -- 접수종료일
+                     FROM_JOB_CD   = ?,        -- 대상직위
+                     TO_JOB_CD   = ?,        -- 대상직위
+                     REMARK        = ?,        -- 자격요건
+                     FIELD_DIS     = ?,        -- 모집분야
+                     JOB_DIS       = ?,        -- 주요업무
+                     CONDITION_DIS = ?,        -- 우대자격
+                     AREA_DIS      = ?,        -- 근무지
+                     UPT_MAN       = ?,        -- 최종 수정자
+                     UPT_YMD       = sysdate   -- 최종 수정일
+             WHERE   ORD_NO        = ?         -- 관리번호
+             AND     DPT_CD        = ?         -- 공모부서
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사내공모 정보를 삭제 한다. -->
+    <sql name="ADVA010_DEL">
+        <description>사내공모 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  T_EV_ADVTBOOK
+             WHERE   ORD_NO   = ?
+             AND     DPT_CD   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사내공모 신청자 정보를 삭제 한다. -->
+    <sql name="ADVA010_DEL_01">
+        <description>사내공모 신청자 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  T_EV_ADVTLIST
+             WHERE   ORD_NO   = ?
+             AND     DPT_CD   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : ADVA020
+* @description : 사내공모신청
+***********************************************************************
+* 2006/12/27      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 사내공모 정보를 조회 한다. -->
+    <sql name="ADVA020_SHR">
+        <description>사내공모 조회</description>
+        <query>
+            <![CDATA[
+              SELECT C.*
+                FROM (SELECT A.ORD_NO
+                            ,A.DPT_CD
+                            ,A.FROM_JOB_CD
+                            ,A.TO_JOB_CD
+                            ,A.REMARK
+                            ,A.FIELD_DIS
+                            ,A.JOB_DIS
+                            ,A.CONDITION_DIS
+                            ,A.AREA_DIS
+                       ,CASE WHEN A.FROM_JOB_CD IS NOT NULL AND A.TO_JOB_CD IS NOT NULL
+                             THEN SF_GET_COMMNAME('01', 'A2', A.FROM_JOB_CD) ||' ~ '|| SF_GET_COMMNAME('01', 'A2', A.TO_JOB_CD)
+                             WHEN A.FROM_JOB_CD IS NOT NULL AND A.TO_JOB_CD IS NULL
+                             THEN SF_GET_COMMNAME('01', 'A2', A.FROM_JOB_CD)
+                             WHEN A.FROM_JOB_CD IS NULL AND A.TO_JOB_CD IS NOT NULL
+                             THEN SF_GET_COMMNAME('01', 'A2', A.TO_JOB_CD)
+                             WHEN A.FROM_JOB_CD IS NULL AND A.TO_JOB_CD IS NULL
+                             THEN '전체'
+                             END AS JOB_NM
+                            ,SF_GET_DPTNAME('01', 'A4', A.DPT_CD)                  AS DPT_NM
+                            ,TO_CHAR(TO_DATE(A.STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS STR_YMD
+                            ,TO_CHAR(TO_DATE(A.END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS END_YMD
+        					,B.ADV_REMARK
+        					,CASE
+        					 WHEN NVL2(B.ADV_ENO_NO, 'Y', 'N') = 'Y'
+        					 THEN '001'
+        					 WHEN A.STR_YMD >  TO_CHAR(SYSDATE, 'YYYYMMDD')
+        					 THEN '003'
+                        	 WHEN A.END_YMD >= TO_CHAR(SYSDATE, 'YYYYMMDD')
+        					 THEN '002'
+                             ELSE '111'
+                              END AS ADV_STATUS
+                        FROM T_EV_ADVTBOOK A
+                   LEFT JOIN (SELECT *
+                                FROM T_EV_ADVTLIST
+                               WHERE ADV_ENO_NO = ?
+                              ) B
+                          ON A.ORD_NO = B.ORD_NO
+                         AND A.DPT_CD = B.DPT_CD) C
+               WHERE C.DPT_CD   LIKE '%'||?||'%'
+                 AND ADV_STATUS LIKE '%'||?||'%'
+            ORDER BY C.STR_YMD ASC
+                    ,C.END_YMD ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사내공모 신청 내역 조회 -->
+    <sql name="ADVA020_SHR_INFO">
+        <description>사내공모 신청 내역 조회</description>
+        <query>
+            <![CDATA[
+SELECT AA.ADV_ENO_NO
+      ,BB.ENO_NM AS ADV_ENO_NM
+      ,BB.OCC_CD AS ADV_OCC_CD
+      ,BB.OCC_NM AS ADV_OCC_NM
+      ,BB.DPT_CD AS ADV_DPT_CD
+      ,BB.DPT_NM AS ADV_DPT_NM
+      ,BB.JOB_CD AS ADV_JOB_CD
+      ,BB.JOB_NM AS ADV_JOB_NM
+      ,AA.ORD_NO
+      ,AA.DPT_CD
+      ,AA.FROM_JOB_CD
+      ,AA.DPT_NM
+      ,AA.JOB_NM
+      ,AA.JOB_NM2
+      ,AA.STR_YMD
+      ,AA.END_YMD
+      ,AA.REMARK
+      ,AA.FIELD_DIS
+      ,AA.JOB_DIS
+      ,AA.CONDITION_DIS
+      ,AA.AREA_DIS
+      ,AA.ADV_REMARK
+      ,AA.ADV_PR
+      ,AA.ADV_NOTICE
+      ,AA.ADV_ETC
+      ,AA.ADV_CNT
+      ,AA.FLAG
+FROM   (
+              SELECT ? AS ADV_ENO_NO
+                    ,A.ORD_NO
+                    ,A.DPT_CD
+                    ,A.FROM_JOB_CD
+                    ,SF_GET_DPTNAME('01', 'A4', A.DPT_CD)                  AS DPT_NM
+                    ,SF_GET_COMMNAME('01', 'A2', A.FROM_JOB_CD)                  AS JOB_NM
+                    ,SF_GET_COMMNAME('01', 'A2', A.TO_JOB_CD)                  AS JOB_NM2
+                    ,TO_CHAR(TO_DATE(A.STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS STR_YMD
+                    ,TO_CHAR(TO_DATE(A.END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS END_YMD
+                    ,A.REMARK
+                    ,A.FIELD_DIS
+                    ,A.JOB_DIS
+                    ,A.CONDITION_DIS
+                    ,A.AREA_DIS
+                    ,B.ADV_REMARK
+                    ,B.ADV_PR
+                    ,B.ADV_NOTICE
+                    ,B.ADV_ETC
+                    ,NVL((SELECT COUNT(*)
+                            FROM T_EV_ADVTLIST
+                           WHERE ORD_NO = A.ORD_NO)
+                        ,0) AS ADV_CNT
+                    ,NVL2(B.ADV_ENO_NO, 'N', 'Y') AS FLAG
+                FROM T_EV_ADVTBOOK A
+           LEFT JOIN T_EV_ADVTLIST B
+                  ON A.ORD_NO       = B.ORD_NO
+                 AND B.ADV_ENO_NO   = ?
+               WHERE A.ORD_NO       = ?
+       ) AA,
+       VI_T_CM_PERSON2 BB
+WHERE AA.ADV_ENO_NO = BB.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사내공모 신청서 정보를 저장 한다. -->
+    <sql name="ADVA020_INS">
+        <description>사내공모 신청서 저장</description>
+        <query>
+            <![CDATA[
+             INSERT
+               INTO T_EV_ADVTLIST
+                    (ORD_NO
+                    ,DPT_CD
+                    ,ADV_ENO_NO
+                    ,ADV_OCC_CD
+                    ,ADV_DPT_CD
+                    ,ADV_JOB_CD
+                    ,ADV_REMARK
+                    ,ADV_PR
+                    ,ADV_NOTICE
+                    ,ADV_ETC
+                    ,IPT_MAN
+                    ,IPT_YMD
+                    ,UPT_MAN
+                    ,UPT_YMD)
+             VALUES (?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,sysdate
+                    ,?
+                    ,sysdate)
+
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사내공모 신청서를 수정 한다. -->
+    <sql name="ADVA020_UPT">
+        <description>사내공모 신청서 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_EV_ADVTLIST
+                SET  ADV_REMARK    = ?         -- 본인자격
+                    ,ADV_PR        = ?
+                    ,ADV_NOTICE    = ?
+                    ,ADV_ETC       = ?
+                    ,UPT_MAN       = ?         -- 최종 수정자
+                    ,UPT_YMD       = sysdate   -- 최종 수정일
+               WHERE ORD_NO        = ?         -- 관리번호
+                 AND DPT_CD        = ?         -- 공모부서
+                 AND ADV_ENO_NO    = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사내공모 신청서를 삭제 한다. -->
+    <sql name="ADVA020_DEL">
+        <description>사내공모 신청서 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  T_EV_ADVTLIST
+             WHERE   ORD_NO     = ?
+             AND     DPT_CD     = ?
+             AND     ADV_ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : ADVA030
+* @description : 사내 공모신청자 목록
+***********************************************************************
+* 2006/12/27      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 사내 공모 신청자 목록을 조회 한다. -->
+    <sql name="ADVA030_SHR">
+        <description>사내 공모 신청자 목록 조회</description>
+        <query>
+            <![CDATA[
+              SELECT A.ORD_NO
+                    ,A.DPT_CD
+                    ,A.FROM_JOB_CD
+                    ,A.REMARK
+                    ,SF_GET_DPTNAME('01', 'A4', A.DPT_CD)                  AS DPT_NM
+                    ,CASE WHEN A.FROM_JOB_CD IS NOT NULL AND A.TO_JOB_CD IS NOT NULL
+                             THEN SF_GET_COMMNAME('01', 'A2', A.FROM_JOB_CD) ||'~'|| SF_GET_COMMNAME('01', 'A2', A.TO_JOB_CD)
+                             WHEN A.FROM_JOB_CD IS NOT NULL AND A.TO_JOB_CD IS NULL
+                             THEN SF_GET_COMMNAME('01', 'A2', A.FROM_JOB_CD)
+                             WHEN A.FROM_JOB_CD IS NULL AND A.TO_JOB_CD IS NULL
+                             THEN '전체'
+                             END AS JOB_NM
+                    ,TO_CHAR(TO_DATE(A.STR_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS STR_YMD
+                    ,TO_CHAR(TO_DATE(A.END_YMD, 'YYYYMMDD'), 'YYYY-MM-DD')  AS END_YMD
+             	    ,B.ADV_ENO_NO
+             	    ,B.ADV_REMARK
+             	    ,A.FIELD_DIS
+                    ,C.ENO_NM                           AS ADV_ENO_NM
+                    ,C.DPT_NM                           AS ADV_DPT_NM
+                    ,C.JOB_NM                           AS ADV_JOB_NM
+                    ,TO_CHAR(C.BIR_YMD, 'YYYY-MM-DD')   AS ADV_BIR_YMD
+                    ,C.MAJ_NM                           AS ADV_MAJ_NM
+                    ,TO_CHAR(C.HIRG_YMD, 'YYYY-MM-DD')  AS ADV_HIRG_YMD
+                    ,C.RADR_CT||C.RADR                  AS ADV_ADR
+                    ,TO_CHAR(C.DPA_YMD, 'YYYY-MM-DD')   AS ADV_DPA_YMD
+                    ,EM_PHN_NO                          AS EM_PHN_NO
+                FROM T_EV_ADVTBOOK A
+          INNER JOIN T_EV_ADVTLIST B
+                  ON A.ORD_NO = B.ORD_NO
+                 AND A.DPT_CD = B.DPT_CD
+          INNER JOIN VI_T_CM_PERSON2 C
+                  ON B.ADV_ENO_NO = C.ENO_NO
+               WHERE A.ORD_NO   LIKE '%'||?||'%'
+                 AND A.DPT_CD   LIKE '%'||?||'%'
+                 AND ((STR_YMD BETWEEN ? AND ?) OR
+                      (END_YMD BETWEEN ? AND ?))
+            ORDER BY A.STR_YMD
+                    ,A.END_YMD
+                    ,ORD_NO
+                    ,C.DPT_CD
+                    ,C.JOB_CD
+                    ,C.HIR_YMD
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : ADVA040
+* @description : 개인별신청현황
+***********************************************************************
+* 2007/02/06      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 개인별 신청현황을 조회한다. -->
+    <sql name="ADVA040_SHR">
+        <description>개인별 신청현황 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  ADV_ENO_NO
+                    ,B.ENO_NM AS ADV_ENO_NM
+                    ,B.JOB_NM AS ADV_JOB_NM
+                    ,B.DPT_NM AS ADV_DPT_NM
+                    ,ORD_NO
+                    ,TO_CHAR(A.IPT_YMD,'YYYY-MM-DD') IPT_YMD
+                    ,SF_GET_DPTNAME('01', 'A4', A.DPT_CD) AS DPT_NM
+             FROM    T_EV_ADVTLIST A,
+                     VI_T_CM_PERSON2 B
+             WHERE   A.ADV_ENO_NO = B.ENO_NO
+             [1]
+             ORDER BY B.HEAD_SEQ, B.DPT_SEQ, B.JOB_SEQ, B.HOB_SEQ DESC, A.IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

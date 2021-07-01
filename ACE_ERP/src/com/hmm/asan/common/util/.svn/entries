@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="64"
+   name=""
+   committed-date="2006-06-15T02:32:55.741571Z"
+   url="svn://211.47.231.51/hasan/source/WEB-INF/src/com/hmm/asan/common/util"
+   last-author="hslim"
+   kind="dir"
+   uuid="2c352820-1a14-0410-9b18-c84ece13c5c9"
+   revision="123"/>
+<entry
+   committed-rev="64"
+   name="Utility.java"
+   text-time="2006-06-25T13:39:43.640625Z"
+   committed-date="2006-06-15T02:32:55.741571Z"
+   checksum="c5545bbf8fdac178396a19473269c3e5"
+   last-author="hslim"
+   kind="file"
+   prop-time="2006-06-25T13:39:43.625000Z"/>
+<entry
+   committed-rev="64"
+   name="PagingHelper.java"
+   text-time="2006-06-25T13:39:43.656250Z"
+   committed-date="2006-06-15T02:32:55.741571Z"
+   checksum="85076550273a09686d03af713ebfafac"
+   last-author="hslim"
+   kind="file"
+   prop-time="2006-06-25T13:39:43.625000Z"/>
+</wc-entries>

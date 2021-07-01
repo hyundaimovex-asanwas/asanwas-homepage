@@ -1,0 +1,13 @@
+Seq:int(7),Url:String(50),Text:String(50),Lev:int(2),Flag:String(2),HasManual:int(2),VersionAN:String(50),VersionAA:String(50),VersionAM:String(50),VersionUM:String(50),SubCount:int(3)
+1100000,./Basic/Grid,현대아산,1,L1,0,,,,,199
+1101000,./Basic/Grid/현대아산,사업운영,2,L1,0,,,,,
+1101010,./Basic/Grid/현대아산,계약홍보,3,L1,1,1.1.0.121,,,,
+1101020,./Basic/Grid/현대아산,대외사업,3,L1,1,1.0.7.2,,,,
+1102000,./Basic/Grid/관광영업,관광영업,2,L1,0,,,,,
+1103000,./Basic/Grid/기획투자,기획투자,2,L1,0,,,,,
+1104000,./Basic/Grid/기획(해외),기획(해외),2,L1,0,,,,,
+1105000,./Basic/Grid/총무부,총무부,2,L1,0,,,,,
+1105010,./Basic/Grid/총무부,경리,3,L1,1,1.1.0.62,,,,
+1105020,./Basic/Grid/총무부,운전,3,L1,1,1.0.11.7,,,,
+1106000,./Basic/Grid/기술지원,기술지원,2,L1,0,,,,,
+1107000,./Basic/Grid/개성사업단,개성사업단,2,L1,0,,,,,

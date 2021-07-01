@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Google Maps JavaScript API V3 - 모바일 디바이스에서 내 위치를
+       나타내기(지오로케이션)</title>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+<link   href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css"   rel="stylesheet" type="text/css" />
+<script  src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true"></script>
+ <script type="text/javascript"      src="http://code.google.com/apis/gears/gears_init.js"></script>
+  <script type="text/javascript">
+        function $(id) {
+             return document.getElementById(id);
+       }
+        var contentArray = [];
+        var iConArray = [];
+        var markers = [];
+        var trackerId = 0;
+        var geocoder;
+        var theUser = {};
+        var map = {};
+        var iterator = 0;
+        var poly;
+
+        contentArray[0] ='<strong>1번<strong><br/><a href="http://cafe.naver.com/jjdev" target=_blank>전북개발자</a>';
+        contentArray[1] ='2번';
+        contentArray[2] ='3번';
+        iConArray[0] = "http://google-maps-icons.googlecode.com/files/walking-tour.png";
+        iConArray[1] = "http://google-maps-icons.googlecode.com/files/walking-tour.png";
+        iConArray[2] = "http://google-maps-icons.googlecode.com/files/walking-tour.png";
+
+        var markerArray = [new google.maps.LatLng(37.5145738, 126.8932183)
+        , new google.maps.LatLng(37.517989, 126.894808)
+        , new google.maps.LatLng(37.51551, 126.907796)];
+
+   
+    
+       function initialize() {
+             //--(coupony-001)모바일 디바이스에서 자신의 위치찾기 기능 정의(아래와 같은 geo정의 안할 시 (google.maps.LatLng(pos.coords.latitude,pos.coords.longitude); 입력해도 현재위치 표시 안됨) --
+
+             geocoder = new google.maps.Geocoder();
+             if (navigator.geolocation) {
+             var gps = navigator.geolocation;
+             gps.getCurrentPosition(function(pos) {              
+                      //getCurrentPosition 이란 것은 위치추적을 1회에 한해 하는 명령어로 알고 있습니다. 지속적 위치추적 명령어=watchPosition
+                             //--(coupony-001)모바일 디바이스에서 자신의 위치찾기 기능 정의--//
+                      //--주석(1)var latLng = new google.maps.LatLng(37.4419, -122.1419); //왼쪽과 같이 위도숫자, 경도숫자입력시 해당 위치 지도에 표시 됨
+                //--주석(2)var latLng = new google.maps.LatLng(pos.coords.latitude,pos.coords.longitude); //왼쪽과 같이 입력시 모바일 디바이스에 내장된 GPS/셀타워/와이파이 등을 근거로 자신의 위치를 지도에 표시 함
+
+                           /*주석(3)*/
+ 
+ 
+                           var latLng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+                           var opts = {
+                                 zoom : 15,                                                  //지도 표시 배율 설정
+                          center : latLng,                                     //지도가 표시될 중심을 현재위치(latLng)로 정렬하는 설정 같다고 추측-_-;;
+                                 navigationControl : false,                           //지도 상하좌우 이동 기능 컨트롤 창 보이기 설정 - true는 켜기 false는 끄기입니다.
+                                 mapTypeControl : false,                        //일반지도/위성지도 타입 선택하기능 컨트롤 창 보이기 설정 - true는 켜기 false는 끄기입니다.
+                       scaleControl : true,                                 //지도 좌측 하단에 거리비율 표시선이 나타납니다 - true는 켜기 false는 끄기입니다.
+                                 mapTypeId : google.maps.MapTypeId.ROADMAP
+                           };
+                           map = new google.maps.Map($("map_canvas"), opts);
+                           //선색깔 설정
+                           var polyOptions = {
+                               strokeColor: '#000000',
+                               strokeOpacity: 0.5,
+                               strokeWeight: 3
+                           };
+                           poly = new google.maps.Polyline(polyOptions);
+                           poly.setMap(map);
+                           
+                           viewMarker();
+                           showLocation(pos);
+
+                           trackerId = gps.watchPosition(function(pos) { //watchPosition 이란 것은 위치추적을 지속적으로 유지하는 명령어로 알고 있습니다. 1회 한정 위치추적 명령어=getCurrentPosition
+
+                           var latLng = new google.maps.LatLng(pos.coords.latitude,
+                           pos.coords.longitude);                         //주석(1), 주석(2)에서 설명 되어 있습니다.
+                           map.setCenter(latLng);
+                           theUser.setPosition(latLng);
+                           showLocation(pos);
+                           });
+                    });
+             }
+       }
+
+       function viewMarker() {
+           for (var i = 0; i < markerArray.length; i++) {
+            setTimeout(function() {
+                   addMarker();
+               }, i * 300);
+           }
+       }
+
+
+       function addMarker() {
+       var path = poly.getPath();
+       var infowindow = new google.maps.InfoWindow({
+            content : contentArray[iterator]
+                    });
+ 
+             var marker = new google.maps.Marker({                //마커 표시 설정
+                  position : markerArray[iterator],                                         //마커가 표시될 위치
+                  map : map,
+                  icon: iConArray[iterator]
+              });
+              markers.push(marker);
+              path.push(marker.position); //경로표시
+            google.maps.event.addListener(marker, 'click', function() {
+                    infowindow.open(map, marker);   
+             });
+             iterator++;
+       }
+ 
+       //현재위치 주소(한글) 형식으로 출력--
+ 
+       function showLocation(pos) {
+             var latLng = new google.maps.LatLng(pos.coords.latitude,
+                           pos.coords.longitude);
+             if (geocoder) {
+                    geocoder.geocode({
+                   'latLng' : latLng
+                    }, function(results, status) {
+                   if (status == google.maps.GeocoderStatus.OK) {
+                                 if (results[1]) {
+                                         $("location").innerHTML = results[1].formatted_address;
+ 
+                                 }
+ 
+                           }
+                     });
+              }
+        }
+ 
+ 
+       //현재위치 주소(한글) 형식으로 출력--//
+ </script>
+ </head>
+ 
+<body style="margin: 0px; padding: 0px;" onLoad="initialize()">
+       <div id="superbar">
+             <span class="msg">현재위치: <span id="location"></span>
+              </span>
+              <!--주석(4)위치추적 정지버튼 input type="button" value="Stop tracking me!" onclick="stopTracking()" /-->
+        </div>
+        <!-- 아래는 지도가 표시될 DIV(id="map_canvas")입니다. -->
+     <div id="map_canvas"
+           style="width: 100%; height: 90%; float: left; border: 1px solid black;">
+      </div>
+ </body>
+ </html>

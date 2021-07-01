@@ -1,0 +1,1005 @@
+
+
+<sqls>
+
+<!-- 학자금 신청서관리 -->
+<!--
+***********************************************************************
+* @UseCase     : SCHA010
+* @description : 학자금 신청서
+***********************************************************************
+* 2006/12/14      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 학자금 신청서를 조회 한다. -->
+    <sql name="SCHA010_SHR">
+        <description>학자금 신청서 조회</description>
+        <query>
+            <![CDATA[
+              SELECT A.IOC_GBN
+                   , A.ENO_NO
+                   , A.PIS_YY||'-'||A.PIS_MM AS PIS_YM
+                   , DECODE(LENGTH(A.BIR_YMD)
+                   		   ,7 ,(SUBSTR(A.BIR_YMD,1,6)||'-'||SUBSTR(A.BIR_YMD,7,8))
+                           ,8 ,(SUBSTR(A.BIR_YMD,1,4)||'-'||SUBSTR(A.BIR_YMD,5,2)||'-'||SUBSTR(A.BIR_YMD,7,2))
+                           ,13,(SUBSTR(A.BIR_YMD,1,6)||'-'||SUBSTR(A.BIR_YMD,7,13))
+                           ) AS BIR_YMD
+                   , A.OCC_CD
+                   , A.SEL_NM
+                   , A.MF_TAG
+                   , A.OLD_AGE
+                   , A.FSCH_CD
+                   , A.SCH_CD
+                   , A.SCH_NM
+                   , A.MAJ_NM
+                   , A.RET_AMT
+                   , A.EDU_AMT
+                   , A.END_AMT
+                   , A.SCO_AMT
+                   , A.OTH_AMT
+                   , A.TOT_AMT
+                   , A.PAY_AMT
+                   , A.FILE_KEY
+                   , B.ENO_NM
+                   , B.JOB_NM
+                   , B.OCC_NM
+                   , B.DPT_NM
+                   , TO_CHAR(HIR_YMD, 'YYYY/MM/DD')     AS HIR_YMD
+                   , B.EM_PHN_NO
+                   , (SELECT COUNT(*)
+                        FROM ASNHR.T_CM_FILEUPLOAD
+                       WHERE KEY = A.FILE_KEY
+                      ) AS IMG_CNT
+                   , NVL(A.PAY_YN, '0')                 AS PAY_YN
+
+                   , ((SUBSTR(A.PAY_YMD,5,2) -1)/3)+1   AS PIS_QQ
+                   , TO_CHAR(TO_DATE(A.PAY_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS PAY_YMD
+                   , TO_CHAR(A.IPT_YMD, 'YYYY-MM-DD')   AS IPT_YMD
+
+                   , NVL((SELECT CASE
+                                 WHEN (STR_YMD<=TO_CHAR(SYSDATE, 'YYYYMMDD'))
+                                  AND (END_YMD>=TO_CHAR(SYSDATE, 'YYYYMMDD'))
+                                 THEN 1
+                                 ELSE 0
+                                  END
+                            FROM (SELECT *
+                                    FROM ASNHR.T_SC_RQSTYMD E
+                                ORDER BY IPT_YMD DESC
+                                  ) F
+                           WHERE PAY_YM = A.PIS_YY||A.PIS_MM
+                             AND ROWNUM = 1
+                          ), 0) AS IS_MOD
+                FROM ASNHR.T_SC_SCHLBOOK A
+                   , ASNHR.VI_T_CM_PERSON B
+               WHERE A.PIS_YY   = NVL(? ,A.PIS_YY)
+                 AND SUBSTR((((SUBSTR(A.PAY_YMD,5,2) -1)/3)+1),1,1) = NVL(?, SUBSTR((((SUBSTR(A.PAY_YMD,5,2) -1)/3)+1),1,1) )
+                 AND A.ENO_NO   = ?
+                 AND A.ENO_NO   = B.ENO_NO
+                 AND A.IOC_GBN  = '1'   -- 국내
+            ORDER BY A.IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 학자금 신청서를 출력 한다.. -->
+    <sql name="SCHA010_SHR_PRINT">
+        <description>학자금 신청서 출력</description>
+        <query>
+            <![CDATA[
+              SELECT A.IOC_GBN
+                   , A.ENO_NO
+                   , A.PIS_YY||'-'||A.PIS_MM AS PIS_YM
+                   , DECODE(LENGTH(A.BIR_YMD)
+                           ,8 ,(SUBSTR(A.BIR_YMD,1,4)||'-'||SUBSTR(A.BIR_YMD,5,2)||'-'||SUBSTR(A.BIR_YMD,7,2))
+                           ,13,(SUBSTR(A.BIR_YMD,1,6)||'-'||SUBSTR(A.BIR_YMD,7,13))
+                           ) AS BIR_YMD
+                   , A.OCC_CD
+                   , A.SEL_NM
+                   , A.MF_TAG
+                   , A.OLD_AGE
+                   , A.FSCH_CD
+                   , ASNHR.SF_GET_COMMNAME('01','E9',A.FSCH_CD) FSCH_NM
+                   , A.SCH_CD
+                   , A.SCH_NM
+                   , A.MAJ_NM
+                   , A.RET_AMT
+                   , A.EDU_AMT
+                   , A.END_AMT
+                   , A.SCO_AMT
+                   , A.OTH_AMT
+                   , A.TOT_AMT
+                   , A.PAY_AMT
+                   , A.FILE_KEY
+                   , B.ENO_NM
+                   , B.JOB_NM
+                   , B.OCC_NM
+                   , B.DPT_NM
+                   , TO_CHAR(HIR_YMD, 'YYYY/MM/DD')     AS HIR_YMD
+                   , B.EM_PHN_NO
+                   , (SELECT COUNT(*)
+                        FROM ASNHR.T_CM_FILEUPLOAD
+                       WHERE KEY = A.FILE_KEY
+                      ) AS IMG_CNT
+                   , NVL(A.PAY_YN, '0')                 AS PAY_YN
+
+                   , ((SUBSTR(A.PAY_YMD,5,2) -1)/3)+1   AS PIS_QQ
+                   , TO_CHAR(TO_DATE(PAY_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS PAY_YMD
+
+                   , NVL((SELECT CASE
+                                 WHEN (STR_YMD<=TO_CHAR(SYSDATE, 'YYYYMMDD'))
+                                  AND (END_YMD>=TO_CHAR(SYSDATE, 'YYYYMMDD'))
+                                 THEN 1
+                                 ELSE 0
+                                  END
+                            FROM (SELECT *
+                                    FROM ASNHR.T_SC_RQSTYMD E
+                                ORDER BY IPT_YMD DESC
+                                  ) F
+                           WHERE PAY_YM = A.PIS_YY||A.PIS_MM
+                             AND ROWNUM = 1
+                          ), 0) AS IS_MOD
+                    ,(SELECT Count(*) FROM ASNHR.T_SC_SCHLBOOK WHERE PIS_YY || PIS_MM   = NVL(? ,PIS_YY||PIS_MM)
+                                                                    AND ENO_NO   = A.ENO_NO
+                                                                    AND A.IOC_GBN  = '1' ) AS RECORD
+                FROM ASNHR.T_SC_SCHLBOOK A
+                   , ASNHR.VI_T_CM_PERSON B
+               WHERE A.PIS_YY || A.PIS_MM   = NVL(? ,A.PIS_YY||A.PIS_MM)
+                 AND A.ENO_NO   = ?
+                 AND A.ENO_NO   = B.ENO_NO
+                 AND A.IOC_GBN  = '1'   -- 국내
+            ORDER BY A.IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다. -->
+    <sql name="SCHA010_SHR_01">
+        <description>사원 정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , A.ENO_NM
+                 , A.JOB_NM
+                 , A.DPT_NM
+                 , A.OCC_CD
+                 , A.EM_PHN_NO
+                 , TO_CHAR(A.HIRG_YMD, 'YYYY-MM-DD')             AS HIR_YMD
+                 , TRUNC(MONTHS_BETWEEN(SYSDATE, A.HIRG_YMD)/12) AS PAST_MON
+                 , B.PAY_YM
+                 , B.PAY_YMD
+              FROM (SELECT M.*
+                         , 1 AS NUM
+                      FROM ASNHR.VI_T_CM_PERSON M
+                    ) A
+                 , (SELECT ROW_NUMBER() OVER(ORDER BY STR_YMD DESC)         AS NUM
+                         , TO_CHAR(TO_DATE(PAY_YM, 'YYYYMM'), 'YYYY-MM')    AS PAY_YM
+                         , TO_CHAR(TO_DATE(PAY_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS PAY_YMD
+                      FROM ASNHR.T_SC_RQSTYMD
+                     WHERE STR_YMD <= TO_CHAR(SYSDATE, 'YYYYMMDD')
+                       AND END_YMD >= TO_CHAR(SYSDATE, 'YYYYMMDD')
+                    ) B
+             WHERE A.ENO_NO = ?
+               AND A.NUM    = B.NUM(+)
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 학자금 신청기간 정보를 조회 한다. -->
+    <sql name="SCHA010_SHR_02">
+        <description>학자금 신청기간 정보조회</description>
+        <query>
+            <![CDATA[
+             SELECT  STR_YMD, END_YMD
+             FROM    ASNHR.T_SC_RQSTYMD
+             WHERE   PIS_YY = ?
+             AND     PIS_QQ = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학자금 신청서를 저장 한다. -->
+    <sql name="SCHA010_INS">
+        <description>학자금 신청서 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO ASNHR.T_SC_SCHLBOOK
+                     ( IOC_GBN , ENO_NO  , PIS_YY , PIS_MM , PAY_YMD, BIR_YMD, OCC_CD , SEL_NM ,
+                       MF_TAG  , OLD_AGE , FSCH_CD, SCH_CD , SCH_NM , MAJ_NM , RET_AMT,
+                       EDU_AMT , END_AMT , SCO_AMT, OTH_AMT, TOT_AMT, PAY_AMT,
+                       FILE_KEY, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                      )
+             VALUES  (        ?,        ?,       ?,       ?,       ?,       ?,       ?,       ?,
+                              ?,        ?,       ?,       ?,       ?,       ?,       ?,
+                              ?,        ?,       ?,       ?,       ?,       ?,
+                              ?,        ?, sysdate,       ?, sysdate
+                      )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학자금 정보를 수정 한다. -->
+    <sql name="SCHA010_UPT">
+        <description>학자금 신청서 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_SC_SCHLBOOK
+             SET     FSCH_CD      = ?,       -- 학력구분
+                     SCH_NM       = ?,       -- 학교명
+                     MAJ_NM       = ?,       -- 학과명
+                     RET_AMT      = ?,       -- 입학금
+                     EDU_AMT      = ?,       -- 수업료
+                     END_AMT      = ?,       -- 육성회비
+                     SCO_AMT      = ?,       -- 장학금
+                     TOT_AMT      = ?,       -- 합계
+                     PAY_AMT      = ?,       -- 지급액계
+                     FILE_KEY     = ?,       -- 원래이미지파일명
+                     UPT_MAN      = ?,       -- 최종수정자
+                     UPT_YMD      = sysdate  -- 최종수정일자
+             WHERE   IOC_GBN      = ?        -- 국내외 구분
+             AND     ENO_NO       = ?        -- 사번
+             AND     PIS_YY       = ?        -- 지원년도
+             AND     PIS_MM       = ?        -- 월
+             AND     BIR_YMD      = ?        -- 생년월일
+             AND     SEL_NM       = ?        -- 대상자성명
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학자금 신청서를 삭제 한다. -->
+    <sql name="SCHA010_DEL">
+        <description>학자금 신청서 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  ASNHR.T_SC_SCHLBOOK
+             WHERE   IOC_GBN = ?
+             AND     ENO_NO  = ?
+             AND     PIS_YY  = ?
+             AND     PIS_MM  = ?
+             AND     BIR_YMD = ?
+             AND     SEL_NM  = ?
+            ]]>
+        </query>
+    </sql>
+
+<!-- 해외주재원 학자금 신청서관리 -->
+<!--
+***********************************************************************
+* @UseCase     : SCHA020
+* @description : 해외 주재원 학자금 신청서관리
+***********************************************************************
+* 2006/12/19      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 해외 주재원 학자금 신청서를 조회 한다. -->
+    <sql name="SCHA020_SHR">
+        <description>해외 주재원 학자금 신청서 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  A.IOC_GBN, A.ENO_NO , A.PIS_YY , A.PIS_MM ,
+                     (SUBSTR(A.BIR_YMD,0,4)||'-'||SUBSTR(A.BIR_YMD,5,2)||'-'||SUBSTR(A.BIR_YMD,7,2)) AS BIR_YMD,
+                     A.OCC_CD , A.SEL_NM , A.MF_TAG , A.OLD_AGE , A.FSCH_CD , A.SCH_CD ,
+                     A.SCH_NM , A.MAJ_NM , A.RET_AMT, A.EDU_AMT , A.END_AMT , A.SCO_AMT,
+                     A.OTH_AMT, A.TOT_AMT, A.PAY_AMT, A.OFILE_NM, A.UFILE_NM,
+                     B.ENO_NM , B.JOB_NM , B.OCC_NM , B.DPT_NM  , B.HIR_YMD , B.EM_PHN_NO,
+                     (DECODE(A.OFILE_NM, NULL, 'F', 'T')) AS IMG_YN,
+                     (DECODE(A.PAY_AMT ,    0, 'F', 'T')) AS PAY_YN
+
+             FROM    T_SC_SCHLBOOK A,
+                     ( SELECT ENO_NO, ENO_NM, JOB_NM, OCC_NM, DPT_NM, EM_PHN_NO,
+                              TO_CHAR(HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+                       FROM VI_T_CM_PERSON ) B
+             WHERE   [1]
+             AND     A.ENO_NO = ?
+             AND     A.ENO_NO  = B.ENO_NO
+             AND     A.IOC_GBN = '2'   -- 국외
+             ORDER   BY PIS_YY ASC, PIS_MM ASC, ENO_NM ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다. -->
+    <sql name="SCHA020_SHR_01">
+        <description>사원 정보조회</description>
+        <query>
+            <![CDATA[
+             SELECT  ENO_NO, ENO_NM, JOB_NM, DPT_NM, OCC_CD, EM_PHN_NO,
+                     TO_CHAR(HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+             FROM    VI_T_CM_PERSON
+             WHERE   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 학자금 신청기간 정보를 조회 한다. -->
+    <sql name="SCHA020_SHR_02">
+        <description>학자금 신청기간 정보조회</description>
+        <query>
+            <![CDATA[
+             SELECT  STR_YMD, END_YMD
+             FROM    T_SC_RQSTYMD
+             WHERE   PIS_YY = ?
+             AND     PIS_QQ = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해외 주재원 학자금 신청서를 저장 한다. -->
+    <sql name="SCHA020_INS">
+        <description>해외 주재원 학자금 신청서 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO T_SC_SCHLBOOK
+                     ( IOC_GBN , ENO_NO  , PIS_YY , PIS_MM , BIR_YMD, OCC_CD , SEL_NM ,
+                       MF_TAG  , OLD_AGE , FSCH_CD, SCH_CD , SCH_NM , MAJ_NM , RET_AMT,
+                       EDU_AMT , END_AMT , SCO_AMT, OTH_AMT, TOT_AMT, PAY_AMT,
+                       OFILE_NM, UFILE_NM, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                      )
+             VALUES  (        ?,        ?,       ?,       ?,       ?,       ?,       ?,
+                              ?,        ?,       ?,       ?,       ?,       ?,       ?,
+                              ?,        ?,       ?,       ?,       ?,       ?,
+                              ?,        ?,       ?, sysdate,       ?, sysdate
+                      )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해외 주재원 학자금 정보를 수정 한다. -->
+    <sql name="SCHA020_UPT">
+        <description>해외 주재원 학자금 신청서 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_SC_SCHLBOOK
+             SET     FSCH_CD      = ?,       -- 학력구분
+                     SCH_NM       = ?,       -- 학교명
+                     MAJ_NM       = ?,       -- 학과명
+                     RET_AMT      = ?,       -- 입학금
+                     EDU_AMT      = ?,       -- 수업료
+                     END_AMT      = ?,       -- 육성회비
+                     SCO_AMT      = ?,       -- 장학금
+                     TOT_AMT      = ?,       -- 합계
+                     PAY_AMT      = ?,       -- 지급액계
+                     OFILE_NM     = ?,       -- 원래이미지파일명
+                     UFILE_NM     = ?,       -- 등록된이미지파일명
+                     UPT_MAN      = ?,       -- 최종수정자
+                     UPT_YMD      = sysdate  -- 최종수정일자
+             WHERE   IOC_GBN      = ?        -- 국내외 구분
+             AND     ENO_NO       = ?        -- 사번
+             AND     PIS_YY       = ?        -- 지원년도
+             AND     PIS_MM       = ?        -- 월
+             AND     BIR_YMD      = ?        -- 생년월일
+             AND     SEL_NM       = ?        -- 대상자성명
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 첨부파일만 삭제할 경우 기존 정보를 수정 한다. -->
+    <sql name="SCHA020_UPT_01">
+        <description>첨부파일 정보 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_SC_SCHLBOOK
+             SET     OFILE_NM = '',
+                     UFILE_NM = ''
+             WHERE   UFILE_NM = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해외 주재원 학자금 신청서를 삭제 한다. -->
+    <sql name="SCHA020_DEL">
+        <description>해외 주재원 학자금 신청서 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  T_SC_SCHLBOOK
+             WHERE   IOC_GBN = ?
+             AND     ENO_NO  = ?
+             AND     PIS_YY  = ?
+             AND     PIS_MM  = ?
+             AND     BIR_YMD = ?
+             AND     SEL_NM  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 학자금 신청서 처리 -->
+<!--
+***********************************************************************
+* @UseCase     : SCHA030
+* @description : 학자금 신청서 처리
+***********************************************************************
+* 2006/12/18      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 학자금 신청서를 조회 한다. -->
+    <sql name="SCHA030_SHR">
+        <description>학자금 신청서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.IOC_GBN
+                 , A.ENO_NO
+                 , A.PIS_YY||'-'||A.PIS_MM AS PIS_YM
+                 , A.PIS_YY
+                 , A.PIS_MM
+                 , DECODE(LENGTH(A.BIR_YMD)
+                 		 ,7 ,(SUBSTR(A.BIR_YMD,1,6)||'-'||SUBSTR(A.BIR_YMD,7,8))
+                         ,8 ,(SUBSTR(A.BIR_YMD,1,4)||'-'||SUBSTR(A.BIR_YMD,5,2)||'-'||SUBSTR(A.BIR_YMD,7,2))
+                         ,13,(SUBSTR(A.BIR_YMD,1,6)||'-'||SUBSTR(A.BIR_YMD,7,13))
+                         ) AS BIR_YMD
+                 , A.OCC_CD
+                 , A.SEL_NM
+                 , A.MF_TAG
+                 , A.OLD_AGE
+                 , A.FSCH_CD
+                 , ASNHR.SF_GET_COMMNAME('01', 'E9', A.FSCH_CD) AS FSCH_NM
+                 , A.SCH_CD
+                 , A.SCH_NM
+                 , A.MAJ_NM
+                 , A.RET_AMT
+                 , A.EDU_AMT
+                 , A.END_AMT
+                 , A.SCO_AMT
+                 , A.OTH_AMT
+                 , A.TOT_AMT
+                 , A.PAY_AMT
+                 , A.FILE_KEY
+                 , B.ENO_NM
+                 , ASNHR.SF_GET_COMMNAME('01','A2',B.JOB_CD) JOB_NM
+                 , ASNHR.SF_GET_COMMNAME('01','A1',B.OCC_CD) OCC_NM
+                 , ASNHR.SF_GET_DPTNAME('01','A4',B.DPT_CD)  DPT_NM
+                 , ASNHR.SF_GET_COMMNAME('01','BK',B.ABA_CD) ACC_NM
+                 , B.ACC_NO
+                 , TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') HIR_YMD
+                 , B.EM_PHN_NO
+                 , (SELECT COUNT(*)
+                      FROM ASNHR.T_CM_FILEUPLOAD
+                     WHERE KEY = A.FILE_KEY
+                    ) AS IMG_CNT
+				, ((SUBSTR(A.PAY_YMD,5,2) -1)/3)+1   AS PIS_QQ
+                 , NVL(A.PAY_YN, '0') AS PAY_YN
+                 , TO_CHAR(TO_DATE(A.PAY_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS PAY_YMD
+                 , TO_CHAR(A.IPT_YMD, 'YYYY-MM-DD')   AS IPT_YMD
+                 , DECODE(NVL(A.PAY_YN, '0'), '4', '', 'F') AS IS_CHK
+                 , '' DUMMY
+				 ,B.JOB_CD
+				 ,B.DPT_CD
+				 ,(SELECT substr(ACC_CD, 1, 1)
+					 FROM  ASNHR.T_CM_PERSON Y, ASNHR.T_CP_ACCOUNT_DEPT Z
+					 WHERE Y.ENO_NO =A.ENO_NO
+					 AND   substr(Y.TAX_DPT, 1, 4) = Z.DPT_CD) AS ACC_CD
+				 , REQ_NO
+              FROM ASNHR.T_SC_SCHLBOOK A, ASNHR.T_CM_PERSON B
+             WHERE B.DPT_CD = NVL(?, B.DPT_CD)
+               AND A.ENO_NO = NVL(?, A.ENO_NO)
+               [1]
+               AND A.ENO_NO = B.ENO_NO
+          ORDER BY IOC_GBN ASC
+                 , PIS_YY ASC
+                 , PIS_MM ASC
+                 , DPT_NM ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학자금 정보를 수정 한다. -->
+    <sql name="SCHA030_UPT">
+        <description>학자금 신청서 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_SC_SCHLBOOK
+             SET     RET_AMT      = ?,       -- 입학금
+                     EDU_AMT      = ?,       -- 수업료
+                     END_AMT      = ?,       -- 육성회비
+                     SCO_AMT      = ?,       -- 장학금
+                     TOT_AMT      = ?,       -- 합계
+                     PAY_AMT      = ?,       -- 지급액계
+                     PAY_YN       = ?,       -- 지급여부 ('':신청,'1':접수,'2':반송,'3':전표,'4':지급)
+                     UPT_MAN      = ?,       -- 최종수정자
+                     UPT_YMD      = sysdate  -- 최종수정일자
+             WHERE   IOC_GBN      = ?        -- 국내외 구분
+             AND     ENO_NO       = ?        -- 사번
+             AND     PIS_YY       = ?        -- 지원년도
+             AND     PIS_MM       = ?        -- 월
+             AND     BIR_YMD      = ?        -- 생년월일
+             AND     SEL_NM       = ?        -- 대상자성명
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 학자금 신청서를 조회 한다. -->
+    <sql name="SCHA030_PRC_SHR_01">
+        <description>학자금 신청서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.IOC_GBN
+                 , A.ENO_NO
+                 , A.PIS_YY||'-'||A.PIS_MM AS PIS_YM
+                 , A.PIS_YY
+                 , A.PIS_MM
+                 , DECODE(LENGTH(A.BIR_YMD)
+                         ,8 ,(SUBSTR(A.BIR_YMD,1,4)||'-'||SUBSTR(A.BIR_YMD,5,2)||'-'||SUBSTR(A.BIR_YMD,7,2))
+                         ,13,(SUBSTR(A.BIR_YMD,1,6)||'-'||SUBSTR(A.BIR_YMD,7,13))
+                         ) AS BIR_YMD
+
+                 , A.OCC_CD
+                 , A.SEL_NM
+                 , A.MF_TAG
+                 , A.OLD_AGE
+                 , A.FSCH_CD
+                 , ASNHR.SF_GET_COMMNAME('01', 'E9', A.FSCH_CD) AS FSCH_NM
+                 , A.SCH_CD
+                 , A.SCH_NM
+                 , A.MAJ_NM
+                 , A.RET_AMT
+                 , A.EDU_AMT
+                 , A.END_AMT
+                 , A.SCO_AMT
+                 , A.OTH_AMT
+                 , A.TOT_AMT
+                 , A.PAY_AMT
+                 , A.FILE_KEY
+                 , B.ENO_NM
+                 , ASNHR.SF_GET_COMMNAME('01','A2',B.JOB_CD) JOB_NM
+                 , ASNHR.SF_GET_COMMNAME('01','A1',B.OCC_CD) OCC_NM
+                 , ASNHR.SF_GET_DPTNAME('01','A4',B.DPT_CD)  DPT_NM
+                 , ASNHR.SF_GET_COMMNAME('01','BK',B.ABA_CD) ACC_NM
+                 , B.ACC_NO
+                 , TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') HIR_YMD
+                 , B.EM_PHN_NO
+                 , (SELECT COUNT(*)
+                      FROM ASNHR.T_CM_FILEUPLOAD
+                     WHERE KEY = A.FILE_KEY
+                    ) AS IMG_CNT
+                 , NVL(A.PAY_YN, '0') AS PAY_YN
+                 , TO_CHAR(TO_DATE(A.PAY_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS PAY_YMD
+                 , DECODE(NVL(A.PAY_YN, '0'), '4', '', 'F') AS IS_CHK
+				 , TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF4') AS FILE_NAME
+				 , (TO_CHAR(SYSDATE,'YYYYMMDD'))               AS IPT_YMD
+				 ,LPAD(SUBSTR(TAX_DPT, 1,4), 10, '0') TAX_DPT_CD
+				 ,B.JOB_CD
+				 ,B.DPT_CD
+				 ,(SELECT substr(ACC_CD, 1, 1)
+					 FROM  ASNHR.T_CM_PERSON Y, ASNHR.T_CP_ACCOUNT_DEPT Z
+					 WHERE Y.ENO_NO =A.ENO_NO
+					 AND   substr(Y.TAX_DPT, 1, 4) = Z.DPT_CD) AS ACC_CD
+              FROM ASNHR.T_SC_SCHLBOOK A, ASNHR.T_CM_PERSON B
+             WHERE 1 = 1
+               AND  A.IOC_GBN	 = ?
+               AND  A.ENO_NO   = ?
+               AND  A.PIS_YY   = ?
+               AND  A.PIS_MM   = ?
+               AND  A.BIR_YMD  = ?
+               AND  A.SEL_NM   = ?
+               AND  A.ENO_NO = B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신규주문번호 조회 한다. -->
+    <sql name="SCHA030_PRC_SHR_REQ">
+        <description>신규주문 조회</description>
+        <query>
+            <![CDATA[
+        SELECT TO_CHAR(SYSDATE,'YYYYMM')||LPAD(S_SCH_REQ_NO.NEXTVAL, 4, '0') AS REQ_NO FROM DUAL
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학자금 정보를 수정 한다. 전표생성 OK-->
+
+
+    <!-- 학자금 정보를 수정 한다. 전표생성 OK-->
+    <sql name="SCHA030_PRC_UPT_01">
+        <description>학자금 신청서 수정</description>
+        <query>
+            <![CDATA[
+              UPDATE ASNHR.T_SC_SCHLBOOK
+                 SET PAY_YN         = '3'
+                   , REQ_NO         = ?
+                   , WORK_NO1       = ?
+                   , UPT_MAN        = ?
+                   , UPT_YMD        = SYSDATE
+               WHERE 1 = 1
+               AND  IOC_GBN	 = ?
+               AND  ENO_NO   = ?
+               AND  PIS_YY   = ?
+               AND  PIS_MM   = ?
+               AND  BIR_YMD  = ?
+               AND  SEL_NM   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신규결재번호 조회 한다. -->
+    <sql name="SCHA030_PRC_SHR_PRINT">
+        <description>신규결재번호 조회</description>
+        <query>
+            <![CDATA[
+        SELECT TO_CHAR(SYSDATE,'YYYY')||?||
+                  LPAD( DECODE( MAX(PRINT_NO), NULL,
+                                1, TO_NUMBER(MAX(SUBSTR(PRINT_NO,7,4)))+1), 4, '0') AS PRINT_NO
+        FROM   ASNHR.T_SC_SCHLBOOK
+        WHERE  PRINT_NO LIKE TO_CHAR(SYSDATE,'YYYY')||?||'%'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학자금 신청서를 조회 한다. -->
+    <sql name="SCHA030_PRC_SHR_02">
+        <description>학자금 신청서 조회</description>
+        <query>
+            <![CDATA[
+             SELECT A.IOC_GBN
+                 , A.ENO_NO
+                 , A.PIS_YY||'-'||A.PIS_MM AS PIS_YM
+                 , A.PIS_YY
+                 , A.PIS_MM
+                 , DECODE(LENGTH(A.BIR_YMD)
+                         ,8 ,(SUBSTR(A.BIR_YMD,1,4)||'-'||SUBSTR(A.BIR_YMD,5,2)||'-'||SUBSTR(A.BIR_YMD,7,2))
+                         ,13,(SUBSTR(A.BIR_YMD,1,6)||'-'||SUBSTR(A.BIR_YMD,7,13))
+                         ) AS BIR_YMD
+                 , A.OCC_CD
+                 , A.SEL_NM
+                 , A.MF_TAG
+				 , (CASE WHEN A.MF_TAG = 'M' THEN '남자'
+				         WHEN A.MF_TAG = 'F' THEN '여자'
+						 ELSE ''
+						 END
+						 ) AS MF_TAG_NM
+                 , A.OLD_AGE
+                 , A.FSCH_CD
+                 , ASNHR.SF_GET_COMMNAME('01', 'E9', A.FSCH_CD) AS FSCH_NM
+                 , A.SCH_CD
+                 , A.SCH_NM
+                 , A.MAJ_NM
+                 , A.RET_AMT
+                 , A.EDU_AMT
+                 , A.END_AMT
+                 , A.SCO_AMT
+                 , A.OTH_AMT
+                 , A.TOT_AMT
+                 , A.PAY_AMT
+                 , A.FILE_KEY
+                 , B.ENO_NM
+                 , ASNHR.SF_GET_COMMNAME('01','A2',B.JOB_CD) JOB_NM
+                 , ASNHR.SF_GET_COMMNAME('01','A1',B.OCC_CD) OCC_NM
+                 , ASNHR.SF_GET_DPTNAME('01','A4',B.DPT_CD)  DPT_NM
+                 , ASNHR.SF_GET_COMMNAME('01','BK',B.ABA_CD) ACC_NM
+                 , D.DPT_NM AS UPDPT_NM
+                 , B.ACC_NO
+                 , TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') HIR_YMD
+                 , B.EM_PHN_NO
+                 , NVL(A.PAY_YN, '0') AS PAY_YN
+                 , TO_CHAR(TO_DATE(A.PAY_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS PAY_YMD
+                 , TO_CHAR(A.IPT_YMD, 'YYYY-MM-DD')   AS IPT_YMD
+              FROM ASNHR.T_SC_SCHLBOOK A, ASNHR.T_CM_PERSON B, ASNHR.T_CM_DEPT C, ASNHR.T_CM_DEPT D
+             WHERE 1 = 1
+               AND A.ENO_NO = B.ENO_NO
+			   AND B.DPT_CD = C.DPT_CD(+)
+			   AND C.UPDPT_CD = D.DPT_CD(+)
+			   AND A.PRINT_NO = ?
+          ORDER BY
+                  DPT_NM ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파일첨부내역을  조회 한다. -->
+    <sql name="SCHA030_PRC_SHR_03">
+        <description>학자금 신청서 조회</description>
+        <query>
+            <![CDATA[
+	 SELECT
+	 		 KEY
+			,SEQ_NO
+			,FILE_NAME
+			,FILE_URL
+	 FROM ASNHR.T_CM_FILEUPLOAD
+	 WHERE KEY = ?
+	 ORDER BY SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 결재정보 수정-->
+    <sql name="SCHA010_PRC_UPT_02">
+        <description>학자금 신청서 수정</description>
+        <query>
+            <![CDATA[
+              UPDATE ASNHR.T_SC_SCHLBOOK
+              	 SET PRINT_NO       = ?
+                   , UPT_MAN        = ?
+                   , UPT_YMD        = SYSDATE
+               WHERE IOC_GBN        = ?
+               AND   ENO_NO         = ?
+               AND   PIS_YY			= ?
+               AND   PIS_MM         = ?
+               AND   BIR_YMD        = ?
+               AND   SEL_NM         = ?
+            ]]>
+        </query>
+    </sql>
+<!-- 개인별 학자금 관리 -->
+<!--
+***********************************************************************
+* @UseCase     : SCHA050
+* @description : 개인별 학자금 관리
+***********************************************************************
+* 2006/12/27      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 개인별 학자금 관리 조회  -->
+    <sql name="SCHA050_SHR">
+        <description>개인별 학자금 조회</description>
+        <query>
+            <![CDATA[
+            SELECT IOC_GBN
+                 , ENO_NO
+                 , PIS_YY
+                 , PIS_MM
+                 , DECODE(LENGTH(A.BIR_YMD)
+                         ,8 ,(SUBSTR(A.BIR_YMD,1,4)||'-'||SUBSTR(A.BIR_YMD,5,2)||'-'||SUBSTR(A.BIR_YMD,7,2))
+                         ,13,(SUBSTR(A.BIR_YMD,1,6)||'-'||SUBSTR(A.BIR_YMD,7,13))
+                         ) AS BIR_YMD
+                 , SEL_NM
+                 , OLD_AGE
+                 , ASNHR.SF_GET_COMMNAME('01','E9',FSCH_CD) AS FSCH_NM
+                 , SCH_NM
+                 , MAJ_NM
+                 , RET_AMT
+                 , EDU_AMT
+                 , END_AMT
+                 , SCO_AMT
+                 , OTH_AMT
+                 , TOT_AMT
+                 , PAY_AMT
+                 , PIS_YY||'-'||PIS_MM AS PAY_YM
+              FROM ASNHR.T_SC_SCHLBOOK A
+             WHERE ENO_NO   = ?
+               AND PIS_YY   = ?
+               AND PAY_YN   = '4'   --지급완료된 데이타만 (0:신청,1:접수,2:반송,3:전표,4:지급)
+          ORDER BY IPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 개인별 학자금 관리 조회  -->
+    <sql name="SCHA050_SHR_01">
+        <description>개인별 학자금 조회</description>
+        <query>
+            <![CDATA[
+            SELECT OCC_NM, CET_NO, RET_YMD,
+                   TO_CHAR(HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+            FROM   ASNHR.VI_T_CM_PERSON
+            WHERE  GUBUN = '01'
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 학자금 정보를 수정 한다. -->
+    <sql name="SCHA050_UPT">
+        <description>학자금 신청서 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_SC_SCHLBOOK
+             SET     RET_AMT      = ?,       -- 입학금
+                     EDU_AMT      = ?,       -- 수업료
+                     END_AMT      = ?,       -- 육성회비
+                     SCO_AMT      = ?,       -- 장학금
+                     OTH_AMT      = ?,       -- 장학금
+                     TOT_AMT      = ?,       -- 합계
+                     PAY_AMT      = ?,       -- 지급금액
+                     UPT_MAN      = ?,       -- 최종수정자
+                     UPT_YMD      = sysdate  -- 최종수정일자
+             WHERE   ENO_NO       = ?        -- 사번
+             AND     PIS_YY       = ?        -- 지원년도
+             AND     PIS_MM       = ?        -- 월
+             AND     BIR_YMD      = ?        -- 생년월일
+             AND     SEL_NM       = ?        -- 대상자성명
+            ]]>
+        </query>
+    </sql>
+
+<!-- 개인별 학자금지급 현황 -->
+<!--
+***********************************************************************
+* @UseCase     : SCHA070
+* @description : 개인별 학자금지급 현황
+***********************************************************************
+* 2006/12/27      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 개인별 학자금 관리 조회  -->
+    <sql name="SCHA070_SHR">
+        <description>개인별 학자금지급 현황 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  PIS_MM,
+                     (SUBSTR(BIR_YMD,0,4)||'-'||SUBSTR(BIR_YMD,5,2)||'-'||SUBSTR(BIR_YMD,7,2)) AS BIR_YMD,
+                     SEL_NM, OLD_AGE, SF_GET_COMMNAME('01','E9',FSCH_CD) AS FSCH_NM,
+                     SCH_NM, MAJ_NM, RET_AMT, EDU_AMT , END_AMT , SCO_AMT,
+                     OTH_AMT, TOT_AMT, PAY_AMT
+             FROM    ASNHR.T_SC_SCHLBOOK
+             WHERE   ENO_NO  = ?
+             AND     PIS_YY = ?
+             AND     PAY_AMT IS NOT NULL
+             AND     PAY_AMT <> 0
+             ORDER BY PIS_MM
+            ]]>
+        </query>
+    </sql>
+
+
+<!-- 분기별 학자금지급 현황 -->
+<!--
+***********************************************************************
+* @UseCase     : SCHA080
+* @description : 분기별 학자금지급 현황
+***********************************************************************
+* 2006/12/28      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 분기별 학자금 지급 현황 조회  -->
+    <sql name="SCHA080_SHR">
+        <description>분기별 학자금 지급 현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ((SUBSTR(A.PAY_YMD,5,2) -1)/3)+1   AS PIS_QQ
+                 , TO_CHAR(TO_DATE(A.PAY_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS PAY_YMD
+                 , TO_CHAR(A.IPT_YMD, 'YYYY-MM-DD')   AS IPT_YMD
+                 , A.ENO_NO, B.ENO_NM, TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD, B.JOB_NM,
+                   B.DPT_NM, A.SEL_NM, A.FSCH_CD, SF_GET_COMMNAME('01','E9',A.FSCH_CD) AS FSCH_NM,
+                   A.RET_AMT, A.EDU_AMT , A.END_AMT , A.SCO_AMT, A.OTH_AMT, A.TOT_AMT, A.PAY_AMT,
+                   DECODE(SUBSTR(A.FSCH_CD,0,1),'2','중학교','3','고등학교','대학교') AS GUBUN_NM,
+                   SUBSTR(A.FSCH_CD,0,1) AS GUBUN, B.JOB_SEQ
+            FROM   ASNHR.T_SC_SCHLBOOK A, ASNHR.VI_T_CM_PERSON B
+            WHERE  B.GUBUN  = ?
+            AND    A.ENO_NO = B.ENO_NO
+            AND    A.PAY_YN = '4'       -- 지급여부 ('':신청,'1':접수,'2':반송,'3':지급,'4':지급)
+            AND    A.OCC_CD LIKE '%'||?||'%'
+            [1]
+            [2]
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!-- 학자금 신청기간 설정 -->
+<!--
+***********************************************************************
+* @UseCase     : SCHA090
+* @description : 분기별 학자금지급 현황
+***********************************************************************
+* 2007/02/22      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 학자금 신청기간 설정 조회  -->
+    <sql name="SCHA090_SHR">
+        <description>학자금 신청기간 설정 조회</description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YY
+                 , PIS_QQ
+                 , TO_CHAR(TO_DATE(STR_YMD,'YYYYMMDD'), 'YYYY-MM-DD') AS STR_YMD
+                 , TO_CHAR(TO_DATE(END_YMD,'YYYYMMDD'), 'YYYY-MM-DD') AS END_YMD
+                 , TO_CHAR(TO_DATE(PAY_YM,'YYYYMM'),    'YYYY-MM'   ) AS PAY_YM
+                 , TO_CHAR(TO_DATE(PAY_YMD,'YYYYMMDD'), 'YYYY-MM-DD') AS PAY_YMD
+              FROM ASNHR.T_SC_RQSTYMD
+             WHERE PIS_YY = ?
+               AND PIS_QQ LIKE ?||'%'
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 학자금 신청기간 설정 저장 -->
+    <sql name="SCHA090_INS">
+        <description>학자금 신청기간 설정 저장</description>
+        <query>
+            <![CDATA[
+            INSERT  INTO ASNHR.T_SC_RQSTYMD
+                    ( PIS_YY, PIS_QQ, STR_YMD, END_YMD, PAY_YM, PAY_YMD,
+                      IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES  ( ?     , ?     , ?      , ?      , ? , ?,
+                      ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학자금 신청기간 설정 수정 -->
+    <sql name="SCHA090_UPT">
+        <description>학자금 신청기간 설정 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_SC_RQSTYMD
+               SET END_YMD  = ?
+                 , PAY_YM   = ?
+                 , PAY_YMD  = ?
+                 , UPT_MAN  = ?
+                 , UPT_YMD  = SYSDATE
+             WHERE PIS_YY   = ?
+               AND PIS_QQ   = ?
+               AND STR_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 학자금 신청기간 설정 삭제 -->
+    <sql name="SCHA090_DEL">
+        <description>학자금 신청기간 설정 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE ASNHR.T_SC_RQSTYMD
+             WHERE PIS_YY   = ?
+               AND PIS_QQ   = ?
+               AND STR_YMD  = ?
+            ]]>
+        </query>
+    </sql>
+
+     <!-- 개인별 학자금 신청내역 프린트 -->
+    <sql name="SCHA070_PRT">
+         <description>개인별 학자금 신청내역 프린트</description>
+        <query>
+            <![CDATA[
+            SELECT  PIS_MM,
+                     (SUBSTR(A.BIR_YMD,0,4)||'-'||SUBSTR(A.BIR_YMD,5,2)||'-'||SUBSTR(A.BIR_YMD,7,2)) AS BIR_YMD,
+                     A.SEL_NM, A.OLD_AGE, 
+                     ASNHR.SF_GET_COMMNAME('01','E9',A.FSCH_CD) AS FSCH_NM,
+                     A.SCH_NM, A.MAJ_NM, A.RET_AMT, 
+                     A.EDU_AMT , A.END_AMT , A.SCO_AMT,
+                     A.OTH_AMT, A.TOT_AMT, PAY_AMT, B.ENO_NM, 
+                     TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD, B.JOB_NM,
+                   B.DPT_NM, B.ENO_NO, B.OCC_NM,B.RET_YMD,B.CET_NO
+             FROM    T_SC_SCHLBOOK a, ASNHR.VI_T_CM_PERSON B
+             WHERE   B.ENO_NO = ?
+			 AND	 A.PIS_YY = ?
+             AND     A.PAY_AMT IS NOT NULL
+             AND     A.PAY_AMT <> 0
+			 AND A.ENO_NO =B.ENO_NO
+             ORDER BY PIS_MM
+            ]]>
+        </query>
+    </sql>
+    
+    
+<!-- 설문조사 꼽사리 -->
+<!--
+***********************************************************************
+* @UseCase     : SURA010
+* @description : 노조관련 설문조사
+***********************************************************************
+* 2015/03/24      이동훈       최초작성
+***********************************************************************
+-->
+
+    <!-- 설문조사  -->
+    <sql name="SURA010_INS">
+        <description>설문조사</description>
+        <query>
+            <![CDATA[
+            INSERT  INTO ASNHR.T_SU_SURVEY
+                    ( ENO_NO, SUB1, REMARK1, SUB2, REMARK2, END_YN,
+                      IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES  ( ?     , ?     , ?      , ?      , ? ,  'Y',
+                      ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>    
+    
+    
+    
+    
+</sqls>

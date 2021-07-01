@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/mobile/lib/common.css" />
+    
+    <style type="text/css">
+        .insa .ui-listview > li.ui-li-has-alt > a
+        {
+            padding-left: 5.5em;
+        }
+        .insa .ui-filterable {
+            margin-top: -15px;
+        }
+    </style>
+
+    <script src="/mobile/controller/insa.js"></script>
+    <script src="/mobile/lib/require.js" data-main="/mobile/lib/app"></script>
+
+</head>
+<body>
+    <div id="pageInsa" data-role="page" class="insa">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div><!--//menu-->
+        
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div class="ui-grid-b">
+                <div class="ui-block-a" style="width: 30%">
+                    <select id="cboCorp" data-mini="true" data-theme="b">
+                        <option value="">법인</option>
+                    </select>
+                </div>
+                <div class="ui-block-b" style="width: 40%;">
+                    <button id="btnDept" data-mini="true" data-theme="b">
+                        부서</button>
+                </div>
+                <div class="ui-block-c" style="width: 30%">
+                    <input id="btnSearch" type="button" data-icon="search" data-iconpos="right" data-theme="d" data-mini="true" value="조회">
+                </div>
+            </div>
+            <div style="margin-top: 20px; margin-bottom: 40px;">
+                <ul id="listUser" data-role="listview" data-theme="c" data-split-icon="phone" data-split-theme="a" data-filter="true" data-filter-placeholder="이름검색" data-filter-theme="b">
+                    <li data-role="list-divider" data-theme="f"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pageDept" data-role="page">
+        <div data-role="header">
+			<a href="#pageInsa" data-icon="back">목록</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <ul id="listDept" data-role="listview" data-theme="c">
+                <li data-role="list-divider" data-theme="f">부서선택</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

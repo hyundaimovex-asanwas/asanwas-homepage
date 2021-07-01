@@ -1,0 +1,1115 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 승급 -->
+<!--
+***********************************************************************
+* @UseCase     : GRAA010
+* @description : 승급제외자 관리
+***********************************************************************
+* 2007/01/17      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 승급제외처리 대상자의 정보를 조회 한다. -->
+    <!-- 제외처리 대상자를 테이블을 사용하지 않고 직접 조회해옴-->
+    <sql name="GRAA010_SHR">
+        <description>승급제외처리 대상자 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SF_GET_DPTNAME('01','A4',B.DPT_CD) DPT_NM, SF_GET_COMMNAME('01','A2',B.JOB_CD) JOB_NM,
+                   A.ENO_NO, B.ENO_NM, A.RAI_YMD, A.HOB, A.HIR_YMD, A.HBA_YMD, A.FPRO_YMD,
+                   DECODE(A.REJECT_CD,'A','금년 승진',
+                                      'B','근속기간 6개월 미만',
+                                      'C','전환채용',
+                                      'D','6개월이상 휴직자',
+                                      'E','정직/대기발령 중징계자',
+                                      'F','기타',
+                                      'X','인사고과 불량','기타사유') REJECT_NM
+              FROM T_PM_GRADE A, T_CM_PERSON B
+             WHERE A.ENO_NO = B.ENO_NO
+               AND A.RAI_YMD = ?||'-03-01'
+               AND A.HOB = A.FIN_HOB
+          ORDER BY A.REJECT_CD, SF_GET_COMMSEQ('01','A2',B.JOB_CD), SF_GET_DPTSEQ('01','A4',B.DPT_CD)
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 승급제외처리 대상자의 정보를 조회 한다. -->
+    <sql name="GRAA010_SHR_01">
+        <description>승급제외처리 대상자 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO, ENO_NM, DPT_CD, DPT_NM, JOB_CD AS PJOB_CD, JOB_NM,
+                   HOB_CD, HOB_NM, OCC_CD, GROUP_NM AS GRP_NAM, FINJ_CD, FINJ_NM,
+                   FLOOR(MONTHS_BETWEEN(?, HIR_YMD)/12) AS YRP_CNT,
+                   TO_CHAR(JPR_YMD, 'YYYY-MM-DD') AS FPRO_YMD,
+                   TO_CHAR(HBA_YMD, 'YYYY-MM-DD') AS HBA_YMD,
+                   TO_CHAR(HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD,
+                   TO_CHAR(HIRG_YMD, 'YYYY-MM-DD') AS GHI_YMD,
+                   ( SELECT GBN2_TAG
+                     FROM   T_CM_COMMON
+                     WHERE  GUBUN = A.GUBUN
+                     AND    CD_GBN = 'A2'
+                     AND    COMM_CD = A.JOB_CD ) AS STTJ_CD,
+                   ( SELECT REPU_YMD
+                     FROM   T_CM_REWARD
+                     WHERE  ENO_NO = A.ENO_NO
+                     AND REPU_CD = 'P'
+                     AND    ( END_YMD IS NULL OR
+                              END_YMD > TO_CHAR(SYSDATE, 'YYYYMMDD') ) ) AS REPU_YMD
+            FROM   VI_T_CM_PERSON A
+            WHERE  A.GUBUN = ?
+            AND    A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승급제외자 정보를 조회 한다. -->
+    <sql name="GRAA010_SHR_02">
+        <description>승급제외자 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_DATE(A.RAI_YMD, 'YYYY-MM-DD') AS RAI_YMD, A.ENO_NO, B.ENO_NM,
+                   A.OCC_CD, A.DPT_CD, B.DPT_NM, A.PJOB_CD, B.JOB_NM, B.HOB_CD,
+                   B.HOB_NM, TO_DATE(A.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD, A.STTJ_CD,
+                   TO_DATE(A.GHI_YMD, 'YYYY-MM-DD') AS GHI_YMD, A.GRP_NAM,
+                   TO_DATE(A.FPRO_YMD, 'YYYY-MM-DD') AS FPRO_YMD,
+                   TO_DATE(A.HBA_YMD, 'YYYY-MM-DD') AS HBA_YMD, A.YRP_CNT,
+                   TO_DATE(A.REPU_YMD, 'YYYY-MM-DD') AS REPU_YMD,
+                   A.FINJ_CD, B.FINJ_NM, A.REJECT_CD
+            FROM   T_PM_NOGRADE A, VI_T_CM_PERSON B
+            WHERE  A.RAI_YMD LIKE '%'||?||'%'
+            AND    A.ENO_NO LIKE '%'||?||'%'
+            AND    A.REJECT_CD LIKE '%'||?||'%'
+            AND    B.GUBUN = ?
+            AND    A.ENO_NO = B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 승급제외자를 저장 한다. -->
+    <sql name="GRAA010_INS">
+        <description>승급제외자 등록</description>
+        <query>
+            <![CDATA[
+             INSERT INTO T_PM_NOGRADE
+             ( RAI_YMD, PRO_NO, ENO_NO, OCC_CD, RAI_CD, DPT_CD, STTJ_CD,
+               PJOB_CD, HIR_YMD, GHI_YMD, GRP_NAM, FPRO_YMD, HBA_YMD,
+               YRP_CNT, REPU_YMD, FINJ_CD, REJECT_CD,
+               IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+             VALUES
+             ( ?      , ?     , ?     , ?     , ?     , ?      , ?      ,
+               ?      , ?      , ?     , ?       , ?        , ?      ,
+               ?      , ?       , ?      , ?       ,
+               ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 승급제외자 정보 수정 한다. -->
+    <sql name="GRAA010_UPT">
+        <description>승급제외자 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_NOGRADE
+             SET    REJECT_CD = ?,			--제외기준코드
+                    UPT_MAN = ?,			--수정자
+                    UPT_YMD = sysdate
+             WHERE  RAI_YMD = ?				--승급예정일
+             AND    ENO_NO = ?				--사번
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 승급제외자를 삭제 한다. -->
+    <sql name="GRAA010_DEL">
+        <description>승급제외자 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE T_PM_NOGRADE
+             WHERE  RAI_YMD = ?				--승급예정일
+             AND    ENO_NO = ?				--사번
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : GRAA020
+* @description : 승급대상자처리
+***********************************************************************
+* 2007/01/22      오대성       최초작성
+***********************************************************************
+-->
+    <!-- 승급 대상자의 정보를 조회 한다. -->
+    <sql name="GRAA020_SHR">
+        <description>승급대상자 정보 조회</description>
+        <query>
+             <![CDATA[
+			SELECT TO_CHAR(TO_DATE(A.RAI_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS RAI_YMD,
+		             A.ENO_NO ENO_NO, SF_GET_ENONAME('01', ENO_NO) AS ENO_NM,
+		             A.OCC_CD OCC_CD, SF_GET_COMMNAME('01','A1',OCC_CD) AS OCC_NM,
+		             A.DPT_CD DPT_CD, SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+		             A.STTJ_CD STTJ_CD,SF_GET_COMMNAME('01','A2',STTJ_CD) AS STTJ_NM,
+                     A.PJOB_CD PJOB_CD,SF_GET_COMMNAME('01','A2',PJOB_CD) AS PJOB_NM,
+                     TO_CHAR(TO_DATE(A.HIR_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS HIR_YMD,
+                     TO_CHAR(TO_DATE(A.GHI_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS GHI_YMD,
+                     A.GRP_NAM GRP_NAM,
+                     TO_CHAR(TO_DATE(A.FPRO_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS  FPRO_YMD,
+                     TO_CHAR(TO_DATE(A.HBA_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS  HBA_YMD,
+                     A.YRP_CNT YRP_CNT,
+                     TRIM(A.HOB) HOB,
+                     A.BAS_HOB BAS_HOB,
+                     A.CON_HOB CON_HOB,
+                     A.FIN_HOB FIN_HOB,
+                     A.REJECT_CD REJECT_CD,
+                    (SELECT NVL(BAS_AMT,0) + NVL(DUTY_AMT,0) + NVL(OT_AMT,0) + NVL(WEL_AMT,0) +
+                            NVL(OSE_AMT,0) + NVL(RUN_AMT,0) + NVL(MH_AMT,0)
+                       FROM T_CP_PAYTABLE
+                      WHERE A.OCC_CD  = OCC_CD
+                        AND A.STTJ_CD = JOB_CD
+                        AND A.HOB     = HOB_CD
+                        AND C.APY_YMD = APY_YMD) AS SAL_AMT,
+                    (SELECT NVL(BAS_AMT,0) + NVL(DUTY_AMT,0) + NVL(OT_AMT,0) + NVL(WEL_AMT,0) +
+                            NVL(OSE_AMT,0) + NVL(RUN_AMT,0) + NVL(MH_AMT,0)
+                       FROM T_CP_PAYTABLE
+                      WHERE A.OCC_CD  = OCC_CD
+                        AND A.STTJ_CD = JOB_CD
+                        AND A.CON_HOB     = HOB_CD
+                        AND B.APY_YMD = APY_YMD) AS CON_SAL,
+                    (SELECT NVL(BAS_AMT,0) + NVL(DUTY_AMT,0) + NVL(OT_AMT,0) + NVL(WEL_AMT,0) +
+                            NVL(OSE_AMT,0) + NVL(RUN_AMT,0) + NVL(MH_AMT,0)
+                       FROM T_CP_PAYTABLE
+                      WHERE A.OCC_CD  = OCC_CD
+                        AND A.STTJ_CD = JOB_CD
+                        AND A.FIN_HOB = HOB_CD
+                        AND B.APY_YMD = APY_YMD) AS FIN_SAL
+               FROM (SELECT  ? RAI_YMD,
+                             A.ENO_NO,
+                             A.ENO_NM,
+                             A.OCC_CD,
+                             A.DPT_CD,
+                             B.GBN2_TAG STTJ_CD,
+                             A.JOB_CD PJOB_CD,
+                             TO_CHAR(A.HIR_YMD,'YYYY-MM-DD') HIR_YMD,
+                             TO_CHAR(A.HIRG_YMD,'YYYY-MM-DD') GHI_YMD,
+                             '' GRP_NAM,
+                             TO_CHAR(A.JPR_YMD,'YYYY-MM-DD') FPRO_YMD,
+                             TO_CHAR(A.HBA_YMD,'YYYY-MM-DD') HBA_YMD,
+
+
+                             FLOOR(MONTHS_BETWEEN(TO_DATE(?,'YYYY-MM-DD'),JPR_YMD)/12)+1 AS YRP_CNT,
+                             A.HOB_CD HOB,
+                             A.HOB_CD BAS_HOB,
+                             A.HOB_CD CON_HOB,
+
+
+                             CASE WHEN C.GBN_TAG = 'S' AND ? > SUBSTR(TO_CHAR(A.JPR_YMD,'YYYY-MM-DD'),1,4)
+                             					THEN TO_CHAR(A.HOB_CD + 2,'FM00')
+                                  WHEN E.GBN_TAG = 'X' OR D.REJECT_CD IN ('A','B','C','D','E','F')
+                                  				THEN A.HOB_CD
+                                  ELSE TO_CHAR(A.HOB_CD + 1,'FM00')
+                             END FIN_HOB,
+
+
+                             DECODE(NVL(C.GBN_TAG,E.GBN_TAG),
+                             NULL,
+                             D.REJECT_CD,
+                             NVL(C.GBN_TAG,E.GBN_TAG)) REJECT_CD
+
+                       FROM T_CM_PERSON A,
+
+                       		T_CM_COMMON B,
+
+                            (SELECT ENO_NO, 'S' GBN_TAG
+                               FROM T_EV_ABLRST
+                              WHERE EVL_YY = ? - 1
+                                AND FINAL_GRD = 'S'
+                           GROUP BY ENO_NO
+                             HAVING COUNT(*) = 3) C,
+
+                            (SELECT ENO_NO, 'X' GBN_TAG
+                               FROM T_EV_ABLRST
+                              WHERE EVL_YY = ? - 1
+                                AND FINAL_GRD = 'D'
+                           GROUP BY ENO_NO
+                             HAVING COUNT(*) = 3) E,
+
+                            (SELECT ENO_NO, 'A' REJECT_CD               -- 올해 승진자, 정재웅, 손영배 제외  6번째
+                               FROM T_CM_PERSON
+                              WHERE JOB_CD IN ('140','150','160','170','180','190','200','210','220','230','240','250')
+                                AND SUBSTR(TO_CHAR(JPR_YMD,'YYYY-MM-DD'),1,4) = ?
+								AND FINJ_CD != 'L01'
+								AND ENO_NO NOT IN ('2120001','2120012')
+                              UNION
+
+                             SELECT ENO_NO, 'B' REJECT_CD               -- 근속기준 6개월 미만 & 승진자제외   7번째
+                               FROM T_CM_PERSON
+                              WHERE TO_CHAR(HIR_YMD,'YYYY-MM-DD') > ? ||'-09-01'
+								AND OCC_CD NOT IN ('4','6','7','9')
+								AND SUBSTR(TO_CHAR(JPR_YMD,'YYYY-MM-DD'),1,4) != '2012'
+
+                              UNION
+
+                             SELECT ENO_NO, 'C' REJECT_CD               -- 전환채용자 & 근속기준제외 & 승진자제외 8번째
+                               FROM T_CM_AHISTORY
+		                      WHERE APP_CD = 'C8'
+		                      	AND STR_YMD > '2012-01-01'
+
+
+
+		                      UNION
+
+		                     SELECT ENO_NO, 'D' REJECT_CD                -- 6개월 이상 휴직자
+                               FROM T_CM_AHISTORY
+		                      WHERE STR_YMD BETWEEN ?-1||'0301' AND ?||'0229'
+		                        AND APP_CD = 'LN1'
+		                        AND JCD_CD NOT IN ('L21', 'L22', 'L24','L28','L30')
+                           GROUP BY ENO_NO
+                             HAVING SUM(TO_DATE(NVL(END_YMD,?),'YYYY-MM-DD') - TO_DATE(STR_YMD,'YYYY-MM-DD')) > 180
+
+                              UNION
+
+                             SELECT ENO_NO, 'E' REJECT_CD							--정직/대기발령 중징계자
+                               FROM T_CM_AHISTORY
+		                      WHERE STR_YMD BETWEEN ?-1||'0301' AND ?||'0229'
+		                        AND JCD_CD IN ('L51', 'L52', 'L53', 'L54', 'L63')) D
+
+                      WHERE A.JOB_CD NOT IN (SELECT COMM_CD FROM T_CM_COMMON WHERE CD_GBN = 'A2' AND REMARK = '1A')
+                        AND A.RET_YMD IS NULL
+                        AND ? >= TO_CHAR(A.HIR_YMD,'YYYY-MM-DD')
+                        AND A.JOB_CD = B.COMM_CD
+                        AND B.CD_GBN = 'A2'
+                   		AND A.JOB_CD  NOT IN ('000','010', '020', '030','060','080','120','840','850','870','920','999' )
+                   		AND A.OCC_CD NOT IN ('4','6','7','9')
+                        AND A.ENO_NO = D.ENO_NO(+)  -- 리턴값이 2개 이상일 경우 변경 처리 (현재 고려 안 함)
+                        AND A.ENO_NO = C.ENO_NO(+)
+                        AND A.ENO_NO = E.ENO_NO(+)) A,
+
+                    (SELECT MAX(APY_YMD) APY_YMD FROM T_CP_PAYTABLE WHERE  APY_YMD <= ?) B,
+                    (SELECT MAX(APY_YMD) APY_YMD FROM T_CP_PAYTABLE WHERE  APY_YMD < ?)  C
+          ORDER BY SF_GET_COMMSEQ('01','A2',A.PJOB_CD), SF_GET_DPTSEQ('01','A4',A.DPT_CD)
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 승급 대상자의 정보를 조회 한다. -->
+    <sql name="GRAA020_SHR999">
+        <description>승급대상자 정보 조회</description>
+        <query>
+             <![CDATA[
+              -- 작업前 1월 이후 특별승호자가 있는지 반드시 확인
+              SELECT TO_CHAR(TO_DATE(A.RAI_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS RAI_YMD,
+		             A.ENO_NO ENO_NO, SF_GET_ENONAME('01', ENO_NO) AS ENO_NM,
+		             A.OCC_CD OCC_CD, SF_GET_COMMNAME('01','A1',OCC_CD) AS OCC_NM,
+		             A.DPT_CD DPT_CD, SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+		             A.STTJ_CD STTJ_CD,SF_GET_COMMNAME('01','A2',STTJ_CD) AS STTJ_NM,
+                     A.PJOB_CD PJOB_CD,SF_GET_COMMNAME('01','A2',PJOB_CD) AS PJOB_NM,
+                     TO_CHAR(TO_DATE(A.HIR_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS HIR_YMD,
+                     TO_CHAR(TO_DATE(A.GHI_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS GHI_YMD,
+                     A.GRP_NAM GRP_NAM,
+                     TO_CHAR(TO_DATE(A.FPRO_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS  FPRO_YMD,
+                     TO_CHAR(TO_DATE(A.HBA_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS  HBA_YMD,
+                     A.YRP_CNT YRP_CNT,
+                     TRIM(A.HOB) HOB,
+                     A.BAS_HOB BAS_HOB,
+                     A.CON_HOB CON_HOB,
+                     A.FIN_HOB FIN_HOB,
+                     A.REJECT_CD REJECT_CD,
+                    (SELECT NVL(BAS_AMT,0) + NVL(DUTY_AMT,0) + NVL(OT_AMT,0) + NVL(WEL_AMT,0) +
+                            NVL(OSE_AMT,0) + NVL(RUN_AMT,0) + NVL(MH_AMT,0)
+                       FROM T_CP_PAYTABLE
+                      WHERE A.OCC_CD  = OCC_CD
+                        AND A.STTJ_CD = JOB_CD
+                        AND A.HOB     = HOB_CD
+                        AND C.APY_YMD = APY_YMD) AS SAL_AMT,
+                    (SELECT NVL(BAS_AMT,0) + NVL(DUTY_AMT,0) + NVL(OT_AMT,0) + NVL(WEL_AMT,0) +
+                            NVL(OSE_AMT,0) + NVL(RUN_AMT,0) + NVL(MH_AMT,0)
+                       FROM T_CP_PAYTABLE
+                      WHERE A.OCC_CD  = OCC_CD
+                        AND A.STTJ_CD = JOB_CD
+                        AND A.CON_HOB     = HOB_CD
+                        AND B.APY_YMD = APY_YMD) AS CON_SAL,
+                    (SELECT NVL(BAS_AMT,0) + NVL(DUTY_AMT,0) + NVL(OT_AMT,0) + NVL(WEL_AMT,0) +
+                            NVL(OSE_AMT,0) + NVL(RUN_AMT,0) + NVL(MH_AMT,0)
+                       FROM T_CP_PAYTABLE
+                      WHERE A.OCC_CD  = OCC_CD
+                        AND A.STTJ_CD = JOB_CD
+                        AND A.FIN_HOB = HOB_CD
+                        AND B.APY_YMD = APY_YMD) AS FIN_SAL
+               FROM (SELECT  ? RAI_YMD,
+                             A.ENO_NO,
+                             A.ENO_NM,
+                             A.OCC_CD,
+                             A.DPT_CD,
+                             B.GBN2_TAG STTJ_CD,
+                             A.JOB_CD PJOB_CD,
+                             TO_CHAR(A.HIR_YMD,'YYYY-MM-DD') HIR_YMD,
+                             TO_CHAR(A.HIRG_YMD,'YYYY-MM-DD') GHI_YMD,
+                             '' GRP_NAM,
+                             TO_CHAR(A.JPR_YMD,'YYYY-MM-DD') FPRO_YMD,
+                             TO_CHAR(A.HBA_YMD,'YYYY-MM-DD') HBA_YMD,
+                             FLOOR(MONTHS_BETWEEN(TO_DATE(?,'YYYY-MM-DD'),JPR_YMD)/12)+1 AS YRP_CNT,
+                             A.HOB_CD HOB,
+                             A.HOB_CD BAS_HOB,
+                             A.HOB_CD CON_HOB,
+                             CASE WHEN C.GBN_TAG = 'S' AND ? > SUBSTR(TO_CHAR(A.JPR_YMD,'YYYY-MM-DD'),1,4) THEN TO_CHAR(A.HOB_CD + 2,'FM00')
+                                  WHEN E.GBN_TAG = 'X' OR D.REJECT_CD IN ('A','B','C','D','E','F') THEN A.HOB_CD
+                                  ELSE TO_CHAR(A.HOB_CD + 1,'FM00')
+                             END FIN_HOB,
+                             DECODE(NVL(C.GBN_TAG,E.GBN_TAG),
+                             NULL,
+                             D.REJECT_CD,
+                             NVL(C.GBN_TAG,E.GBN_TAG)) REJECT_CD
+
+                       FROM T_CM_PERSON A,
+
+                       		T_CM_COMMON B,
+
+                            (SELECT ENO_NO, 'S' GBN_TAG
+                               FROM T_EV_ABLRST
+                              WHERE EVL_YY = ? - 1
+                                AND FINAL_GRD = 'S'
+                           GROUP BY ENO_NO
+                             HAVING COUNT(*) = 3) C,
+
+                            (SELECT ENO_NO, 'X' GBN_TAG
+                               FROM T_EV_ABLRST
+                              WHERE EVL_YY = ? - 1
+                                AND FINAL_GRD = 'D'
+                           GROUP BY ENO_NO
+                             HAVING COUNT(*) = 3) E,
+
+                            (SELECT ENO_NO, 'A' REJECT_CD               -- 올해 4급 승진자  6번째
+                               FROM T_CM_PERSON
+                              WHERE JOB_CD IN ('240','250')
+                                AND SUBSTR(TO_CHAR(JPR_YMD,'YYYY-MM-DD'),1,4) = ?
+
+                              UNION
+                             SELECT ENO_NO, 'B' REJECT_CD               -- 근속기준 6개월 미만  7번째
+                               FROM T_CM_PERSON
+                              WHERE TO_CHAR(HIR_YMD,'YYYY-MM-DD') > ? ||'-09-01'
+
+                              UNION
+                             SELECT ENO_NO, 'C' REJECT_CD               -- 휴직중인 자
+                               FROM T_CM_AHISTORY
+		                      WHERE ? BETWEEN STR_YMD AND NVL(END_YMD,'99999999')
+		                        AND APP_CD = 'LN1'
+		                        AND JCD_CD NOT IN ('L21', 'L22', 'L24','L28','L30')
+
+		                      UNION
+		                     SELECT ENO_NO, 'D' REJECT_CD                -- 6개월 이상 휴직자
+                               FROM T_CM_AHISTORY
+		                      WHERE STR_YMD BETWEEN ?-1||'0301' AND ?||'0229'
+		                        AND APP_CD = 'LN1'
+		                        AND JCD_CD NOT IN ('L21', 'L22', 'L24','L28','L30')
+                           GROUP BY ENO_NO
+                             HAVING SUM(TO_DATE(NVL(END_YMD,?),'YYYY-MM-DD') - TO_DATE(STR_YMD,'YYYY-MM-DD')) > 180
+
+                              UNION
+                             SELECT ENO_NO, 'E' REJECT_CD
+                               FROM T_CM_AHISTORY
+		                      WHERE STR_YMD BETWEEN ?-1||'0301' AND ?||'0229'
+		                        AND JCD_CD IN ('L51', 'L52', 'L53', 'L63')) D
+
+                      WHERE A.JOB_CD NOT IN (SELECT COMM_CD FROM T_CM_COMMON WHERE CD_GBN = 'A2' AND REMARK = '1A')
+                        AND (A.RET_YMD IS NULL OR TO_CHAR(A.RET_YMD,'YYYY-MM-DD') >= SUBSTR(TO_CHAR(SYSDATE,'YYYY-MM-DD'),1,6)||'01')
+                        AND ? >= TO_CHAR(A.HIR_YMD,'YYYY-MM-DD')
+                        AND A.JOB_CD = B.COMM_CD
+                        AND B.CD_GBN = 'A2'
+                   		AND A.JOB_CD  NOT IN ('000','010', '020', '030','870','999','060','080','120','850','920','840' )
+                   		AND A.OCC_CD NOT IN ('3','4','6','7','9')
+                        AND A.ENO_NO = D.ENO_NO(+)  -- 리턴값이 2개 이상일 경우 변경 처리 (현재 고려 안 함)
+                        AND A.ENO_NO = C.ENO_NO(+)
+                        AND A.ENO_NO = E.ENO_NO(+)) A,
+                    (SELECT MAX(APY_YMD) APY_YMD FROM T_CP_PAYTABLE WHERE  APY_YMD <= ?) B,
+                    (SELECT MAX(APY_YMD) APY_YMD FROM T_CP_PAYTABLE WHERE  APY_YMD < ?)  C
+          ORDER BY SF_GET_COMMSEQ('01','A2',A.PJOB_CD), SF_GET_DPTSEQ('01','A4',A.DPT_CD)
+
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 승급대상자를 저장 한다. -->
+    <sql name="GRAA020_INS">
+        <description>승급대상자 등록</description>
+        <query>
+            <![CDATA[
+             INSERT INTO T_PM_GRADE
+             ( RAI_YMD, PRO_NO, ENO_NO, OCC_CD, RAI_CD, DPT_CD, STTJ_CD,
+               PJOB_CD, HIR_YMD, GHI_YMD, GRP_NAM, FPRO_YMD, HBA_YMD,
+               YRP_CNT, HOB, SAL_AMT, BAS_HOB, CON_HOB, CON_SAL, FIN_HOB,
+               FIN_SAL, REJECT_CD, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+             VALUES
+             ( ?      , ?     , ?     , ?     , ?     , ?      , ?      ,
+               ?      , ?      , ?     , ?       , ?        , ?      ,
+               ?      , ?  , ?      , ?      , ?      , ?      , ?       ,
+               ?      , ?  , ?    , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 작업 LOG 등록 -->
+    <sql name="GRAA020_INS_LOG">
+        <description>작업 LOG 등록</description>
+        <query>
+            <![CDATA[
+              INSERT
+                INTO T_CP_WORKLOG
+                    (PIS_YY
+                    ,PIS_MM
+                    ,SEQ
+                    ,OCC_CD
+                    ,SAL_GBN
+                    ,PRO_STS
+                    ,PAY_YMD
+                    ,APY_YMD
+                    ,PRO_CNT
+                    ,ERR_CNT
+                    ,IPT_MAN
+                    ,IPT_YMD
+                    ,UPT_MAN
+                    ,UPT_YMD)
+              VALUES(?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,SYSDATE
+                    ,?
+                    ,SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 작업 LOG가 등록 되었는지 여부 검증 -->
+    <sql name="GRAA020_SHR_LOG_CHK">
+        <description>작업 LOG가 등록 되었는지</description>
+        <query>
+            <![CDATA[
+            SELECT PRO_STS
+                  ,PRO_CNT
+                  ,ERR_CNT
+              FROM T_CP_WORKLOG
+             WHERE SAL_GBN  = ?
+               AND PAY_YMD  = ?
+               AND SEQ      = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : GRAA030
+* @description : 승급심사개인별입력
+***********************************************************************
+* 2007/01/24      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 승급 심사 대상자의 정보를 조회 한다. -->
+    <sql name="GRAA030_SHR">
+        <description>승급 심사 대상자 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_DATE(RAI_YMD, 'YYYY-MM-DD') AS RAI_YMD, PRO_NO,
+                   ENO_NO, SF_GET_ENONAME('01', ENO_NO) AS ENO_NM,
+                   OCC_CD, SF_GET_COMMNAME('01','A1',OCC_CD) AS OCC_NM,
+                   RAI_CD, DPT_CD, SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+                   STTJ_CD, SF_GET_COMMNAME('01','A2',STTJ_CD) AS STTJ_NM,
+                   PJOB_CD, SF_GET_COMMNAME('01','A2',PJOB_CD) AS PJOB_NM,
+                   TO_DATE(HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD,
+                   TO_DATE(GHI_YMD, 'YYYY-MM-DD') AS GHI_YMD,
+                   TO_DATE(FPRO_YMD, 'YYYY-MM-DD') AS FPRO_YMD,
+                   TO_DATE(HBA_YMD, 'YYYY-MM-DD') AS HBA_YMD,
+                   YRP_CNT, HOB, SAL_AMT, BAS_HOB, CON_HOB, CON_SAL, FIN_HOB,
+                   FIN_SAL, REMARK
+            FROM   T_PM_GRADE
+            WHERE  RAI_YMD = ?
+            AND    NVL(ENO_NO,' ') LIKE '%'||?||'%'
+            ORDER BY SF_GET_COMMSEQ('01','A2',PJOB_CD), SF_GET_COMMSEQ('01','A3',BAS_HOB) DESC, HIR_YMD, ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해당 직급의 급여를 가져온다. -->
+    <sql name="GRAA030_SHR_PAY">
+        <description>해당 직급의 급여를 가져온다.</description>
+        <query>
+            <![CDATA[
+            SELECT *
+              FROM (SELECT ROW_NUMBER() OVER(ORDER BY APY_YMD DESC) AS NUM
+                          ,APY_YMD
+                          ,OCC_CD
+                          ,JOB_CD
+                          ,HOB_CD
+                          ,NVL(BAS_AMT,0)+NVL(DUTY_AMT,0)+NVL(OT_AMT,0)+NVL(WEL_AMT,0)+NVL(OSE_AMT,0)+NVL(RUN_AMT,0)+NVL(MH_AMT,0) AS STMT_AMT
+                      FROM T_CP_PAYTABLE
+                     WHERE OCC_CD = ?
+                       AND JOB_CD = ?
+                       AND HOB_CD = ?)
+             WHERE NUM = 1
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 승급 심사 대상자의 정보를 수정 한다. -->
+    <sql name="GRAA030_UPT">
+        <description>승급제외자 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_PM_GRADE
+             SET    FIN_HOB = ?,			--최종호봉
+                    FIN_SAL = ?,			--최종급여
+                    REMARK = ?,				--비고
+                    UPT_MAN = ?,			--수정자
+                    UPT_YMD = sysdate
+             WHERE  RAI_YMD = ?				--승급예정일
+             AND    ENO_NO = ?				--사번
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 작업 LOG가 등록 되었는지 여부 검증 -->
+    <sql name="GRAA030_SHR_LOG_CHK">
+        <description>작업 LOG가 등록 되었는지</description>
+        <query>
+            <![CDATA[
+            SELECT PRO_STS
+                  ,PRO_CNT
+                  ,ERR_CNT
+              FROM T_CP_WORKLOG
+             WHERE SAL_GBN  = ?
+               AND PAY_YMD  = ?
+               AND SEQ      = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 작업 LOG 등록 자료 변경 -->
+    <sql name="GRAA030_SHR_LOG_UPT">
+        <description>작업 LOG 등록 자료 변경</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_WORKLOG
+               SET PRO_STS = ?
+                  ,UPT_MAN = ?
+                  ,UPT_YMD = SYSDATE
+             WHERE SAL_GBN  = ?
+               AND PAY_YMD  = ?
+               AND SEQ      = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : GRAA040
+* @description : 개인별급상여현황
+***********************************************************************
+* 2007/01/26      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 개인별급상여현황 정보를 조회 한다. -->
+    <sql name="GRAA040_SHR">
+        <description>개인별급상여현황 정보 조회</description>
+        <query>
+            <![CDATA[
+             [1]
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : GRAA050
+* @description : 직급호봉별임금조정현황
+***********************************************************************
+* 2007/01/30      오대성       최초작성
+***********************************************************************
+-->
+
+	<!-- 직급호봉별임금조정현황 정보를 조회 한다. -->
+    <sql name="GRAA050_SHR">
+        <description>직급호봉별임금조정현황 정보 조회</description>
+        <query>
+            <![CDATA[
+             [1]
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : GRAA060
+* @description : 승급결과 처리작업
+***********************************************************************
+* 2007/02/01      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 승급결과 처리대상자 수를 조회 한다. -->
+    <sql name="GRAA060_SHR">
+        <description>승급결과 처리대상자 조회</description>
+        <query>
+            <![CDATA[
+		    SELECT CNT AS PRO_CNT
+                  ,((SELECT PRO_CNT
+                     FROM   T_CP_WORKLOG
+                     WHERE  SAL_GBN = 'S'
+                     AND    PAY_YMD = A.RAI_YMD
+                     AND    SEQ = '1'
+                    ) - CNT) AS ERR_CNT
+              FROM (SELECT COUNT(*) AS CNT
+                          ,RAI_YMD
+                    FROM   T_PM_GRADE A,
+                           T_CM_PERSON B
+                    WHERE  A.RAI_YMD = ?
+                    AND    A.PRO_NO  = ?
+                    AND    A.HOB <> A.FIN_HOB
+                    AND    A.ENO_NO = B.ENO_NO (+)
+                    GROUP BY RAI_YMD) A
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 작업 LOG 등록 자료 변경 -->
+    <sql name="GRAA060_SHR_LOG_UPT">
+        <description>작업 LOG 등록 자료 변경</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_WORKLOG
+               SET PRO_STS = ?
+                  ,PRO_CNT = ?
+                  ,ERR_CNT = ?
+                  ,UPT_MAN = ?
+                  ,UPT_YMD = SYSDATE
+             WHERE SAL_GBN  = ?
+               AND PAY_YMD  = ?
+               AND SEQ      = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : GRAA070
+* @description : 급/상여 소급 처리
+***********************************************************************
+* 2007/02/01      오대성       최초작성      -GRAA070_SHR
+* 2007/05/05      김학수       인쇄부분추가(복구)  -GRAA070_SHR_PRINT
+***********************************************************************
+-->
+
+    <!-- 급/상여 소급 정보를 조회 한다. -->
+    <sql name="GRAA070_SHR">
+        <description>급/상여 소급 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT A.ENO_NO, A.ENO_NM, A.DPT_NM,
+                    A.JOB_NM, B.PAY_CNT, B.AMOUNT
+             FROM   VI_T_CM_PERSON2 A,
+                    ( SELECT ENO_NO, COUNT(ENO_NO) PAY_CNT,
+                             SUM(AMOUNT) AMOUNT
+                      FROM T_CP_CHANGE
+                      WHERE SAL_CD = ?
+                      AND   PIS_YY = ?
+                      AND   PIS_MM = ?
+                      AND   SEQ    > 900
+                      GROUP BY ENO_NO) B,
+                    [1]
+                      WHERE  CD_GBN = ? ) C
+             WHERE  A.OCC_CD = ?
+             AND    A.ENO_NO = B.ENO_NO
+             [2]
+             ORDER BY A.DPT_SEQ, A.JOB_SEQ, A.HOB_SEQ DESC, A.HIRG_YMD, A.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+   <!-- 급/상여 소급 정보를 조회 한다. -->
+    <sql name="GRAA070_SHR_PRINT">
+        <description>급/상여 소급 정보 조회(보고서용)</description>
+        <query>
+            <![CDATA[
+            SELECT [1]
+				 , DECODE(INT,1,A.HEAD_SEQ,A.HEAD_SEQ)			HEAD_SEQ
+				 , DECODE(INT,1,'999',A.HOB_SEQ)				HOB_SEQ
+				 , DECODE(INT,1,'',A.HIRG_YMD)					HIRG_YMD
+			     , DECODE(INT,1,'',A.ENO_NO)					ENO_NO
+			     , DECODE(INT,1,'',A.ENO_NM)					ENO_NM				--사원명
+				 , DECODE(INT,1,B.SAL_GBN,B.SAL_GBN)			SAL_GBN
+			     , SUM(B.AMOUNT_02)								AMOUNT_02
+                 , SUM(B.AMOUNT_03)								AMOUNT_03
+                 , SUM(B.AMOUNT_04)								AMOUNT_04
+                 , SUM(B.AMOUNT_05)								AMOUNT_05
+                 , SUM(B.AMOUNT_06)								AMOUNT_06
+                 , SUM(B.AMOUNT_07)								AMOUNT_07
+                 , SUM(B.AMOUNT_08)								AMOUNT_08
+                 , SUM(B.AMOUNT_09)								AMOUNT_09
+                 , SUM(B.AMOUNT_10)								AMOUNT_10
+                 , SUM(B.AMOUNT_11)								AMOUNT_11
+			     , SUM(B.AMOUNT_02)+SUM(B.AMOUNT_03)+SUM(B.AMOUNT_04)+SUM(B.AMOUNT_05)+SUM(B.AMOUNT_06)+SUM(B.AMOUNT_07)+
+				   SUM(B.AMOUNT_08)+SUM(B.AMOUNT_09)+SUM(B.AMOUNT_10)+SUM(B.AMOUNT_11)       TOT1
+
+             FROM   VI_T_CM_PERSON A,
+                    (SELECT ENO_NO,
+                           '0' SAL_GBN,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'02',AMOUNT,0)) AMOUNT_02,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'03',AMOUNT,0)) AMOUNT_03,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'04',AMOUNT,0)) AMOUNT_04,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'05',AMOUNT,0)) AMOUNT_05,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'06',AMOUNT,0)) AMOUNT_06,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'07',AMOUNT,0)) AMOUNT_07,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'08',AMOUNT,0)) AMOUNT_08,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'09',AMOUNT,0)) AMOUNT_09,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'10',AMOUNT,0)) AMOUNT_10,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'11',AMOUNT,0)) AMOUNT_11,
+                           SUM(AMOUNT) TOT
+                      FROM T_CP_CHANGE
+                     WHERE (PIS_YY = SUBSTR(?,0,4))
+                       AND (PIS_MM = SUBSTR(?,6,2))
+                       AND (SAL_CD = 'DA')
+                       AND (SEQ    > 900 )
+                       AND (SUBSTR(REMARK,9,2) = '급여')
+                     GROUP BY ENO_NO
+                     UNION
+                     SELECT ENO_NO,
+                           '1' SAL_GBN,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'02',AMOUNT,0)) AMOUNT_02,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'03',AMOUNT,0)) AMOUNT_03,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'04',AMOUNT,0)) AMOUNT_04,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'05',AMOUNT,0)) AMOUNT_05,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'06',AMOUNT,0)) AMOUNT_06,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'07',AMOUNT,0)) AMOUNT_07,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'08',AMOUNT,0)) AMOUNT_08,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'09',AMOUNT,0)) AMOUNT_09,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'10',AMOUNT,0)) AMOUNT_10,
+                           SUM(DECODE(SUBSTR(REMARK,6,2),'11',AMOUNT,0)) AMOUNT_11,
+                           SUM(AMOUNT) TOT
+                      FROM T_CP_CHANGE
+                     WHERE (PIS_YY = SUBSTR(?,0,4))
+                       AND (PIS_MM = SUBSTR(?,6,2))
+                       AND (SAL_CD = 'DA')
+                       AND (SEQ    > 900 )
+                       AND (SUBSTR(REMARK,9,2) = '상여')
+                    GROUP BY ENO_NO,PIS_MM
+				    ) B,
+                    ( SELECT COMM_CD, COMM_NM, SORT_NO
+                      FROM   T_CM_COMMON
+                      WHERE  CD_GBN = ?
+					) C,
+					(SELECT ROWNUM INT
+					   FROM DICT
+					  WHERE ROWNUM <=2
+					) COPYT
+             WHERE  A.OCC_CD = ?
+             AND    A.ENO_NO = B.ENO_NO
+			 [2]
+ --            AND    C.SORT_NO BETWEEN '1' AND '9999'
+			 GROUP BY [3]
+					, DECODE(INT,1,'999',A.HOB_SEQ)
+					, DECODE(INT,1,'',A.HIRG_YMD)
+					, DECODE(INT,1,'',A.ENO_NO)
+					, DECODE(INT,1,'',A.ENO_NM)
+					, DECODE(INT,1,B.SAL_GBN,B.SAL_GBN)
+             ORDER BY DECODE(INT,1,A.HEAD_SEQ,A.HEAD_SEQ)
+			        [4]
+					, DECODE(INT,1,'999',A.HOB_SEQ) DESC, DECODE(INT,1,'',A.HIRG_YMD), DECODE(INT,1,'',A.ENO_NO), DECODE(INT,1,B.SAL_GBN,B.SAL_GBN)
+
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : GRAA080
+* @description : 보직변경자/무급휴직자/징계자리스트 처리
+***********************************************************************
+* 2007/02/05      오대성       최초작성
+***********************************************************************
+-->
+
+    <!-- 개인정보조회 -->
+    <sql name="GRAA080_SHR_01">
+        <description>개인정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO, A.ENO_NM, A.DPT_CD, A.DPT_NM, A.JOB_CD, A.JOB_NM,
+                   A.HIR_YMD, A.HOB_CD, A.OCC_CD, A.OCC_NM
+            FROM   VI_T_CM_PERSON A, T_PM_GRADE B
+            WHERE  SUBSTR(NVL(LTRIM(TO_CHAR(A.HIR_YMD, 'YYYYMMDD')),'00000000'),1,6) < ?
+            AND    SUBSTR(NVL(LTRIM(TO_CHAR(A.RET_YMD, 'YYYYMMDD')),'99999999'),1,6) >= ?
+            AND    A.ENO_NO = B.ENO_NO
+            AND    SUBSTR(B.RAI_YMD,1,6) = ?
+            AND    B.REMARK LIKE ?||'%'
+            ORDER BY A.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 기간을 위한 날짜 조회 -->
+    <sql name="GRAA080_SHR_02">
+        <description>기간을 위한 날짜 조회</description>
+        <query>
+            <![CDATA[
+            SELECT CASE WHEN ? > ? THEN ? ELSE ? END AS FROM_YM,
+                   TO_CHAR(TO_DATE(?,'YYYYMM')-1,'YYYYMM') AS TO_YM
+            FROM   DUAL
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 육원승급심사 -->
+    <sql name="GRAA080_SHR_03">
+        <description>육원승급심사</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO, HOB, FIN_HOB, STTJ_CD
+            FROM   T_PM_GRADE
+            WHERE  ENO_NO = ?
+            AND    SUBSTR(RAI_YMD,1,6) = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 직위조회 -->
+    <sql name="GRAA080_SHR_04">
+        <description>직위조회</description>
+        <query>
+            <![CDATA[
+            SELECT GBN2_TAG
+            FROM   T_CM_COMMON
+            WHERE  CD_GBN  = 'A2'
+            AND    COMM_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 지급된 작업 LOG -->
+    <sql name="GRAA080_SHR_05">
+        <description>지급된 작업 LOG</description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YY, PIS_MM, SAL_GBN, APY_YMD
+            FROM   T_CP_WORKLOG
+            WHERE  OCC_CD = ?
+            AND    (SAL_GBN = '0' OR SAL_GBN = '1')
+            AND    (SUBSTR(NVL(LTRIM(PAY_YMD),'00000000'),1,6)
+                       BETWEEN ? AND ?)
+            ORDER BY PAY_YMD
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 기본수당계산(OLD_TB1_CUR3,NEW_TB1_CUR3) -->
+    <sql name="GRAA080_SHR_06">
+        <description>기본수당계산</description>
+        <query>
+            <![CDATA[
+            SELECT NVL(BAS_AMT,0) AS BAS_AMT, NVL(DUTY_AMT,0) AS DUTY_AMT,
+                   NVL(OT_AMT,0) AS OT_AMT, NVL(WEL_AMT,0) AS WEL_AMT,
+                   NVL(OSE_AMT,0) AS OSE_AMT, NVL(RUN_AMT,0) AS RUN_AMT,
+                   NVL(MH_AMT,0) AS MH_AMT
+            FROM   T_CP_PAYTABLE
+            WHERE  OCC_CD  = ?
+            AND    JOB_CD  = ?
+            AND    HOB_CD  = ?
+            AND    APY_YMD = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 입사후경력 -->
+    <sql name="GRAA080_SHR_07">
+        <description>입사후경력</description>
+        <query>
+            <![CDATA[
+            SELECT STR_YMD, END_YMD, OCC_CD, DPT_CD, JOB_CD, HOB_CD, JCD_CD
+            FROM   T_CM_AHISTORY
+            WHERE  ENO_NO = ?
+            AND    ( NOT(((TO_NUMBER(NVL(LTRIM(STR_YMD),'99999999')) < ?)
+                           AND (TO_NUMBER(NVL(LTRIM(END_YMD),'99999999')) < ?) )
+                      OR ((TO_NUMBER(NVL(LTRIM(STR_YMD),'99999999')) > ? )
+                           AND (TO_NUMBER(NVL(LTRIM(END_YMD),'99999999')) > ? )))
+                   )
+            ORDER BY ENO_NO,STR_YMD
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 발령구분코드조회 -->
+    <sql name="GRAA080_SHR_08">
+        <description>발령구분코드조회</description>
+        <query>
+            <![CDATA[
+            SELECT APP_CD
+            FROM   T_CM_AHISTORY
+            WHERE  ENO_NO = ?
+            AND    STR_YMD = (SELECT MAX(STR_YMD)
+                              FROM   T_CM_AHISTORY
+                              WHERE  ENO_NO = ?
+                              AND    STR_YMD > ?)
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 기본수당 재조회 -->
+    <sql name="GRAA080_SHR_09">
+        <description>기본수당 재조회</description>
+        <query>
+            <![CDATA[
+            SELECT NVL(A.BAS_AMT,0) AS BAS_AMT, NVL(A.DUTY_AMT,0) AS DUTY_AMT,
+                   NVL(A.OT_AMT,0) AS OT_AMT, NVL(A.WEL_AMT,0) AS WEL_AMT,
+                   NVL(A.OSE_AMT,0) AS OSE_AMT, NVL(A.RUN_AMT,0) AS RUN_AMT,
+                   NVL(A.MH_AMT,0) AS MH_AMT
+            FROM   T_CP_PAYTABLE A, T_CM_COMMON B
+            WHERE  A.OCC_CD  = ?
+            AND    A.HOB_CD  = ?
+            AND    A.APY_YMD = ?
+            AND    B.CD_GBN  = 'A2'
+            AND    A.JOB_CD  = B.GBN2_TAG
+            AND    B.COMM_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 상여금 조회 -->
+    <sql name="GRAA080_SHR_10">
+        <description>상여금 조회</description>
+        <query>
+            <![CDATA[
+            SELECT NVL(BAS_AMT,0) AS BAS_AMT, NVL(DUTY_AMT,0) AS DUTY_AMT,
+                   NVL(OT_AMT,0) AS OT_AMT, NVL(WEL_AMT,0) AS WEL_AMT,
+                   NVL(OSE_AMT,0) AS OSE_AMT, NVL(RUN_AMT,0) AS RUN_AMT,
+                   NVL(MH_AMT,0) AS MH_AMT, NVL(PAY_PCT,0) AS PAY_PCT,
+                   JOB_CD
+            FROM   T_CP_PAYMASTER
+            WHERE  ENO_NO  = ?
+            AND    PIS_YY  = ?
+            AND    PIS_MM  = ?
+            AND    SAL_GBN = '1'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- RETURN 데이터셋을 위한 조회 -->
+    <sql name="GRAA080_SHR_11">
+        <description>상여금 조회</description>
+        <query>
+            <![CDATA[
+            SELECT '' AS OCC_NM, '' AS DPT_NM, '' AS JOB_NM,
+                   '' AS ENO_NO, '' AS ENO_NM, '' AS SAL_GBN,
+                   '' AS JCD_CD, '' AS STR_YMD, '' AS END_YMD,
+                   '' AS FROM_YMD, '' AS TO_YMD, '' AS HOB,
+                   0 AS BAS_AMT, 0 AS DUTY_AMT, 0 AS OT_AMT,
+                   0 AS WEL_AMT, 0 AS OSE_AMT, 0 AS RUN_AMT,
+                   0 AS MH_AMT, 0 AS OLD_SALT_AMT, '' AS FIN_HOB,
+                   0 AS BAS_AMT1, 0 AS DUTY_AMT1, 0 AS OT_AMT1,
+                   0 AS WEL_AMT1, 0 AS OSE_AMT1, 0 AS RUN_AMT1,
+                   0 AS MH_AMT1, 0 AS NEW_SALT_AMT, 0 AS SALT_AMT,
+                   '' AS NO
+            FROM  DUAL
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : GRAA090
+* @description : 정기승급 현황
+***********************************************************************
+* 2007/04/06      김학수       최초작성
+***********************************************************************
+-->
+
+    <!-- 정기승급 현항을 조회 한다. -->
+    <sql name="GRAA090_SHR">
+        <description>정기승급 현황조회</description>
+        <query>
+            <![CDATA[
+           SELECT SF_GET_COMMNAME('01','A2',A.JOB_CD) COMM_NM, A.CNT TOT_CNT,
+                  NVL(B.CNT,0)+NVL(C.CNT,0) T1, B.CNT B_CNT, C.CNT C_CNT,
+                  NVL(D.CNT,0)+NVL(E.CNT,0)+NVL(F.CNT,0)+NVL(G.CNT,0) T2,
+                  D.CNT D_CNT, E.CNT E_CNT, F.CNT  F_CNT, G.CNT G_CNT, H.CNT H_CNT
+             FROM (SELECT STTJ_CD JOB_CD, COUNT(*) CNT
+                     FROM T_PM_GRADE
+                    WHERE RAI_YMD = ?||'0301'
+                 GROUP BY STTJ_CD) A,
+                  (SELECT STTJ_CD JOB_CD, COUNT(*) CNT
+                     FROM T_PM_GRADE
+                    WHERE RAI_YMD = ?||'0301'
+                      AND FIN_HOB-HOB = 1
+                 GROUP BY STTJ_CD) B,
+                  (SELECT STTJ_CD JOB_CD, COUNT(*) CNT
+                     FROM T_PM_GRADE
+                    WHERE RAI_YMD = ?||'0301'
+                      AND FIN_HOB-HOB = 2
+                 GROUP BY STTJ_CD) C,
+                  (SELECT STTJ_CD JOB_CD, COUNT(*) CNT
+                     FROM T_PM_GRADE
+                    WHERE RAI_YMD = ?||'0301'
+                      AND FIN_HOB=HOB
+                      AND REJECT_CD = 'A'
+                 GROUP BY STTJ_CD) D,
+                  (SELECT STTJ_CD JOB_CD, COUNT(*) CNT
+                     FROM T_PM_GRADE
+                    WHERE RAI_YMD = ?||'0301'
+                      AND FIN_HOB=HOB
+                      AND REJECT_CD = 'B'
+                 GROUP BY STTJ_CD) E,
+                  (SELECT STTJ_CD JOB_CD, COUNT(*) CNT
+                     FROM T_PM_GRADE
+                    WHERE RAI_YMD = ?||'0301'
+                      AND FIN_HOB=HOB
+                      AND REJECT_CD IN ('C','D','E')
+                 GROUP BY STTJ_CD) F,
+                  (SELECT STTJ_CD JOB_CD, COUNT(*) CNT
+                     FROM T_PM_GRADE
+                    WHERE RAI_YMD = ?||'0301'
+                      AND FIN_HOB=HOB
+                      AND REJECT_CD IS NULL
+                 GROUP BY STTJ_CD) G,
+                  (SELECT STTJ_CD JOB_CD, COUNT(*) CNT
+                     FROM T_PM_GRADE
+                    WHERE RAI_YMD = ?||'0301'
+                      AND FIN_HOB=HOB
+                      AND REJECT_CD = 'X'
+                 GROUP BY STTJ_CD) H
+            WHERE A.JOB_CD = B.JOB_CD(+)
+              AND A.JOB_CD = C.JOB_CD(+)
+              AND A.JOB_CD = D.JOB_CD(+)
+              AND A.JOB_CD = E.JOB_CD(+)
+              AND A.JOB_CD = F.JOB_CD(+)
+              AND A.JOB_CD = G.JOB_CD(+)
+              AND A.JOB_CD = H.JOB_CD(+)
+         ORDER BY SF_GET_COMMSEQ('01','A2',A.JOB_CD)
+         ]]>
+        </query>
+    </sql>
+
+
+</sqls>

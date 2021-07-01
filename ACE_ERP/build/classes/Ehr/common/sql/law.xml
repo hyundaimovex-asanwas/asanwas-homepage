@@ -1,0 +1,916 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 법무관리 -->
+<!--
+***********************************************************************
+* @UseCase     : LAWA010
+* @description : 신규등록
+* 2006/12/7     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 상세내역 조회 -->
+    <sql name="LAWA010_SHR">
+        <description>상세내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO,
+                   (SELECT COUNT_NUM
+                      FROM (SELECT ROW_NUMBER() OVER(ORDER BY ORD_NO) AS COUNT_NUM
+                                 , ORD_NO
+                              FROM T_LW_BONDLIST
+                            )
+                     WHERE ORD_NO = A.ORD_NO
+                    ) AS COUNT_NUM, --관리 번호 가져오기
+                   EVENT_NM,
+                   HEAD_CD,
+                   SF_GET_DPTNAME('01','B2',HEAD_CD) AS HEAD_NM,
+                   DPT_CD,
+                   SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+                   DECODE(NVL(ORD_YMD,''),'','',SUBSTR(ORD_YMD,1,4)||'-'||SUBSTR(ORD_YMD,5,2)||'-'||SUBSTR(ORD_YMD,7,2)) AS ORD_YMD,
+                   ORD_MAN,
+                   ORD_TEL,
+                   YOU_NM,
+                   YOU_MAN,
+                   YOU_TEL,
+                   BOND_GBN,
+                   SF_GET_COMMNAME('01', 'H3', BOND_GBN) AS BOND_GBN_NM,
+                   BOND_AMT,
+                   BOND_AC_AMT,
+                   BOND_TXT,
+                   SEC_LAND,
+                   SEC_PLED,
+                   SEC_GUAR,
+                   SEC_CASH,
+                   SEC_GUOR1,
+                   SEC_GUOR2,
+                   SEC_SO,
+                   LAW_NM,
+                   LAW_NO,
+                   LAW_B,
+                   LAW_1,
+                   LAW_2,
+                   LAW_3,
+                   LAW_A,
+                   LAW_GBN,
+                   WANT_MAN,
+                   DEFE_MAN,
+                   DECODE(NVL(DATE_B,''),'','',SUBSTR(DATE_B,1,4)||'-'||SUBSTR(DATE_B,5,2)||'-'||SUBSTR(DATE_B,7,2)) AS DATE_B,
+                   DECODE(NVL(DATE_1,''),'','',SUBSTR(DATE_1,1,4)||'-'||SUBSTR(DATE_1,5,2)||'-'||SUBSTR(DATE_1,7,2)) AS DATE_1,
+                   DECODE(NVL(DATE_2,''),'','',SUBSTR(DATE_2,1,4)||'-'||SUBSTR(DATE_2,5,2)||'-'||SUBSTR(DATE_2,7,2)) AS DATE_2,
+                   DECODE(NVL(DATE_3,''),'','',SUBSTR(DATE_3,1,4)||'-'||SUBSTR(DATE_3,5,2)||'-'||SUBSTR(DATE_3,7,2)) AS DATE_3,
+                   DECODE(NVL(DATE_A,''),'','',SUBSTR(DATE_A,1,4)||'-'||SUBSTR(DATE_A,5,2)||'-'||SUBSTR(DATE_A,7,2)) AS DATE_A,
+                   COST_B,
+                   COST_1,
+                   COST_2,
+                   COST_3,
+                   COST_A,
+                   DECODE(NVL(APP_DATE,''),'','',SUBSTR(APP_DATE,1,4)||'-'||SUBSTR(APP_DATE,5,2)||'-'||SUBSTR(APP_DATE,7,2)) AS APP_DATE,
+                   DECODE(NVL(FIN_DATE,''),'','',SUBSTR(FIN_DATE,1,4)||'-'||SUBSTR(FIN_DATE,5,2)||'-'||SUBSTR(FIN_DATE,7,2)) AS FIN_DATE,
+                   REMARK,
+                   END_YN
+            FROM T_LW_BONDLIST A
+            WHERE ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 진행사항, 예정사항 조회 -->
+    <sql name="LAWA010_SHR_02">
+        <description>진행사항, 예정사항 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ROW_NUMBER() OVER(ORDER BY HIS_YMD DESC, SEQ_NO DESC) AS SEQ_NO
+                 , ORD_NO
+                 , GBN_TAG
+                 , HIS_YMD
+                 , HIS_CONT
+                 , HIS_RESU
+                 , HIS_AMT
+              FROM T_LW_BONDHIST
+             WHERE ORD_NO  = ?
+               AND GBN_TAG = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 접수번호 생성을 위한 조회 -->
+    <sql name="LAWA010_SHR_01">
+        <description>접수번호 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO
+                 , B.COUNT_NUM
+             FROM (SELECT TO_CHAR(SYSDATE, 'YYYYMM')||'-'||LPAD(NVL(MAX(SUBSTR(ORD_NO, 8, 11)),0)+1, 3, 0) AS ORD_NO
+                      FROM T_LW_BONDLIST
+                     WHERE SUBSTR(ORD_NO, 1, 4) = TO_CHAR(SYSDATE, 'YYYY')
+                   ) A
+                , (SELECT COUNT(*)+1 AS COUNT_NUM
+                      FROM T_LW_BONDLIST
+                   ) B
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 법무 권한 조회 -->
+    <sql name="LAWA010_SHR_04">
+        <description>법무 권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DECODE(ROLE_CD,'1001','A','1002','A',DECODE(LAW_AUTHO, NULL, 'S', '', 'S', LAW_AUTHO)) AS LAW_AUTHO
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 법무 신규 저장 -->
+    <sql name="LAWA010_INS">
+        <description>법무 신규 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_LW_BONDLIST
+                 ( ORD_NO,
+                   EVENT_NM, HEAD_CD, DPT_CD, ORD_YMD, ORD_MAN, ORD_TEL, YOU_NM, YOU_MAN, YOU_TEL, BOND_GBN,
+                   BOND_AMT, BOND_AC_AMT, BOND_TXT, SEC_LAND, SEC_PLED, SEC_GUAR, SEC_CASH, SEC_GUOR1, SEC_GUOR2, SEC_SO,
+                   LAW_NM, LAW_NO, LAW_B, LAW_1, LAW_2, LAW_3, LAW_A, WANT_MAN, DEFE_MAN, DATE_B,
+                   DATE_1, DATE_2, DATE_3, DATE_A, COST_B, COST_1, COST_2, COST_3, COST_A, APP_DATE,
+                   FIN_DATE, REMARK, LAW_GBN,
+                   IPT_MAN,IPT_YMD,UPT_MAN,UPT_YMD
+                 )
+            VALUES
+                 ( ?,
+                   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                   ?, ?, ?,
+                   ?, SYSDATE,?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 법무 수정 -->
+    <sql name="LAWA010_UPT">
+        <description>법무 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_LW_BONDLIST
+            SET
+                   EVENT_NM = ?, --사건명
+                   HEAD_CD = ?, -- 사업부코드
+                   DPT_CD = ?, -- 의뢰부서
+                   ORD_YMD = ?, -- 의뢰일자
+                   ORD_MAN = ?, -- 담당자
+                   ORD_TEL = ?, -- 담당자연락처
+                   YOU_NM = ?, -- 상대처명
+                   YOU_MAN = ?, -- 상대처담당자
+                   YOU_TEL = ?, -- 상대처연락처
+                   BOND_GBN = ?, -- 채권구분
+                   BOND_AMT = ?, -- 채권금액
+                   BOND_AC_AMT = ?, -- 채권회수금액
+                   BOND_TXT = ?, -- 채권내용
+                   SEC_LAND = ?, -- 부동산근저당
+                   SEC_PLED = ?, -- 질권
+                   SEC_GUAR = ?, -- 보증보험
+                   SEC_CASH = ?, -- 현금예치
+                   SEC_GUOR1 = ?, -- 연대보증인1
+                   SEC_GUOR2 = ?, -- 연대보증인2
+                   SEC_SO = ?, -- 기타
+                   LAW_NM = ?, -- 소명
+                   LAW_NO = ?, -- 사건번호
+                   LAW_B = ?, -- 가압류 보존처분
+                   LAW_1 = ?, -- 제 1심
+                   LAW_2 = ?, -- 제 2심
+                   LAW_3 = ?, -- 제 3심
+                   LAW_A = ?, -- 가처분 강제처분
+                   WANT_MAN = ?, -- 원고
+                   DEFE_MAN = ?, -- 피고
+                   DATE_B = ?, -- 가압류 기일
+                   DATE_1 = ?, -- 기일1
+                   DATE_2 = ?, -- 기일2
+                   DATE_3 = ?, -- 기일3
+                   DATE_A = ?, -- 가처분 기일
+                   COST_B = ?, -- 가압류 소송비용
+                   COST_1 = ?, -- 제 1심 소송비용
+                   COST_2 = ?, -- 제 2심 소송비용
+                   COST_3 = ?, -- 제 3신 소송비용
+                   COST_A = ?, -- 가처분 소송비용
+                   APP_DATE = ?, -- 항소불변기일
+                   FIN_DATE = ?, -- 상고불변기일
+                   REMARK = ?, -- 제안란
+                   LAW_GBN = ?, -- 사건구분
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  ORD_NO = ? --접수번호
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 진행사항, 예정사항 신규 저장 -->
+    <sql name="LAWA010_INS_01">
+        <description>진행사항, 예정사항 신규 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_LW_BONDHIST
+                 ( ORD_NO, SEQ_NO, GBN_TAG, HIS_YMD,
+                   HIS_CONT, HIS_RESU, HIS_AMT
+                 )
+            VALUES
+                 ( ?, ?, ?, ?,
+                   ?, ?, ?
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 진행사항, 예정사항 수정 -->
+    <sql name="LAWA010_UPT_01">
+        <description>진행사항, 예정사항 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_LW_BONDHIST
+            SET    HIS_CONT = ?, -- 내용
+                   HIS_RESU = ?, -- 결과
+                   HIS_AMT  = ?  -- 금액
+            WHERE  ORD_NO   = ?  --접수번호
+            AND    GBN_TAG  = ?  -- 구분
+            AND    HIS_YMD  = ?  -- 일자
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 진행사항, 예정사항 삭제 -->
+    <sql name="LAWA010_DEL_01">
+        <description>진행사항, 예정사항 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_LW_BONDHIST
+            WHERE  ORD_NO = ?
+            AND    GBN_TAG = ?
+            AND    HIS_YMD = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사건 완료 저장 -->
+    <sql name="LAWA010_UPT_03">
+        <description>사건 완료 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE T_LW_BONDLIST
+            SET    END_YN = ? -- 내용
+            WHERE  ORD_NO = ? --접수번호
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : LAWA020
+* @description : 전체내역조회
+***********************************************************************
+* 2006/12/14     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 전체 조회 -->
+    <sql name="LAWA020_SHR">
+        <description>조회</description>
+        <query>
+            <![CDATA[
+            SELECT ORD_NO
+                 , (SELECT COUNT_NUM
+                      FROM (SELECT ROW_NUMBER() OVER(ORDER BY ORD_NO) AS COUNT_NUM
+                                 , ORD_NO
+                              FROM T_LW_BONDLIST
+                            )
+                     WHERE ORD_NO = A.ORD_NO
+                    ) AS COUNT_NUM  --관리 번호 가져오기
+                 , EVENT_NM
+                 , TO_CHAR(TO_DATE(ORD_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS ORD_YMD
+                 , (SELECT HIS_CONT
+                      FROM T_LW_BONDHIST B
+                     WHERE A.ORD_NO = B.ORD_NO
+                       AND B.GBN_TAG='I'
+                       AND B.SEQ_NO = (SELECT MAX(TO_NUMBER(SEQ_NO)) FROM T_LW_BONDHIST C WHERE B.ORD_NO=C.ORD_NO AND C.GBN_TAG='I')
+                       AND B.HIS_YMD = (SELECT MAX(TO_NUMBER(HIS_YMD)) FROM T_LW_BONDHIST C WHERE B.ORD_NO=C.ORD_NO AND B.SEQ_NO=C.SEQ_NO AND C.GBN_TAG='I' )
+                    ) AS HIS_CONT
+                 , END_YN
+                 , DECODE(END_YN,'Y',1,0) END_CNT
+                 , ORD_MAN
+                 , YOU_NM
+                 , YOU_MAN
+                 , SEC_GUOR1
+                 , SEC_GUOR2
+              FROM T_LW_BONDLIST A
+             WHERE NVL(HEAD_CD , ' ') LIKE '%'||?||'%'
+               AND NVL(BOND_GBN, ' ') LIKE '%'||?||'%'
+               AND NVL(EVENT_NM, ' ') LIKE '%'||?||'%'
+               AND NVL(END_YN,' ') LIKE DECODE(?,'0','%','1','Y','2',' ')
+               AND ORD_NO IN (SELECT ORD_NO FROM T_LW_BONDHIST WHERE GBN_TAG = 'I' AND HIS_CONT LIKE '%'||?||'%')
+               [1]
+          ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 법무 삭제 -->
+    <sql name="LAWA020_DEL">
+        <description>법무 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_LW_BONDLIST
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 진행사항, 예정사항 전체 삭제 -->
+    <sql name="LAWA020_DEL_01">
+        <description>진행사항, 예정사항 전체 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_LW_BONDHIST
+            WHERE  ORD_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : LAWA030
+* @description : 채권회수진행현황
+***********************************************************************
+* 2006/12/15     한학현        최초작성.
+***********************************************************************
+-->
+
+    <!-- 전체 조회 -->
+    <!-- 070810-조회와 프린터 부분 분리 -->
+    <sql name="LAWA030_SHR">
+        <description>조회</description>
+        <query>
+            <![CDATA[
+            SELECT C.ORD_NO
+                 , C.ORD_YMD
+                 , C.HEAD_CD
+                 , C.HEAD_NM
+                 , C.EVENT_NM
+                 , DECODE(C.COUNT_NUM, 1, C.BOND_GBN    , '')   AS BOND_GBN
+                 , DECODE(C.COUNT_NUM, 1, C.BOND_GBN_NM , '')   AS BOND_GBN_NM
+                 , DECODE(C.COUNT_NUM, 1, C.BOND_AMT    , '')   AS BOND_AMT
+                 , DECODE(C.COUNT_NUM, 1, C.BOND_AC_AMT , '')   AS BOND_AC_AMT
+                 , DECODE(C.COUNT_NUM, 1, C.SEC_LAND    , '')   AS SEC_LAND
+                 , DECODE(C.COUNT_NUM, 1, C.SEC_PLED    , '')   AS SEC_PLED
+                 , DECODE(C.COUNT_NUM, 1, C.SEC_GUAR    , '')   AS SEC_GUAR
+                 , DECODE(C.COUNT_NUM, 1, C.SEC_CASH    , '')   AS SEC_CASH
+                 , DECODE(C.COUNT_NUM, 1, C.SEC_GUOR1   , '')   AS SEC_GUOR1
+                 , DECODE(C.COUNT_NUM, 1, C.SEC_GUOR2   , '')   AS SEC_GUOR2
+                 , DECODE(C.COUNT_NUM, 1, 1, 0) AS CNT
+                 , C.COUNT_NUM
+                 , D.HIS_CONT                                   AS HIS_CONT1
+                 , D.HIS_AMT                                    AS HIS_AMT1
+                 , E.HIS_CONT                                   AS HIS_CONT2
+                 , E.HIS_AMT                                    AS HIS_AMT2
+              FROM (SELECT A.ORD_NO
+                         , A.EVENT_NM
+                         , A.ORD_YMD
+                         , A.HEAD_CD
+                         , SF_GET_DPTNAME('01', 'B2', A.HEAD_CD) AS HEAD_NM
+                         , A.BOND_GBN
+                         , SF_GET_COMMNAME('01', 'H3', A.BOND_GBN) AS BOND_GBN_NM
+                         , A.BOND_AMT
+                         , A.BOND_AC_AMT
+                         , A.SEC_LAND
+                         , A.SEC_PLED
+                         , A.SEC_GUAR
+                         , A.SEC_CASH
+                         , A.SEC_GUOR1
+                         , A.SEC_GUOR2
+                         , NVL(B.COUNT_NUM, 1) AS COUNT_NUM
+                      FROM T_LW_BONDLIST A
+                         --현재 등록된 데이타 중 진행사항, 예정사항이 총 몇개인지를 알아온다.
+                         , (SELECT ROW_NUMBER() OVER(PARTITION BY ORD_NO
+                                                         ORDER BY HIS_YMD
+                                                     ) AS COUNT_NUM
+                                 , ORD_NO
+                              FROM T_LW_BONDHIST
+                             WHERE GBN_TAG='I'
+                             UNION
+                            SELECT ROW_NUMBER() OVER(PARTITION BY ORD_NO
+                                                         ORDER BY HIS_YMD
+                                                     ) AS COUNT_NUM
+                                 , ORD_NO
+                              FROM T_LW_BONDHIST
+                             WHERE GBN_TAG='P'
+                            ) B
+                     WHERE A.ORD_NO = B.ORD_NO(+)
+                    ) C
+                 --진행사항
+                 , (SELECT ROW_NUMBER() OVER(PARTITION BY ORD_NO
+                                                 ORDER BY HIS_YMD
+                                             ) AS COUNT_NUM
+                         , ORD_NO
+                         , SEQ_NO
+                         , HIS_CONT
+                         , HIS_AMT
+                      FROM T_LW_BONDHIST
+                     WHERE GBN_TAG='I'
+                    ) D
+                 --예정사항
+                 , (SELECT ROW_NUMBER() OVER(PARTITION BY ORD_NO
+                                                 ORDER BY HIS_YMD
+                                             ) AS COUNT_NUM
+                         , ORD_NO
+                         , SEQ_NO
+                         , HIS_CONT
+                         , HIS_AMT
+                      FROM T_LW_BONDHIST
+                     WHERE GBN_TAG='P'
+                    ) E
+             WHERE C.ORD_NO     = D.ORD_NO(+)
+               AND C.ORD_NO     = E.ORD_NO(+)
+               AND C.COUNT_NUM  = D.COUNT_NUM(+)
+               AND C.COUNT_NUM  = E.COUNT_NUM(+)
+               AND C.HEAD_CD    LIKE '%'||?||'%'
+               AND C.BOND_GBN   LIKE '%'||?||'%'
+               AND C.EVENT_NM   LIKE '%'||?||'%'
+               AND C.ORD_YMD BETWEEN ?
+                                 AND ?
+          ORDER BY C.HEAD_CD
+                 , C.ORD_NO DESC
+                 , C.COUNT_NUM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 출력물을 위해 데이타 정리 -->
+    <sql name="LAWA030_PROC">
+        <description>출력물을 위해 데이타 정리</description>
+        <query>
+            <![CDATA[
+            DECLARE
+
+                -- 인쇄할 대상들을 조회
+                CURSOR BOND_PRT_CUR
+                IS
+                    SELECT A.ORD_NO
+                         , A.EVENT_NM
+                         , A.ORD_YMD
+                         , A.HEAD_CD
+                         , A.DPT_CD
+                         , A.BOND_GBN
+                         , SF_GET_DPTNAME(  '01', 'B2', A.HEAD_CD)  AS HEAD_NM
+                         , SF_GET_DPTNAME(  '01', 'A4', A.DPT_CD)   AS DPT_NM
+                         , SF_GET_COMMNAME( '01', 'H3', A.BOND_GBN) AS BOND_GBN_NM
+                         , A.BOND_AMT
+                         , A.BOND_AC_AMT
+
+                         , A.SEC_LAND
+                         , A.SEC_PLED
+                         , A.SEC_GUAR
+                         , A.SEC_CASH
+                         , A.SEC_GUOR1
+                         , A.SEC_GUOR2
+
+                         , NVL(A.COST_1, 0)
+                            + NVL(A.COST_2, 0)
+                            + NVL(A.COST_3, 0)
+                            + NVL(A.COST_A, 0)
+                            + NVL(A.COST_B, 0)  AS COST_AMT
+                         , A.REMARK
+
+                         , NVL(A.LAW_GBN, 'L')  AS LAW_GBN  --사건구분 L:제소 A:피소
+
+                      FROM T_LW_BONDLIST A
+                     WHERE A.HEAD_CD    LIKE '%'||?||'%'
+                       AND A.BOND_GBN   LIKE '%'||?||'%'
+                       AND A.EVENT_NM   LIKE '%'||?||'%'
+                       AND A.ORD_YMD BETWEEN ?
+                                         AND ?
+                  ORDER BY A.HEAD_CD
+                         , A.ORD_NO DESC;
+
+
+                -- 진행사항 및 예정 사항을 조회
+                CURSOR BOND_HIS_CUR(p_ord_no VARCHAR2, p_gbn_tag VARCHAR2)
+                IS
+                    SELECT ROW_NUMBER() OVER(PARTITION BY ORD_NO
+                                                 ORDER BY HIS_YMD
+                                             ) AS COUNT_NUM
+                         , ORD_NO
+                         , SEQ_NO
+                         , HIS_CONT
+                         , NVL(HIS_AMT, 0) AS HIS_AMT
+                      FROM T_LW_BONDHIST
+                     WHERE ORD_NO  = p_ord_no
+                       AND GBN_TAG = p_gbn_tag;
+
+                in_eno_no       VARCHAR2(10);
+                l_err_msg       VARCHAR2(1000);
+                l_is_first      BOOLEAN;
+                l_guar_lst      VARCHAR2(250);
+                l_cnt           NUMBER;
+                l_str           VARCHAR2(100);
+                l_his_amt1      NUMBER;
+                l_his_amt2      NUMBER;
+                l_his_cont1     VARCHAR2(1000);
+                l_his_cont2     VARCHAR2(1000);
+
+            BEGIN
+                in_eno_no := ?;
+
+                --인쇄에 필요한 값들 초기화
+                BEGIN
+                    DELETE
+                      FROM T_LW_BONDLIST_PRT
+                     WHERE ENO_NO = in_eno_no;
+                EXCEPTION
+                    WHEN NO_DATA_FOUND
+                    THEN l_err_msg := '';
+                END;
+
+
+
+                BEGIN
+
+                    -- 인쇄할 대상들을 조회
+                    FOR vBOND_PRT_REC IN BOND_PRT_CUR
+                    LOOP
+
+
+                        --=========================
+                        -->1.담보 현황 조회
+                        --=========================
+
+                        --초기화
+                        l_is_first := true;
+                        l_guar_lst := '';
+
+                        --근저당
+                        IF vBOND_PRT_REC.SEC_LAND IS NOT NULL THEN
+                            l_is_first := false;
+
+                            l_guar_lst := '근저당:'||vBOND_PRT_REC.SEC_LAND;
+
+                            DBMS_OUTPUT.PUT_LINE(l_guar_lst);
+                        END IF;
+
+
+                        --질권
+                        IF vBOND_PRT_REC.SEC_PLED IS NOT NULL THEN
+                            IF l_is_first THEN
+                                l_is_first := false;
+                            ELSE
+                                l_guar_lst := l_guar_lst||CHR(13)||CHR(10);
+                            END IF;
+
+                            l_guar_lst := l_guar_lst||'질권:'||vBOND_PRT_REC.SEC_PLED;
+                            DBMS_OUTPUT.PUT_LINE(l_guar_lst);
+                        END IF;
+
+
+                        --보증보험
+                        IF vBOND_PRT_REC.SEC_GUAR IS NOT NULL THEN
+                            IF l_is_first THEN
+                                l_is_first := false;
+                            ELSE
+                                l_guar_lst := l_guar_lst||CHR(13)||CHR(10);
+                            END IF;
+
+                            l_guar_lst := l_guar_lst||'보증보험:'||vBOND_PRT_REC.SEC_GUAR;
+                        END IF;
+
+
+                        --현금예치
+                        IF vBOND_PRT_REC.SEC_CASH IS NOT NULL THEN
+                            IF l_is_first THEN
+                                l_is_first := false;
+                            ELSE
+                                l_guar_lst := l_guar_lst||CHR(13)||CHR(10);
+                            END IF;
+
+                            l_guar_lst := l_guar_lst||'현금예치:'||vBOND_PRT_REC.SEC_CASH;
+                        END IF;
+
+
+                        --연대보증인
+                        IF vBOND_PRT_REC.SEC_GUOR1 IS NOT NULL OR vBOND_PRT_REC.SEC_GUOR2 IS NOT NULL THEN
+                            IF l_is_first THEN
+                                l_is_first := false;
+                            ELSE
+                                l_guar_lst := l_guar_lst||CHR(13)||CHR(10);
+                            END IF;
+
+                            l_str := '';
+                            l_cnt := 0;
+
+                            l_str := '[';
+                            IF vBOND_PRT_REC.SEC_GUOR1 IS NOT NULL THEN
+                                l_cnt := l_cnt + 1;
+                                l_str := l_str||vBOND_PRT_REC.SEC_GUOR1;
+                            END IF;
+
+                            IF vBOND_PRT_REC.SEC_GUOR2 IS NOT NULL THEN
+                                l_cnt := l_cnt + 1;
+                                l_str := l_str||','||vBOND_PRT_REC.SEC_GUOR2;
+                            END IF;
+                            l_str := l_str||']';
+
+                            l_guar_lst := l_guar_lst||'연대보증인:'||l_cnt||'명';
+                            l_guar_lst := l_guar_lst||CHR(13)||CHR(10)||l_str;
+                        END IF;
+
+
+
+
+                        --=========================
+                        -->2. 진행사항 조회
+                        --=========================
+
+                        --초기화
+                        l_is_first  := true;
+                        l_his_amt1  := 0;
+                        l_his_cont1 := '';
+
+                        FOR vBOND_HIS_REC IN BOND_HIS_CUR(vBOND_PRT_REC.ORD_NO, 'I')
+                        LOOP
+                            IF l_is_first THEN
+                                l_is_first := false;
+                            ELSE
+                                l_his_cont1 := l_his_cont1||CHR(13)||CHR(10);
+                            END IF;
+
+                            l_his_cont1 := l_his_cont1||vBOND_HIS_REC.HIS_CONT;
+                            l_his_amt1  := l_his_amt1 + vBOND_HIS_REC.HIS_AMT;
+                        END LOOP;
+
+
+                        --=========================
+                        -->3. 예정사항 조회
+                        --=========================
+
+                        --초기화
+                        l_is_first  := true;
+                        l_his_amt2  := 0;
+                        l_his_cont2 := '';
+
+                        FOR vBOND_HIS_REC IN BOND_HIS_CUR(vBOND_PRT_REC.ORD_NO, 'P')
+                        LOOP
+                            IF l_is_first THEN
+                                l_is_first := false;
+                            ELSE
+                                l_his_cont2 := l_his_cont2||CHR(13)||CHR(10);
+                            END IF;
+
+                            l_his_cont2 := l_his_cont2||vBOND_HIS_REC.HIS_CONT;
+                            l_his_amt2  := l_his_amt2 + vBOND_HIS_REC.HIS_AMT;
+                        END LOOP;
+
+
+                        --=========================
+                        -->4. DB에 등록
+                        --=========================
+                        INSERT
+                          INTO T_LW_BONDLIST_PRT
+                             ( ENO_NO
+                             , ORD_NO
+                             , EVENT_NM
+                             , HEAD_CD
+                             , DPT_CD
+                             , ORD_YMD
+                             , BOND_GBN
+                             , BOND_AMT
+                             , BOND_AC_AMT
+                             , GUAR_LST
+                             , HIS_CONT1
+                             , HIS_AMT1
+                             , HIS_CONT2
+                             , HIS_AMT2
+                             , COST_AMT
+                             , REMARK
+                             , LAW_GBN)
+                      VALUES ( in_eno_no
+                             , vBOND_PRT_REC.ORD_NO
+                             , vBOND_PRT_REC.EVENT_NM
+                             , vBOND_PRT_REC.HEAD_CD
+                             , vBOND_PRT_REC.DPT_CD
+                             , vBOND_PRT_REC.ORD_YMD
+                             , vBOND_PRT_REC.BOND_GBN
+                             , vBOND_PRT_REC.BOND_AMT
+                             , vBOND_PRT_REC.BOND_AC_AMT
+                             , l_guar_lst
+                             , l_his_cont1
+                             , l_his_amt1
+                             , l_his_cont2
+                             , l_his_amt2
+                             , vBOND_PRT_REC.COST_AMT
+                             , vBOND_PRT_REC.REMARK
+                             , vBOND_PRT_REC.LAW_GBN );
+
+                    END LOOP;
+
+                EXCEPTION
+                    WHEN NO_DATA_FOUND
+                    THEN l_err_msg := '';
+                END;
+
+            END;
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 전체 조회(인쇄물 용) -->
+    <!-- 제소, 피소 구분(LAW_GBN)자가 신규 추가 필드라  지금은 비어 있습니다. -->
+    <!-- 현재는 제소, 피소를 구분 지을 수 있는 조건이 없습니다. 건건이 수정해주는게 빠를듯 -->
+    <!-- 쿼리는 한번 검정 하신 후 사용 하시면 될것 같습니다. -->
+    <!-- 조회 조건은 오로지 사번 입니다. -->
+    <sql name="LAWA030_SHR_PRT">
+        <description>전체 조회(인쇄물 용)</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                 , ORD_NO
+                 , EVENT_NM
+                 , HEAD_CD
+                 , DPT_CD
+                 , SF_GET_DPTNAME(  '01', 'A4', DPT_CD    ) AS DPT_NM
+                 , SF_GET_DPTNAME(  '01', 'B2', HEAD_CD    ) AS HEAD_NM
+                 , SF_GET_COMMNAME( '01', 'H3', BOND_GBN   ) AS BOND_GBN_NM
+                 , SF_GET_DPTSEQ(   '01', 'B2', HEAD_CD    ) AS SORT_NO
+                 , ORD_YMD
+                 , BOND_GBN
+                 , BOND_AMT
+                 , BOND_AC_AMT
+                 , GUAR_LST
+                 , HIS_CONT1
+                 , HIS_AMT1
+                 , HIS_CONT2
+                 , HIS_AMT2
+                 , COST_AMT
+                 , REMARK
+                 , LAW_GBN
+              FROM T_LW_BONDLIST_PRT
+             WHERE ENO_NO = ?
+             UNION
+            SELECT ''
+                 , ''
+                 , '계('||COUNT(*)||')건'
+                 , HEAD_CD
+                 , ''
+                 , ''
+                 , ''
+                 , ''
+                 , 900 --정렬 번호(소계)
+                 , ''
+                 , ''
+                 , SUM(NVL(BOND_AMT, 0))
+                 , SUM(NVL(BOND_AC_AMT, 0))
+                 , ''
+                 , ''
+                 , SUM(NVL(HIS_AMT1, 0))
+                 , ''
+                 , SUM(NVL(HIS_AMT2, 0))
+                 , SUM(NVL(COST_AMT, 0))
+                 , ''
+                 , LAW_GBN
+              FROM T_LW_BONDLIST_PRT
+             WHERE ENO_NO = ?
+          GROUP BY HEAD_CD
+                 , LAW_GBN
+             UNION
+            SELECT ''
+                 , ''
+                 , '총 계('||COUNT(*)||')건'
+                 , ''
+                 , ''
+                 , ''
+                 , ''
+                 , ''
+                 , 999 --정렬 번호(소계)
+                 , ''
+                 , ''
+                 , SUM(NVL(BOND_AMT, 0))
+                 , SUM(NVL(BOND_AC_AMT, 0))
+                 , ''
+                 , ''
+                 , SUM(NVL(HIS_AMT1, 0))
+                 , ''
+                 , SUM(NVL(HIS_AMT2, 0))
+                 , SUM(NVL(COST_AMT, 0))
+                 , ''
+                 , ''
+              FROM T_LW_BONDLIST_PRT
+             WHERE ENO_NO = ?
+               AND LAW_GBN = 'L' --피소사건은 제외
+          ORDER BY HEAD_CD
+                 , LAW_GBN
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 전체 조회 -->
+    <sql name="LAWA030_SHR_PRT__">
+        <description>조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ORD_NO AS ORD_NO,
+                   TAR.SEQ_NO1 AS SEQ_NO1,
+                   TAR.SEQ_NO2 AS SEQ_NO2,
+        				   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'','1','1','1','11','1') AS ORD_COUNT,
+                   SF_GET_DPTNAME('01','B2',HEAD_CD) AS HEAD_NM,
+				           DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',EVENT_NM,'1',EVENT_NM,'11',EVENT_NM) AS EVENT_NM,
+        				   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',SF_GET_COMMNAME('01', 'H3', BOND_GBN),'1',SF_GET_COMMNAME('01', 'H3', BOND_GBN),'11',SF_GET_COMMNAME('01', 'H3', BOND_GBN)) AS BOND_GBN_NM,
+				           DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',BOND_AMT,'1',BOND_AMT,'11',BOND_AMT) AS BOND_AMT,
+				           DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',SEC_LAND,'1',SEC_LAND,'11',SEC_LAND) AS SEC_LAND,
+	        			   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',SEC_PLED,'1',SEC_PLED,'11',SEC_PLED) AS SEC_PLED,
+        				   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',SEC_GUAR,'1',SEC_GUAR,'11',SEC_GUAR) AS SEC_GUAR,
+        				   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',SEC_CASH,'1',SEC_CASH,'11',SEC_CASH) AS SEC_CASH,
+        				   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',SEC_GUOR1,'1',SEC_GUOR1,'11',SEC_GUOR1) AS SEC_GUOR1,
+        				   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',SEC_GUOR2,'1',SEC_GUOR2,'11',SEC_GUOR2) AS SEC_GUOR2,
+        				   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',SEC_SO,'1',SEC_SO,'11',SEC_SO) AS SEC_SO,
+        				   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',SF_GET_DPTNAME('01','A4',DPT_CD),'1',SF_GET_DPTNAME('01','A4',DPT_CD),'11',SF_GET_DPTNAME('01','A4',DPT_CD)) AS DPT_NM,
+                   TAR.HIS_CONT1 AS HIS_CONT1,
+                   TAR.HIS_AMT1 AS HIS_AMT1,
+                   TAR.HIS_CONT2 AS HIS_CONT2,
+                   TAR.HIS_AMT2 AS HIS_AMT2,
+   				   DECODE(TAR.SEQ_NO1||TAR.SEQ_NO2,'',BOND_AC_AMT,'1',BOND_AC_AMT,'11',BOND_AC_AMT) AS BOND_AC_AMT
+            FROM   T_LW_BONDLIST A,
+                   (
+                   SELECT AA.ORD_NO AS ORD_NO,
+                          AA.SEQ_NO AS SEQ_NO1, BB.SEQ_NO AS SEQ_NO2,
+                          AA.HIS_CONT AS HIS_CONT1, BB.HIS_CONT AS HIS_CONT2,
+		                      AA.HIS_AMT AS HIS_AMT1, BB.HIS_AMT AS HIS_AMT2
+                   FROM   (SELECT ORD_NO, SEQ_NO, HIS_CONT, HIS_RESU, HIS_AMT FROM T_LW_BONDHIST WHERE GBN_TAG='I') AA,
+                          (SELECT ORD_NO, SEQ_NO, HIS_CONT, HIS_RESU, HIS_AMT FROM T_LW_BONDHIST WHERE GBN_TAG='P') BB
+                   WHERE  AA.ORD_NO = BB.ORD_NO(+)
+                   AND    AA.SEQ_NO = BB.SEQ_NO(+)
+                   UNION
+                   SELECT BB.ORD_NO AS ORD_NO,
+                          AA.SEQ_NO AS SEQ_NO1, BB.SEQ_NO AS SEQ_NO2,
+                          AA.HIS_CONT AS HIS_CONT1, BB.HIS_CONT AS HIS_CONT2,
+                          AA.HIS_AMT AS HIS_AMT1, BB.HIS_AMT AS HIS_AMT2
+                   FROM   (SELECT ORD_NO, SEQ_NO, HIS_CONT, HIS_RESU, HIS_AMT FROM T_LW_BONDHIST WHERE GBN_TAG='I') AA,
+                          (SELECT ORD_NO, SEQ_NO, HIS_CONT, HIS_RESU, HIS_AMT FROM T_LW_BONDHIST WHERE GBN_TAG='P') BB
+                   WHERE  AA.ORD_NO(+) = BB.ORD_NO
+                   AND    AA.SEQ_NO(+) = BB.SEQ_NO
+                   ) TAR
+            WHERE  A.ORD_NO = TAR.ORD_NO(+)
+            AND    HEAD_CD LIKE '%'||?||'%'
+            AND    BOND_GBN LIKE '%'||?||'%'
+            AND    EVENT_NM LIKE '%'||?||'%'
+            AND    ( ORD_YMD >= ? AND ORD_YMD <= ? )
+            ORDER BY HEAD_CD DESC, A.ORD_NO, TAR.SEQ_NO1 ASC, TAR.SEQ_NO2 ASC
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : LAWB010
+* @description : 법무권한관리
+***********************************************************************
+* 2006/11/21     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 법무권한 조회 -->
+    <sql name="LAWB010_SHR">
+        <description>법무 권한 조회</description>
+        <query>
+            <![CDATA[
+      			SELECT	A.ENO_NO, B.ENO_NM, B.DPT_CD, B.DPT_NM, B.JOB_NM, A.LAW_AUTHO
+      			FROM	  ( SELECT GUBUN, ENO_NO, LAW_AUTHO, DECODE(LAW_AUTHO, NULL, 'NULL', LAW_AUTHO) AS LAW_AUTHO2
+                      FROM   T_CM_EMPLIST
+                      WHERE  GUBUN = ?
+                      AND    ENO_NO LIKE '%'||?||'%') A,
+                    ( SELECT GUBUN, ENO_NO, ENO_NM, DPT_CD, DPT_NM, JOB_NM
+                      FROM   VI_T_CM_PERSON
+                      WHERE  DPT_CD LIKE '%'||?||'%' ) B
+            WHERE   A.GUBUN = B.GUBUN
+            AND     A.ENO_NO = B.ENO_NO
+            AND     A.LAW_AUTHO2 LIKE '%'||?||'%'
+            ]]>
+        </query>
+    </sql>
+
+	<sql name="LAWB010_UPT">
+        <description>법무 권한 수정</description>
+        <query>
+            <![CDATA[
+			UPDATE  T_CM_EMPLIST
+            SET     LAW_AUTHO = ?,
+                    UPT_MAN = ?,
+                    UPT_YMD = sysdate
+            WHERE   GUBUN = ?
+            AND     ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

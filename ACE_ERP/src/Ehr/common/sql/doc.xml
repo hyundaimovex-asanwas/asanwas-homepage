@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 문서관리 -->
+<!--
+***********************************************************************
+* @UseCase     : DOCA010
+* @description : 등기관리
+***********************************************************************
+* 2006/11/21     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 문서 권한 조회 -->
+    <sql name="DOCA010_SHR">
+        <description>문서 권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DECODE(DOC_AUTHO, NULL, 'S', '', 'S', DOC_AUTHO) AS DOC_AUTHO
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 등기 수신 내역 조회 -->
+    <sql name="DOCA010_SHR_01">
+        <description>등기 수신 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DOCU_GBN
+                 , GBN_CD
+                 , ORD_NO
+                 , SEQ_NO
+                 , DOC_NO
+                 , DOC_SUB
+                 , COM_NM
+                 , RCV_DPT
+                 , ENO_NM
+                 , TO_CHAR(IPT_YMD,'YYYY-MM-DD')        AS IPT_YMD
+                 , OK_YMD
+                 , SF_GET_ENONAME('01', OK_MAN)         AS OK_NM
+                 , SF_GET_DPTNAME('01', 'A4', RCV_DPT)  AS DPT_NM
+                 , DECODE(OK_YMD, NULL, 'F', 'T')       AS CONFIRM
+              FROM T_DO_DOCUMENT
+             WHERE DOCU_GBN = 'R'
+               AND GBN_CD = 'A'
+               AND SEQ_NO = '1'
+               AND RCV_DPT LIKE '%'||?||'%'
+               AND ENO_NM LIKE '%'||?||'%'
+               [1]
+               [2]
+         ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 등기 발송 내역 조회 -->
+    <sql name="DOCA010_SHR_02">
+        <description>등기 발송 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  DOCU_GBN, GBN_CD, ORD_NO, SEQ_NO, SND_KIND, DOC_SUB, COM_NM,
+                    COM_NAM, SND_DPT, ENO_NM, TO_CHAR(IPT_YMD,'YYYY-MM-DD') AS IPT_YMD,
+                    REC_YMD, SF_GET_DPTNAME('01', 'A4', SND_DPT) AS DPT_NM,
+                    DECODE(REC_YMD, NULL, 'F', 'T') AS CONFIRM
+            FROM    T_DO_DOCUMENT
+            WHERE   DOCU_GBN = 'R'
+            AND     GBN_CD = 'S'
+            AND		SEQ_NO = '1'
+            AND		SND_DPT LIKE '%'||?||'%'
+            AND		ENO_NM LIKE '%'||?||'%'
+            [1]
+            [2]
+          ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 문서번호 조회 -->
+    <sql name="DOCA010_SHR_03">
+        <description>문서번호 조회</description>
+        <query>
+            <![CDATA[
+            SELECT MAX(ORD_NO) AS ORD_NO
+            FROM   T_DO_DOCUMENT
+            WHERE  DOCU_GBN = ?
+            AND    GBN_CD = ?
+            AND    ORD_NO LIKE TO_CHAR(SYSDATE, 'YYYYMMDD')||'%'
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 등기, 공문 내역 입력 -->
+    <sql name="DOCA010_INS">
+        <description>문서 내역 입력</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_DO_DOCUMENT
+            ( DOCU_GBN, GBN_CD,
+              ORD_NO,
+              SEQ_NO, DOC_NO, SND_KIND, IN_OUT, DOC_SUB,
+              COM_NM, COM_NAM, SND_DPT, RCV_DPT, ENO_NM, REMARK, OK_YMD, OK_HMS, OK_MAN,
+              REC_YMD, REC_HMS, REC_MAN, IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD )
+            VALUES
+            ( ?       , ?     ,
+              SF_GET_ORDNO(?,?),
+              ?     , ?     , ?       , ?     , ?      ,
+              ?     , ?      , ?      , ?      , ?     , ?     , ?     , ?     , ?     ,
+              ?      , ?      , ?      , ?      , sysdate, ?      , sysdate )
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 등기 수령 및 접수 확인 -->
+	<sql name="DOCA010_UPT">
+        <description>등기 수신 내역 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_DO_DOCUMENT
+            SET    [1]
+                   UPT_MAN = ?,
+                   UPT_YMD = sysdate
+            WHERE  DOCU_GBN = ?
+            AND    GBN_CD = ?
+            AND    ORD_NO = ?
+            AND    SEQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 등기 수령 및 접수 확인 -->
+	<sql name="DOCA010_DEL">
+        <description>등기 수신,발송 내역 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_DO_DOCUMENT
+            WHERE  DOCU_GBN = ?
+            AND    GBN_CD = ?
+            AND    ORD_NO = ?
+            AND    SEQ_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : DOCA020
+* @description : 공문관리
+***********************************************************************
+* 2006/11/24     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 등기 수신 내역 조회 -->
+    <sql name="DOCA020_SHR_01">
+        <description>등기 수신 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  DOCU_GBN, GBN_CD, ORD_NO, SEQ_NO, IN_OUT, DOC_SUB, COM_NM,
+                    RCV_DPT, ENO_NM, TO_CHAR(IPT_YMD,'YYYY-MM-DD') AS IPT_YMD,
+                    OK_YMD, 
+                    SF_GET_ENONAME('01', OK_MAN)        AS OK_NM,
+                    SF_GET_DPTNAME('01', 'A4', RCV_DPT) AS DPT_NM,
+                    DECODE(OK_YMD, NULL, 'F', 'T') AS CONFIRM
+            FROM    T_DO_DOCUMENT
+            WHERE   DOCU_GBN = 'O'
+            AND     GBN_CD = 'A'
+            AND		SEQ_NO = '1'
+            AND		RCV_DPT LIKE '%'||?||'%'
+            AND		IN_OUT LIKE '%'||?||'%'
+            AND		ENO_NM LIKE '%'||?||'%'
+            [1]
+            [2]
+         ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 등기 발송 내역 조회 -->
+    <sql name="DOCA020_SHR_02">
+        <description>등기 발송 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  DOCU_GBN, GBN_CD, ORD_NO, SEQ_NO, IN_OUT, DOC_SUB, COM_NM,
+                    COM_NAM, SND_DPT, ENO_NM, TO_CHAR(IPT_YMD,'YYYY-MM-DD') AS IPT_YMD,
+                    REC_YMD, SF_GET_DPTNAME('01', 'A4', SND_DPT) AS DPT_NM,
+                    DECODE(REC_YMD, NULL, 'F', 'T') AS CONFIRM
+            FROM    T_DO_DOCUMENT
+            WHERE   DOCU_GBN = 'O'
+            AND     GBN_CD = 'S'
+            AND		SEQ_NO = '1'
+            AND		SND_DPT LIKE '%'||?||'%'
+            AND		IN_OUT LIKE '%'||?||'%'
+            AND		ENO_NM LIKE '%'||?||'%'
+            [1]
+            [2]
+         ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : DOCA030
+* @description : 행랑관리
+***********************************************************************
+* 2006/11/27     오대성        최초작성.
+***********************************************************************
+-->
+
+	<!-- 행랑 발신 내역 조회 -->
+    <sql name="DOCA030_SHR_01">
+        <description>행랑 발신 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT DOCU_GBN
+                 , GBN_CD
+                 , ORD_NO
+                 , SEQ_NO
+                 , DOC_SUB
+                 , SND_DPT
+                 , SF_GET_DPTNAME('01', 'A4', SND_DPT)  AS DPT_NM       --발신부서
+                 , RCV_DPT
+                 , SF_GET_DPTNAME('01', 'A4', RCV_DPT)  AS RCV_NM       --수신부서
+                 , ENO_NM                                               --참조
+                 , REMARK                                               --비고
+                 , SF_GET_ENONAME('01', IPT_MAN)        AS IPT_NM       --발신자
+                 , TO_CHAR(IPT_YMD,'YYYY-MM-DD')        AS IPT_YMD      --등록일자
+                 , REC_YMD                                              --접수일자
+                 , DECODE(REC_YMD, NULL, 'F', 'T')      AS CONFIRM      --접수확인
+              FROM T_DO_DOCUMENT
+             WHERE DOCU_GBN = 'P'
+               AND GBN_CD   = 'S'
+               AND SND_DPT  LIKE '%'||?||'%'
+               AND SF_GET_ENONAME('01', IPT_MAN) LIKE '%'||?||'%'
+               [1]
+               [2]
+          ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 행랑 수신 내역 조회 -->
+    <sql name="DOCA030_SHR_02">
+        <description>행랑 수신 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  DOCU_GBN, GBN_CD, ORD_NO, SEQ_NO, DOC_SUB,
+                    SND_DPT, SF_GET_DPTNAME('01', 'A4', SND_DPT) AS DPT_NM,
+                    RCV_DPT, SF_GET_DPTNAME('01', 'A4', RCV_DPT) AS RCV_NM,
+                    TO_CHAR(IPT_YMD,'YYYY-MM-DD') AS IPT_YMD, REMARK,
+                    OK_YMD, SF_GET_ENONAME('01', OK_MAN) AS OK_NM,
+                    ENO_NM,
+                    SF_GET_ENONAME('01', IPT_MAN) AS IPT_NM,
+                    DECODE(OK_YMD, NULL, 'F', 'T') AS CONFIRM
+            FROM    T_DO_DOCUMENT
+            WHERE   DOCU_GBN = 'P'
+            AND     GBN_CD = 'S'
+            AND     REC_YMD IS NOT NULL
+            AND		RCV_DPT LIKE '%'||?||'%'
+            AND		NVL(SF_GET_ENONAME('01', OK_MAN),' ') LIKE '%'||?||'%'
+            [1]
+            [2]
+         ORDER BY ORD_NO DESC
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 행랑의 문서번호 조회 -->
+    <sql name="DOCA030_SHR_04">
+        <description>행랑의 문서번호 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_CHAR(SYSDATE, 'YYYYMMDD')||'-'||LPAD(DECODE(MAX(ORD_NO), NULL, 1, TO_NUMBER(MAX(SUBSTR(ORD_NO, 10, 3)))+1), 3, '0') AS ORD_NO
+            FROM   T_DO_DOCUMENT
+            WHERE  DOCU_GBN = 'P'
+            AND    GBN_CD = 'S'
+            AND    ORD_NO LIKE TO_CHAR(SYSDATE, 'YYYYMMDD')||'%'
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : DOCB010
+* @description : 문서권한관리
+***********************************************************************
+* 2006/11/21     오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 문서권한 조회 -->
+    <sql name="DOCB010_SHR">
+        <description>문서 권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT	A.ENO_NO, B.ENO_NM, B.DPT_CD, B.DPT_NM, B.JOB_NM, A.DOC_AUTHO
+            FROM	( SELECT GUBUN, ENO_NO, DOC_AUTHO,
+                             DECODE(DOC_AUTHO, NULL, 'NULL', DOC_AUTHO) AS DOC_AUTHO2
+                      FROM   T_CM_EMPLIST
+                      WHERE  GUBUN = ?
+                      AND    ENO_NO LIKE '%'||?||'%') A,
+                    ( SELECT GUBUN, ENO_NO, ENO_NM, DPT_CD, DPT_NM, JOB_NM
+                      FROM   VI_T_CM_PERSON
+                      WHERE  DPT_CD LIKE '%'||?||'%' ) B
+            WHERE   A.GUBUN = B.GUBUN
+            AND     A.ENO_NO = B.ENO_NO
+            AND     A.DOC_AUTHO2 LIKE '%'||?||'%'
+            ]]>
+        </query>
+    </sql>
+
+	<sql name="DOCB010_UPT">
+        <description>문서 권한 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_CM_EMPLIST
+            SET     DOC_AUTHO = ?,
+                    UPT_MAN = ?,
+                    UPT_YMD = sysdate
+            WHERE   GUBUN = ?
+            AND     ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

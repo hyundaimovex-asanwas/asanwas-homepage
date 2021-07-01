@@ -1,0 +1,1870 @@
+<!--
+	Copyright 2005 HMM Co, Ltd. All Rights Reserved.
+	Programmed by dongilseo, 2005.10.10
+-->
+
+
+
+
+
+
+
+
+<html>
+<head>
+<title>2006년 근로소득공제 의료비 공제 상세 입력</title>
+<link rel="stylesheet" href="imgs/css_ehr.css" type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<script language="JavaScript" src="imgs/web.js"></script>
+<script language="JavaScript" src="imgs/06YearEntryMed.js"></script>
+<script language="JavaScript">
+<!--
+//-->
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" onLoad="getValue(document.entry, '1')";>
+<form name="entry" method="post" action="">
+	<input type="hidden" name="eyy" value="2006">
+	<input type="hidden" name="emm" value="12">
+	<input type="hidden" name="egb" value="0">
+	<input type="hidden" name="gb1" value="L">
+	<input type="hidden" name="eno" value="200089">
+	<input type="hidden" name="cgq" value="1">
+	<input type="hidden" name="mod" value="IPT">
+
+	<!-- 인적사항 및 공제항목 -->
+	<table width="970" border="0" cellspacing="1" cellpadding="3">
+		<tr bgcolor="#FFFFFF">
+			<td colspan="12" height="85">
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+					<tr>
+						<td colspan="2">☞ 입력안내</td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td>1. 모든 항목란에 정확한 내용을 입력하셔야 합니다.</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#FF6633">2. <b><u>사용인이 동일 지급처에 여러 건 지급한 경우 "연간 총액"을 입력하시면 됩니다.</b></u></font></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#FF6633">3. 금액(총액 - 공단·보험자부담금 = 환자부담금)을 지급한 "수단"을 구별하여 입력하셔야 합니다.</font></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td>4. 증빙서류는 의료비 지급내역 입력순서와 일치되도록 정리하여 주시기 바랍니다.<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;(A4 크기보다 작은 증빙서류는 A4 이면지에 부착 후 제출요망)
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font style="font-size:12pt;color:#3366FF;"><b>※ <u>1인당 시력보정용 안경(렌즈) 구입비가 연 50만원을 초과하는 경우 50만원까지만 입력바랍니다.</u><br>
+						&nbsp;&nbsp;&nbsp;&nbsp;<u>(연 50만원 한도임)</u></b></font>
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td align="right"><br><font color="#FF6633">※ 신용카드(현금영수증)사용 의료비의 이중공제 배제규정이 2007년으로 연기됨에 따라
+						"결재수단"에 상관없이 활성화된 금액란에 입력하시면 됩니다.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+						<a href="javascript:checkForm(document.entry, '1');"><img src="imgs/btn_save.gif" border="0"></a></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+
+	<table width="970" bgcolor="#666666" border="0" cellspacing="1" cellpadding="3">
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="3" bgcolor="#ffedd2" width="25">번호</td>
+			<td colspan="2" bgcolor="#ffedd2">근 로 소 득 자</td>
+			<td colspan="4" bgcolor="#ffedd2">공 제 대 상 자 (= 진 료 자 등)</td>
+			<td bgcolor="#ffedd2">지 급 처</td>
+			<td colspan="5" bgcolor="#ffedd2">지 급 내 역</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee" width="65">이 름</td>
+			<td rowspan="2" bgcolor="#fff8ee" width="90">주민등록번호</td>
+			<td rowspan="2" bgcolor="#fff8ee" width="65">이 름</td>
+			<td rowspan="2" bgcolor="#fff8ee" width="90">관 계</td>
+			<td rowspan="2" bgcolor="#fff8ee" width="110">주민등록번호</td>
+			<td rowspan="2" bgcolor="#fff8ee" width=""><font size="1">본인/장애인/<br>경로우대자</font></td>
+			<td bgcolor="#fff8ee" width="">사업자 등록번호</td>
+			<td rowspan="2" bgcolor="#fff8ee" width="60">자료 구분</td>
+			<td colspan="2" bgcolor="#fff8ee" width="">&nbsp;</td>
+			<td colspan="2" bgcolor="#fff8ee" width="">현금지급</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td bgcolor="#fff8ee" width="">상 호</td>
+			<td bgcolor="#fff8ee">건수</td>
+			<td bgcolor="#fff8ee">금액</td>
+			<td bgcolor="#fff8ee">건수</td>
+			<td bgcolor="#fff8ee">금액</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">1</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_1" value="심동현" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_1" value="1" class="input02" readonly>
+				<input type="hidden" name="pydcg1_1" value="01" class="input02" readonly>
+				<input type="hidden" name="pydcgc_1" value="0" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_1" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_1" value="751201" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_1" value="1042715" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_1" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_1" value="1">
+			</td>
+			<td>
+				<input type="text" name="pydsno_1" value="101-85-10695" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="1">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_1" value="1" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="3">
+			</td>
+			<td>
+				<input type="text" name="pydme1_1" value="50,000" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="4">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_1" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_1" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_1" value="테스트" class="input01" size="12" maxlength="10" tabindex="2">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_1" value="2" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="5">
+			</td>
+			<td>
+				<input type="text" name="pydme2_1" value="10,000" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="6">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_1" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_1" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">2</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_2" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_2" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_2" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_2" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_2" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_2" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_2" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_2" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_2" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_2" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="11">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_2" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="13">
+			</td>
+			<td>
+				<input type="text" name="pydme1_2" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="14">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_2" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_2" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_2" value="" class="input01" size="12" maxlength="10" tabindex="12">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_2" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="15">
+			</td>
+			<td>
+				<input type="text" name="pydme2_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="16">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_2" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_2" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">3</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_3" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_3" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_3" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_3" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_3" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_3" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_3" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_3" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_3" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_3" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="21">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_3" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="23">
+			</td>
+			<td>
+				<input type="text" name="pydme1_3" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="24">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_3" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_3" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_3" value="" class="input01" size="12" maxlength="10" tabindex="22">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_3" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="25">
+			</td>
+			<td>
+				<input type="text" name="pydme2_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="26">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_3" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_3" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">4</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_4" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_4" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_4" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_4" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_4" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_4" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_4" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_4" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_4" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_4" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="31">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_4" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="33">
+			</td>
+			<td>
+				<input type="text" name="pydme1_4" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="34">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_4" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_4" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_4" value="" class="input01" size="12" maxlength="10" tabindex="32">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_4" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="35">
+			</td>
+			<td>
+				<input type="text" name="pydme2_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="36">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_4" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_4" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">5</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_5" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_5" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_5" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_5" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_5" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_5" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_5" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_5" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_5" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_5" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="41">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_5" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="43">
+			</td>
+			<td>
+				<input type="text" name="pydme1_5" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="44">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_5" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_5" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_5" value="" class="input01" size="12" maxlength="10" tabindex="42">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_5" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="45">
+			</td>
+			<td>
+				<input type="text" name="pydme2_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="46">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_5" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_5" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">6</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_6" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_6" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_6" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_6" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_6" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_6" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_6" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_6" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_6" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_6" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="51">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_6" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="53">
+			</td>
+			<td>
+				<input type="text" name="pydme1_6" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="54">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_6" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_6" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_6" value="" class="input01" size="12" maxlength="10" tabindex="52">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_6" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="55">
+			</td>
+			<td>
+				<input type="text" name="pydme2_6" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="56">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_6" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_6" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">7</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_7" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_7" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_7" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_7" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_7" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_7" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_7" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_7" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_7" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_7" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="61">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_7" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="63">
+			</td>
+			<td>
+				<input type="text" name="pydme1_7" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="64">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_7" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_7" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_7" value="" class="input01" size="12" maxlength="10" tabindex="62">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_7" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="65">
+			</td>
+			<td>
+				<input type="text" name="pydme2_7" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="66">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_7" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_7" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">8</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_8" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_8" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_8" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_8" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_8" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_8" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_8" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_8" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_8" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_8" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="71">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_8" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="73">
+			</td>
+			<td>
+				<input type="text" name="pydme1_8" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="74">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_8" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_8" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_8" value="" class="input01" size="12" maxlength="10" tabindex="72">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_8" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="75">
+			</td>
+			<td>
+				<input type="text" name="pydme2_8" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="76">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_8" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_8" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">9</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_9" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_9" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_9" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_9" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_9" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_9" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_9" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_9" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_9" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_9" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="81">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_9" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="83">
+			</td>
+			<td>
+				<input type="text" name="pydme1_9" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="84">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_9" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_9" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_9" value="" class="input01" size="12" maxlength="10" tabindex="82">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_9" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="85">
+			</td>
+			<td>
+				<input type="text" name="pydme2_9" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="86">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_9" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_9" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">10</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_10" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_10" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_10" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_10" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_10" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_10" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_10" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_10" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_10" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_10" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="91">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_10" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="93">
+			</td>
+			<td>
+				<input type="text" name="pydme1_10" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="94">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_10" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_10" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_10" value="" class="input01" size="12" maxlength="10" tabindex="92">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_10" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="95">
+			</td>
+			<td>
+				<input type="text" name="pydme2_10" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="96">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_10" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_10" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">11</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_11" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_11" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_11" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_11" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_11" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_11" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_11" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_11" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_11" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_11" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="101">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_11" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="103">
+			</td>
+			<td>
+				<input type="text" name="pydme1_11" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="104">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_11" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_11" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_11" value="" class="input01" size="12" maxlength="10" tabindex="102">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_11" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="105">
+			</td>
+			<td>
+				<input type="text" name="pydme2_11" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="106">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_11" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_11" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">12</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_12" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_12" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_12" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_12" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_12" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_12" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_12" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_12" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_12" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_12" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="111">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_12" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="113">
+			</td>
+			<td>
+				<input type="text" name="pydme1_12" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="114">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_12" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_12" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_12" value="" class="input01" size="12" maxlength="10" tabindex="112">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_12" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="115">
+			</td>
+			<td>
+				<input type="text" name="pydme2_12" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="116">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_12" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_12" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">13</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_13" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_13" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_13" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_13" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_13" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_13" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_13" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_13" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_13" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_13" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="121">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_13" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="123">
+			</td>
+			<td>
+				<input type="text" name="pydme1_13" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="124">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_13" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_13" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_13" value="" class="input01" size="12" maxlength="10" tabindex="122">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_13" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="125">
+			</td>
+			<td>
+				<input type="text" name="pydme2_13" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="126">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_13" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_13" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">14</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_14" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_14" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_14" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_14" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_14" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_14" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_14" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_14" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_14" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_14" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="131">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_14" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="133">
+			</td>
+			<td>
+				<input type="text" name="pydme1_14" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="134">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_14" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_14" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_14" value="" class="input01" size="12" maxlength="10" tabindex="132">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_14" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="135">
+			</td>
+			<td>
+				<input type="text" name="pydme2_14" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="136">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_14" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_14" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">15</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_15" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_15" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_15" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_15" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_15" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_15" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_15" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_15" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_15" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_15" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="141">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_15" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="143">
+			</td>
+			<td>
+				<input type="text" name="pydme1_15" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="144">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_15" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_15" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_15" value="" class="input01" size="12" maxlength="10" tabindex="142">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_15" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="145">
+			</td>
+			<td>
+				<input type="text" name="pydme2_15" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="146">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_15" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_15" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">16</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_16" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_16" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_16" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_16" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_16" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_16" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_16" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_16" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_16" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_16" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="151">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_16" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="153">
+			</td>
+			<td>
+				<input type="text" name="pydme1_16" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="154">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_16" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_16" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_16" value="" class="input01" size="12" maxlength="10" tabindex="152">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_16" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="155">
+			</td>
+			<td>
+				<input type="text" name="pydme2_16" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="156">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_16" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_16" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">17</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_17" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_17" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_17" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_17" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_17" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_17" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_17" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_17" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_17" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_17" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="161">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_17" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="163">
+			</td>
+			<td>
+				<input type="text" name="pydme1_17" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="164">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_17" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_17" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_17" value="" class="input01" size="12" maxlength="10" tabindex="162">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_17" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="165">
+			</td>
+			<td>
+				<input type="text" name="pydme2_17" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="166">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_17" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_17" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">18</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_18" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_18" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_18" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_18" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_18" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_18" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_18" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_18" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_18" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_18" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="171">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_18" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="173">
+			</td>
+			<td>
+				<input type="text" name="pydme1_18" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="174">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_18" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_18" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_18" value="" class="input01" size="12" maxlength="10" tabindex="172">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_18" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="175">
+			</td>
+			<td>
+				<input type="text" name="pydme2_18" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="176">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_18" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_18" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">19</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_19" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_19" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_19" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_19" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_19" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_19" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_19" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_19" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_19" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_19" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="181">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_19" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="183">
+			</td>
+			<td>
+				<input type="text" name="pydme1_19" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="184">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_19" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_19" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_19" value="" class="input01" size="12" maxlength="10" tabindex="182">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_19" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="185">
+			</td>
+			<td>
+				<input type="text" name="pydme2_19" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="186">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_19" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_19" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">20</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_20" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_20" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_20" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_20" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_20" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_20" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_20" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_20" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_20" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_20" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="191">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_20" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="193">
+			</td>
+			<td>
+				<input type="text" name="pydme1_20" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="194">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_20" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_20" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_20" value="" class="input01" size="12" maxlength="10" tabindex="192">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_20" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="195">
+			</td>
+			<td>
+				<input type="text" name="pydme2_20" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="196">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_20" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_20" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">21</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_21" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_21" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_21" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_21" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_21" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_21" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_21" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_21" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_21" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_21" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="201">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_21" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="203">
+			</td>
+			<td>
+				<input type="text" name="pydme1_21" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="204">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_21" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_21" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_21" value="" class="input01" size="12" maxlength="10" tabindex="202">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_21" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="205">
+			</td>
+			<td>
+				<input type="text" name="pydme2_21" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="206">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_21" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_21" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">22</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_22" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_22" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_22" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_22" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_22" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_22" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_22" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_22" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_22" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_22" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="211">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_22" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="213">
+			</td>
+			<td>
+				<input type="text" name="pydme1_22" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="214">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_22" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_22" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_22" value="" class="input01" size="12" maxlength="10" tabindex="212">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_22" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="215">
+			</td>
+			<td>
+				<input type="text" name="pydme2_22" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="216">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_22" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_22" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">23</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_23" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_23" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_23" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_23" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_23" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_23" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_23" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_23" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_23" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_23" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="221">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_23" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="223">
+			</td>
+			<td>
+				<input type="text" name="pydme1_23" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="224">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_23" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_23" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_23" value="" class="input01" size="12" maxlength="10" tabindex="222">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_23" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="225">
+			</td>
+			<td>
+				<input type="text" name="pydme2_23" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="226">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_23" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_23" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">24</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_24" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_24" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_24" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_24" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_24" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_24" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_24" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_24" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_24" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_24" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="231">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_24" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="233">
+			</td>
+			<td>
+				<input type="text" name="pydme1_24" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="234">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_24" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_24" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_24" value="" class="input01" size="12" maxlength="10" tabindex="232">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_24" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="235">
+			</td>
+			<td>
+				<input type="text" name="pydme2_24" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="236">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_24" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_24" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">25</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_25" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_25" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_25" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_25" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_25" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_25" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_25" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_25" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_25" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_25" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="241">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_25" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="243">
+			</td>
+			<td>
+				<input type="text" name="pydme1_25" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="244">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_25" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_25" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_25" value="" class="input01" size="12" maxlength="10" tabindex="242">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_25" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="245">
+			</td>
+			<td>
+				<input type="text" name="pydme2_25" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="246">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_25" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_25" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">26</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_26" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_26" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_26" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_26" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_26" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_26" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_26" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_26" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_26" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_26" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="251">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_26" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="253">
+			</td>
+			<td>
+				<input type="text" name="pydme1_26" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="254">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_26" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_26" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_26" value="" class="input01" size="12" maxlength="10" tabindex="252">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_26" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="255">
+			</td>
+			<td>
+				<input type="text" name="pydme2_26" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="256">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_26" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_26" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">27</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_27" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_27" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_27" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_27" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_27" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_27" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_27" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_27" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_27" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_27" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="261">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_27" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="263">
+			</td>
+			<td>
+				<input type="text" name="pydme1_27" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="264">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_27" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_27" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_27" value="" class="input01" size="12" maxlength="10" tabindex="262">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_27" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="265">
+			</td>
+			<td>
+				<input type="text" name="pydme2_27" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="266">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_27" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_27" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">28</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_28" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_28" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_28" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_28" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_28" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_28" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_28" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_28" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_28" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_28" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="271">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_28" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="273">
+			</td>
+			<td>
+				<input type="text" name="pydme1_28" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="274">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_28" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_28" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_28" value="" class="input01" size="12" maxlength="10" tabindex="272">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_28" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="275">
+			</td>
+			<td>
+				<input type="text" name="pydme2_28" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="276">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_28" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_28" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">29</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_29" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_29" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_29" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_29" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_29" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_29" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_29" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_29" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_29" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_29" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="281">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_29" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="283">
+			</td>
+			<td>
+				<input type="text" name="pydme1_29" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="284">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_29" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_29" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_29" value="" class="input01" size="12" maxlength="10" tabindex="282">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_29" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="285">
+			</td>
+			<td>
+				<input type="text" name="pydme2_29" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="286">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_29" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_29" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#FFFFFF">
+			<td rowspan="2" bgcolor="#fff8ee">30</td>
+			<td rowspan="2"><font color="#666666">심동현</font></td>
+			<td rowspan="2"><font color="#666666">751201-1042715</font></td>
+			<td rowspan="2">
+				<input type="text" name="pydhnm_30" value="" class="input02" size="8" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="hidden" name="pydcgq_30" value="0" class="input02" readonly>
+				<input type="hidden" name="pydcg1_30" value="" class="input02" readonly>
+				<input type="hidden" name="pydcgc_30" value="" class="input02" readonly>
+				<input type="text" name="pydcg1hnm_30" value="" class="input02" size="12" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydju1_30" value="" class="input02" size="6" style="ime-mode:disabled;" readonly>
+				-
+				<input type="text" name="pydju2_30" value="" class="input02" size="7" style="ime-mode:disabled;" readonly>
+			</td>
+			<td rowspan="2">
+				<input type="text" name="pydkndhnm_30" value="" class="input02" size="3" style="ime-mode:disabled;" readonly>
+				<input type="hidden" name="pydknd_30" value="">
+			</td>
+			<td>
+				<input type="text" name="pydsno_30" value="" class="input01" size="12" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12" tabindex="291">
+			</td>
+			<td bgcolor="#fff8ee"><font color="#FF6633">국세청자료</font></td>
+			<td>
+				<input type="text" name="pydcn1_30" value="0" class="input03" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="293">
+			</td>
+			<td>
+				<input type="text" name="pydme1_30" value="0" class="input03" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="294">
+			</td>
+			<td>
+				<input type="text" name="pydcn3_30" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme3_30" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pydshm_30" value="" class="input01" size="12" maxlength="10" tabindex="292">
+			</td>
+			<td bgcolor="#fff8ee">그밖의자료</td>
+			<td>
+				<input type="text" name="pydcn2_30" value="0" class="input01" size="3" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="calculatePydcnttot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="2" tabindex="295">
+			</td>
+			<td>
+				<input type="text" name="pydme2_30" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);calculatePydmedtot(document.entry, '1');" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" tabindex="296">
+			</td>
+			<td>
+				<input type="text" name="pydcn4_30" value="0" class="input02" size="3" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme4_30" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+		</tr>
+
+		<tr align="center" bgcolor="#fff8ee">
+			<td colspan="9">합 계
+				<input type="hidden" name="pydmektot" value="50,000">
+				<input type="hidden" name="pydmeetot" value="10,000">
+				<input type="hidden" name="pydmedtot" value="60,000">
+			<td>
+				<input type="text" name="pydcn1tot" value="3" class="input02" size="3" style="text-align:right;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme1tot" value="60,000" class="input02" size="12" style="text-align:right;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydcn2tot" value="0" class="input02" size="3" style="text-align:right;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pydme2tot" value="0" class="input02" size="12" style="text-align:right;" readonly>
+			</td>
+		</tr>
+	</table>
+	<div id="tipbox" style="position:absolute;border:black solid 1; background-color:infobackground; font-size:9pt; display:none; z-index:100"></div>
+
+</form>
+</body>
+</html>

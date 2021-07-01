@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/mobile/lib/common.css" />
+
+    <script src="/mobile/controller/erpconfig.js"></script>
+    <script data-main="/mobile/lib/app" src="/mobile/lib/require.js"></script>
+    <script type="text/javascript" src="/mobile/lib/jssor.core.js"></script>
+    <script type="text/javascript" src="/mobile/lib/jssor.utils.js"></script>
+    <script type="text/javascript" src="/mobile/lib/jssor.slider.js"></script>
+
+</head>
+<body>
+    <div id="pageerpconfig" data-role="page">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div><!--//menu-->
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div>
+                <ul id="listerpconfig" data-role="listview" data-theme="c" data-filter="true" data-filter-placeholder="환경변수" data-filter-theme="b">
+                    <li data-role="list-divider" data-theme="f"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="pageerpconfigDetail" data-role="page">
+        <div data-role="header">
+			<a href="#pageerpconfig" data-icon="back">목록</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div class="ui-field-contain">
+            
+                <input type="hidden" id="hdnCD_SYSTEM" />
+                <input type="hidden" id="hdnYN_SYSTEM" />
+                             
+                <label for="txtDS_SYSTEM">시스템명:</label>
+                <input type="text" id="txtDS_SYSTEM" readonly="readonly" class="ui-readonly" />
+                <label for="txtCD_CODE">환경변수:</label>
+                <input type="text" id="txtCD_CODE" readonly="readonly" class="ui-readonly" />
+                <label for="txtCD_VALUE">값:</label>
+                <input type="text" id="txtCD_VALUE" readonly="readonly"  />
+                <label for="txtDS_BIGO">설명:</label>
+                <input type="text" id="txtDS_BIGO" readonly="readonly" />
+             
+            </div>
+            <div id="divEdit">
+                <input type="button" id="btnEdit" value="수정하기" data-theme="f" data-icon="edit" />
+            </div>
+            <div id="divSave" style="display:none;">
+                <div class="ui-grid-a"> 
+                    <div class="ui-block-a">
+                        <input type="button" id="btnSave" value="저장" data-theme="d" data-icon="check" />
+                    </div>
+                    <div class="ui-block-b">
+                        <input type="button" id="btnCancel" value="취소" data-theme="b" data-icon="delete" />
+                    </div>
+                </div>
+            </div>
+     
+           <!-- <div data-role="tabs" id="tabs">
+              <div data-role="navbar">
+                <ul>
+                  <li><a href="#one" data-ajax="false">댓글</a></li>
+                  <li><a href="#two" data-ajax="false">댓글쓰기</a></li>
+                
+                </ul>
+              </div>
+              <div id="one" class="ui-body-d ui-content">
+      
+              </div>
+              <div id="two">
+                <div class="ui-field-contain">
+            
+                <input type="hidden" id="Hidden1" />
+                <input type="hidden" id="Hidden2" />
+                             
+                <label for="txtDS_SYSTEM">시스템명:</label>
+                <input type="text" id="Text1" readonly="readonly" class="ui-readonly" />
+                <label for="txtCD_CODE">환경변수:</label>
+                <input type="text" id="Text2" readonly="readonly" class="ui-readonly" />
+                <label for="txtCD_VALUE">값:</label>
+                <input type="text" id="Text3" readonly="readonly"  />
+                <label for="txtDS_BIGO">설명:</label>
+                <input type="text" id="Text4" readonly="readonly" />
+             
+            </div>
+              </div>
+            </div>-->
+        </div>
+    </div>
+</body>
+</html>

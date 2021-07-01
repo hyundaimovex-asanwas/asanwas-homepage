@@ -1,0 +1,517 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	: 분개장
++ 프로그램 ID	: A030005
++ 기 능 정 의	: 조회|출력
++ 최 초 이 력	: 구자헌
++ 서 블 릿 명	: a030005_s1, a030005_s2
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title>분개장</title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+
+get_cookdata();
+gs_date = gcurdate.substring(0,4) + gcurdate.substring(5,7) + gcurdate.substring(8,10);
+gs_date2 = gcurdate.substring(0,4) + gcurdate.substring(5,7);
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+
+	ln_Before();	//선조회
+	ln_visible_hidden("create1");
+
+}
+
+/******************************************************************************
+	Description : 조회 - 분개장 출력
+******************************************************************************/
+function ln_Query1(){
+
+	var str1 = gclx_sfdcode.BindColVal;		//지점코드
+	var str2 = gcem_staxdatfr.text;				//계산서기간 from
+	var str3 = gcem_staxdatto.text;				//계산서기간 to
+
+	if(gcra_data.CodeValue=="1") {
+		gcds_data1.DataID = "/services/servlet/Account.a030005_s1"
+									  + "?v_str1="+str1+"&v_str2="+str2+"&v_str3="+str3;
+		gcds_data1.Reset();
+	}
+	else if(gcra_data.CodeValue=="2") {
+		gcds_data2.DataID = "/services/servlet/Account.a030005_s2"
+									  + "?v_str1="+str1+"&v_str2="+str2+"&v_str3="+str3;
+		gcds_data2.Reset();
+	}
+	else {}
+
+}
+
+/******************************************************************************
+	Description :
+******************************************************************************/
+function ln_Query2(){
+
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save() {
+  
+}
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+ 
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print1(){
+
+	var str1 = gclx_sfdcode.BindColVal;			//지점코드
+	var str2 = gcem_staxdatfr.text;				//계산서기간 from
+	var str3 = gcem_staxdatto.text;				//계산서기간 to
+
+	if(gcra_data.CodeValue=="1") {
+		gcds_print1.DataID = "/services/servlet/Account.a030005_s1"
+									  + "?v_str1="+str1+"&v_str2="+str2+"&v_str3="+str3;
+		gcds_print1.Reset();
+	}
+	else if(gcra_data.CodeValue=="2") {
+		gcds_print2.DataID = "/services/servlet/Account.a030005_s2"
+									  + "?v_str1="+str1+"&v_str2="+str2+"&v_str3="+str3;
+		gcds_print2.Reset();
+	}
+	else {}
+
+}
+
+/******************************************************************************
+	Description : 출력 - 전표번호별
+******************************************************************************/
+function ln_RptFormat1() {
+
+	var ls_for = "";
+	var strfr = gcem_staxdatfr.text;
+	var strto = gcem_staxdatto.text;
+	var syyyy = strfr.substring(0,4);
+	var smm   = strfr.substring(4,6);
+	var sdd   = strfr.substring(6,8);
+	var tyyyy = strto.substring(0,4);
+	var tmm   = strto.substring(4,6);
+	var tdd   = strto.substring(6,8);
+	//var fd = gclx_sfdcode.BindColVal;
+	var yyyy = gcurdate.substring(0,4);
+	var mm = gcurdate.substring(5,7);
+	var dd = gcurdate.substring(8,10);
+	var fd = gcds_sfdcode.NameValue(gcds_sfdcode.rowposition,"FDNAME");
+
+	ls_for += "<B>id=DHeader ,left=0,top=0 ,right=2869 ,bottom=329 ,face='굴림' ,size=10 ,penwidth=1<X>left=1025 ,top=34 ,right=1863 ,bottom=109 ,backcolor=#000000 ,border=true ,penstyle=solid ,penwidth=1</X><X>left=1016 ,top=22 ,right=1850 ,bottom=100 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=1</X><T>id='전 표 번 호 별' ,left=1019 ,top=25 ,right=1844 ,bottom=87 ,face='HY중고딕' ,size=14 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T><L> left=0 ,top=219 ,right=2706 ,bottom=219 ,penstyle=solid ,penwidth=5 ,pencolor=#000000 </L><L> left=0 ,top=328 ,right=2709 ,bottom=328 ,penstyle=solid ,penwidth=3 ,pencolor=#000000 </L><T>id='( "+syyyy+"년 "+smm+"월 "+sdd+"일  ~  "+tyyyy+"년 "+tmm+"월 "+tdd+"일 )' ,left=859 ,top=119 ,right=2003 ,bottom=166 ,face='굴림' ,size=12 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T><T>id='대변' ,left=1313 ,top=250 ,right=1628 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T><T>id='차변' ,left=1000 ,top=250 ,right=1316 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T><T>id='계정과목' ,left=559 ,top=250 ,right=1003 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T><T>id='SEQ' ,left=375 ,top=250 ,right=534 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T><T>id='번호' ,left=219 ,top=250 ,right=378 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T><T>id='일자' ,left=0 ,top=250 ,right=222 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T><T>id='출력일자 : "+yyyy+"/"+mm+"/"+dd+"' ,left=2322 ,top=119 ,right=2869 ,bottom=166 ,align='left'</T><T>id='Page : #p of #t' ,left=2322 ,top=162 ,right=2669 ,bottom=209 ,align='left'</T><T>id='지점 : "+fd+"' ,left=31 ,top=166 ,right=378 ,bottom=209 ,align='left'</T><T>id='거래처' ,left=1625 ,top=250 ,right=2034 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T><T>id='적요' ,left=2031 ,top=250 ,right=2628 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T></B>";
+	ls_for += "<B>id=default ,left=0,top=0 ,right=2869 ,bottom=91 ,face='Arial' ,size=10 ,penwidth=1<C>id='CREAMT', left=1313, top=31, right=1566, bottom=75, align='right', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C><C>id='FSSEQ', left=375, top=31, right=534, bottom=75, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C><C>id='FSDAT', left=0, top=31, right=222, bottom=75, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C><C>id='FSNBR', left=219, top=31, right=378, bottom=75, face='굴림', size=	10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C><C>id='ATKORNAM', left=559, top=31, right=1003, bottom=75, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF, Dec=0</C><C>id='DEBAMT', left=1000, top=31, right=1253, bottom=75, align='right', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF, Dec=0</C><C>id='VENDNM', left=1622, top=31, right=2034, bottom=75, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C><C>id='REMARK', left=2031, top=31, right=2700, bottom=75, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C></B>";
+	ls_for += "<B>id=LDFooter ,left=0,top=0 ,right=2869 ,bottom=116 ,face='Arial' ,size=10 ,penwidth=1<L> left=0 ,top=3 ,right=2706 ,bottom=3 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L></B>";
+	ls_for += "<B>id=Footer ,left=0 ,top=1856 ,right=2869 ,bottom=2000 ,face='굴림' ,size=10 ,penwidth=1<L> left=0 ,top=0 ,right=2706 ,bottom=0 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L><I>id='../../common/img/icon.jpg' ,left=2350 ,top=3 ,right=2728 ,bottom=84</I></B>";
+
+	gcrp_print1.format = ls_for + gcrp_print1.format;
+
+}
+
+/******************************************************************************
+	Description : 출력 - 계정과목별
+******************************************************************************/
+function ln_RptFormat2() {
+
+	var ls_for = "";
+	var strfr = gcem_staxdatfr.text;
+	var strto = gcem_staxdatto.text;
+	var syyyy = strfr.substring(0,4);
+	var smm   = strfr.substring(4,6);
+	var sdd   = strfr.substring(6,8);
+	var tyyyy = strto.substring(0,4);
+	var tmm   = strto.substring(4,6);
+	var tdd   = strto.substring(6,8);
+	//var fd = gclx_sfdcode.BindColVal;
+	var yyyy = gcurdate.substring(0,4);
+	var mm = gcurdate.substring(5,7);
+	var dd = gcurdate.substring(8,10);
+	var fd = gcds_sfdcode.NameValue(gcds_sfdcode.rowposition,"FDNAME");
+
+	ls_for += "<B>id=DHeader ,left=0,top=0 ,right=2869 ,bottom=329 ,face='굴림' ,size=10 ,penwidth=1<X>left=1025 ,top=34 ,right=1863 ,bottom=109 ,backcolor=#000000 ,border=true ,penstyle=solid ,penwidth=1</X>	<X>left=1016 ,top=22 ,right=1850 ,bottom=100 ,backcolor=#C0C0C0 ,border=true ,penstyle=solid ,penwidth=1</X>	<L> left=0 ,top=219 ,right=2706 ,bottom=219 ,penstyle=solid ,penwidth=5 ,pencolor=#000000 </L>	<L> left=0 ,top=328 ,right=2709 ,bottom=328 ,penstyle=solid ,penwidth=3 ,pencolor=#000000 </L>	<T>id='( "+syyyy+"년 "+smm+"월 "+sdd+"일  ~  "+tyyyy+"년 "+tmm+"월 "+tdd+"일 )' ,left=859 ,top=119 ,right=2003 ,bottom=166 ,face='굴림' ,size=12 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFFFF</T>	<T>id='대변' ,left=1313 ,top=250 ,right=1628 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T>	<T>id='차변' ,left=1000 ,top=250 ,right=1316 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T><T>id='SEQ' ,left=844 ,top=250 ,right=1003 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T>	<T>id='번호' ,left=688 ,top=250 ,right=847 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T>	<T>id='일자' ,left=469 ,top=250 ,right=691 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T>	<T>id='출력일자 : "+yyyy+"/"+mm+"/"+dd+"' ,left=2322 ,top=119 ,right=2869 ,bottom=166 ,align='left'</T>	<T>id='Page : #p of #t' ,left=2322 ,top=162 ,right=2669 ,bottom=209 ,align='left'</T>	<T>id='지점 : "+fd+"' ,left=31 ,top=166 ,right=378 ,bottom=209 ,align='left'</T><T>id='거래처' ,left=1625 ,top=250 ,right=2034 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T>	<T>id='적요' ,left=2031 ,top=250 ,right=2628 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T>	<T>id='계 정 과 목 별' ,left=1019 ,top=25 ,right=1844 ,bottom=87 ,face='HY중고딕' ,size=14 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#C0C0C0</T>	<T>id='계정과목' ,left=28 ,top=250 ,right=472 ,bottom=294 ,face='굴림' ,size=10 ,bold=true ,underline=false ,italic=false ,forecolor=#000000 ,backcolor=#FFFBF0</T></B>";
+	ls_for += "<B>id=default ,left=0,top=0 ,right=2869 ,bottom=91 ,face='Arial' ,size=10 ,penwidth=1<C>id='CREAMT', left=1313, top=31, right=1566, bottom=75, align='right', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C><C>id='FSSEQ', left=844, top=31, right=1003, bottom=75, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>	<C>id='FSDAT', left=469, top=31, right=691, bottom=75, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>	<C>id='FSNBR', left=688, top=31, right=847, bottom=75, face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>	<C>id='DEBAMT', left=1000, top=31, right=1253, bottom=75, align='right', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>	<C>id='VENDNM', left=1622, top=31, right=2034, bottom=75, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>	<C>id='REMARK', left=2031, top=31, right=2700, bottom=75, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C>	<C>id='ATKORNAM', left=28, top=31, right=472, bottom=75, align='left', face='굴림', size=10, bold=false, underline=false, italic=false, forecolor=#000000, backcolor=#FFFFFF</C></B>";
+	ls_for += "<B>id=LDFooter ,left=0,top=0 ,right=2869 ,bottom=116 ,face='Arial' ,size=10 ,penwidth=1<L> left=0 ,top=3 ,right=2706 ,bottom=3 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L></B>";
+	ls_for += "<B>id=Footer ,left=0 ,top=1856 ,right=2869 ,bottom=2000 ,face='굴림' ,size=10 ,penwidth=1<L> left=0 ,top=0 ,right=2706 ,bottom=0 ,penstyle=solid ,penwidth=2 ,pencolor=#000000 </L><I>id='../../common/img/icon.jpg' ,left=2350 ,top=3 ,right=2728 ,bottom=84</I></B>";
+
+	gcrp_print2.format = ls_for + gcrp_print2.format;
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+/******************************************************************************
+	Description : 선조회
+******************************************************************************/
+function ln_Before(){ 
+
+	//gclx_sfdcode.BindColVal = "01";				//지점코드
+	gcra_data.CodeValue	 = "1";						//구분
+	gcem_staxdatfr.text			 = gs_date2 + "01";	//계산서기간 from
+	gcem_staxdatto.text			 = gs_date;			//계산서기간 to
+
+	gcds_sfdcode.DataID = "/services/servlet/Account.a010003_s1?v_str1="; 
+	gcds_sfdcode.Reset(); //지점코드
+
+}
+
+/******************************************************************************
+	Description : 그리드 보이기
+******************************************************************************/
+function ln_visible_hidden(Obj){
+	
+	var lib_com= new Array("create1","create2");
+
+	for(i=0;i<lib_com.length;i++) {
+		if(Obj==lib_com[i]) {
+			eval("document.all."+lib_com[i]+".style.display='block';");
+		}	else {
+			eval("document.all."+lib_com[i]+".style.display='none';");
+		}
+	}
+}
+
+</script>
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object  id="gcds_data1" classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false"><!-- 전표번호별 -->
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<comment id="__NSID__"><object  id="gcds_data2" classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false"><!-- 계정과목별 -->
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<comment id="__NSID__"><object  id="gcds_print1" classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false"><!-- 전표번호별 레포트-->
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<comment id="__NSID__"><object  id="gcds_print2" classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false"><!-- 계정과목별 레포트-->
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<comment id="__NSID__"><object  id="gcds_sfdcode" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" VIEWASTEXT> 
+	<PARAM NAME="SYNCLOAD" VALUE="false"><!-- 지점코드[검색] -->
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gclx_sfdcode" event="OnCloseUp()">
+
+	//txt_fdcode.value = gclx_sfdcode.BindColVal;
+	
+</script>
+
+<script language="javascript" for="gcra_data" event="OnSelChange()">
+	if(gcra_data.CodeValue=="1") {
+		ln_visible_hidden("create1");
+	}
+	else if(gcra_data.CodeValue=="2") {
+		ln_visible_hidden("create2");
+	}
+</script>
+
+<script language="javascript" for="gcds_data1" event="OnLoadStarted()">
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language=JavaScript  for=gcds_data1 event=OnLoadCompleted(row,colid)>
+	window.status="조회가 완료 되었습니다.";
+	document.all.LowerFrame.style.visibility="hidden";
+	ft_cnt1.innerText = row + " 건";
+	if (row<1)
+		alert("검색된 데이터가 없습니다."); //전표번호별
+</script>
+
+<script language="javascript" for="gcds_data2" event="OnLoadStarted()">
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language=JavaScript  for=gcds_data2 event=OnLoadCompleted(row,colid)>
+	window.status="조회가 완료 되었습니다.";
+	document.all.LowerFrame.style.visibility="hidden";
+	ft_cnt2.innerText = row + " 건";
+	if (row<1)
+		alert("검색된 데이터가 없습니다."); //계정과목별
+</script>
+
+<script language="javascript" for="gcds_print1" event="OnLoadStarted()">
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language=JavaScript  for=gcds_print1 event=OnLoadCompleted(row,colid)>
+	window.status="조회가 완료 되었습니다.";
+	document.all.LowerFrame.style.visibility="hidden";
+	//if (row<1) {
+	//	alert("출력하실 정보가 없습니다.");
+	//}else{
+		ln_RptFormat1();
+		gcrp_print1.preview(); //전표번호별
+	//}
+</script>
+
+<script language="javascript" for="gcds_print2" event="OnLoadStarted()">
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language=JavaScript  for=gcds_print2 event=OnLoadCompleted(row,colid)>
+	window.status="조회가 완료 되었습니다.";
+	document.all.LowerFrame.style.visibility="hidden";
+	//if (row<1) {
+	//	alert("출력하실 정보가 없습니다.");
+	//}else{
+		ln_RptFormat2();
+		gcrp_print2.preview(); //계정과목별
+	//}
+</script>
+
+<script language="javascript" for="gcds_sfdcode" event="onloadCompleted(row,colid)">
+	gcds_sfdcode.InsertRow(1);
+	gcds_sfdcode.NameValue(1,"FDCODE")="";
+	gcds_sfdcode.NameValue(1,"FDNAME")="전체";
+	gclx_sfdcode.index=0;
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<!----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<body bgcolor="#FFFFFF" topmargin="0" marginheight="0" leftmargin="0" marginwidth="0" onload="ln_Start()">
+
+<table width="876" cellpadding="0" cellspacing="0" border="0" style="position:relative;left:3px">
+  <tr> 
+    <td>
+			<img src="../img/a030005_head.gif">
+		</td>
+    <td width="685" align="right" background="../../Common/img/com_t_bg.gif" style="padding-top:4px;">&nbsp;
+		  <img name="btn_print" src="../../Common/img/btn/com_b_print.gif"	style="cursor:hand"	onclick="ln_Print1()"> 
+		  <img name="btn_query" src="../../Common/img/btn/com_b_query.gif"  style="cursor:hand" onclick="ln_Query1()">&nbsp;
+	  </td>
+  </tr>
+  <tr> 
+    <td COLSPAN=2>
+			<table cellpadding="1" cellspacing="0" border="0" style='width:876px;height:30px;font-size:9pt;background-color:#ffffff;BORDER-LEFT-WIDTH:1px;border:1 solid #708090'>
+        <tr> 
+					<td width="100px" class="tab12" bgcolor="#eeeeee"><nobr>&nbsp;지점코드&nbsp;</nobr></td>
+					<td width="170px;" class="tab23"><nobr>
+						<comment id="__NSID__"><object  id=gclx_sfdcode classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69  style="position:relative;left:5px;top:0px;width:100px;height:110px;">
+							<param name=ComboDataID			value="gcds_sfdcode">
+							<param name=CBDataColumns		value="FDCODE,FDNAME">
+							<param name=SearchColumn		value="FDNAME">
+							<param name=Sort						value=false>
+							<param name=ListExprFormat	value="FDNAME^0^150">
+							<param name=BindColumn			value="FDCODE">
+						</object></comment><script>__ws__(__NSID__);</script> &nbsp;&nbsp;
+						</nobr>
+					</td>  
+					<td width="100px" class="tab12" bgcolor="#eeeeee"><nobr>&nbsp;&nbsp;구&nbsp;&nbsp;&nbsp;분&nbsp;&nbsp;</nobr></td>
+					<td width="170px;" class="tab23"><nobr>&nbsp;
+						<comment id="__NSID__"><object  id=gcra_data class="txtbox" classid=CLSID:754F3DC4-0C79-4C92-AD64-A806D8FF2AB0 					style="position:relative;left:-3px;top:2px;height:20;width:170;cursor:hand;">
+							<param name=Cols			value="2">
+							<param name=Format		value="1^전표번호별,2^계정과목별">
+						</object></comment><script>__ws__(__NSID__);</script> &nbsp;</nobr>
+					</td> 
+					<td width="100px" class="tab12" bgcolor="#eeeeee"><nobr>&nbsp;&nbsp;회계일자&nbsp;&nbsp;</nobr></td>
+					<td width="300px" class="tab23"><nobr>&nbsp;
+						<comment id="__NSID__"><object  id=gcem_staxdatfr classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F 
+							style="position:relative;left:0px;top:2px; width:68px; height:20px;" class="txtbox">
+							<param name=Alignment			value=0>
+							<param name=Border	      value=true>
+							<param name=Format	      value="YYYY/MM/DD">
+							<param name=PromptChar	  value="_">
+							<param name=Enable				value="true">
+						</object></comment><script>__ws__(__NSID__);</script> 
+						<img src="../img/calender.gif" value="calender.gif" id=img_calendar1 OnClick="__GetCallCalendar('gcem_staxdatfr', 'Text')" style="position:relative;width:20px;left:3px;top:1px;cursor:hand;">~&nbsp;
+						<comment id="__NSID__"><object  id=gcem_staxdatto classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F 
+							style="position:relative;left:0px;top:2px; width:68px; height:20px;" class="txtbox">
+							<param name=Alignment			value=0>
+							<param name=Border	      value=true>
+							<param name=Format	      value="YYYY/MM/DD">
+							<param name=PromptChar	  value="_">
+							<param name=Enable				value="true">
+						</object></comment><script>__ws__(__NSID__);</script> 
+						<img src="../img/calender.gif" value="calender.gif" id=img_calendar2 OnClick="__GetCallCalendar('gcem_staxdatto', 'Text')" style="position:relative;width:20px;left:3px;top:1px;cursor:hand;">&nbsp;</nobr>
+					</td>
+					<td width=100%>&nbsp;</td>
+				</tr>
+			</table>
+		</td>
+  </tr>
+  <tr><td height=3></td></tr>
+  <tr> 
+    <td colspan="2">
+		<DIV ID="create1" STYLE="display:block;">
+      <table width="875" cellpadding="0" cellspacing="0" border="0">
+        <tr> 
+          <td style="width:875" class="tab32">
+						<comment id="__NSID__"><object  id="gcgd_data1"  classid="clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49" 
+							style="height:420;width:875" >
+              <PARAM NAME="DataID"			VALUE="gcds_data1">
+							<PARAM NAME="Editable"		VALUE="false">
+							<PARAM NAME="BorderStyle" VALUE="0">
+							<param name="Fillarea"		VALUE="true">
+							<PARAM NAME="SortView"		VALUE="left">
+							<PARAM NAME="ColSizing"		VALUE="false">
+							<PARAM NAME="IndWidth"		VALUE="0">
+							<PARAM NAME="Format"			VALUE=" 
+	<C>ID=FSDAT,	Name='일자',width=90, HeadBgColor=#B9D4DC,HeadAlign=center, align=center</C>
+	<C>ID=FSNBR,	Name='번호' ,width=85,HeadBgColor=#B9D4DC,HeadAlign=center,	align=center</C>
+	<C>ID=FSSEQ, Name='SEQ' ,width=85,HeadBgColor=#B9D4DC,HeadAlign=center, align=center</C>  
+	<C>ID=ATKORNAM, Name='계정과목' ,width=170, HeadBgColor=#B9D4DC,HeadAlign=center, align=left</C>
+	<C>ID=DEBAMT,	Name='차변',width=105, HeadBgColor=#B9D4DC,HeadAlign=center, align=right</C>
+	<C>ID=CREAMT,	Name='대변', width=105, HeadBgColor=#B9D4DC,HeadAlign=center, align=right</C>
+	<C>ID=VENDNM,Name='거래처', width=155, HeadBgColor=#B9D4DC,HeadAlign=center, align=left</C>
+	<C>ID=REMARK, Name='적요', width=490, HeadBgColor=#B9D4DC,HeadAlign=center, align=left</C>
+							">
+            </object></comment><script>__ws__(__NSID__);</script> 
+						<fieldset style="width:875;height:20px;;border:0 solid #708090;border-top-width:1px;border-bottom-width:1px;text-align:left;">
+							&nbsp;<font style="position:relative;top:4px;">조회건수 : </font><font id=ft_cnt1 style="position:relative;top:4px;"></font>
+						</fieldset>
+					</td>
+        </tr>
+			</table>
+		</div>
+		<DIV ID="create2" STYLE="display:block;">
+			<table width="875" cellpadding="0" cellspacing="0" border="0">
+        <tr> 
+          <td style="width:875" class="tab32">
+						<comment id="__NSID__"><object  id="gcgd_data2"  classid="clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49" 
+							style="height:420;width:875" >
+              <PARAM NAME="DataID"			VALUE="gcds_data2">
+							<PARAM NAME="Editable"		VALUE="false">
+							<PARAM NAME="BorderStyle" VALUE="0">
+							<param name="Fillarea"		VALUE="true">
+							<PARAM NAME="SortView"		VALUE="left">
+							<PARAM NAME="ColSizing"		VALUE="false">
+							<PARAM NAME="IndWidth"		VALUE="0">
+							<PARAM NAME="Format"			VALUE=" 
+	<C>ID=ATKORNAM, Name='계정과목' ,width=170, HeadBgColor=#B9D4DC,HeadAlign=center, align=left</C>
+	<C>ID=FSDAT,	Name='일자',width=90, HeadBgColor=#B9D4DC,HeadAlign=center, align=center</C>
+	<C>ID=FSNBR,	Name='번호' ,width=85,HeadBgColor=#B9D4DC,HeadAlign=center,	align=center</C>
+	<C>ID=FSSEQ, Name='SEQ' ,width=85,HeadBgColor=#B9D4DC,HeadAlign=center, align=center</C>
+	<C>ID=DEBAMT,	Name='차변',width=105, HeadBgColor=#B9D4DC,HeadAlign=center, align=right</C>
+	<C>ID=CREAMT,	Name='대변', width=105, HeadBgColor=#B9D4DC,HeadAlign=center, align=right</C>
+	<C>ID=VENDNM,Name='거래처', width=155, HeadBgColor=#B9D4DC,HeadAlign=center, align=left</C>
+	<C>ID=REMARK, Name='적요', width=490, HeadBgColor=#B9D4DC,HeadAlign=center, align=left</C>
+							">
+            </object></comment><script>__ws__(__NSID__);</script> 
+						<fieldset style="width:875;height:20px;;border:0 solid #708090;border-top-width:1px;border-bottom-width:1px;text-align:left;">
+							&nbsp;<font style="position:relative;top:4px;">조회건수 : </font><font id=ft_cnt2 style="position:relative;top:4px;"></font>
+						</fieldset>
+					</td>
+        </tr>
+      </table>
+		</div>
+    </td>
+  </tr>
+</table>
+
+<!-----------------------------------------------------------------------------
+			B I N D  D E F I N I T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+			R E P O R T   D E F I N I T I O N - 분 개 장
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object  id=gcrp_print1 classid=clsid:37D13B2F-E5EB-11D2-973D-00104B15E56F VIEWASTEXT>
+	<param NAME="MasterDataID"			VALUE="gcds_print1">
+	<param NAME="DetailDataID"			VALUE="gcds_print1">
+	<PARAM NAME="PaperSize"					VALUE="A4">	
+	<PARAM NAME="LandScape"					VALUE="true">
+  <PARAM NAME="PrintSetupDlgFlag" VALUE="true">
+	<PARAM NAME="PreviewZoom"				VALUE="100">
+	<PARAM NAME="Format" VALUE="
+
+">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<comment id="__NSID__"><object  id=gcrp_print2 classid=clsid:37D13B2F-E5EB-11D2-973D-00104B15E56F VIEWASTEXT>
+	<param NAME="MasterDataID"			VALUE="gcds_print2">
+	<param NAME="DetailDataID"			VALUE="gcds_print2">
+	<PARAM NAME="PaperSize"					VALUE="A4">	
+	<PARAM NAME="LandScape"					VALUE="true">
+  <PARAM NAME="PrintSetupDlgFlag" VALUE="true">
+	<PARAM NAME="PreviewZoom"				VALUE="100">
+	<PARAM NAME="Format" VALUE="
+
+">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:280px; top:220px;" FrameBorder="0" src="../../Common/img/flash/loading.swf" width="320px" height="42px"> </iframe> 
+
+</body>
+</html>

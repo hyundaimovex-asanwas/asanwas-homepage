@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!--
+***********************************************************************
+* @UseCase     : ZZZA011
+* @description : 각종테스트
+***********************************************************************
+* 2009/11/12      임종태       최초작성.
+***********************************************************************
+-->
+
+    <!--우편번호조회 -->
+    <sql name="ZZZA010_SHR">
+        <description>우편번호 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SEQ_NO, ZIPCODE, SIDO, GUGUN, DONG, BUNJI
+              FROM T_CM_POST
+             WHERE 1 =1
+             AND   DONG like ? || '%'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- ORACLE 조회 -->
+    <sql name="ZZZA011_SHR">
+        <description> 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ID, NAME,REMARK
+              FROM db_accessadmin.YIMJT
+             WHERE 1 =1
+            ]]>
+        </query>
+    </sql>
+
+    <!-- ORACLE 정보 저장 한다. -->
+    <sql name="ZZZA011_SAV">
+        <description> 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO YIMJT
+                    (ID, NAME)
+             VALUES (?,  ?)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- MS_SQL 정보 저장 한다. -->
+    <sql name="ZZZA011_MS_SAV">
+        <description> 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO db_accessadmin.yimjt
+                    (ID, NAME, REMARK)
+             VALUES (?,  ?, ?)
+            ]]>
+        </query>
+    </sql>
+</sqls>

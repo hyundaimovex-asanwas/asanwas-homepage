@@ -1,0 +1,391 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	회계관리/계산서 사용자관리
++ 프로그램 ID	: A010049.html
++ 기 능 정 의	: 사용자 등록
++ 최 초 이 력	: 정영식
++ 변 경 이 력	:  
+-----------------------------------------------------------------------------
++ 수 정 내 용 :	
++ 수   정  자 : 
++ 수 정 일 자 : 
+-----------------------------------------------------------------------------
++ 서 블 릿 명	: a010049_s1 , 
+------------------------------------------------------------------------------>
+<html>
+<head>
+<title>계산서 사용자관리</title>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+<Script language="javascript" src="../../common/include/Account.js"></script>
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+//document.domain = "http://erp.hdasan.com"; 
+get_cookdata();
+lfn_init(); //로그인 체크 함수 호출
+gs_date2 = gcurdate.substring(0,4) + gcurdate.substring(5,7) + gcurdate.substring(8,10);
+var gs_userid = gusrid;
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+	gclx_cocode.index=2;
+
+	if(gf_empno_Enable(gs_userid,gcds_userid2)){
+			sp0.style.display = "";
+		}else{
+		sp0.style.display = "none"; //숨김
+	}
+
+
+	ln_Find_Regno();
+	ln_Query();
+}
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(){
+  gcds_data.DataID = "/services/servlet/Account.a010049_s2?v_str1=" + gcem_regno.text //사업자 등록번호 
+	                                                      +"&v_str2="+gs_userid; //
+	//prompt("",gcds_data.DataID);
+  gcds_data.Reset();
+}
+
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Add(){
+	gcds_data.Addrow();
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save(){
+	if (gcds_data.IsUpdated) {
+		if (confirm("저장 하시겠습니까?")){	
+			gctr_data.Action = "/services/servlet/Account.a010049_t1?"
+			//prompt('',gcds_data.text);
+			gctr_data.post();
+		}	
+	}
+}
+
+
+/******************************************************************************************
+	Descrition : 로그인시 해당사번만 삭제 가능함.
+	parameter  : 사번코드
+	retun      : true - 가능 , false - 불가능
+	             gcds_name - dataset 명
+******************************************************************************************/
+function gf_empno_Enable(s, gcds_name){
+	gcds_name.DataID = g_servlet+"/Account.commdtil_s5?v_str1=2170"
+													  +"&v_str2="+s;
+	                                                  
+
+  //prompt("",gcds_name.DataID );																							
+	gcds_name.Reset();			
+
+	if(gcds_name.countrow>0){
+		return true;
+  }else { 
+		return false;
+	}
+}
+
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+	if (confirm("해당 건을 삭제하시겠습니까?")){	
+		gcds_data.deleterow(gcds_data.rowposition);
+		gctr_data.Action = "/services/servlet/Account.a010049_t1?"
+		//prompt('',gcds_data.text);
+		gctr_data.post();
+	}	
+}
+
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+/*
+function ln_Cert_Reg(){
+
+  if(!ln_Chk()) return;
+  
+  var v_left = (screen.width-300)/2;
+  var v_top  = (screen.height-300)/2;
+  //var v_left = screen.availWidth/2 - 300/2; 
+  //var v_top  = screen.availHeight/2 - 300/2;            
+
+	
+	if(gcds_data.namevalue(1,"CHK")=="T"){        //서울인 경우
+		url=gs_url+"/callSB/XXSB_DTI_CERT.asp?CERT_REGNO="+gs_regno_s+"&CERT_COMNAME="+gs_comname_s;		
+	}else if(gcds_data.namevalue(2,"CHK")=="T"){  //고성인 경우
+		url=gs_url+"/callSB/XXSB_DTI_CERT.asp?CERT_REGNO="+gs_regno_g+"&CERT_COMNAME="+gs_comname_g;	
+	}
+
+  window.open(url,"", "status=1, width=300, height=280, left="+v_left+", top="+v_top );
+}
+*/
+
+/******************************************************************************
+	Description : 사업소 코드로 사업자등록번호 찾기 
+******************************************************************************/
+function ln_Find_Regno(){
+	if(gclx_cocode.bindcolval=="01"){
+		gcem_regno.text =gs_regno_g;
+	}else if(gclx_cocode.bindcolval=="02"){
+    gcem_regno.text =gs_regno_s;
+	}else{
+    gcem_regno.text ="";
+	}
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Chk(){
+	var intcnt = 0; 
+
+  //인증서 선택이 한 것도 안 된경우
+  for(i=1;i<=gcds_data.countrow;i++){
+		if(gcds_data.namevalue(i,"CHK")=="T"){
+			intcnt+=1;
+		}
+	}
+	
+  if (intcnt==0){
+		alert("해당 사업자 번호를 선택하십시요.");
+		return false;
+	}else if(intcnt==1){
+    return true;
+	}else if(intcnt==2){
+		alert("사업자 번호를 1건만 선택하십시요.");
+		return false;
+	}else{
+    alert("기타");
+    return false;
+	}
+}
+</script>
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__">
+<object id=gcds_data classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object>
+</comment><script>__ws__(__NSID__);</script>
+<!-- 로그인 사번 체크  -->
+<comment id="__NSID__"><object  id=gcds_userid2 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+<!----------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+ <comment id="__NSID__">
+	<object id=gctr_data classid=clsid:0A2233AD-E771-11D2-973D-00104B15E56F VIEWASTEXT>
+		<PARAM NAME="KeyName"  VALUE="toinb_dataid4">
+		<PARAM NAME="KeyValue" VALUE="a010049_t1(I:USER=gcds_data)">
+ </object>
+ </comment><script>__ws__(__NSID__);</script>
+	
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<script language=JavaScript event="OnLoadError()" for=gcds_data>
+	alert("에러가 발생 했습니다.");
+	document.all.LowerFrame.style.visibility="hidden";
+</script>
+
+<script language=JavaScript  for=gcds_data event=OnLoadCompleted(rowcount)>
+	window.status="조회가 완료 되었습니다.";
+	document.all.LowerFrame.style.visibility="hidden";
+
+	if (rowcount ==0 ){
+		alert("검색된 데이타가 없습니다.");
+	
+	}
+
+	lbl_search.innerText = "총 ( " + rowcount + " ) 건";
+	window.status = "정상적으로 조회되었습니다.";
+
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language=JavaScript for=gclx_cocode event=OnSelChange()>
+	ln_Find_Regno();
+  ln_Query();
+</script>
+
+<script language="javascript"  for=gcgd_data event="OnClick(Row,Colid)">
+	if (Colid =="CHK") {
+		for (var i=1; i<=gcds_data.countrow;i++) {
+			if(i != Row) {
+				gcds_data.namevalue(i,"CHK") = "F";
+			}
+		}
+	}
+</script>
+
+
+<script language=JavaScript for=gcgd_data event=OnPopup(row,colid,data)>
+  
+	var arrResult	= new Array();
+	var arrSend	= new Array();
+	var strURL;	
+	var strPos;
+
+	arrSend[0]="H050005";
+	strURL = "../../Person/html/H030003_popup.html"
+	strPos = "dialogWidth:377px;dialogHeight:383px;dialogTop:270px;dialogLeft:348px;status:no;scroll:no;resizable:no";
+	arrResult = showModalDialog(strURL,arrSend,strPos);
+
+	if (arrResult != null) {
+		arrParam = arrResult.split(";");
+		gcds_data.namevalue(row,"FND_USER_NAME") = arrParam[0]; //성명
+		gcds_data.namevalue(row,"FND_USER") = arrParam[1];  //사번
+	} else {
+		gcds_data.namevalue(row,"FND_USER_NAME") ="";
+		gcds_data.namevalue(row,"FND_USER")="";
+	}
+
+</script>
+
+<script language=JavaScript for=gcgd_data event=OnCloseUp(row,colid)>
+
+	 if(gcds_data.namevalue(row,"FND_REGNO")==gs_regno_s){
+			gcds_data.namevalue(row,"FND_REGNO_NAME")=gs_comname_s;
+	 }else if(gcds_data.namevalue(row,"FND_REGNO")==gs_regno_g){
+      gcds_data.namevalue(row,"FND_REGNO_NAME")=gs_comname_g;
+	 }
+
+</script>
+
+
+
+<script language=JavaScript for=gctr_data event=OnFail()>
+	alert("Error Code : " + gctr_data.ErrorCode + "\n" + "Error Message : " + gctr_data.ErrorMsg + "\n");
+</script>
+ 
+<script language="javascript" for=gctr_data event=onsuccess()>
+	alert("작업이 성공적으로 완료되었습니다.");
+</script>
+ 
+</HEAD>
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+
+<table width="876" cellpadding="0" cellspacing="0" border="0" style="position:relative;left:3px">
+  <tr> 
+    <td ><img src="../img/a010049_head.gif"></td>
+    <td width="685" align="right" background="../../Common/img/com_t_bg.gif" style="padding-top:4px;">
+<span id=sp0 style="display:none;">
+				<img src="../../Common/img/btn/com_b_delete.gif"    style="cursor:hand" onclick="ln_Delete()"> 
+			</span>
+			<img src="../../Common/img/btn/com_b_insert.gif"	style="cursor:hand" onClick="ln_Add()">
+			<img src="../../Common/img/btn/com_b_save.gif"		style="cursor:hand" onClick="ln_Save()">
+			<img src="../../Common/img/btn/com_b_query.gif"		style="cursor:hand" onClick="ln_Query()"> 
+		</td>
+  </tr>
+	<tr>
+	 <td colspan=2>
+		<table  cellpadding="0" cellspacing="0" style="width:876px;height:30px;font-size:9pt;background-color:#ffffff;">
+		<tr> 
+			<td width="100px" align=center  bgcolor="#eeeeee" class="tab15" ><nobr>사업소</nobr></td>
+			<td width="150px" class="tab18"><nobr>&nbsp;<comment id="__NSID__"><nobr> 
+				<object id=gclx_cocode      classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 height=106 width=120>
+					<param name=CBData			  value="00^전체,01^고성,02^서울">
+					<param name=CBDataColumns	value="CODE,NAME">
+					<param name=SearchColumn	value=NAME>
+					<param name=Sort			      value=false>
+					<param name=ListExprFormat	Value="CODE^1^30,NAME^1^90">								
+					<param name=BindColumn		  value="CODE">
+				</object>
+        </comment><script>__ws__(__NSID__);</script>
+			</td>
+			<td width="100px" align=center class="tab18" bgcolor="#eeeeee" ><nobr>사업자등록번호</nobr></td>
+			<td width="400px" class="tab18" ><nobr>&nbsp;<comment id="__NSID__">
+			<object id=gcem_regno classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  tabindex="1"	style="position:relative;left:0px;top:2px; width:80px;height:20px;  ">
+					<param name=Text          value="">
+					<param name=Alignment	    value=0>
+					<param name=Border	      value=True>
+					<param name=Format	      value="000-00-00000">
+					<param name=PromptChar	  value="_">
+					<param name=BackColor     value="#CCCCCC">
+					<param name=InheritColor  value=false>
+					<param name=ReadOnly      value=true>
+				</object>
+				</comment><script>__ws__(__NSID__);</script>
+			</td>
+			</tr>
+		</table>
+   </td>
+	</tr>
+	<tr>
+	<td colspan=2>	  
+		<table cellpadding="0" cellspacing="0" border="0" style="position:relative;left:1px;top:5px;width:876px;border:0 solid #708090;">
+		<tr> 			
+			<td>
+				<comment id="__NSID__">
+					<object classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_data style="WIDTH:874px;HEIGHT:377px;border:1 solid #777777;display:block;">
+						<PARAM NAME="DataID"			  VALUE="gcds_data">
+						<PARAM NAME="BorderStyle"   VALUE="0">
+						<param name="IndWidth"      value="0">
+						<param name="Fillarea"		  VALUE="true">
+						<param name="ColSizing"     value="true">
+						<param name="editable"      value="true">
+						<param name=SortView        value="Left">
+  					<PARAM NAME="Format"			  VALUE="  		
+						<C> Name='사업자등록번호'	 ID=FND_REGNO	       HeadAlign=Center HeadBgColor=#B9D4DC Width=120	align=center   EditStyle=Combo	Data='2218113834:221-81-13834' </C>
+						<C> Name='사업장명'		     ID=FND_REGNO_NAME 	 HeadAlign=Center HeadBgColor=#B9D4DC Width=250	align=left		 BgColor='#C1FFFF'  edit=none </C>
+						<C> Name='사번'   		     ID=FND_USER 	       HeadAlign=Center HeadBgColor=#B9D4DC Width=120 align=center	 BgColor='#C1FFFF'  edit=none  sort=true</C>
+						<C> Name='사원명'          ID=FND_USER_NAME    HeadAlign=Center HeadBgColor=#B9D4DC Width=120	align=center   EditStyle=PopupFix sort=true </C>
+						<C> Name='스마트빌ID'      ID=SMART_ID	       HeadAlign=Center HeadBgColor=#B9D4DC Width=120	align=left	   </C>
+						<C> Name='스마트빌PW'      ID=SMART_PASSWORD	 HeadAlign=Center HeadBgColor=#B9D4DC Width=120	align=left  	 password=true </C>
+					">
+					</object>
+				</comment><script>__ws__(__NSID__);</script>
+			</td>
+		</tr>
+		</table> 
+  </td>
+	</tr>
+	<tr><td colspan="2" height="24" align="left">조회건수 : <label id="lbl_search"></label></td> </tr>	 
+</table>
+<iframe id="LowerFrame" name="work"      style="visibility:hidden; position:absolute; left:280px; top:220px;" src="../../Common/img/flash/loading.swf"  FrameBorder="0" width="320px" height="42px"> </iframe> 
+<!-- <iframe id="eTax_ifrm"  name="eTax_ifrm" style="width:870;height:100px;border:0 solid #708090;" src="../../Account/html/eTax_ifrm.html" frameborder=0 ></iframe>
+ --></body>
+</html>
+
+
+
+

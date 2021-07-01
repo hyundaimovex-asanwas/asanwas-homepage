@@ -1,0 +1,158 @@
+
+
+
+<%@ page import="Resource.DBManager" %>
+<%@ page import="sales.common.*"%>
+<%@ page import="sales.common.HDUtil" %>
+<%@ page import="sales.common.HDConstant" %>
+<%@ page import="sales.org.common.*"%>
+<%@ page import="sales.org.common.request.SmartRequest"%>
+<%@ page import="sales.common.DateUtil"%>
+<%@ page import="sales.common.StringUtil" %>
+<%@ page import="java.sql.*,java.io.*,java.util.*"%>
+<%@ page import="javax.servlet.http.Cookie" %>
+
+
+
+<%	
+
+		// ContextPath 변수 설정.
+		String dirPath = request.getContextPath(); //HDASan
+
+		//서버시간 만들기
+	    java.util.Calendar date = java.util.Calendar.getInstance();
+	    java.text.SimpleDateFormat m_today = new java.text.SimpleDateFormat("ssMMmmyyyyHHdd");
+	    String strD = m_today.format(date.getTime());
+	
+		//로그인 정보에서 불러오는 값 /////011-06-14 심동현수정 ///////////////////////////////////////////////////////////////////////////////////////
+		//String gusrid	= (String)session.getAttribute("vusrid");
+		String gusrid	= "6060002";
+		//로그인 정보에서 불러오는 값 /////
+		
+		String requestedPage = HDUtil.nullCheckStr(request.getParameter("requestedPage"));
+		String pageSize  	= "10";  	//1페이지에 표시될 개수
+
+	//시작 //////////////////////////////////////////////////////////////////
+	
+	SmartRequest sr_db= new SmartRequest(request);	
+
+		requestedPage = "1";
+		pageSize  	 = "10";  												//1페이지에 표시될 개수
+		ArrayList data_db = new ArrayList();								//게시물 리스트를 받아올 것 생성.
+		int len_db = 0;
+		BaseDataClass bean_db;
+	
+		//이부분을 해줘야 매니저파일에서 sr.getObject()로 읽어올 수 있다.
+		sr_db.setObject("requestedPage",(Object)requestedPage);				//요청페이지 세팅
+		sr_db.setObject("pageSize",(Object)pageSize);						//페이지 사이즈 세팅
+		sr_db.setObject("v_login_id",(Object)gusrid);						//로긴 아이디 셋팅 
+
+		
+		DBManager manager_db = new DBManager();
+		data_db		= manager_db.list(sr_db);								//화면에 표시될 리스트 불러오기.
+		manager_db.close();
+		
+	//끝//////////////////////////////////////////////////////////////////////
+		
+	//최초 tree_idx
+	int tree_idx = 0;
+
+	
+%>
+
+
+
+
+
+<!DOCTYPE html>
+
+  <head>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>웹표준 템플릿</title>
+
+
+    
+    <!--  2018.04.09  jui 컴포넌트 적용 Test 이동훈 -->  
+
+	<link rel="stylesheet" href="../../Resource/jui/jui-master/jui-master/dist/ui.min.css" />
+	<link rel="stylesheet" href="../../Resource/jui/jui-master/jui-master/dist/ui-jennifer.min.css" />
+	
+	<!-- Grid style components -->
+	<link rel="stylesheet" href="../../Resource/jui/jui-grid-master/jui-grid-master/dist/grid.min.css" />
+	<link rel="stylesheet" href="../../Resource/jui/jui-grid-master/jui-grid-master/dist/grid-jennifer.min.css" />
+
+	
+</head>
+  
+  
+
+  
+
+  
+  
+<body class="jui">
+
+
+
+<div >
+
+  <h1>My First JUI Page 걸음마</h1>      
+  <p>This part is inside class.</p> 
+         
+</div>
+
+<div id="datepicker_2" class="datepicker large">
+    <div class="head">
+        <div class="prev"><i class="icon-chevron-left"></i></div>
+        <div class="title"></div>
+        <div class="next"><i class="icon-chevron-right"></i></div>
+    </div>
+    <table class="body">
+        <tr>
+            <th>SU</th><th>MO</th><th>TU</th><th>WE</th><th>TH</th><th>FR</th><th>SA</th>
+        </tr>
+    </table>
+</div>
+
+
+	<table>
+		<tr>
+			<td width="150px">Button</td>
+			<td width="300px">Class</td>
+			<td width="350px">Description</td>
+		</tr>
+		<tr>
+			<td>
+				<a class="btn">Default</a>
+			</td>
+			<td>
+				btn
+			</td>
+			<td>Default button</td>
+		</tr>
+		<tr>
+			<td>
+				<a class="btn focus">Focus</a>
+			</td>
+			<td>
+				btn focus
+			</td>
+			<td>Focusing button</td>
+		</tr>
+		<tr>
+			<td>
+				<a class="btn" disabled>Disabled</a>
+			</td>
+			<td>
+				btn disabled
+			</td>
+			<td>Disabled button</td>
+		</tr>
+	</table>
+
+
+  </body>
+</html>

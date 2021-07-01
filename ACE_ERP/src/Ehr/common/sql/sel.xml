@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<sqls>
+
+<!-- 셀프서비스 -->
+<!--
+***********************************************************************
+* @UseCase     : sela010
+* @description : 즐겨찾기
+***********************************************************************
+* 2007/04/19      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 사용자의 권한 정보를 조회한다.  -->
+    <sql name="SELA010_SHR_00">
+        <description>사용자권한정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT COMM_CD, ROLE_CD
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN  = '01'
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사용자별 메뉴 데이터 조회 -->
+    <sql name="SELA010_SHR_01">
+        <description>사용자별 메뉴 데이터 조회</description>
+        <query>
+            <![CDATA[
+
+            SELECT *
+              FROM (SELECT J.GROUP_SEQ
+                         , J.MENU_LBL
+                         , J.MENU_NM
+                         , J.MENU_SEQ
+                         , J.MENU_ID
+                         , J.MENU_FLD
+                         , J.MENU_GBN
+                         , J.UPMENU_ID
+                         , J.FORM_ID
+                         , J.DISP_YN
+                         , J.BTN_01
+                         , J.BTN_02
+                         , J.BTN_03
+                         , J.BTN_04
+                         , J.BTN_05
+                         , J.BTN_06
+                         , NVL(E.MENU_CNT, NVL(J.MENU_CNT, 0)) AS MENU_CNT
+                      FROM (SELECT A.GROUP_SEQ
+                                 , A.MENU_LBL
+                                 , A.MENU_NM
+                                 , A.MENU_SEQ
+                                 , A.MENU_ID
+                                 , A.MENU_FLD
+                                 , A.MENU_GBN
+                                 , A.UPMENU_ID
+                                 , A.FORM_ID
+                                 , DECODE(MENU_GBN, 'm', A.MENU_ID, B.MENU_ID) AS DISP_YN
+                                 , B.BTN_01
+                                 , B.BTN_02
+                                 , B.BTN_03
+                                 , B.BTN_04
+                                 , B.BTN_05
+                                 , B.BTN_06
+                                 , B.MENU_CNT
+                              FROM (SELECT *
+                                      FROM T_CM_MENULST
+                                START WITH MENU_SEQ = 1
+                                       AND MENU_ID <> 'eis'
+                                CONNECT BY PRIOR MENU_ID = UPMENU_ID
+                                    ) A
+                                 , (SELECT MENU_ID
+                                         , BTN_01
+                                         , BTN_02
+                                         , BTN_03
+                                         , BTN_04
+                                         , BTN_05
+                                         , BTN_06
+                                         , 1 AS MENU_CNT
+                                      FROM T_CM_ROLEAUTH
+                                     WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                    , 1, ROLE_CD
+                                                                    , 2, LAW_AUTHO
+                                                                    , 3, EIS_AUTHO
+                                                                    , 4, L3_AUTHO ) AS ROLE_CD
+                                                         FROM (SELECT 1 AS NUM FROM DUAL
+                                                                UNION
+                                                               SELECT 2 AS NUM FROM DUAL
+                                                                UNION
+                                                               SELECT 3 AS NUM FROM DUAL
+                                                                UNION
+                                                               SELECT 4 AS NUM FROM DUAL
+                                                               ) A
+                                                            , (SELECT ROLE_CD
+                                                                    , DECODE( LAW_AUTHO
+                                                                            , 'M'   , '2010'
+                                                                            , NULL  , ''
+                                                                            , '2011' ) AS LAW_AUTHO
+                                                                    , DECODE(EIS_AUTHO, 'M', '2020') AS EIS_AUTHO
+                                                                    , DECODE(L3_AUTHO,  'M', '2021') AS L3_AUTHO
+                                                                 FROM T_CM_EMPLIST
+                                                                WHERE ENO_NO = ?
+                                                               ) B
+                                                       )
+                                       AND MENU_ID IN (SELECT MENU_ID
+                                                         FROM T_CM_ROLEAUTH
+                                                        WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                                       , 1, ROLE_CD
+                                                                                       , 2, LAW_AUTHO
+                                                                                       , 3, EIS_AUTHO
+                                                                                       , 4, L3_AUTHO ) AS ROLE_CD
+                                                                            FROM (SELECT 1 AS NUM FROM DUAL
+                                                                                   UNION
+                                                                                  SELECT 2 AS NUM FROM DUAL
+                                                                                   UNION
+                                                                                  SELECT 3 AS NUM FROM DUAL
+                                                                                   UNION
+                                                                                  SELECT 4 AS NUM FROM DUAL
+                                                                                  ) A
+                                                                               , (SELECT ROLE_CD
+                                                                                       , DECODE( LAW_AUTHO
+                                                                                               , 'M'   , '2010'
+                                                                                               , NULL  , ''
+                                                                                               , '2011' ) AS LAW_AUTHO
+                                                                                       , DECODE(EIS_AUTHO, 'M', '2020') AS EIS_AUTHO
+                                                                                       , DECODE(L3_AUTHO,  'M', '2021') AS L3_AUTHO
+                                                                                    FROM T_CM_EMPLIST
+                                                                                   WHERE ENO_NO = ?
+                                                                                  ) B
+                                                                          )
+                                                        MINUS
+                                                       --개인메뉴에서 설정한 모든 메뉴는 제외한다.
+                                                       SELECT MENU_ID
+                                                         FROM T_CM_USERAUTH
+                                                        WHERE ENO_NO = ?
+                                                       )
+                                     UNION
+                                    --추가시킬 메뉴를 추가
+                                    SELECT MENU_ID
+                                         , BTN_01
+                                         , BTN_02
+                                         , BTN_03
+                                         , BTN_04
+                                         , BTN_05
+                                         , BTN_06
+                                         , 1 AS MENU_CNT
+                                      FROM T_CM_USERAUTH
+                                     WHERE ENO_NO = ?
+                                       AND ADD_GBN = 'P'
+                                    ) B
+                             WHERE A.MENU_ID = B.MENU_ID (+)
+                            ) J
+
+                         --메뉴별 사용가능한 갯수 가져오기
+                         , (SELECT DISTINCT MENU_ID
+                                 , 1 AS MENU_CNT
+                              FROM T_CM_MENULST
+                        START WITH MENU_ID IN (SELECT MENU_ID
+                                                 FROM T_CM_ROLEAUTH
+                                                WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                               , 1, ROLE_CD
+                                                                               , 2, LAW_AUTHO
+                                                                               , 3, L3_AUTHO ) AS ROLE_CD
+                                                                    FROM (SELECT 1 AS NUM FROM DUAL
+                                                                           UNION
+                                                                          SELECT 2 AS NUM FROM DUAL
+                                                                           UNION
+                                                                          SELECT 3 AS NUM FROM DUAL
+                                                                          ) A
+                                                                       , (SELECT ROLE_CD
+                                                                               , DECODE( LAW_AUTHO
+                                                                                       , 'M'   , '2010'
+                                                                                       , NULL  , ''
+                                                                                       , '2011' ) AS LAW_AUTHO
+                                                                               , DECODE(L3_AUTHO,  'M', '2021') AS L3_AUTHO
+                                                                            FROM T_CM_EMPLIST
+                                                                           WHERE ENO_NO = ?
+                                                                          ) B
+                                                                  )
+                                                  AND MENU_ID IN (SELECT MENU_ID
+                                                                    FROM T_CM_ROLEAUTH
+                                                                   WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                                                  , 1, ROLE_CD
+                                                                                                  , 2, LAW_AUTHO
+                                                                                                  , 3, L3_AUTHO ) AS ROLE_CD
+                                                                                       FROM (SELECT 1 AS NUM FROM DUAL
+                                                                                              UNION
+                                                                                             SELECT 2 AS NUM FROM DUAL
+                                                                                              UNION
+                                                                                             SELECT 3 AS NUM FROM DUAL
+                                                                                             ) A
+                                                                                          , (SELECT ROLE_CD
+                                                                                                  , DECODE( LAW_AUTHO
+                                                                                                          , 'M'   , '2010'
+                                                                                                          , NULL  , ''
+                                                                                                          , '2011' ) AS LAW_AUTHO
+                                                                                                  , DECODE(L3_AUTHO,  'M', '2021') AS L3_AUTHO
+                                                                                               FROM T_CM_EMPLIST
+                                                                                              WHERE ENO_NO = ?
+                                                                                             ) B
+                                                                                     )
+                                                                   MINUS
+                                                                  --개인메뉴에서 설정한 모든 메뉴는 제외한다.
+                                                                  SELECT MENU_ID
+                                                                    FROM T_CM_USERAUTH
+                                                                   WHERE ENO_NO = ?
+                                                                  )
+                                                UNION
+                                               --추가시킬 메뉴를 추가
+                                               SELECT MENU_ID
+                                                 FROM T_CM_USERAUTH
+                                                WHERE ENO_NO = ?
+                                                  AND ADD_GBN = 'P'
+                                               )
+                        CONNECT BY MENU_ID =  PRIOR UPMENU_ID
+                            ) E
+
+                     WHERE J.MENU_ID = E.MENU_ID (+)
+                    )
+             WHERE MENU_CNT != 0
+               AND DISP_YN IS NOT NULL          -- 사용자 권한없는 FORM 메뉴를 제거하기 위함
+          ORDER BY GROUP_SEQ
+                 , MENU_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 즐겨찾기 메뉴 데이터 조회 -->
+    <sql name="SELA010_SHR_02">
+        <description>즐겨찾기 메뉴 데이터 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                 , MENU_ID
+                 , MENU_NM
+                 , MENU_SEQ
+                 , GROUP_ID
+                 , GROUP_SEQ
+                 , UPMENU_ID
+                 , MENU_LBL
+                 , FORM_ID
+                 , MENU_FLD
+                 , MENU_GBN
+              FROM (SELECT M.*
+                      FROM (SELECT ENO_NO
+                                 , MENU_ID
+                                 , MENU_NM
+                                 , MENU_SEQ
+                                 , GROUP_ID
+                                 , GROUP_SEQ
+                                 , UPMENU_ID
+                                 , MENU_LBL
+                                 , FORM_ID
+                                 , MENU_FLD
+                                 , MENU_GBN
+                              FROM T_CM_FAVORITES
+                             WHERE ENO_NO = ?
+                               AND MENU_GBN = 'f'
+                            ) M
+                         , (SELECT MENU_ID
+                              FROM T_CM_ROLEAUTH
+                             WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                            , 1, ROLE_CD
+                                                            , 2, LAW_AUTHO
+                                                            , 3, L3_AUTHO ) AS ROLE_CD
+                                                 FROM (SELECT 1 AS NUM FROM DUAL
+                                                        UNION
+                                                       SELECT 2 AS NUM FROM DUAL
+                                                        UNION
+                                                       SELECT 3 AS NUM FROM DUAL
+                                                       ) A
+                                                    , (SELECT ROLE_CD
+                                                            , DECODE( LAW_AUTHO
+                                                                    , 'M'   , '2010'
+                                                                    , NULL  , ''
+                                                                    , '2011' ) AS LAW_AUTHO
+                                                            , DECODE(L3_AUTHO,  'M', '2021') AS L3_AUTHO
+                                                         FROM T_CM_EMPLIST
+                                                        WHERE ENO_NO = ?
+                                                       ) B
+                                               )
+                               AND MENU_ID IN (SELECT MENU_ID
+                                                 FROM T_CM_ROLEAUTH
+                                                WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                               , 1, ROLE_CD
+                                                                               , 2, LAW_AUTHO
+                                                                               , 3, L3_AUTHO ) AS ROLE_CD
+                                                                    FROM (SELECT 1 AS NUM FROM DUAL
+                                                                           UNION
+                                                                          SELECT 2 AS NUM FROM DUAL
+                                                                           UNION
+                                                                          SELECT 3 AS NUM FROM DUAL
+                                                                          ) A
+                                                                       , (SELECT ROLE_CD
+                                                                               , DECODE( LAW_AUTHO
+                                                                                       , 'M'   , '2010'
+                                                                                       , NULL  , ''
+                                                                                       , '2011' ) AS LAW_AUTHO
+                                                                               , DECODE(L3_AUTHO,  'M', '2021') AS L3_AUTHO
+                                                                            FROM T_CM_EMPLIST
+                                                                           WHERE ENO_NO = ?
+                                                                          ) B
+                                                                  )
+                                                MINUS
+                                               --개인메뉴에서 설정한 모든 메뉴는 제외한다.
+                                               SELECT MENU_ID
+                                                 FROM T_CM_USERAUTH
+                                                WHERE ENO_NO = ?
+                                               )
+                             UNION
+                            --추가시킬 메뉴를 추가
+                            SELECT MENU_ID
+                              FROM T_CM_USERAUTH
+                             WHERE ENO_NO = ?
+                               AND ADD_GBN = 'P'
+                            ) N
+                     WHERE M.MENU_ID = N.MENU_ID
+                   )
+             UNION
+            SELECT ENO_NO
+                 , MENU_ID
+                 , MENU_NM
+                 , MENU_SEQ
+                 , GROUP_ID
+                 , GROUP_SEQ
+                 , UPMENU_ID
+                 , MENU_LBL
+                 , FORM_ID
+                 , MENU_FLD
+                 , MENU_GBN
+              FROM T_CM_FAVORITES
+             WHERE ENO_NO = ?
+               AND MENU_GBN = 'm'
+          ORDER BY GROUP_SEQ
+                 , MENU_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 즐겨찾기 메뉴 데이터 건수 조회 -->
+    <sql name="SELA010_SHR_03">
+        <description>즐겨찾기 메뉴 데이터 건수 조회</description>
+        <query>
+            <![CDATA[
+            SELECT COUNT(*) CNT
+            FROM T_CM_FAVORITES
+            WHERE  ENO_NO   = ?
+            AND    MENU_SEQ >= ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 즐겨찾기 데이터 생성 -->
+    <sql name="SELA010_INS">
+        <description>즐겨찾기 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CM_FAVORITES
+                  (ENO_NO,  MENU_ID,  MENU_NM,     MENU_SEQ,    GROUP_ID, GROUP_SEQ, UPMENU_ID, MENU_LBL,
+                   FORM_ID, MENU_FLD, MENU_GBN,    COUNTREMARK, IPT_MAN,  IPT_YMD,   UPT_MAN,   UPT_YMD  )
+            VALUES
+                  (?,       ?,        ?,           ?,           'fav',    1,         ?,         ?,
+                   ?,       ?,        ?,           '',          ?,        SYSDATE,   ?,         SYSDATE  )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 즐겨찾기 데이터 수정 -->
+    <sql name="SELA010_UPT">
+        <description>즐겨찾기 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_FAVORITES
+            SET    MENU_NM   = ?,
+                   MENU_SEQ  = ?,
+                   UPMENU_ID = ?,
+                   MENU_LBL  = ?,
+                   UPT_MAN   = ?,
+                   UPT_YMD   = SYSDATE
+            WHERE  ENO_NO    = ?
+            AND    MENU_ID   = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 즐겨찾기 메뉴 데이터 수정 -->
+    <sql name="SELA010_UPT_02">
+        <description>즐겨찾기 메뉴 데이터 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_FAVORITES
+            SET    MENU_SEQ = MENU_SEQ + 1
+            WHERE  ENO_NO   = ?
+            AND    MENU_SEQ >= ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 즐겨찾기 데이터 삭제 -->
+    <sql name="SELA010_DEL">
+        <description>즐겨찾기 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_CM_FAVORITES
+            WHERE  ENO_NO    = ?
+            AND    MENU_ID   = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : sela020
+* @description : 공지사항
+***********************************************************************
+* 2007/04/19      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 로그인사번의 셀프서비스의 공지사항 권한 조회 -->
+    <sql name="SELA020_SHR_00">
+        <description>로그인사번의 셀프서비스의 공지사항 권한 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SEL_AUTHO,    -- 셀프서비스의 공지사항 권한
+                   CET_NO        -- 주민번호
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN  = '01'
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 공지사항 데이터 총 갯수 -->
+    <sql name="SELA020_SHR_INFO">
+        <description>공지사항 데이터 총 갯수</description>
+        <query>
+            <![CDATA[
+              SELECT COUNT(*) AS TOTAL_CNT
+              FROM   T_ED_BOARD
+              WHERE  BBS_GBN = ?
+              [1]                                                                      -- 검색조건
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 조회건수 -->
+    <sql name="SELA020_CNT">
+        <description>조회건수</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ED_BOARD
+            SET    CLICK_CNT = CLICK_CNT+1
+            WHERE  BBS_GBN     = 4
+            AND    SEQ_NO      = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 공지사항 데이터 조회 -->
+    <sql name="SELA020_SHR">
+        <description>공지사항 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_CHAR(NUM)                                        AS NUM,         -- 순번
+                   BBS_GBN,                                                            -- 게시판구분
+                   SEQ_NO,                                                             -- 게시판순번
+                   REF_NO,                                                             -- 참조글번호
+                   STEP_NO,                                                            -- 단계
+                   DEPT_NO,                                                            -- 깊이
+                   ENO_NO,                                                             -- 등록자사번
+                   SF_GET_ENONAME('01', ENO_NO)                        AS ENO_NM,      -- 등록자
+                   LPAD('Re:', 4*(DEPT_NO)) || SUBJECT_TAG             AS SUBJECT_TAG, -- 제목
+                   CONTENT_TXT,                                                        -- 내용
+                   FILE_YN,                                                            -- 첨부파일갯수
+                   CLICK_CNT,
+                   TO_CHAR(UPT_YMD, 'YYYY-MM-DD')                      AS UPT_YMD      -- 등록일자
+            FROM ( SELECT ROWNUM AS ROWNM,
+                          NUM,
+                          BBS_GBN,
+                          SEQ_NO,
+                          REF_NO,
+                          STEP_NO,
+                          DEPT_NO,
+                          ENO_NO,
+                          SUBJECT_TAG,
+                          CONTENT_TXT,
+                          CLICK_CNT,
+                          FILE_YN,
+                          UPT_YMD
+                   FROM ( SELECT ROW_NUMBER() OVER(ORDER BY REF_NO, STEP_NO DESC)    AS NUM,       -- 순번
+                                 BBS_GBN,                                                          -- 게시판구분
+                                 SEQ_NO,                                                           -- 게시판순번
+                                 REF_NO,                                                           -- 참조글번호
+                                 STEP_NO,                                                          -- 단계
+                                 DEPT_NO,                                                          -- 깊이
+                                 ENO_NO,                                                           -- 등록자사번
+                                 SUBJECT_TAG,                                                      -- 제목
+                                 CONTENT_TXT,                                                      -- 내용
+                                 CLICK_CNT,
+                                 DECODE(SRCFILE1_NM, NULL, 0, 1) +                                 -- 원본파일명1
+                                 DECODE(SRCFILE2_NM, NULL, 0, 1) +                                 -- 원본파일명2
+                                 DECODE(SRCFILE3_NM, NULL, 0, 1) +                                 -- 원본파일명3
+                                 DECODE(SRCFILE4_NM, NULL, 0, 1) +                                 -- 원본파일명4
+                                 DECODE(SRCFILE5_NM, NULL, 0, 1)                     AS FILE_YN,   -- 원본파일명5
+                                 UPT_YMD                                                           -- 등록일자
+                          FROM   T_ED_BOARD
+                          WHERE  BBS_GBN = ?
+                          [1]                                                                      -- 검색조건
+                          ORDER BY REF_NO DESC, STEP_NO
+                        ) A
+                 )
+            WHERE  ROWNM >= ?                                                                      -- 시작
+            AND    ROWNM <= ?                                                                      -- 종료
+            ORDER BY UPT_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : sela021
+* @description : 공지사항 등록/수정
+***********************************************************************
+* 2007/04/19      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 공지사항 데이터 조회 -->
+    <sql name="SELA021_SHR">
+        <description>공지사항 조회</description>
+        <query>
+            <![CDATA[
+            SELECT BBS_GBN,                                                                 -- 게시판구분
+                   SEQ_NO,                                                                  -- 순번
+                   REF_NO,                                                                  -- 참조글번호
+                   STEP_NO,                                                                 -- 단계
+                   DEPT_NO,                                                                 -- 깊이
+                   ENO_NO,                                                                  -- 등록자사번
+                   SF_GET_ENONAME('01', ENO_NO)                         AS ENO_NM,          -- 등록자
+                   SUBJECT_TAG,                                                             -- 제목
+                   CONTENT_TXT,                                                             -- 내용
+                   DECODE(SRCFILE1_NM, NULL, NULL, SRCFILE1_NM)         AS SRCFILE1_NM,     -- 원본파일명1
+                   TGTFILE1_NM,                                                             -- 등록파일명1
+                   DECODE(SRCFILE2_NM, NULL, NULL, SRCFILE2_NM)         AS SRCFILE2_NM,     -- 원본파일명2
+                   TGTFILE2_NM,                                                             -- 등록파일명2
+                   DECODE(SRCFILE3_NM, NULL, NULL, SRCFILE3_NM)         AS SRCFILE3_NM,     -- 원본파일명3
+                   TGTFILE3_NM,                                                             -- 등록파일명3
+                   DECODE(SRCFILE4_NM, NULL, NULL, SRCFILE4_NM)         AS SRCFILE4_NM,     -- 원본파일명4
+                   TGTFILE4_NM,                                                             -- 등록파일명4
+                   DECODE(SRCFILE5_NM, NULL, NULL, SRCFILE5_NM)         AS SRCFILE5_NM,     -- 원본파일명5
+                   TGTFILE5_NM,                                                             -- 등록파일명5
+                   TO_CHAR(UPT_YMD, 'YYYY-MM-DD HH24:MI:SS')            AS UPT_YMD,         -- 등록일시
+                   ''  CHK
+            FROM   T_ED_BOARD
+            WHERE  BBS_GBN = ?
+            AND    SEQ_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 공지사항 파일관련 데이터 조회 -->
+    <sql name="SELA021_SHR_01">
+        <description>공지사항 파일관련 조회</description>
+        <query>
+            <![CDATA[
+            SELECT SEQ,
+                   FILE_NAME,
+                   FILE_URL
+            FROM ( SELECT 1                      AS  SEQ,
+                          SRCFILE1_NM            AS  FILE_NAME,                     -- 원본파일명1
+                          TGTFILE1_NM            AS  FILE_URL                       -- 등록파일명1
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                   UNION ALL
+                   SELECT 2                      AS  SEQ,
+                          SRCFILE2_NM            AS  FILE_NAME,                     -- 원본파일명2
+                          TGTFILE2_NM            AS  FILE_URL                       -- 등록파일명2
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                   UNION ALL
+                   SELECT 3                      AS  SEQ,
+                          SRCFILE3_NM            AS  FILE_NAME,                     -- 원본파일명3
+                          TGTFILE3_NM            AS  FILE_URL                       -- 등록파일명3
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                   UNION ALL
+                   SELECT 4                      AS  SEQ,
+                          SRCFILE4_NM            AS  FILE_NAME,                     -- 원본파일명4
+                          TGTFILE4_NM            AS  FILE_URL                       -- 등록파일명4
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                   UNION ALL
+                   SELECT 5                      AS  SEQ,
+                          SRCFILE5_NM            AS  FILE_NAME,                     -- 원본파일명5
+                          TGTFILE5_NM            AS  FILE_URL                       -- 등록파일명5
+                   FROM   T_ED_BOARD
+                   WHERE  BBS_GBN = ?
+                   AND    SEQ_NO  = ?
+                 )
+            WHERE  FILE_NAME IS NOT NULL
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 공지사항 데이터 생성 -->
+    <sql name="SELA021_INS">
+        <description>공지사항 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_ED_BOARD
+                  (BBS_GBN,     SEQ_NO,      REF_NO,
+                   STEP_NO,     DEPT_NO,     ENO_NO,      SUBJECT_TAG, CONTENT_TXT, SRCFILE1_NM,
+                   TGTFILE1_NM, SRCFILE2_NM, TGTFILE2_NM, SRCFILE3_NM, TGTFILE3_NM, SRCFILE4_NM, TGTFILE4_NM,
+                   SRCFILE5_NM, TGTFILE5_NM, IPT_MAN,     IPT_YMD,     UPT_MAN,     UPT_YMD,     CLICK_CNT
+                  )
+            VALUES
+                  (?,
+                   NVL((SELECT /*+ INDEX_DESC(T_ED_BOARD T_ED_BOARD_IDX) */ SEQ_NO + 1 FROM   T_ED_BOARD WHERE  BBS_GBN = ? AND ROWNUM  = 1), 1),
+                   NVL((SELECT MAX(REF_NO) + 1 FROM  T_ED_BOARD WHERE  BBS_GBN = ?), 1),
+                   ?,           ?,           ?,           ?,           ?,           ?,
+                   ?,           ?,           ?,           ?,           ?,           ?,           ?,
+                   ?,           ?,           ?,           SYSDATE,     ?,           SYSDATE,     0
+                  )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 공지사항 데이터 수정 -->
+    <sql name="SELA021_UPT">
+        <description>공지사항 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_ED_BOARD
+            SET    REF_NO      = ?,
+                   STEP_NO     = ?,
+                   DEPT_NO     = ?,
+                   ENO_NO      = ?,
+                   SUBJECT_TAG = ?,
+                   CONTENT_TXT = ?,
+                   SRCFILE1_NM = ?,
+                   TGTFILE1_NM = ?,
+                   SRCFILE2_NM = ?,
+                   TGTFILE2_NM = ?,
+                   SRCFILE3_NM = ?,
+                   TGTFILE3_NM = ?,
+                   SRCFILE4_NM = ?,
+                   TGTFILE4_NM = ?,
+                   SRCFILE5_NM = ?,
+                   TGTFILE5_NM = ?,
+                   UPT_MAN     = ?,
+                   UPT_YMD     = SYSDATE
+            WHERE  BBS_GBN     = ?
+            AND    SEQ_NO      = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : sela022
+* @description : 공지사항 내용
+***********************************************************************
+* 2007/04/19      박인이        최초작성.
+***********************************************************************
+-->
+
+    <!-- 공지사항 데이터 삭제 -->
+    <sql name="SELA022_DEL">
+        <description>공지사항 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE FROM T_ED_BOARD
+            WHERE  BBS_GBN     = ?
+            AND    SEQ_NO      = ?
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

@@ -1,0 +1,198 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	SYSTEM
++ 프로그램 ID	: COM0110.HTML
++ 기 능 정 의	: 저장
++ 변 경 이 력	: 
++ 서 블 릿 명	: hdasan_chgpw_tr
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title>패스워드관리</title>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+get_cookdata();
+lfn_init();
+var gs_date = gcurdate.substr(0,4) + gcurdate.substr(5,2) + gcurdate.substr(8,2);
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+	txt_usrnm.value = gusrnm;
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(){
+
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save(){
+
+	if (fn_trim(gusrpw) != fn_trim(txt_pass.value)) {
+		alert("기존비밀번호가 아닙니다.");
+		txt_pass.focus();
+	} else if (fn_trim(txt_npass.value).length < 4) {
+		alert("비밀번호는 최소 4자리 이상이여야 합니다.");
+		txt_npass.focus();
+	} else if (fn_trim(txt_npass.value) != fn_trim(txt_npasschk.value)) {
+		alert("새로운 비밀번호가 동일하지 않습니다.");
+		txt_npass.focus();
+	} else {
+		if (confirm("새로운 비밀번호로 변경하시겠습니까?")){
+			var THeader="userid:STRING(10),"+"password:STRING(10)";
+			gcds_user.SetDataHeader(THeader);
+			gcds_user.addrow();
+			gcds_user.namevalue(1,"userid")=gusrid;
+			gcds_user.namevalue(1,"password")=txt_npass.value;
+
+		  gctr_usrpgm.action = "/services/servlet/common.hdasan_chgpw_tr";
+			gctr_usrpgm.post();
+		}
+	}
+}
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+</script>
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<object id="gcds_user" classid="clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49" > 
+	<PARAM NAME="SYNCLOAD" VALUE="TRUE">
+</object>
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<OBJECT id=gctr_usrpgm classid=clsid:0A2233AD-E771-11D2-973D-00104B15E56F VIEWASTEXT>
+	<PARAM NAME="KeyName"  VALUE="toinb_dataid4">
+	<PARAM NAME="KeyValue" VALUE="hdasan_chgpw_tr(I:USER=gcds_user)">
+</OBJECT>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gctr_usrpgm" event="onsuccess()">
+	alert("요청하신 작업을 성공적으로 수행하였습니다.");
+	//parent.location = "../html/com0110.html";
+	//parent.location = "../../bank/bnk_TopIndex.htm";
+	parent.location = "../../hdasan.html";
+	txt_pass.value = "";
+	txt_npass.value = "";
+	txt_npasschk.value = "";
+</script>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+<table width="877" cellpadding="0" cellspacing="0" border="0" style="position:relative;left:3px">
+  <tr> 
+    <td><img src="../img/com_pass_head.gif" width="197" height="47"></td>
+    <td width="685" background="../img/com_t_bg.gif">&nbsp;</td>
+	</tr>
+	<tr><td colspan="2" height="20px;"></td></tr>
+	<tr>
+		<td colspan="2">
+			<table cellpadding="0" cellspacing="0" border="0" style="position:relative;left:20px;border:1 solid #708090;">
+				<tr>
+					<td class="tab11" style="height:30px;width:120px;" bgcolor="#eeeeee">사용자명</td>
+					<td class="tab22" style="height:30px;width:150px;"><input type="text" class="txt11" id="txt_usrnm" style="width:100px;border:0" readonly></td>
+				</tr>
+				<tr>
+					<td class="tab11" style="height:30px;" bgcolor="#eeeeee">기존비밀번호</td>
+					<td class="tab22" ><input type="password" class="txt11" id="txt_pass" style="width:100px;" maxlength="10" onkeyup="this.value=this.value.toUpperCase()"></td>
+				</tr>
+				<tr>
+					<td class="tab11" style="height:30px;" bgcolor="#eeeeee">변경비밀번호</td>
+					<td class="tab22"><input type="password" class="txt11" id="txt_npass" style="width:100px;" maxlength="10" onkeyup="this.value=this.value.toUpperCase()"></td>
+				</tr>
+				<tr>
+					<td class="tab12" style="height:30px;" bgcolor="#eeeeee">확인비밀번호</td>
+					<td><input type="password" class="txt11" id="txt_npasschk" style="width:100px;" maxlength="10" onkeyup="this.value=this.value.toUpperCase()"></td>
+				</tr>
+			</table>
+			<img src="../img/btn/com_b_save.gif" style="position:relative;top:15px;left:120px;cursor:hand" onclick="ln_Save()">
+		</td>
+	</tr>
+</table>
+
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:280px; top:220px;" FrameBorder="0" src="../../common/img/flash/loading.swf" width="320px" height="42px"></iframe> 
+
+</body>
+</html>

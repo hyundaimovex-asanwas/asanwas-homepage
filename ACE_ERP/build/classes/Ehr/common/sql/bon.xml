@@ -1,0 +1,1308 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : BONA001
+* @description : 상여테이블 갱신
+***********************************************************************
+* 2011/10/13     이동훈        최초작성
+***********************************************************************
+-->
+    <!-- 개인별 상여테이블을 올린다. -->
+    <sql name="BONA001_UPT">
+        <description>상여테이블</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_PAYMASTER
+               SET BNS_AMT = ?       --상여금
+             WHERE ENO_NO = ?
+            AND    PIS_YY = ?
+            AND    PIS_MM = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!-- 상여관리 -->
+<!--
+***********************************************************************
+* @UseCase     : BONA010
+* @description : 개인별상여사항관리
+***********************************************************************
+* 2007/04/13     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 해당년월 조회 -->
+    <sql name="BONA010_SHR_01">
+        <description>개인별급여사항관리 해당년월 조회</description>
+        <query>
+            <![CDATA[
+            SELECT MAX(PIS_YY||PIS_MM) AS PIS_YYMM FROM T_CP_PAYMASTER
+            WHERE SAL_GBN IN('1')
+            ]]>
+        </query>
+    </sql>
+
+ <!-- 개인별상여사항관리 조회 -->
+    <sql name="BONA010_SHR">
+        <description>개인별급여사항등록 조회</description>
+        <query>
+            <![CDATA[
+            SELECT B.ENO_NM,
+                   A.OCC_CD,
+                   SF_GET_COMMNAME('01', 'A1', A.OCC_CD) AS OCC_NM,
+                   A.DPT_CD,
+                   SF_GET_DPTNAME('01', 'A4',A.DPT_CD) AS DPT_NM,
+                   A.JOB_CD,
+                   SF_GET_COMMNAME('01', 'A2', A.JOB_CD) AS JOB_NM,
+                   A.HOB_CD,
+                   SF_GET_COMMNAME('01', 'A3', A.HOB_CD) AS HOB_NM,
+                   SUBSTR(B.RZI_NO,1,3)||'-'||SUBSTR(B.RZI_NO,4,3) AS RZI_NO,
+                   B.RADR,
+                   B.RADR_CT,
+                   B.CET_NO,
+                   TO_CHAR(B.HIR_YMD,'YYYY-MM-DD') AS HIR_YMD,
+                   TO_CHAR(B.RET_YMD,'YYYY-MM-DD') AS RET_YMD,
+                   TO_CHAR(B.TMR_YMD,'YYYY-MM-DD') AS TMR_YMD,
+                   B.TMR_DD,
+                   A.SOU_CNT,
+                   A.DFM_CNT,
+                   A.TRB_CNT,
+                   A.GOL_CNT,
+                   A.WCT_CNT,
+                   A.CHI_CNT,
+                   NVL(TRIM(B.ESL_TAG),'N') AS ESL_TAG,
+                   NVL(TRIM(B.LAB_TAG),'N') AS LAB_TAG,
+                   A.ABA_CD,
+                   SF_GET_COMMNAME('01', 'BK', A.ABA_CD) AS ABA_NM,
+                   A.REC_NAM,
+                   A.ACC_NO,
+                 TO_CHAR(NVL(A.BAS_PCT,0), '000.00') AS BAS_PCT,
+                 TO_CHAR(NVL(A.PAY_PCT,0), '000.00') AS PAY_PCT,
+                 TO_CHAR(NVL(A.ATTD_PCT,0),'000.00') AS ATTD_PCT,
+                 TO_CHAR(NVL(A.PUD_PCT,0), '000.00') AS PUD_PCT,
+                 TO_CHAR(NVL(A.TRD_PCT,0), '000.00') AS TRD_PCT,
+                 TO_CHAR(NVL(A.INC_PCT,0), '000.00') AS INC_PCT,
+                 TO_CHAR(NVL(A.GOG_PCT,0), '000.00') AS GOG_PCT,
+                 NVL(A.BAS_AMT, 0) AS BAS_AMT,
+                 NVL(A.DUTY_AMT,0) AS DUTY_AMT,
+                 NVL(A.OT_AMT,  0) AS OT_AMT,
+                 NVL(A.WEL_AMT, 0) AS WEL_AMT,
+                 NVL(A.OSE_AMT, 0) AS OSE_AMT,
+                 NVL(A.RUN_AMT, 0) AS RUN_AMT,
+                 NVL(A.MH_AMT,  0) AS MH_AMT,
+                 NVL(A.TB3_AMT, 0) AS TB3_AMT,
+                 NVL(A.SGF_AMT, 0) AS SGF_AMT,
+                 NVL(A.LSEV_AMT,0) AS LSEV_AMT,
+                 NVL(A.OTH_AMT, 0) AS OTH_AMT,
+                 NVL(A.DOMT_AMT,0) AS DOMT_AMT
+            FROM   T_CP_PAYMASTER A, VI_T_CM_PERSON2 B
+            WHERE  A.ENO_NO = B.ENO_NO
+            AND    NVL(A.ENO_NO,' ') LIKE '%'||?||'%'
+            AND    NVL(A.PIS_YY,' ') LIKE '%'||?||'%'
+            AND    NVL(A.PIS_MM,' ') LIKE '%'||?||'%'
+            AND    NVL(A.SAL_GBN,' ') = ?
+            AND    NVL(A.SEQ,' ') = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별상여사항관리 수정(T_CM_PERSON) -->
+    <sql name="BONA010_UPT">
+        <description>개인별급여사항등록 수정(T_CM_PERSON)</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_PERSON
+            SET    SOU_CNT = ?,
+                   DFM_CNT = ?,
+                   TRB_CNT = ?,
+                   GOL_CNT = ?,
+                   WCT_CNT = ?,
+                   CHI_CNT = ?,
+                   ABA_CD = ?,
+                   REC_NAM = ?,
+                   ACC_NO = ?,
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별상여사항관리 수정(T_CP_PAYMASTER) -->
+    <sql name="BONA010_UPT_01">
+        <description>개인별급여사항등록 수정(T_CP_PAYMASTER)</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_PAYMASTER
+            SET    SOU_CNT = ?,
+                   DFM_CNT = ?,
+                   TRB_CNT = ?,
+                   GOL_CNT = ?,
+                   WCT_CNT = ?,
+                   CHI_CNT = ?,
+                   ABA_CD = ?,
+                   REC_NAM = ?,
+                   ACC_NO = ?,
+                   PAY_PCT = ?,
+                   BAS_PCT = ?,
+                   INC_PCT = ?,
+                   GOG_PCT = ?,
+                   ATTD_PCT = ?,
+                   PUD_PCT = ?,
+                   TRD_PCT = ?,
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  OCC_CD = ?
+            AND    PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    SAL_GBN = ?
+            AND    ENO_NO = ?
+            AND    SEQ = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별상여사항관리 삭제(T_CP_PAYMASTER) -->
+    <sql name="BONA010_DEL">
+        <description>개인별상여사항관리 삭제(T_CP_PAYMASTER)</description>
+        <query>
+            <![CDATA[
+            DELETE T_CP_PAYMASTER
+            WHERE  OCC_CD = ?
+            AND    PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    SAL_GBN = ?
+            AND    ENO_NO = ?
+            AND    SEQ = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별상여사항관리 삭제 -->
+    <sql name="BONA010_DEL1">
+        <description>개인별상여사항관리 삭제(T_CP_PAYMASTER)</description>
+        <query>
+            <![CDATA[
+            DELETE T_CP_CHANGE
+            WHERE  OCC_CD = ?
+            AND    PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    SAL_GBN = ?
+            AND    ENO_NO = ?
+            AND    BON_NUM = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별상여사항관리 삭제 -->
+    <sql name="BONA010_DEL2">
+        <description>개인별상여사항관리 삭제(T_CP_PAYMASTER)</description>
+        <query>
+            <![CDATA[
+            DELETE T_AC_LOAN
+            WHERE  OCC_CD = ?
+            AND    PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    SAL_GBN = ?
+            AND    ENO_NO = ?
+            AND    SEQ = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 로그 인원수 변경(T_CP_WORKLOG) -->
+    <sql name="BONA010_UPT_02">
+        <description>로그 인원수 변경(T_CP_WORKLOG)</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_WORKLOG A
+            SET    PRO_CNT = (SELECT PRO_CNT-1
+                              FROM   T_CP_WORKLOG B
+                              WHERE  A.PIS_YY = B.PIS_YY
+                              AND    A.PIS_MM = B.PIS_MM
+                              AND    A.OCC_CD = B.OCC_CD
+                              AND    A.SAL_GBN = B.SAL_GBN
+                              AND    A.SEQ = B.SEQ
+                             ),
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    OCC_CD = ?
+            AND    SAL_GBN = ?
+            AND    SEQ = ?
+
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : BONA020
+* @description : 상여계산처리
+***********************************************************************
+* 2007/04/16     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 대상자 선정(작업 LOG 수정) -->
+    <sql name="BONA020_UPT_01">
+        <description>대상자 선정(작업 LOG 수정)</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_WORKLOG
+            SET    PRO_CNT = nvl((select count(eno_no)
+                                   FROM   T_CP_PAYMASTER
+                                   WHERE  OCC_CD = ?
+                                   AND    PIS_YY = ?
+                                   AND    PIS_MM = ?
+                                   AND    SAL_GBN = ?
+                                   AND    SEQ = ?
+                             ),0),
+                   ERR_CNT = 0,
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    OCC_CD = ?
+            AND    SAL_GBN = ?
+            AND    SEQ = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 작업CLOSE시 장부반영 -->
+    <sql name="BONA020_INS_04">
+        <description>장부반영</description>
+        <query>
+            <![CDATA[
+            DECLARE
+
+                iPIS_YY      VARCHAR2(10);
+                iPIS_MM      VARCHAR2(10);
+                iOCC_CD      VARCHAR2(10);
+                iSAL_GBN     VARCHAR2(10);
+                iSEQ         VARCHAR2(2);
+                iPAY_YMD     VARCHAR2(10);
+                iBAS_MAN     VARCHAR2(10);
+                iBAS_YMD     VARCHAR2(10);
+                iSAL_NM      VARCHAR2(6);
+
+                iDHLP_AMT    NUMBER(9);
+                iFIN_AMT     NUMBER(9);
+
+                iCONT_AMT    NUMBER(9);
+                iDON_AMT     NUMBER(9);
+
+                LOGERR       EXCEPTION;
+
+            BEGIN
+
+                -- 초기화
+                iPIS_YY  := ?;
+                iPIS_MM  := ?;
+                iOCC_CD  := ?;
+                iSAL_GBN := ?;
+                iSEQ     := ?;
+                iBAS_MAN := ?;
+
+                iPAY_YMD := NULL;
+                iSAL_NM  := NULL;
+                IBAS_YMD := TO_CHAR(SYSDATE,'YYYYMMDD');
+
+                iDHLP_AMT := 0;
+                iFIN_AMT  := 0;
+
+                iCONT_AMT := 0;
+                iDON_AMT  := 0;
+
+                SELECT PAY_YMD
+                INTO   iPAY_YMD
+                FROM   T_CP_WORKLOG
+                WHERE (PIS_YY  = iPIS_YY)
+                AND   (PIS_MM  = iPIS_MM)
+                AND   (OCC_CD  = iOCC_CD)
+                AND   (SAL_GBN = iSAL_GBN)
+                AND   (SEQ     = iSEQ);
+
+                IF (SQL%NOTFOUND) THEN
+                    RAISE LOGERR;
+                END IF;
+
+                SELECT NVL(SUM(DHLP_AMT),0),
+                       NVL(SUM(CONT_AMT),0)
+                INTO   iDHLP_AMT,  --공조회비
+                       iCONT_AMT   --불우이웃돕기성금
+                FROM   T_CP_PAYMASTER
+                WHERE (PIS_YY  = iPIS_YY)
+                AND   (PIS_MM  = iPIS_MM)
+                AND   (SAL_GBN = iSAL_GBN)
+                AND   (SEQ     = iSEQ);
+
+                IF (SQL%NOTFOUND) THEN
+                    RAISE LOGERR;
+                END IF;
+
+                IF   iSAL_GBN = '0' THEN iSAL_NM := '급여';
+                ELSE iSAL_NM := '상여';
+                END IF;
+
+                /* 불우이웃성금 장부 테이블에 데이타 입력(상여는 공조회비x) */
+                PKG_XF_AIDB010.PROC_SAV( 'INS'
+                                       , '1'                                -- 구분 1:수입, 2:지출, 3:이자
+                                       , ''                                 -- 사용자 입력 구분 'U:사용자 입력'
+                                       , iPAY_YMD
+                                       , '00'                               -- SEQ - INSERT 인 경우 자동 생성
+                                       , '불우이웃성금 입금('||iPIS_MM||'월 '||iSAL_NM||'분)'   -- 적요
+                                       , iCONT_AMT                          -- 수입
+                                       , 0                                  -- 지출
+                                       , iBAS_MAN
+                                         );
+
+            EXCEPTION
+                WHEN LOGERR THEN
+                    DBMS_OUTPUT.PUT_LINE('ERROR');
+
+            END;
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BONA021
+* @description : 상여계산처리(상여지급기준)
+***********************************************************************
+* 2007/04/16     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 상여계산처리(상여지급기준) 조회 -->
+    <sql name="BONA021_SHR">
+        <description>상여계산처리(상여지급기준) 조회</description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YY,
+                   PIS_MM,
+                   OCC_CD,
+                   SAL_GBN,
+                   SEQ,
+                   ATT_C1_PCT,
+                   ATT_C2_PCT,
+                   ATT_A1_PCT,
+                   ATT_A2_PCT,
+                   ATT_B1_PCT,
+                   ATT_B2_PCT,
+                   APPLY_1_PCT,
+                   APPLY_2_PCT,
+                   L31_1_PCT,
+                   L31_2_PCT,
+                   L31_3_PCT,
+                   L58_1_PCT,
+                   L58_2_PCT,
+                   L55_1_PCT,
+                   L51_1_PCT
+            FROM   T_CP_BOUNS_BASIS
+            WHERE  NVL(PIS_YY,' ') LIKE '%'||?||'%'
+            AND    NVL(PIS_MM,' ') LIKE '%'||?||'%'
+            AND    NVL(OCC_CD,' ') LIKE '%'||?||'%'
+            AND    NVL(SAL_GBN,' ') = ?
+            AND    NVL(SEQ,' ') = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상여계산처리(상여지급기준) 신규저장 -->
+    <sql name="BONA021_INS">
+        <description>상여계산처리(상여지급기준) 신규저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CP_BOUNS_BASIS
+                 ( PIS_YY, PIS_MM, OCC_CD, SAL_GBN, SEQ,
+                   ATT_C1_PCT, ATT_C2_PCT, ATT_A1_PCT, ATT_A2_PCT, ATT_B1_PCT, ATT_B2_PCT, APPLY_1_PCT, APPLY_2_PCT, L31_1_PCT, L31_2_PCT,
+                   L31_3_PCT, L58_1_PCT, L58_2_PCT, L55_1_PCT, L51_1_PCT,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 (  ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?,
+                    ?, SYSDATE,?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상여계산처리(상여지급기준) 저장 -->
+    <sql name="BONA021_UPT">
+        <description>상여계산처리(상여지급기준) 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_BOUNS_BASIS
+            SET    ATT_C1_PCT = ?,
+                   ATT_C2_PCT = ?,
+                   ATT_A1_PCT = ?,
+                   ATT_A2_PCT = ?,
+                   ATT_B1_PCT = ?,
+                   ATT_B2_PCT = ?,
+                   APPLY_1_PCT = ?,
+                   APPLY_2_PCT = ?,
+                   L31_1_PCT = ?,
+                   L31_2_PCT = ?,
+                   L31_3_PCT = ?,
+                   L58_1_PCT = ?,
+                   L58_2_PCT = ?,
+                   L55_1_PCT = ?,
+                   L51_1_PCT = ?,
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    OCC_CD = ?
+            AND    SAL_GBN = ?
+            AND    SEQ = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 상여계산처리(작업로그) 수정 -->
+    <sql name="BONA021_UPT_01">
+        <description>상여계산처리(상여지급기준) 저장</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CP_WORKLOG
+            SET    PRO_STS = ?,
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE --최종 수정일시
+            WHERE  PIS_YY = ?
+            AND    PIS_MM = ?
+            AND    OCC_CD = ?
+            AND    SAL_GBN = ?
+            AND    SEQ = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BONA030
+* @description : 상여지급현황
+***********************************************************************
+* 2007/04/21     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 직위별-->
+    <sql name="BONA030_SHR_01">
+        <description>직위별</description>
+        <query>
+            <![CDATA[
+          SELECT JOBT_CD,
+                 SF_GET_COMMNAME('01','A2',JOBT_CD)||DECODE(JOBT_CD,'E1','(E1)','Z1',DECODE(OCC_CD,'A','(사무직)','M','(택배직)'),'') AS JOB_NM,
+                 COUNT(JOBT_CD) AS ENO_CNT,
+                 NVL(SUM(BONP_BAS),0)+NVL(SUM(LSEV_AMT),0) AS BAS_AMT,
+                 NVL(SUM(SALT_AMT),0) AS SALT_AMT,
+                 TO_NUMBER(TO_CHAR(NVL(SUM(PAY_PCT),0)/COUNT(JOBT_CD),'000.00')) AS PAY_PCT,
+                 '' AS REMARK
+            FROM T_CP_PAYMASTER
+           WHERE (NVL(OCC_CD,' ')  LIKE '%'||?||'%')
+             AND (PIS_YY  = ?)
+             AND (PIS_MM  = ?)
+             AND (SAL_GBN = ?)
+             AND (SEQ     = ?)
+             AND (JOBT_CD > '0')
+          GROUP BY JOBT_CD, OCC_CD
+          ORDER BY JOBT_CD, OCC_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 중도입사자-->
+    <sql name="BONA030_SHR_02">
+        <description>중도입사자</description>
+        <query>
+            <![CDATA[
+          SELECT B.ENO_NO AS ENO_NO,
+                 B.ENO_NM AS ENO_NM,
+                 B.DPT_CD AS DPT_CD,
+                 SF_GET_DPTNAME('01','A4',B.DPT_CD) AS DPT_NM,
+                 B.JOB_CD AS JOB_CD,
+                 SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM,
+                 TO_CHAR(B.HIR_YMD,'YYYY-MM-DD') AS HIR_YMD,
+                 to_number(TO_CHAR(NVL(C.BAS_PCT,0),'000.00')) AS BAS_PCT,
+                 NVL(C.SALT_AMT,0) AS SALT_AMT,
+                 C.JOBT_CD AS JOBT_CD,
+                 '' AS REMARK
+            FROM T_CM_DEPT A,T_CM_PERSON B, T_CP_PAYMASTER C, T_CP_WORKLOG D
+           WHERE (B.ENO_NO  = C.ENO_NO)
+             AND (D.OCC_CD  = C.OCC_CD)
+             AND (D.PIS_YY  = C.PIS_YY)
+             AND (D.PIS_MM  = C.PIS_MM)
+             AND (D.SAL_GBN = C.SAL_GBN)
+             AND (D.SEQ     = C.SEQ)
+             AND (D.BPAY_PCT <> C.BAS_PCT)
+             AND (A.CD_GBN  = 'A4')
+             AND (A.DPT_CD    = B.DPT_CD)
+             AND (NVL(TO_CHAR(B.HIRG_YMD,'YYYY'),TO_CHAR(B.HIR_YMD,'YYYY')) = ?)
+             AND (NVL(C.OCC_CD,' ')  LIKE '%'||?||'%')
+             AND (C.PIS_YY  = ?)
+             AND (C.PIS_MM  = ?)
+             AND (C.SAL_GBN = ?)
+             AND (C.SEQ     = ?)
+          ORDER BY A.SORT_NO,C.JOBT_CD,B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 근태감액자-->
+    <sql name="BONA030_SHR_03">
+        <description>근태감액자</description>
+        <query>
+            <![CDATA[
+  SELECT SUM(BB.ATT_A) AS ATT_A,
+         SUM(BB.ATT_B) AS ATT_B,
+         SUM(BB.ATT_C) AS ATT_C,
+         AA.ENO_NO AS ENO_NO,
+         AA.ENO_NM AS ENO_NM,
+         AA.DPT_CD AS DPT_CD,
+         AA.DPT_NM AS DPT_NM,
+         AA.JOB_CD AS JOB_CD,
+         AA.JOB_NM AS JOB_NM,
+         AA.ATTD_PCT AS ATTD_PCT,
+         AA.REMARK AS REMARK
+  FROM   (SELECT C.PIS_YY AS PIS_YY,
+                 B.ENO_NO AS ENO_NO,
+                 B.ENO_NM AS ENO_NM,
+                 B.DPT_CD AS DPT_CD,
+                 SF_GET_DPTNAME('01','A4',B.DPT_CD) AS DPT_NM,
+                 B.JOB_CD AS JOB_CD,
+                 SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM,
+                 TO_NUMBER(TO_CHAR(C.ATTD_PCT,'000.00')) AS ATTD_PCT,
+                 '' AS REMARK
+            FROM T_CM_DEPT A, T_CM_PERSON B, T_CP_PAYMASTER C
+           WHERE (B.ENO_NO  = C.ENO_NO)
+             AND (A.CD_GBN  = 'A4')
+             AND (A.DPT_CD    = B.DPT_CD)
+             AND (NVL(C.OCC_CD,' ')  LIKE '%'||?||'%')
+             AND (C.PIS_YY  = ?)
+             AND (C.PIS_MM  = ?)
+             AND (C.SAL_GBN = ?)
+             AND (C.SEQ     = ?)
+             AND (C.ATTD_PCT > 0)
+          ORDER BY A.SORT_NO,B.JOB_CD,B.ENO_NO) AA,
+          T_DI_DILIGENCE BB
+  WHERE  AA.ENO_NO = BB.ENO_NO
+  AND    AA.PIS_YY = BB.PIS_YY
+  AND (TO_NUMBER(BB.PIS_MM) BETWEEN 1 AND 12)
+  GROUP BY AA.ENO_NO, AA.ENO_NM, AA.DPT_CD, AA.DPT_NM, AA.JOB_CD, AA.JOB_NM, AA.ATTD_PCT, AA.REMARK
+  ORDER BY AA.ENO_NO, AA.ENO_NM, AA.DPT_CD, AA.DPT_NM, AA.JOB_CD, AA.JOB_NM, AA.ATTD_PCT, AA.REMARK
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 징계감액자-->
+    <sql name="BONA030_SHR_04">
+        <description>징계감액자</description>
+        <query>
+            <![CDATA[
+  SELECT BB.ENO_NO AS ENO_NO,
+         BB.ENO_NM AS ENO_NM,
+         BB.DPT_CD AS DPT_CD,
+         BB.DPT_NM AS DPT_NM,
+         BB.JOB_CD AS JOB_CD,
+         BB.JOB_NM AS JOB_NM,
+         BB.PUD_PCT AS PUD_PCT,
+        (CASE WHEN COUNT(AA.JCD_CD) > 1
+              THEN '0'
+              ELSE DECODE(AA.JCD_CD,'L31','1','L32','1',
+                                    'L58','2','L59','2','L60','2',
+                                    'L55','3','L56','3','L57','3',
+                                    'L51','4','L52','4','L53','4',
+                                    ' ')
+              END) AS JCD_CD,
+         COUNT(AA.JCD_CD) AS JCD_CNT,
+         '' AS REMARK
+  FROM   T_CM_AHISTORY AA,
+         (SELECT B.ENO_NO AS ENO_NO,
+                 B.ENO_NM AS ENO_NM,
+                 B.DPT_CD AS DPT_CD,
+                 SF_GET_DPTNAME('01','A4',B.DPT_CD) AS DPT_NM,
+                 B.JOB_CD AS JOB_CD,
+                 SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM,
+                 TO_NUMBER(TO_CHAR(C.PUD_PCT,'000.00')) AS PUD_PCT
+            FROM T_CM_DEPT A,T_CM_PERSON B,T_CP_PAYMASTER C
+           WHERE (B.ENO_NO  = C.ENO_NO)
+             AND (A.CD_GBN  = 'A4')
+             AND (A.DPT_CD    = B.DPT_CD)
+             AND (NVL(C.OCC_CD,' ')  LIKE '%'||?||'%')
+             AND (C.PIS_YY  = ?)
+             AND (C.PIS_MM  = ?)
+             AND (C.SAL_GBN = ?)
+             AND (C.SEQ     = ?)
+             AND (C.PUD_PCT > 0)
+          ORDER BY A.SORT_NO,B.JOB_CD,B.ENO_NO) BB,
+         (SELECT MAX(PAY_YMD) AS a_str_ymd,
+                 a_end_ymd
+          FROM   (SELECT PAY_YMD AS a_end_ymd,
+                         OCC_CD,
+                         SAL_GBN
+                    FROM T_CP_WORKLOG
+                   WHERE (NVL(OCC_CD,' ') LIKE '%'||?||'%')
+                     AND (PIS_YY = ?)
+                     AND (PIS_MM = ?)
+                     AND (SAL_GBN = ?)
+                     AND (SEQ    = ?)) A,
+                   T_CP_WORKLOG B
+           WHERE   A.OCC_CD  = B.OCC_CD
+             AND   A.SAL_GBN = B.SAL_GBN
+             AND   PAY_YMD < a_end_ymd
+             GROUP BY a_end_ymd) CC
+   WHERE AA.ENO_NO  =  BB.ENO_NO
+     AND AA.STR_YMD >  CC.a_str_ymd
+     AND AA.STR_YMD <= CC.a_end_ymd
+   GROUP BY BB.ENO_NO, BB.ENO_NM, BB.DPT_CD, BB.DPT_NM, BB.JOB_CD, BB.JOB_NM, BB.PUD_PCT, AA.JCD_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 부서별-->
+    <sql name="BONA030_SHR_05">
+        <description>부서별</description>
+        <query>
+            <![CDATA[
+          SELECT B.DPT_CD AS DPT_CD,
+                 SF_GET_DPTNAME('01','A4',B.DPT_CD) AS DPT_NM,
+                 COUNT(B.DPT_CD) AS ENO_CNT,
+                 NVL(SUM(B.BONP_BAS),0)+NVL(SUM(B.LSEV_AMT),0) AS BAS_AMT,
+                 NVL(SUM(B.SALT_AMT),0) AS SALT_AMT,
+                 to_number(TO_CHAR(NVL(SUM(B.PAY_PCT),0)/COUNT(B.DPT_CD),'000.00')) AS PAY_PCT,
+                 '' AS REMARK
+            FROM T_CM_DEPT A,T_CP_PAYMASTER B
+           WHERE (A.CD_GBN  = 'A4')
+             AND (A.DPT_CD    = B.DPT_CD)
+             AND (NVL(B.OCC_CD,' ')  LIKE '%'||?||'%')
+             AND (B.PIS_YY  = ?)
+             AND (B.PIS_MM  = ?)
+             AND (B.SAL_GBN = ?)
+             AND (B.SEQ     = ?)
+          GROUP BY TO_CHAR(A.SORT_NO,'fm000'),B.DPT_CD
+          ORDER BY TO_CHAR(A.SORT_NO,'fm000'),B.DPT_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 지급제외자-->
+    <sql name="BONA030_SHR_06">
+        <description>지급제외자</description>
+        <query>
+            <![CDATA[
+         SELECT B.ENO_NO AS ENO_NO,
+                B.ENO_NM AS ENO_NM,
+                B.DPT_CD AS DPT_CD,
+                SF_GET_DPTNAME('01','A4',B.DPT_CD) AS DPT_NM ,
+                B.JOB_CD AS JOB_CD,
+                SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM,
+                TO_CHAR(B.HIR_YMD,'YYYY-MM-DD') AS HIR_YMD,
+                '' AS REMARK
+         FROM T_CM_DEPT A,T_CM_PERSON B
+         WHERE NOT EXISTS ( SELECT ENO_NO FROM T_CP_PAYMASTER
+                             WHERE (ENO_NO = B.ENO_NO)
+                               AND (NVL(OCC_CD,' ') LIKE '%'||?||'%')
+                               AND (PIS_YY = ?)
+                               AND (PIS_MM = ?)
+                               AND (SAL_GBN = ?)
+                               AND (SEQ    = ?))
+           AND (A.CD_GBN = 'A4')
+           AND (A.DPT_CD = B.DPT_CD)
+           AND (NVL(B.OCC_CD,' ') LIKE '%'||?||'%')
+           AND (B.JOB_CD <> 'A7')                               /*감사 제외*/
+           AND ( TO_CHAR(B.HIR_YMD,'YYYYMM')
+                 <= ?||? )
+           AND (rtrim(B.RET_YMD) IS NULL)
+         ORDER BY A.SORT_NO,B.JOB_CD,B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 휴직감액자-->
+    <sql name="BONA030_SHR_07">
+        <description>휴직감액자</description>
+        <query>
+            <![CDATA[
+          SELECT B.ENO_NO AS ENO_NO,
+                 B.ENO_NM AS ENO_NM,
+                 B.DPT_CD AS DPT_CD,
+                 SF_GET_DPTNAME('01','A4',B.DPT_CD) AS DPT_NM,
+                 B.JOB_CD AS JOB_CD,
+                 SF_GET_COMMNAME('01','A2',B.JOB_CD) AS JOB_NM,
+                 TO_CHAR(B.TMR_YMD,'YYYY-MM-DD') AS TMR_YMD,
+                 B.TMR_DD AS TMR_DD,
+                 to_number(TO_CHAR(C.TRD_PCT,'000.00')) AS TRD_PCT,
+                 '' AS REMARK
+            FROM T_CM_DEPT A,T_CM_PERSON B,T_CP_PAYMASTER C
+           WHERE (B.ENO_NO  = C.ENO_NO)
+             AND (A.CD_GBN  = 'A4')
+             AND (A.DPT_CD    = B.DPT_CD)
+             AND (NVL(C.OCC_CD,' ')  LIKE '%'||?||'%')
+             AND (C.PIS_YY  = ?)
+             AND (C.PIS_MM  = ?)
+             AND (C.SAL_GBN = ?)
+             AND (C.SEQ     = ?)
+             AND (C.TRD_PCT > 0)
+          ORDER BY A.SORT_NO,B.JOB_CD,B.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BONA040
+* @description : 월별급상여지급현황
+***********************************************************************
+* 2007/04/19     한학현        최초작성.
+* 2007/05/01     김학수        BONA040_SHR 추가
+***********************************************************************
+-->
+    <!-- 전체 조회 -->
+    <sql name="BONA040_SHR">
+        <description>전체 조회</description>
+        <query>
+            <![CDATA[
+           SELECT A.PIS_YY||'-'||A.PIS_MM AS PIS_YYMM,
+                   '전체' AS COMM_NM,
+                   count(A.eno_no) AS ENO_CNT,
+                   NVL(SUM(A.SALT_AMT)-SUM(A.PPEN_AMT)-SUM(A.OTH_AMT),0) AS PAY_AMT,
+                   NVL(SUM(A.PPEN_AMT),0) AS PPEN_AMT,
+                   NVL(SUM(A.OTH_AMT),0) AS OTH_AMT,
+                   NVL(SUM(A.SALT_AMT),0) AS SUM_AMT,
+                   NVL(SUM(B.SALT_AMT),0) AS BON_AMT,
+                   DECODE(count(B.eno_no),0,0,TRUNC(NVL(SUM(B.PAY_PCT),0)/count(B.eno_no))) AS PAY_PCT
+            FROM  (SELECT *
+                     FROM T_CP_PAYMASTER
+                    WHERE OCC_CD LIKE '%'||?||'%'
+                      AND SAL_GBN='0'
+                      AND PIS_YY||PIS_MM BETWEEN ? AND ?) A
+        LEFT JOIN (SELECT *
+                     FROM T_CP_PAYMASTER
+                    WHERE SAL_GBN='1') B
+               ON A.OCC_CD = B.OCC_CD
+              AND A.PIS_YY = B.PIS_YY
+              AND A.PIS_MM = B.PIS_MM
+              AND A.ENO_NO = B.ENO_NO
+            GROUP BY A.PIS_YY, A.PIS_MM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 부서별 조회 -->
+    <sql name="BONA040_SHR_01">
+        <description>부서별 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.PIS_YY||'-'||A.PIS_MM AS PIS_YYMM,
+                   SF_GET_DPTNAME('01','A4',A.DPT_CD) AS COMM_NM,
+                   count(A.eno_no) AS ENO_CNT,
+                   NVL(SUM(A.SALT_AMT)-SUM(A.PPEN_AMT)-SUM(A.OTH_AMT),0) AS PAY_AMT,
+                   NVL(SUM(A.PPEN_AMT),0) AS PPEN_AMT,
+                   NVL(SUM(A.OTH_AMT),0) AS OTH_AMT,
+                   NVL(SUM(A.SALT_AMT),0) AS SUM_AMT,
+                   NVL(SUM(B.SALT_AMT),0) AS BON_AMT,
+                   DECODE(count(B.eno_no),0,0,TRUNC(NVL(SUM(B.PAY_PCT),0)/count(B.eno_no))) AS PAY_PCT
+            FROM  (SELECT *
+                     FROM T_CP_PAYMASTER
+                    WHERE NVL(OCC_CD,' ')  LIKE '%'||?||'%'
+                      AND SAL_GBN='0'
+                      AND PIS_YY||PIS_MM BETWEEN ? AND ?) A
+        LEFT JOIN (SELECT *
+                     FROM T_CP_PAYMASTER
+                    WHERE SAL_GBN='1') B
+               ON A.OCC_CD = B.OCC_CD
+              AND A.PIS_YY = B.PIS_YY
+              AND A.PIS_MM = B.PIS_MM
+              AND A.ENO_NO = B.ENO_NO
+            GROUP BY A.PIS_YY, A.PIS_MM, A.DPT_CD
+            ORDER BY A.PIS_YY, A.PIS_MM, SF_GET_DPTSEQ('01','A4',A.DPT_CD)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직위별 조회 -->
+    <sql name="BONA040_SHR_02">
+        <description>직위별 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.PIS_YY||'-'||A.PIS_MM AS PIS_YYMM,
+                   SF_GET_COMMNAME('01','A2',A.JOB_CD) AS COMM_NM,
+                   count(A.eno_no) AS ENO_CNT,
+                   NVL(SUM(A.SALT_AMT)-SUM(A.PPEN_AMT)-SUM(A.OTH_AMT),0) AS PAY_AMT,
+                   NVL(SUM(A.PPEN_AMT),0) AS PPEN_AMT,
+                   NVL(SUM(A.OTH_AMT),0) AS OTH_AMT,
+                   NVL(SUM(A.SALT_AMT),0) AS SUM_AMT,
+                   NVL(SUM(B.SALT_AMT),0) AS BON_AMT,
+                   DECODE(count(B.eno_no),0,0,TRUNC(NVL(SUM(B.PAY_PCT),0)/count(B.eno_no))) AS PAY_PCT
+            FROM  (SELECT *
+                     FROM T_CP_PAYMASTER
+                    WHERE NVL(OCC_CD,' ')  LIKE '%'||?||'%'
+                      AND SAL_GBN='0'
+                      AND PIS_YY||PIS_MM BETWEEN ? AND ?) A
+        LEFT JOIN (SELECT *
+                     FROM T_CP_PAYMASTER
+                    WHERE SAL_GBN='1') B
+               ON A.OCC_CD = B.OCC_CD
+              AND A.PIS_YY = B.PIS_YY
+              AND A.PIS_MM = B.PIS_MM
+              AND A.ENO_NO = B.ENO_NO
+            GROUP BY A.PIS_YY, A.PIS_MM, A.JOB_CD
+            ORDER BY A.PIS_YY, A.PIS_MM, SF_GET_COMMSEQ('01','A2',A.JOB_CD)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 기준직위별 조회 -->
+    <sql name="BONA040_SHR_03">
+        <description>기준직위별 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.PIS_YY||'-'||A.PIS_MM AS PIS_YYMM,
+                   SF_GET_COMMNAME('01','A2',A.JOBT_CD) AS COMM_NM,
+                   count(A.eno_no) AS ENO_CNT,
+                   NVL(SUM(A.SALT_AMT)-SUM(A.PPEN_AMT)-SUM(A.OTH_AMT),0) AS PAY_AMT,
+                   NVL(SUM(A.PPEN_AMT),0) AS PPEN_AMT,
+                   NVL(SUM(A.OTH_AMT),0) AS OTH_AMT,
+                   NVL(SUM(A.SALT_AMT),0) AS SUM_AMT,
+                   NVL(SUM(B.SALT_AMT),0) AS BON_AMT,
+                   DECODE(count(B.eno_no),0,0,TRUNC(NVL(SUM(B.PAY_PCT),0)/count(B.eno_no))) AS PAY_PCT
+            FROM  (SELECT *
+                     FROM T_CP_PAYMASTER
+                    WHERE NVL(OCC_CD,' ')  LIKE '%'||?||'%'
+                      AND SAL_GBN='0'
+                      AND PIS_YY||PIS_MM BETWEEN ? AND ?) A
+        LEFT JOIN (SELECT *
+                     FROM T_CP_PAYMASTER
+                    WHERE SAL_GBN='1') B
+               ON A.OCC_CD = B.OCC_CD
+              AND A.PIS_YY = B.PIS_YY
+              AND A.PIS_MM = B.PIS_MM
+              AND A.ENO_NO = B.ENO_NO
+            GROUP BY A.PIS_YY, A.PIS_MM, A.JOBT_CD
+            ORDER BY A.PIS_YY, A.PIS_MM, SF_GET_COMMSEQ('01','A2',A.JOBT_CD)
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BONA050
+* @description : 개인별상여지급현황
+***********************************************************************
+* 2007/04/23     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 개인별 상여 조회-->
+    <sql name="BONA050_SHR">
+        <description>개인별 상여 조회</description>
+        <query>
+            <![CDATA[
+          SELECT SF_GET_DPTNAME('01','A4',C.DPT_CD) AS DPT_NM,
+                 SF_GET_COMMNAME('01','A2',C.JOB_CD) AS JOB_NM,
+                 C.ENO_NO AS ENO_NO,
+                 B.ENO_NM AS ENO_NM,
+                 TO_CHAR(B.HIR_YMD,'YYYY-MM-DD') AS HIR_YMD,
+                 C.BAS_AMT AS BAS_AMT,
+                 C.DUTY_AMT AS DUTY_AMT,
+                 C.LAW_AMT AS LAW_AMT,
+                 C.OSE_AMT AS OSE_AMT,
+                 C.LSEV_AMT AS LSEV_AMT,
+                 C.ITDD_AMT AS ITDD_AMT,
+                 C.OUTT_AMT AS OUTT_AMT,
+                 C.AVTA_SAL AS AVTA_SAL,
+                 (SELECT NVL(SUM(Z.AMOUNT),0) FROM T_CP_CHANGE Z
+                                 WHERE Z.ENO_NO = C.ENO_NO
+                                      AND Z.PIS_YY = C.PIS_YY
+                                          AND Z.PIS_MM = C.PIS_MM
+                                          AND Z.AD_TAG = 'A'
+                                      AND Z.SAL_CD = '03') AS ETC_AMT_12,        --남북경협
+                 C.TB3_AMT + C.SGF_AMT + C.OTH_AMT AS ETC_AMT,
+
+                  C.INCM_TAX,
+                  C.CITI_TAX,
+
+                  C.DDTT_AMT,
+                  C.PAY_AMT,
+                  C.CONT_AMT,
+                  C.SALT_AMT AS SALT_AMT
+
+             FROM T_CM_PERSON B,
+                  T_CP_PAYMASTER C
+
+            WHERE (B.ENO_NO  = C.ENO_NO)
+              AND (C.SEQ     = ?)
+              AND (C.PIS_YY  = ?)
+              AND (C.PIS_MM  = ?)
+              AND (C.SAL_GBN = '1')
+              [1]
+
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : BONA060
+* @description : 상여전표처리
+***********************************************************************
+* 2007/05/08     조정호        최초작성.
+***********************************************************************
+-->
+    <!-- 상여전표처리 내역 조회 -->
+    <sql name="BONA060_SHR_LOG">
+        <description>급여전표처리 내역 조회</description>
+        <query>
+            <![CDATA[
+             SELECT PRO_STS
+                  , DECODE(PRO_STS
+                          ,'1', '작업 OPEN'
+                          ,'2', '일반관리비 (상여)'
+                          ,'3', '소득세/기타'
+                          ,'4', '작업 CLOSE'
+                           ) AS PRO_STS_MSG
+                  , TO_CHAR(TO_DATE(PAY_YMD), 'YYYY-MM-DD') AS PAY_YMD
+                  , TO_CHAR(TO_DATE(APY_YMD), 'YYYY-MM-DD') AS APY_YMD
+                  , SLP_WRK_NO1 AS WRK_NO1
+                  , SLP_WRK_NO3 AS WRK_NO2    --상여는  wrk_no1, wrk_no3 을 사용 wrk_no3을 wrk_no2로 대체
+               FROM T_CP_WORKLOG
+              WHERE OCC_CD  = ?
+                AND PIS_YY  = ?
+                AND PIS_MM  = ?
+                AND SAL_GBN = 'B'
+                AND SEQ     = ?
+           ORDER BY PIS_YY DESC
+                  , PIS_MM DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 일반관리비 급여 내역 조회 (사무직) -->
+    <sql name="BONA060_PROC2_SHR_A">
+        <description>일반관리비 급여 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT COUNT(*) AS SALT_CNT
+                  ,NVL(SUM(SALT_AMT),0) AS SALT_AMT
+              FROM T_CP_PAYMASTER
+             WHERE OCC_CD  = 'A'
+               AND PIS_YY  = ?
+               AND PIS_MM  = ?
+               AND SEQ     = ?
+               AND SAL_GBN = '1'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 일반관리비 급여 내역 조회 (택배직) -->
+    <sql name="BONA060_PROC2_SHR_M">
+        <description>일반관리비 급여 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT COM.HEAD_CD
+                  ,COUNT(*) AS SALT_CNT
+                  ,NVL(SUM(PAY.SALT_AMT),0) AS SALT_AMT
+              FROM T_CP_PAYMASTER PAY
+                  ,T_CM_DEPT COM
+             WHERE PAY.OCC_CD  = 'M'
+               AND PAY.PIS_YY  = ?
+               AND PAY.PIS_MM  = ?
+               AND PAY.SEQ     = ?
+               AND PAY.SAL_GBN = '1'
+               AND PAY.DPT_CD  = COM.DPT_CD
+               AND COM.CD_GBN  = 'A4'
+          GROUP BY COM.HEAD_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 급여제외항목 -->
+    <sql name="BONA060_PROC2_SHR_ETC">
+        <description>급여제외항목</description>
+        <query>
+            <![CDATA[
+            SELECT NVL(SUM(HINU_AMT),0) AS HINU_AMT
+                  ,NVL(SUM(NPEN_AMT),0)+NVL(SUM(NPLE_AMT),0) AS NPEN_AMT
+                  ,NVL(SUM(DHLP_AMT),0) AS DHLP_AMT
+                  ,NVL(SUM(HINS_AMT),0) AS HINS_AMT
+                  ,NVL(SUM(PPEN_AMT),0)*2 AS PPEN_AMT
+              FROM T_CP_PAYMASTER
+             WHERE OCC_CD   = ?
+               AND PIS_YY   = ?
+               AND PIS_MM   = ?
+               AND SEQ      = ?
+               AND SAL_GBN  = '1'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 소득세/기타 항목의 전표처리를 위해 내역 조회 -->
+    <sql name="BONA060_PROC3_SHR">
+        <description>소득세/기타 항목의 전표처리를 위해 내역 조회</description>
+        <query>
+            <![CDATA[
+             SELECT INV_AMT
+                   ,LON_RPY
+                   ,LON_RPY2
+                   ,SAV_AMT
+                   ,WOM_AMT
+                   ,CONT_AMT
+                   ,INCM_TAX
+                   ,CITI_TAX
+                   ,INCM_TAX1
+                   ,CITI_TAX1
+               FROM (SELECT NVL(SUM(INV_AMT),0)     AS INV_AMT                      /*출연금*/
+                           ,NVL(SUM(LON_RPY),0) + NVL(SUM(LON_INT),0)   AS LON_RPY  /*융자+이자*/
+                           ,NVL(SUM(LON_RPY2),0)+ NVL(SUM(LON_INT2),0)  AS LON_RPY2 /*제일융자+이자*/
+                           ,NVL(SUM(SAV_AMT),0)     AS SAV_AMT                      /*저축금*/
+                           ,NVL(SUM(WOM_AMT),0)     AS WOM_AMT                      /*여직원회비*/
+                           ,NVL(SUM(CONT_AMT),0)    AS CONT_AMT                     /*불우이웃성금*/
+                       FROM T_CP_PAYMASTER
+                      WHERE OCC_CD      = ?
+                        AND PIS_YY      = ?
+                        AND PIS_MM      = ?
+                        AND SEQ         = ?
+                        AND SAL_GBN     = '1')
+                   ,(SELECT NVL(SUM(DECODE(COM.GBN2_TAG, '1', PAY.INCM_TAX, 0)),0) AS INCM_TAX      /* 본사 갑근세 */
+                           ,NVL(SUM(DECODE(COM.GBN2_TAG, '1', PAY.CITI_TAX, 0)),0) AS CITI_TAX      /* 본사 주민세 */
+                           ,NVL(SUM(DECODE(COM.GBN2_TAG, '9', PAY.INCM_TAX, 0)),0) AS INCM_TAX1     /* 지점 갑근세 */
+                           ,NVL(SUM(DECODE(COM.GBN2_TAG, '9', PAY.CITI_TAX, 0)),0) AS CITI_TAX1     /* 지점 주민세 */
+                       FROM T_CP_PAYMASTER PAY
+                           ,T_CM_DEPT COM
+                      WHERE COM.CD_GBN  = 'A4'
+                        AND PAY.DPT_CD  = COM.DPT_CD
+                        AND PAY.OCC_CD  = ?
+                        AND PAY.PIS_YY  = ?
+                        AND PAY.PIS_MM  = ?
+                        AND SEQ         = ?
+                        AND PAY.SAL_GBN = '1'
+                        AND COM.GBN2_TAG IN ('1', '9'))
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 전표처리를 위해 시퀀스 번호를 가지고 온다. -->
+    <sql name="BONA060_SHR_WRK_SEQ">
+        <description>전표처리를 위해 시퀀스 번호를 가지고 온다.</description>
+        <query>
+            <![CDATA[
+            SELECT S_TACTSLP_WRK_NO1.NEXTVAL AS WRK_NO
+              FROM DUAL
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 일반관리비(상여) 전표처리 내역을 삭제  -->
+    <sql name="BONA060_DEL_CHIT1">
+        <description>일반관리비(상여) 전표처리 내역을 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE
+              FROM tactslp
+             WHERE WRK_NO1  = ?
+               AND ACC_YY   = ?
+               AND ACC_MM   = ?
+               AND DPT_CD   = 'SPGA'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 소득세/기타 전표처리 내역을 삭제  -->
+    <sql name="BONA060_DEL_CHIT2">
+        <description>소득세/기타 전표처리 내역을 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE
+              FROM tactslp
+             WHERE WRK_NO1  = ?
+               AND ACC_YY   = ?
+               AND ACC_MM   = ?
+               AND DPT_CD   = 'SPAC'
+            ]]>
+        </query>
+    </sql>
+        <!-- 전표처리 내역을 등록 한다. -->
+    <sql name="BONA060_INS_CHIT">
+        <description>전표처리 내역을 등록 한다.</description>
+        <query>
+            <![CDATA[
+                INSERT
+                  INTO tactslp
+                       (ACC_UNIT
+                       ,WRK_NO1
+                       ,WRK_NO2
+                       ,GRP_NO
+                       ,ACC_YY
+                       ,ACC_MM
+                       ,DPT_CD
+                       ,ACC_CD
+                       ,ITM_CD
+                       ,DET_CD
+                       ,CD_TAG
+                       ,WON_AMT
+                       ,DESC1
+                       ,TAX_YMD
+                       ,TAX_AMT
+                       ,SPL_PRC
+                       ,CONT_AMT
+                       ,SLP_TAG
+                       ,SLP_IPT
+                       ,ADV_TAG
+                       ,IPT_MAN
+                       ,IPT_YMD)
+                VALUES ('A'
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,0
+                        ,0
+                        ,0
+                        ,''
+                        ,''
+                        ,'2'
+                        ,?
+                        ,TO_CHAR(SYSDATE, 'YYYYMMDD'))
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 작업 로그를 수정한다. -->
+    <sql name="BONA060_UPT_LOG">
+        <description>작업 로그를 수정한다.</description>
+        <query>
+            <![CDATA[
+             UPDATE T_CP_WORKLOG
+                SET PRO_STS     = ?
+                   ,SLP_WRK_NO1 = DECODE(?, 'Y', ?, SLP_WRK_NO1)
+                   ,SLP_WRK_NO3 = DECODE(?, 'Y', ?, SLP_WRK_NO3)
+                   ,UPT_MAN     = ?
+                   ,UPT_YMD     = SYSDATE
+              WHERE OCC_CD      = ?
+                AND PIS_YY      = ?
+                AND PIS_MM      = ?
+                AND SEQ         = ?
+                AND SAL_GBN     = 'B'
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : BONA070
+* @description : 예외자상여비율등록
+***********************************************************************
+* 2007/08/23     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 조회 -->
+    <sql name="BONA070_SHR">
+        <description>조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,
+                   SF_GET_ENONAME('01',ENO_NO) AS ENO_NM,
+                   OCC_CD,
+                   SF_GET_COMMNAME('01','A1',OCC_CD) AS OCC_NM,
+                   DPT_CD,
+                   SF_GET_DPTNAME('01','A4',DPT_CD) AS DPT_NM,
+                   JOB_CD,
+                   SF_GET_COMMNAME('01','A2',JOB_CD) AS JOB_NM,
+                   DECODE(NVL(STR_YM,''),'','',SUBSTR(STR_YM,1,4)||'-'||SUBSTR(STR_YM,5,2)) AS STR_YM,
+                   DECODE(NVL(END_YM,''),'','',SUBSTR(END_YM,1,4)||'-'||SUBSTR(END_YM,5,2)) AS END_YM,
+                   TO_CHAR(NVL(BAS_PCT,0), '000.00') AS BAS_PCT,
+                   TO_CHAR(NVL(OT_PCT,0), '000.00') AS OT_PCT,
+                   CASE WHEN OCC_CD = 'A'
+                        THEN TO_CHAR(NVL(OSE_PCT,0),'000.00')
+                        ELSE TO_CHAR(NVL(MH_PCT,0),'000.00')
+                   END AS OSE_PCT, --직종에 따라 필드가 다르다.
+                   TO_CHAR(NVL(LSEV_PCT,0), '000.00') AS LSEV_PCT
+            FROM   T_CP_BONUS_EXCEPTION
+            WHERE  ENO_NO LIKE '%'||?||'%'
+            [1]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 저장 -->
+    <sql name="BONA070_INS">
+        <description>저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_CP_BONUS_EXCEPTION
+                 (  ENO_NO,  STR_YM,  END_YM,   OCC_CD, DPT_CD, JOB_CD,
+                   BAS_PCT,  OT_PCT,     [1], LSEV_PCT,
+                   IPT_MAN, IPT_YMD, UPT_MAN,  UPT_YMD
+
+                 )
+            VALUES
+                 (  ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?,
+                    ?, SYSDATE,?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 수정 -->
+    <sql name="BONA070_UPT">
+        <description>수정</description>
+        <query>
+            <![CDATA[
+             UPDATE T_CP_BONUS_EXCEPTION
+             SET    END_YM      = ?
+                   ,OCC_CD      = ?
+                   ,DPT_CD      = ?
+                   ,JOB_CD      = ?
+                   ,BAS_PCT     = ?
+                   ,OT_PCT      = ?
+                   ,[1]         = ?
+                   ,LSEV_PCT    = ?
+                   ,UPT_MAN     = ?
+                   ,UPT_YMD     = SYSDATE
+              WHERE ENO_NO      = ?
+                AND STR_YM      = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 삭제 -->
+    <sql name="BONA070_DEL">
+        <description>삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_CP_BONUS_EXCEPTION
+            WHERE ENO_NO = ?
+            AND   STR_YM = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+</sqls>

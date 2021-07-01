@@ -1,0 +1,2182 @@
+
+
+<sqls>
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACCESSLOG
+* @description : 프로그램 사용 로그 정보 저장
+***********************************************************************
+* 2016/06/08      이동훈        최초작성.
+***********************************************************************
+-->
+    <!-- 프로그램 사용 로그 정보를 저장한다.  -->
+    <sql name="ACCESS_INS">
+        <description>프로그램 사용 로그 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_CM_ACCESS
+            ( 
+			  ACCESS_GB,
+			  ACCESS_TIME,
+              PROG_ID,
+              ENO_NO,
+              IPADDRESS,
+              ACT_GBN )
+            VALUES
+            ( 
+			  ?,
+			  TO_CHAR(CURRENT_TIMESTAMP(7),'YYYY-MM-DD HH24:MI:SS.FF'),
+			  ?,
+			  ?,
+			  ?,
+			  ? )
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : YEARMONTH
+* @description : 년도, 회차 가져오기
+***********************************************************************
+* 2006/10/31      안준성        최초작성.
+***********************************************************************
+-->
+    <!-- 현재 평가적용기간에 해당하는 년도,회차 정보  -->
+    <sql name="YEARMONTH_SHR">
+        <description>현재 평가적용기간에 해당하는 년도,회차 정보</description>
+        <query>
+            <![CDATA[
+				SELECT EVL_YY,
+						EVL_FRQ,
+						TO_CHAR(EVL_STDT,'YYYY-MM-DD') AS EVL_STDT,
+						TO_CHAR(EVL_ENDT,'YYYY-MM-DD') AS EVL_ENDT,
+						TO_CHAR(IPT_STDT,'YYYY-MM-DD') AS IPT_STDT,
+						TO_CHAR(IPT_ENDT,'YYYY-MM-DD') AS IPT_ENDT,
+						TO_CHAR(PROT_STDT,'YYYY-MM-DD') AS PROT_STDT,
+						TO_CHAR(PROT_ENDT,'YYYY-MM-DD') AS PROT_ENDT,
+						TO_CHAR(OBJ_STDT,'YYYY-MM-DD') AS OBJ_STDT,
+						TO_CHAR(OBJ_ENDT,'YYYY-MM-DD') AS OBJ_ENDT,
+						TO_CHAR(SELF_STDT,'YYYY-MM-DD') AS SELF_STDT,
+						TO_CHAR(SELF_ENDT,'YYYY-MM-DD') AS SELF_ENDT
+ 			     FROM  T_EV_ESTINFO
+                 WHERE GUBUN = ?
+                 AND   EVL_GBN = ?
+                 AND   EVL_YY = TO_CHAR(SYSDATE,'YYYY')
+                 AND   SYSDATE BETWEEN EVL_STDT AND JOB_ENDT
+                 AND   ROWNUM = 1
+                 ORDER BY EVL_FRQ DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 현재 평가적용기간에 해당하는 년도,회차 정보  -->
+    <sql name="YEARMONTH_SHR01">
+        <description>현재 평가적용기간에 해당하는 년도,회차 정보</description>
+        <query>
+            <![CDATA[
+				SELECT EVL_YY,
+						EVL_FRQ,
+						TO_CHAR(EVL_STDT,'YYYY-MM-DD') AS EVL_STDT,
+						TO_CHAR(EVL_ENDT,'YYYY-MM-DD') AS EVL_ENDT,
+						TO_CHAR(IPT_STDT,'YYYY-MM-DD') AS IPT_STDT,
+						TO_CHAR(IPT_ENDT,'YYYY-MM-DD') AS IPT_ENDT,
+						TO_CHAR(PROT_STDT,'YYYY-MM-DD') AS PROT_STDT,
+						TO_CHAR(PROT_ENDT,'YYYY-MM-DD') AS PROT_ENDT,
+						TO_CHAR(OBJ_STDT,'YYYY-MM-DD') AS OBJ_STDT,
+						TO_CHAR(OBJ_ENDT,'YYYY-MM-DD') AS OBJ_ENDT,
+						TO_CHAR(SELF_STDT,'YYYY-MM-DD') AS SELF_STDT,
+						TO_CHAR(SELF_ENDT,'YYYY-MM-DD') AS SELF_ENDT
+ 			     FROM  T_EV_ESTINFO
+                 WHERE GUBUN = ?
+                 AND   EVL_GBN = ?
+                 AND   EVL_YY = TO_CHAR(SYSDATE,'YYYY')
+                 AND   SYSDATE BETWEEN EVL_STDT AND JOB_ENDT
+                 AND   ROWNUM = 1
+                 ORDER BY EVL_FRQ
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : EVLENONM
+* @description : 피평가자에대한 평가자 조회
+***********************************************************************
+* 2006/10/19      안준성        최초작성.
+***********************************************************************
+-->
+    <!-- 평가자  조회 -->
+    <sql name="EVLENONM_SHR">
+        <description>평가자 조회</description>
+        <query>
+            <![CDATA[
+				SELECT EVLENO_NO,
+						SF_GET_ENONAME(GUBUN,EVLENO_NO) AS EVLENO_NM
+				FROM T_EV_EVLIST_DT
+				WHERE GUBUN = ?
+				  AND EVL_YY = ?
+				  AND EVL_GBN = '2'
+				  AND EVL_FRQ = ?
+				  AND ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : EMPL
+* @description : 사원정보조회
+***********************************************************************
+* 2006/10/13      오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 사원코드/명에 해당하는 부서와 직책을 조회한다.  -->
+    <sql name="EMPL_SHR">
+        <description>평가적용기간에 해당하는 평가회차정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT	ENO_NO, ENO_NM,
+			        OCC_CD, ASNHR.SF_GET_COMMNAME(A.GUBUN,'A1',A.OCC_CD) AS OCC_NM,
+                    DPT_CD, ASNHR.SF_GET_DPTNAME(A.GUBUN,'A4',A.DPT_CD) AS DPT_NM,
+                    JOB_CD, ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A2', A.JOB_CD) AS JOB_NM,
+			        HEAD_CD, ASNHR.SF_GET_DPTNAME(A.GUBUN, 'B2', A.HEAD_CD) AS HEAD_NM,
+			        CET_NO,
+			        TO_CHAR(HIR_YMD, 'YYYY-MM-DD')  AS HIR_YMD
+			FROM	ASNHR.T_CM_PERSON A
+			WHERE	(ENO_NO LIKE '%'||?||'%'
+			OR		 ENO_NM LIKE '%'||?||'%')
+            AND     DPT_CD = NVL(?, DPT_CD)
+			[1]
+            ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 사원정보조회  -->
+    <sql name="EMPL_SHR11">
+        <description>사원정보조회</description>
+        <query>
+            <![CDATA[
+			SELECT distinct *
+			FROM
+				(
+			        SELECT ENO_NO                                                   -- 사번
+			               , ENO_NM                                                   -- 성명
+			               , TO_CHAR(NVL(HIRG_YMD, HIR_YMD), 'YYYY-MM-DD')       AS HIRG_YMD       -- 입사일
+			               , TO_CHAR(HIR_YMD  , 'YYYY-MM-DD')       AS HIR_YMD
+			               , TO_CHAR(RET_YMD  , 'YYYY-MM-DD')       AS RET_YMD
+			               , TO_CHAR(RAM_YMD  , 'YYYY-MM-DD')       AS RAM_YMD
+			               , TO_CHAR(RAM_YMD2 , 'YYYY-MM-DD')       AS RAM_YMD2
+			               , TO_CHAR(RAM_YMD3 , 'YYYY-MM-DD')       AS RAM_YMD3
+			               , TO_CHAR(NVL(RETP_YMD,RET_YMD) , 'YYYY-MM-DD')       AS RETP_YMD
+			               , TO_CHAR(MID_YMD1 , 'YYYY-MM-DD')       AS MID_YMD1
+			               , TO_CHAR(MID_YMD2 , 'YYYY-MM-DD')       AS MID_YMD2
+			               , TO_CHAR(MID_YMD3 , 'YYYY-MM-DD')       AS MID_YMD3
+			               , TO_CHAR( NVL(HIRR_YMD, HIR_YMD) , 'YYYY-MM-DD')       AS HIRR_YMD
+			               , TO_CHAR(DPA_YMD, 'YYYY-MM-DD')         AS DPA_YMD         -- 소속발령일
+			               , A.OCC_CD                                                    -- 직종코드
+			               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A1', A.OCC_CD)   AS OCC_NM          -- 직종명
+			               , A.HEAD_CD                                                   -- 본부코드
+			               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'B2', A.HEAD_CD)  AS HEAD_NM         -- 본부명
+			               , A.DPT_CD                                                    -- 부서코드
+			               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'A4', A.DPT_CD)   AS DPT_NM          -- 부서명
+			               , JOB_CD                                                    -- 직위코드
+			               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A2', JOB_CD)   AS JOB_NM          -- 직위명
+			               , HOB_CD                                                    -- 호봉코드
+			               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A3', HOB_CD)   AS HOB_NM          -- 호봉명
+			               , CET_NO
+			               , MF_TAG
+			               , ASNHR.SF_GET_DPTSEQ( '01', 'A4', A.DPT_CD) DPT_SEQ
+			               , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD) JOB_SEQ
+			               , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) HOB_SEQ
+			               , DUTY_CD
+			               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A7', DUTY_CD)   AS DUTY_NM          -- 직책명
+						   , B.HEAD_TAG
+			        FROM ASNHR.T_CM_PERSON A, ASNHR.T_CM_DEPT B
+			        WHERE DUTY_CD  IN ('03','04','30')
+					AND   A.HEAD_CD = B.DPT_CD
+					[1]
+					--2020.12.18 백천호 상무님이 관광경협 담당이지만 경영지원도 겸직이라서
+					AND   A.HEAD_CD IN (SELECT CASE WHEN UPDPT_CD = 'CY00' THEN 'KY00' ELSE UPDPT_CD END UPDPT_CD FROM ASNHR.T_CM_DEPT WHERE DPT_CD = NVL(?, DPT_CD))
+				UNION ALL
+			        SELECT ENO_NO                                                   -- 사번
+			               , ENO_NM                                                 -- 성명
+			               , TO_CHAR(NVL(HIRG_YMD, HIR_YMD), 'YYYY-MM-DD')       AS HIRG_YMD       -- 입사일
+			               , TO_CHAR(HIR_YMD  , 'YYYY-MM-DD')       AS HIR_YMD
+			               , TO_CHAR(RET_YMD  , 'YYYY-MM-DD')       AS RET_YMD
+			               , TO_CHAR(RAM_YMD  , 'YYYY-MM-DD')       AS RAM_YMD
+			               , TO_CHAR(RAM_YMD2 , 'YYYY-MM-DD')       AS RAM_YMD2
+			               , TO_CHAR(RAM_YMD3 , 'YYYY-MM-DD')       AS RAM_YMD3
+			               , TO_CHAR(NVL(RETP_YMD,RET_YMD) , 'YYYY-MM-DD')       AS RETP_YMD
+			               , TO_CHAR(MID_YMD1 , 'YYYY-MM-DD')       AS MID_YMD1
+			               , TO_CHAR(MID_YMD2 , 'YYYY-MM-DD')       AS MID_YMD2
+			               , TO_CHAR(MID_YMD3 , 'YYYY-MM-DD')       AS MID_YMD3
+			               , TO_CHAR( NVL(HIRR_YMD, HIR_YMD) , 'YYYY-MM-DD')       AS HIRR_YMD
+			               , TO_CHAR(DPA_YMD, 'YYYY-MM-DD')         AS DPA_YMD         -- 소속발령일
+			               , A.OCC_CD                                                    -- 직종코드
+			               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A1', A.OCC_CD)   AS OCC_NM          -- 직종명
+			               , A.HEAD_CD                                                   -- 본부코드
+			               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'B2', A.HEAD_CD)  AS HEAD_NM         -- 본부명
+			               , A.DPT_CD                                                    -- 부서코드
+			               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'A4', A.DPT_CD)   AS DPT_NM          -- 부서명
+			               , JOB_CD                                                    -- 직위코드
+			               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A2', JOB_CD)   AS JOB_NM          -- 직위명
+			               , HOB_CD                                                    -- 호봉코드
+			               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A3', HOB_CD)   AS HOB_NM          -- 호봉명
+			               , CET_NO
+			               , MF_TAG
+			               , ASNHR.SF_GET_DPTSEQ( '01', 'A4', A.DPT_CD) DPT_SEQ
+			               , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD) JOB_SEQ
+			               , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) HOB_SEQ
+			               , DUTY_CD
+			               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A7', DUTY_CD)   AS DUTY_NM          -- 직책명
+						   , B.HEAD_TAG
+			        FROM ASNHR.T_CM_PERSON A, ASNHR.T_CM_DEPT B
+			        WHERE A.DPT_CD = NVL(?, A.DPT_CD)
+					AND   A.DPT_CD = B.DPT_CD
+					AND   A.ENO_NO NOT LIKE '66%'
+				[2]
+			)
+			WHERE  (ENO_NO LIKE '%'||?||'%'
+			                OR  ENO_NM LIKE '%'||?||'%')
+			ORDER BY DUTY_CD, JOB_SEQ, DPT_SEQ, HOB_SEQ DESC, ENO_NO
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원정보조회  -->
+    <sql name="EMPL_SHR00">
+        <description>사원정보조회</description>
+        <query>
+            <![CDATA[
+        SELECT ENO_NO                                                   -- 사번
+               , ENO_NM                                                 -- 성명
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'B2', A.HEAD_CD)  AS HEAD_NM         -- 본부명
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'A4', A.DPT_CD)   AS DPT_NM          -- 부서명
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A2', JOB_CD)   AS JOB_NM          -- 직위명           
+        FROM ASNHR.T_CM_PERSON A
+        WHERE (ENO_NO LIKE '%'||?||'%' OR  ENO_NM LIKE '%'||?||'%')
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 사원정보조회  -->
+    <sql name="EMPL_SHR01">
+        <description>사원정보조회</description>
+        <query>
+            <![CDATA[
+        SELECT ENO_NO                                                   -- 사번
+               , ENO_NM                                                 -- 성명
+               , TO_CHAR(NVL(HIRG_YMD, HIR_YMD), 'YYYY-MM-DD')       AS HIRG_YMD       -- 입사일
+               , TO_CHAR(HIR_YMD  , 'YYYY-MM-DD')       AS HIR_YMD
+               , A.HEAD_CD                                                   -- 본부코드
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'B2', A.HEAD_CD)  AS HEAD_NM         -- 본부명
+               , A.DPT_CD                                                    -- 부서코드
+               , ASNHR.SF_GET_DPTNAME(A.GUBUN,  'A4', A.DPT_CD)   AS DPT_NM          -- 부서명
+               , JOB_CD                                                    -- 직위코드
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A2', JOB_CD)   AS JOB_NM          -- 직위명
+               , DUTY_CD
+               , ASNHR.SF_GET_COMMNAME(A.GUBUN, 'A7', DUTY_CD)   AS DUTY_NM          -- 직책명
+               , ASNHR.SF_GET_DPTSEQ( '01', 'A4', A.DPT_CD) DPT_SEQ
+               , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD) JOB_SEQ
+               , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) HOB_SEQ               
+        FROM ASNHR.T_CM_PERSON A, ASNHR.T_CM_DEPT B
+        WHERE 
+				A.DPT_CD = B.DPT_CD
+				AND   A.RET_YMD IS NULL
+				AND  (ENO_NO LIKE '%'||?||'%' OR  ENO_NM LIKE '%'||?||'%')
+		ORDER BY JOB_SEQ, DPT_SEQ, HOB_SEQ DESC, ENO_NO
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <sql name="EMPL_SHR_DPT">
+        <description>부서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  
+	            ENO_NO, 
+	            ENO_NM,
+	            DPT_CD, 
+	            ASNHR.SF_GET_DPTNAME('01',  'A4', DPT_CD)   AS DPT_NM,
+	            ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD)   AS JOB_NM
+            FROM    ASNHR.T_CM_PERSON
+            WHERE   ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : EMPL
+* @description : 일용직 정보조회
+***********************************************************************
+* 2015/09/04      이동훈        최초작성.
+***********************************************************************
+-->
+    <!-- 사원코드/명에 해당하는 부서와 직책을 조회한다.  -->
+    <sql name="EMPL_SHR_ADAY">
+        <description>일용직 정보조회</description>
+        <query>
+            <![CDATA[
+			SELECT	ENO_NM,
+                    SITE_CD, SF_GET_DPTNAME('01','A6',A.SITE_CD) AS DPT_NM,
+			        CET_NO
+
+			FROM	T_CA_PERSON A
+			WHERE	ENO_NM LIKE '%'||?||'%'
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 정규직/파견사원 정보조회 -->
+    <sql name="EMPL_SHR_01">
+        <description>정규직/파견사원 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,
+                   ENO_NM,
+                   TO_CHAR(DPA_YMD, 'YYYY-MM-DD')        AS DPA_YMD,
+                   OCC_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'A1', OCC_CD)   AS OCC_NM,
+                   HEAD_CD,
+                   ASNHR.SF_GET_DPTNAME('01',  'B2', HEAD_CD)  AS HEAD_NM,
+                   DPT_CD,
+                   ASNHR.SF_GET_DPTNAME('01',  'A4', DPT_CD)   AS DPT_NM,
+                   JOB_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD)   AS JOB_NM,
+                   HOB_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'A3', HOB_CD)   AS HOB_NM,
+                   CET_NO,
+                   TO_CHAR(HIR_YMD, 'YYYY-MM-DD')        AS HIR_YMD,
+                   TO_CHAR(RET_YMD, 'YYYY-MM-DD')        AS RET_YMD,
+                   MF_TAG,
+            [1]
+            AND    ENO_NO  = ?
+            ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원코드/명에 해당하는 부서와 직책을 조회한다.  -->
+    <sql name="EMPL_SHR_02">
+        <description>사원코드/명 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                    -- 사번
+                   ENO_NM,                                                    -- 성명
+                   TO_CHAR(HIRG_YMD, 'YYYY-MM-DD')        AS HIRG_YMD,        -- 입사일
+                   TO_CHAR(DPA_YMD, 'YYYY-MM-DD')         AS DPA_YMD,         -- 소속발령일
+                   OCC_CD,                                                    -- 직종코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A1', OCC_CD)   AS OCC_NM,          -- 직종명
+                   HEAD_CD,                                                   -- 본부코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN, 'B2', HEAD_CD)  AS HEAD_NM,         -- 본부명
+                   DPT_CD,                                                    -- 부서코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN,  'A4', DPT_CD)   AS DPT_NM,          -- 부서명
+                   JOB_CD,                                                    -- 직위코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A2', JOB_CD)   AS JOB_NM,          -- 직위명
+                   HOB_CD,                                                    -- 호봉코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A3', HOB_CD)   AS HOB_NM,          -- 호봉명
+                   CET_NO,
+                   TO_CHAR(HIR_YMD, 'YYYY-MM-DD')         AS HIR_YMD,
+                   MF_TAG
+            FROM ( SELECT A.GUBUN, A.ENO_NO,  A.NAME AS ENO_NM,
+                          DECODE(B.ENO_NO, NULL, TO_DATE(A.HIR_YMD, 'YYYY-MM-DD HH24:MI:SS'), B.HIRG_YMD) AS HIRG_YMD,
+                          DECODE(B.ENO_NO, NULL, TO_DATE(NULL, 'YYYY-MM-DD HH24:MI:SS'),      B.DPA_YMD)  AS DPA_YMD,
+                          DECODE(B.ENO_NO, NULL, A.OCC_CD,  B.OCC_CD)            AS OCC_CD,
+                          DECODE(B.ENO_NO, NULL, A.HEAD_CD, B.HEAD_CD)           AS HEAD_CD,
+                          DECODE(B.ENO_NO, NULL, A.DPT_CD,  B.DPT_CD)            AS DPT_CD,
+                          DECODE(B.ENO_NO, NULL, A.JOB_CD,  B.JOB_CD)            AS JOB_CD,
+                          DECODE(B.ENO_NO, NULL, NULL,      B.HOB_CD)            AS HOB_CD,
+                          B.CET_NO,
+                          TO_DATE(A.HIR_YMD, 'YYYY-MM-DD HH24:MI:SS')            AS HIR_YMD,
+                          B.MF_TAG
+                   FROM   ASNHR.T_CM_EMPLIST A,
+                         (SELECT GUBUN, ENO_NO, HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG
+                          FROM   ASNHR.T_CM_PERSON
+                          UNION ALL
+                          SELECT '01' AS GUBUN, ENO_NO, HIR_YMD HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG
+                          FROM   ASNHR.T_ME_PERSON
+                         )  B
+                   WHERE  A.ENO_NO   = ?
+                   AND    A.GUBUN    = B.GUBUN(+)
+                   AND    A.ENO_NO   = B.ENO_NO(+)
+                   [1]
+                 )
+            ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 정규직/파견사원 정보조회 -->
+    <sql name="EMPL_SHR_03">
+        <description>정규직/파견사원 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,
+                   ENO_NM,
+                   TO_CHAR(DPA_YMD, 'YYYY-MM-DD')        AS DPA_YMD,
+                   OCC_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'A1', OCC_CD)   AS OCC_NM,
+                   HEAD_CD,
+                   ASNHR.SF_GET_DPTNAME('01', 'B2', HEAD_CD)  AS HEAD_NM,
+                   DPT_CD,
+                   ASNHR.SF_GET_DPTNAME('01',  'A4', DPT_CD)   AS DPT_NM,
+                   JOB_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD)   AS JOB_NM,
+                   HOB_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'A3', HOB_CD)   AS HOB_NM,
+                   CET_NO,
+                   TO_CHAR(HIR_YMD, 'YYYY-MM-DD')        AS HIR_YMD,
+                   TO_CHAR(RET_YMD, 'YYYY-MM-DD')        AS RET_YMD,
+                   MF_TAG
+            [1]
+            AND    ENO_NM LIKE ?||'%'
+            ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원코드/명에 해당하는 부서와 직책을 조회한다.  -->
+    <sql name="EMPL_SHR_04">
+        <description>사원코드/명 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                    -- 사번
+                   ENO_NM,                                                    -- 성명
+                   TO_CHAR(HIRG_YMD, 'YYYY-MM-DD')        AS HIRG_YMD,        -- 입사일
+                   TO_CHAR(DPA_YMD, 'YYYY-MM-DD')         AS DPA_YMD,         -- 소속발령일
+                   OCC_CD,                                                    -- 직종코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A1', OCC_CD)   AS OCC_NM,          -- 직종명
+                   HEAD_CD,                                                   -- 본부코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN, 'B2', HEAD_CD)  AS HEAD_NM,         -- 본부명
+                   DPT_CD,                                                    -- 부서코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN,  'A4', DPT_CD)   AS DPT_NM,          -- 부서명
+                   JOB_CD,                                                    -- 직위코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A2', JOB_CD)   AS JOB_NM,          -- 직위명
+                   HOB_CD,                                                    -- 호봉코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A3', HOB_CD)   AS HOB_NM,          -- 호봉명
+                   CET_NO,
+                   TO_CHAR(HIR_YMD, 'YYYY-MM-DD')         AS HIR_YMD,
+                   MF_TAG
+            FROM ( SELECT A.GUBUN, A.ENO_NO,  A.NAME AS ENO_NM,
+                          DECODE(B.ENO_NO, NULL, TO_DATE(A.HIR_YMD, 'YYYY-MM-DD HH24:MI:SS'), B.HIRG_YMD) AS HIRG_YMD,
+                          DECODE(B.ENO_NO, NULL, TO_DATE(NULL, 'YYYY-MM-DD HH24:MI:SS'),      B.DPA_YMD)  AS DPA_YMD,
+                          DECODE(B.ENO_NO, NULL, A.OCC_CD,  B.OCC_CD)            AS OCC_CD,
+                          DECODE(B.ENO_NO, NULL, A.HEAD_CD, B.HEAD_CD)           AS HEAD_CD,
+                          DECODE(B.ENO_NO, NULL, A.DPT_CD,  B.DPT_CD)            AS DPT_CD,
+                          DECODE(B.ENO_NO, NULL, A.JOB_CD,  B.JOB_CD)            AS JOB_CD,
+                          DECODE(B.ENO_NO, NULL, NULL,      B.HOB_CD)            AS HOB_CD,
+                          B.CET_NO,
+                          TO_DATE(A.HIR_YMD, 'YYYY-MM-DD HH24:MI:SS')            AS HIR_YMD,
+                          B.MF_TAG
+                   FROM   ASNHR.T_CM_EMPLIST A,
+                         (SELECT GUBUN, ENO_NO, HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG
+                          FROM   ASNHR.T_CM_PERSON
+                          UNION ALL
+                          SELECT '01' AS GUBUN, ENO_NO, HIR_YMD HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG
+                          FROM   ASNHR.T_ME_PERSON
+                         )  B
+                   WHERE  A.NAME     = ?
+                   AND    A.GUBUN    = B.GUBUN(+)
+                   AND    A.ENO_NO   = B.ENO_NO(+)
+                   [1]
+                 )
+            ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : POST
+* @description : 우편번호검색
+***********************************************************************
+* 2006/10/13      오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 우편번호 및 주소를 조회한다.  -->
+    <sql name="POST_SHR">
+        <description>우편번호정보 조회</description>
+        <query>
+            <![CDATA[
+			SELECT	ZIPCODE,
+					(SIDO || ' ' || GUGUN || ' ' || DONG || ' ' || BUNJI) AS ADDRESS_TOT,
+					(SIDO || ' ' || GUGUN || ' ' || DONG)                 AS ADDRESS_ORG,
+					(SIDO || ' ' || GUGUN)								  AS ADDRESS_GU
+			FROM	ASNHR.T_CM_POST
+			WHERE	DONG LIKE '%'||?||'%'
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : TRAIN
+* @description : 철도빈번노선검색
+***********************************************************************
+* 2008/09/11      김경주        최초작성.
+***********************************************************************
+-->
+    <!-- 철도빈번노선 가는편을 조회한다.  -->
+    <sql name="TRAIN_SHR">
+        <description>철도빈번노선 조회(가는편)</description>
+        <query>
+            <![CDATA[
+			SELECT  COUNT(*) AS CNT,
+			        STR_CITY1 AS STR_CITY,
+			        ASNHR.SF_GET_COMMNAME('01','T5',STR_CITY1) AS STR_CITY_INS,
+			        END_CITY1 AS END_CITY,
+			        ASNHR.SF_GET_COMMNAME('01','T5',END_CITY1) AS END_CITY_INS
+             FROM (	SELECT STR_CITY1, END_CITY1
+   	                  FROM ASNHR.T_DI_BUSINESSTRIP_KORAIL
+                     WHERE ENO_NO = ?
+                 UNION ALL
+                    SELECT STR_CITY2, END_CITY2
+	                  FROM  ASNHR.T_DI_BUSINESSTRIP_KORAIL
+                     WHERE ENO_NO = ?
+                       AND STR_CITY2 IS NOT NULL) A
+          GROUP BY STR_CITY1, END_CITY1
+          ORDER BY COUNT(*) DESC
+
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : COMMNM
+* @description : 공통정보조회
+***********************************************************************
+* 2006/10/16      오대성        최초작성.
+***********************************************************************
+-->
+
+    <!-- 구분에 따른 공통코드 및 코드명을 조회한다.  -->
+    <!-- common.sql에 있는 코드 리스트를 여기로 가져옴 -->
+    <sql name="COMMNM_SHR_00">
+        <description>공통정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT CODE_GUBUN
+                 , CODE
+                 , CODE_NAME
+              FROM (SELECT /*+ index (t_cm_common_idx) */
+                           CD_GBN   AS CODE_GUBUN
+                         , COMM_CD  AS CODE
+                         , COMM_NM  AS CODE_NAME
+                         , SORT_NO
+                      FROM ASNHR.T_CM_COMMON
+                     WHERE CD_GBN = ?
+                       AND (END_YMD IS NULL
+                        OR  END_YMD >= SYSDATE)
+                     UNION ALL
+                    SELECT /*+ index (t_cm_dept_idx) */
+                           CD_GBN   AS CODE_GUBUN
+                         , DPT_CD   AS CODE
+                         , DPT_NM   AS CODE_NAME
+                         , SORT_NO
+                     FROM ASNHR.T_CM_DEPT
+                    WHERE SORT_NO != 0
+                      AND CD_GBN IN ('B2','A6')
+                    UNION ALL
+                   SELECT /*+ index (t_cm_dept_idx) */
+                          CD_GBN    AS CODE_GUBUN
+                        , DPT_CD    AS CODE
+                        , DPT_NM    AS CODE_NAME
+                        , SORT_NO
+                     FROM ASNHR.T_CM_DEPT
+                    WHERE SORT_NO BETWEEN 100 AND 750
+                      AND CD_GBN = 'A4'
+                    UNION ALL
+                   SELECT /*+ index (t_cm_common_idx) */
+                         'TA2'     AS CODE_GUBUN
+                        , A.COMM_CD AS CODE
+                        , B.COMM_NM AS CODE_NAME
+                        , SORT_NO
+                     FROM (SELECT /*+ index (t_cm_common_idx) */
+                                  DISTINCT GBN2_TAG AS COMM_CD
+                                , CD_GBN
+                             FROM ASNHR.T_CM_COMMON
+                            WHERE (END_YMD IS NULL
+                               OR  END_YMD >= SYSDATE)
+                              AND TRIM(GBN2_TAG) IS NOT NULL
+                              AND CD_GBN = 'A2') A
+                        , ASNHR.T_CM_COMMON B
+                    WHERE A.CD_GBN  = B.CD_GBN
+                      AND A.COMM_CD = B.COMM_CD
+                    )
+             WHERE CODE_GUBUN = ?
+          ORDER BY CODE_GUBUN
+                 , SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 구분에 따른 공통코드 및 코드명을 조회한다.  -->
+    <sql name="COMMNM_SHR">
+        <description>공통정보조회</description>
+        <query>
+            <![CDATA[
+			SELECT	COMM_CD, COMM_NM
+			FROM	ASNHR.T_CM_COMMON
+			WHERE	(END_YMD IS NULL OR END_YMD >= SYSDATE)
+			AND     CD_GBN = ?
+			AND    (OCC_CD  LIKE '%'||?||'%' OR OCC_CD = 'B')
+            AND    (COMM_CD LIKE '%'||?||'%'
+            OR      COMM_NM LIKE '%'||?||'%')
+			ORDER	BY SORT_NO, COMM_CD
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 구분에 따른 공통코드 및 코드명을 조회한다.  -->
+    <sql name="COMMNM_SHR_01">
+        <description>공통정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT  COMM_CD,                    -- 코드
+                    COMM_NM                     -- 코드명
+            FROM    ASNHR.T_CM_COMMON
+            WHERE  (END_YMD IS NULL OR END_YMD >= SYSDATE)
+            AND     CD_GBN  = ?
+            AND    (COMM_CD LIKE '%'||?||'%'
+            OR      COMM_NM LIKE '%'||?||'%')
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 구분에 따른 공통코드 및 코드명을 조회한다.  -->
+    <sql name="COMMNM_SHR_02">
+        <description>공통정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT  DPT_CD    AS COMM_CD,                    -- 코드
+                    DPT_NM    AS COMM_NM,                    -- 코드명
+                    UPDPT_CD  AS UP_CD                       -- 상위부서
+            FROM    ASNHR.T_CM_DEPT
+            WHERE   
+                    CD_GBN  = ?
+            AND    (DPT_CD LIKE '%'||?||'%'
+            OR      DPT_NM LIKE '%'||?||'%')
+            [1]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 공통 정보의 기준코드 gbn2_tag 사용해 조회해 오는 WORK메소드.  -->
+    <sql name="COMMNM_SHR_03">
+        <description>공통정보 기준 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.COMM_CD AS COMM_CD,
+                   B.COMM_NM AS COMM_NM
+            FROM  (SELECT   DISTINCT GBN2_TAG AS COMM_CD, CD_GBN
+                   FROM     ASNHR.T_CM_COMMON
+                   WHERE    (END_YMD IS NULL OR END_YMD >= SYSDATE)
+                   AND      TRIM(GBN2_TAG) is not null
+                   AND      CD_GBN = ?
+          		   AND     (OCC_CD  LIKE '%'||?||'%' OR OCC_CD = 'B')
+                   AND     (COMM_CD LIKE '%'||?||'%'
+                   OR       COMM_NM LIKE '%'||?||'%')
+                   ) A,
+                   ASNHR.T_CM_COMMON B
+            WHERE  A.CD_GBN = B.CD_GBN
+            AND    A.COMM_CD = B.COMM_CD
+            ORDER  BY SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무코드 및 코드명을 조회한다. (단건) -->
+    <sql name="COMMNM_SHR_04">
+        <description>직무코드조회</description>
+        <query>
+            <![CDATA[
+            SELECT  DUTY_CD    AS COMM_CD,                    -- 코드
+                    DUTY_NM    AS COMM_NM                     -- 코드명
+            FROM    ASNHR.T_CM_DUTYMST
+            WHERE   GUBUN    = '01'
+            AND    (DUTY_CD  LIKE '%'||?||'%'
+            OR      DUTY_NM  LIKE '%'||?||'%')
+            AND     DUTY_LBL = '4'                            -- 직무레벨
+            AND    (END_YMD IS NULL
+            OR      END_YMD >= SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무코드 및 코드명을 조회한다. (다건) -->
+    <sql name="COMMNM_SHR_05">
+        <description>직무코드조회</description>
+        <query>
+            <![CDATA[
+            SELECT  DUTY_CD    AS COMM_CD,                    -- 코드
+                    DUTY_NM    AS COMM_NM                     -- 코드명
+            FROM    ASNHR.T_CM_DUTYMST
+            WHERE   GUBUN    = '01'
+            AND     DUTY_LBL = ?                              -- 직무레벨
+            AND   ( END_YMD IS NULL
+            OR      END_YMD >= SYSDATE )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 콤보박스 코드 변경(인사평가) -->
+    <sql name="COMMNM_SHR_06">
+        <description>콤보박스 코드 변경(인사평가)</description>
+        <query>
+            <![CDATA[
+            SELECT B.CD_GBN,
+                   A.HEAD_CD,
+                   B.DPT_NM AS HEAD_NM
+            FROM ASNHR.T_EV_EVLIST_HD A,
+                 (SELECT * FROM ASNHR.T_CM_DEPT WHERE CD_GBN=?) B
+            WHERE A.HEAD_CD =  B.DPT_CD
+            AND   A.EVL_YY=?
+            AND   A.HEAD_CD <> 'Z'
+            GROUP BY B.SORT_NO, B.CD_GBN, A.HEAD_CD, B.DPT_NM
+            ORDER BY B.SORT_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해당 소속의 부문을 가져온다 -->
+    <sql name="COMMNM_SHR_07">
+        <description>해당 소속의 부문을 가져온다</description>
+        <query>
+            <![CDATA[
+			SELECT CD_GBN,
+			       DPT_CD,
+			       DPT_NM,
+			       GBN_CD AS PART_CD,
+			       ASNHR.SF_GET_COMMNAME('01', 'B7', GBN_CD) AS PART_NM
+			FROM ASNHR.T_CM_DEPT
+			WHERE CD_GBN = ?
+			AND   DPT_CD = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 해당 본부로 검색한다  -->
+    <sql name="COMMNM_SHR_DPT">
+        <description>해당 본부로 검색한다</description>
+        <query>
+            <![CDATA[
+			SELECT CD_GBN,
+			       DPT_CD,
+			       DPT_NM
+			FROM ASNHR.T_CM_DEPT
+			WHERE 1 = 1
+            AND END_YMD IS NULL
+            AND CD_GBN = 'B2'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해당 부서로 검색한다  -->
+    <sql name="COMMNM_SHR_DPT2">
+        <description>해당 부서로 검색한다</description>
+        <query>
+            <![CDATA[
+			SELECT CD_GBN,
+			       DPT_CD,
+			       DPT_NM
+			FROM ASNHR.T_CM_DEPT
+			WHERE 1 = 1
+            AND CD_GBN = 'A4'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 해당 팀으로 검색한다  -->
+    <sql name="COMMNM_SHR_DPT3">
+        <description>해당 팀으로 검색한다</description>
+        <query>
+            <![CDATA[
+			SELECT CD_GBN,
+			       DPT_CD,
+			       DPT_NM
+			FROM ASNHR.T_CM_DEPT
+			WHERE 1 = 1
+            AND END_YMD IS NULL
+            AND CD_GBN = 'A6'
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : EDUCATION
+* @description : 과정코드조회
+***********************************************************************
+* 2007/09/20      한학현        최초작성.
+***********************************************************************
+-->
+
+    <!-- 과정코드 조회  -->
+    <sql name="EDUCATION_SHR">
+        <description>과정코드 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  
+            	EDU_CD COMM_CD, EDU_NM COMM_NM
+            FROM    ASNHR.T_ED_COURSELIST
+            WHERE  (EDU_CD LIKE '%'||?||'%' OR EDU_NM LIKE '%'||?||'%')
+            ORDER   BY EDU_CD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 차수 조회  -->
+    <sql name="EDUCATION_SHR_01">
+        <description>차수 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.EDU_CD,
+                    B.EDU_NM AS EDU_NM,
+                    A.SEQ_NO,
+                    TO_CHAR(TO_DATE(A.EDU_STR_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS EDU_STR_YMD,
+                    TO_CHAR(TO_DATE(A.EDU_END_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS EDU_END_YMD,
+                    A.PLACE_CD,
+                    A.EDU_GBN_CD,
+                    ASNHR.SF_GET_COMMNAME('01', 'Q9', A.PLACE_CD) AS PLACE_NM,
+                    A.INT_NAM,
+                    A.CPT_PNT
+            FROM    ASNHR.T_ED_CHASULIST A,
+                    	ASNHR.T_ED_COURSELIST B
+            WHERE   A.EDU_CD = B.EDU_CD
+            AND     A.EDU_CD = ?
+            ORDER BY A.SEQ_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 과정코드 조회  -->
+    <sql name="EDUCATION_SHR_C">
+        <description>과정코드 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  
+            	EDU_CD, EDU_NM, USE_YN
+            FROM    ASNHR.T_ED_COURSELIST
+            WHERE  (END_YMD IS NULL OR END_YMD >= SYSDATE)
+            		AND    (UPPER(EDU_CD) LIKE '%'||UPPER(?)||'%' OR UPPER(EDU_NM) LIKE '%'||UPPER(?)||'%')
+            ORDER   BY EDU_NM, EDU_CD
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : LOGIN
+* @description : 로그인정보조회
+***********************************************************************
+* 2006/10/19      오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 구분에 따른 공통코드 및 코드명을 조회한다.  -->
+    <sql name="LOGIN_SHR">
+        <description>로그인정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.GUBUN
+                 , A.ENO_NO
+                 , A.PWD_NO
+                 , A.NAME   AS ENO_NM
+                 , A.HEAD_CD
+                 , A.DPT_CD
+                 , A.TEAM_CD
+                 , A.JOB_CD
+                 , A.DUTY_CD
+                 , SF_GET_DPTNAME (A.GUBUN, 'B2', A.HEAD_CD)  AS HEAD_NM
+                 , SF_GET_DPTNAME (A.GUBUN, 'A4', A.DPT_CD)   AS DPT_NM
+                 , SF_GET_DPTNAME (A.GUBUN, 'A6', A.TEAM_CD)   AS TEAM_NM
+                 , SF_GET_DPTSAUP (A.GUBUN, 'A4', A.DPT_CD)   AS DPT_SAUP
+                 , SF_GET_COMMNAME(A.GUBUN, 'A2', A.JOB_CD)   AS JOB_NM
+                 , SF_GET_COMMNAME(A.GUBUN, 'A7', A.DUTY_CD)  AS DUTY_NM
+                 , TO_CHAR(SYSDATE, 'YYYY-MM-DD')             AS TO_DAY
+                 , A.CET_NO
+                 , TO_CHAR(A.PWD_HLC_YMD,'YYYYMMDD')          AS PWD_HLC_YMD
+                 , NVL(PWD_HLC_CNT,0)                         AS PWD_HLC_CNT
+
+                 -- 권한 조회
+                 , A.ROLE_CD
+                 , A.LAW_AUTHO
+                 , A.DOC_AUTHO
+                 , A.DIL_AUTHO
+                 , A.EDU_AUTHO
+                 , A.PLN_AUTHO
+                 , A.SEL_AUTHO
+                 , A.EIS_AUTHO
+                 , A.CON_AUTHO
+                 , A.YAC_AUTHO
+                 , A.L3_AUTHO
+                 , A.ADV_AUTHO
+
+                 -- 회계부서코드
+                 , NVL(B.TAX_DPT, A.DPT_CD)                                 AS TAX_CD
+                 , SF_GET_DPTNAME(A.GUBUN, 'A4', NVL(B.TAX_DPT, B.DPT_CD))  AS TAX_NM
+                 -- 영문명
+                 , B.NAM_ENG
+				 , (SELECT REMARK3  FROM T_CM_COMMON WHERE CD_GBN = 'A2' AND COMM_CD = B.JOB_CD AND ROWNUM = 1) AS ENG_JOB_NM
+				 , (SELECT REMARK3  FROM T_CM_DEPT   WHERE END_YMD IS NULL AND DPT_CD = B.DPT_CD) AS ENG_DPT_NM
+				 ,A.GBN_CD
+              FROM ASNHR.T_CM_EMPLIST A
+         LEFT JOIN ASNHR.T_CM_PERSON B
+                ON A.ENO_NO         = B.ENO_NO
+             WHERE A.GUBUN          = ?
+               AND 'hda'||A.ENO_NO  = ?
+               AND (A.RET_YMD IS NULL
+                OR  A.RET_YMD >= TO_CHAR(SYSDATE, 'YYYYMMDD'))
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : LOGIN
+* @description : 로그인정보조회
+***********************************************************************
+* 2006/10/19      오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 구분에 따른 공통코드 및 코드명을 조회한다.  -->
+    <sql name="LOGIN_SHR_02">
+        <description>로그인정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.GUBUN
+                 , ''  As ENO_NO
+                 , ''  AS PWD_NO
+                 , ''  AS ENO_NM
+                 , ''  AS HEAD_CD
+                 , ''  AS DPT_CD
+                 , ''  AS TEAM_CD
+                 , ''  AS JOB_CD
+                 , ''  AS DUTY_CD
+                 , ''  AS HEAD_NM
+                 , ''  AS DPT_NM
+                 , ''  AS TEAM_NM
+                 , ''  AS DPT_SAUP
+                 , ''  AS JOB_NM
+                 , ''  AS DUTY_NM
+                 , ''  AS TO_DAY
+                 , ''  AS CET_NO
+                 , TO_CHAR(A.PWD_HLC_YMD,'YYYYMMDD')          AS PWD_HLC_YMD
+                 , NVL(PWD_HLC_CNT,0)                         AS PWD_HLC_CNT
+              FROM ASNHR.T_CM_EMPLIST A
+         LEFT JOIN ASNHR.T_CM_PERSON B
+                ON A.ENO_NO         = B.ENO_NO
+             WHERE A.GUBUN          = ?
+               AND 'hda'||A.ENO_NO  = ?
+               AND (A.RET_YMD IS NULL
+                OR  A.RET_YMD >= TO_CHAR(SYSDATE, 'YYYYMMDD'))
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 비밀번호 오류 카운터 증가 -->
+    <sql name="LOGIN_UPT">
+        <description>비밀번호 오류 카운터 증가</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_EMPLIST
+            SET PWD_HLC_CNT = ?
+            WHERE GUBUN = ?
+            AND 'hda'||ENO_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : LOGIN
+* @description : 로그인정보조회
+***********************************************************************
+* 2015/3/25      이동훈        최초작성.
+***********************************************************************
+-->
+    <!-- 구분에 따른 공통코드 및 코드명을 조회한다.  -->
+    <sql name="LOGIN_SHR_04">
+        <description>로그인정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT
+            	   A.ENO_NO
+                 , A.PWD_NO
+                 , A.NAME   AS ENO_NM
+                 , B.END_YN
+              FROM ASNHR.T_CM_EMPLIST A
+         LEFT OUTER JOIN ASNHR.T_SU_SURVEY B ON A.ENO_NO = B.ENO_NO
+             WHERE  'hda'||A.ENO_NO  = ?
+
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : LOGINPOP
+* @description :  본인확인
+***********************************************************************
+* 2006/11/10      안준성        최초작성.
+***********************************************************************
+-->
+    <!-- 본인확인 -->
+    <sql name="LOGIN_SHR_05">
+        <description>사용자 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO, NAME, CET_NO, EM_PHN_NO,TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3') AS CMID,'암호변경' AS ETC1,'신인사시스템 비밀번호 변경 인증번호 ['||SMS_NUMBER || '] 입니다.' AS MSG_BODY, NAME as ENO_NM
+            FROM   ASNHR.T_CM_EMPLIST
+            WHERE  ENO_NO = ?
+              AND  (RET_YMD IS NULL OR RET_YMD >= SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+
+    <!--  난수발생  -->
+    <sql name="LOGIN_UPT_05">
+        <description>난수발생업데이트 </description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_EMPLIST
+            SET SMS_NUMBER = (SELECT ROUND(DBMS_RANDOM.VALUE(100000,999999)) FROM DUAL)
+            WHERE ENO_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!--문자메시지 테이블 정보를 넣어준다-->
+    <sql name="LOGIN_INS_05">
+        <description>문자메시지 테이블 정보</description>
+        <query>
+            <![CDATA[
+          INSERT INTO HDMGR.TSMSMSTR
+                 (CUST_CD
+                 ,PRCS_FLAG
+                 ,PRCS_YMD
+                 ,PRCS_TME
+                 ,PRCS_SEQ
+                 ,INV_NO
+                 ,PRCS_BRNSHP
+                 ,PRCS_EMP
+                 ,PRCS_PHONE
+                 ,TRAN_PR
+                 ,TRAN_REFKEY
+                 ,TRAN_ID
+                 ,TRAN_PHONE
+                 ,TRAN_CALLBACK
+                 ,TRAN_STATUS
+                 ,TRAN_DATE
+                 ,TRAN_RSLTDATE
+                 ,TRAN_REPORTDATE
+                 ,TRAN_RSLT
+                 ,TRAN_MSG
+                 ,TRAN_ETC1
+                 ,TRAN_ETC2
+                 ,TRAN_ETC3
+                 ,TRAN_ETC4
+                 ,TRAN_TYPE
+                 ,ETC1
+                 ,ETC2
+                 ,ETC3
+                 ,FLG1
+                 ,FLG2
+                 ,FLG3
+                 )
+           VALUES (''
+                 ,'001'
+                 ,TO_CHAR(SYSDATE,'YYYYMMDD')
+                 ,TO_CHAR(SYSDATE,'HH24MISS')
+                 ,'001'
+                 ,'123456'
+                 ,''
+                 , ?
+                 ,'0221703355'
+                 ,HDTSN.EM_TRAN_PR.NEXTVAL
+                 ,'P/W CHANGE'
+                 ,RPAD(HDTSN.EM_TRAN_PR.NEXTVAL, 20, '0')
+                 ,(SELECT REPLACE(TRIM(EM_PHN_NO),'-','') FROM T_CM_EMPLIST WHERE ENO_NO = ?)
+                 ,'0221703355'
+                 ,'0'
+                 ,SYSDATE
+                 ,''
+                 ,''
+                 ,''
+                 ,'신인사시스템 비밀번호 변경 인증번호 ['||(SELECT SMS_NUMBER FROM T_CM_EMPLIST WHERE ENO_NO = ?)||'] 입니다.'
+                 ,'A'
+                 ,''
+                 ,''
+                 ,''
+                 ,'0'
+                 ,'SKT'
+                 ,''
+                 ,''
+                 ,''
+                 ,''
+                 ,'HRMS'
+                 )
+             ]]>
+        </query>
+    </sql>
+
+
+        <!--  이름조회  -->
+    <sql name="LOGIN_SHR_06">
+        <description>이름조회 </description>
+        <query>
+            <![CDATA[
+            SELECT NAME
+            FROM T_CM_EMPLIST
+            WHERE ENO_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+        <!--  주민번호조회  -->
+    <sql name="LOGIN_SHR_07">
+        <description>주민번호조회 </description>
+        <query>
+            <![CDATA[
+            SELECT CET_NO
+            FROM T_CM_EMPLIST
+            WHERE ENO_NO = ?
+
+            ]]>
+        </query>
+    </sql>
+
+         <!-- 패스워드 초기화 -->
+    <sql name="LOGIN_UPT_06">
+        <description>패스워드업데이트</description>
+        <query>
+            <![CDATA[
+          UPDATE T_CM_EMPLIST
+          SET PWD_NO = SUBSTR(CET_NO, 8, 7),
+              PWD_HLC_CNT = 0
+          WHERE ENO_NO =  ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : CHGPWD
+* @description :  사용자 비밀번호 변경
+***********************************************************************
+* 2006/11/10      안준성        최초작성.
+***********************************************************************
+-->
+    <!-- 기존비밀번호  조회 -->
+    <sql name="CHGPWD_SHR">
+        <description>기존비밀번호 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO, A.PWD_NO, A.CET_NO
+            FROM   T_CM_EMPLIST A
+            WHERE  A.GUBUN = ?
+            AND    A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사용자 비밀번호 수정 -->
+    <sql name="CHGPWD_UPT">
+        <description>사용자 비밀번호 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_CM_EMPLIST
+            SET    PWD_NO  = ?,        	-- 비밀번호
+                   PWD_HLC_YMD = sysdate, -- 변경일
+                   UPT_MAN = ?,         -- 최종 수정자
+                   UPT_YMD = sysdate  	-- 최종 수정일시
+            WHERE  GUBUN   = ?
+            AND    ENO_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : USERAUTH
+* @description : 메뉴권한정보조회
+***********************************************************************
+* 2006/11/10      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 사용자의 권한 정보를 조회한다.  -->
+    <sql name="USERAUTH_SHR_00">
+        <description>사용자권한정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT COMM_CD, ROLE_CD
+            FROM   T_CM_EMPLIST
+            WHERE  GUBUN  = ?
+            AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사용자의 메뉴 권한 정보를 조회한다.(신인사시스템,경영정보시스템 공통)  -->
+    <sql name="USERAUTH_SHR_01">
+        <description>메뉴권한정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT *
+              FROM (SELECT J.GROUP_SEQ
+                         , J.MENU_LBL
+                         , J.MENU_NM
+                         , J.MENU_SEQ
+                         , J.MENU_ID
+                         , J.MENU_FLD
+                         , J.MENU_GBN
+                         , J.UPMENU_ID
+                         , J.FORM_ID
+                         , J.DISP_YN
+                         , J.BTN_01
+                         , J.BTN_02
+                         , J.BTN_03
+                         , J.BTN_04
+                         , J.BTN_05
+                         , J.BTN_06
+                         , NVL(E.MENU_CNT, NVL(J.MENU_CNT, 0)) AS MENU_CNT
+                      FROM (SELECT A.GROUP_SEQ
+                                 , A.MENU_LBL
+                                 , A.MENU_NM
+                                 , A.MENU_SEQ
+                                 , A.MENU_ID
+                                 , A.MENU_FLD
+                                 , A.MENU_GBN
+                                 , A.UPMENU_ID
+                                 , A.FORM_ID
+                                 , DECODE(MENU_GBN, 'm', A.MENU_ID, B.MENU_ID) AS DISP_YN
+                                 , B.BTN_01
+                                 , B.BTN_02
+                                 , B.BTN_03
+                                 , B.BTN_04
+                                 , B.BTN_05
+                                 , B.BTN_06
+                                 , B.MENU_CNT
+                              FROM (SELECT *
+                                      FROM T_CM_MENULST
+                                       [1]
+                                START WITH MENU_ID in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                CONNECT BY PRIOR MENU_ID = UPMENU_ID
+                                    ) A
+                                 , (SELECT MENU_ID
+                                         , BTN_01
+                                         , BTN_02
+                                         , BTN_03
+                                         , BTN_04
+                                         , BTN_05
+                                         , BTN_06
+                                         , 1 AS MENU_CNT
+                                      FROM T_CM_ROLEAUTH
+                                     WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                    , 1, ROLE_CD
+                                                                    , 2, LAW_AUTHO
+                                                                    , 3, EIS_AUTHO
+                                                                    , 4, L3_AUTHO ) AS ROLE_CD
+                                                         FROM (SELECT 1 AS NUM FROM DUAL
+                                                                UNION
+                                                               SELECT 2 AS NUM FROM DUAL
+                                                                UNION
+                                                               SELECT 3 AS NUM FROM DUAL
+                                                                UNION
+                                                               SELECT 4 AS NUM FROM DUAL
+                                                               ) A
+                                                            , (SELECT ROLE_CD
+                                                                    , DECODE( LAW_AUTHO
+                                                                            , 'M'   , '2010'
+                                                                            , NULL  , ''
+                                                                            , '2011' ) AS LAW_AUTHO
+                                                                    , DECODE(EIS_AUTHO, 'M', '2020') AS EIS_AUTHO
+                                                                    , DECODE(L3_AUTHO,  'M', '2021','A', '2022') AS L3_AUTHO
+                                                                 FROM T_CM_EMPLIST
+                                                                WHERE ENO_NO = ?
+                                                               ) B
+                                                       )
+                                       AND MENU_ID IN (SELECT MENU_ID
+                                                         FROM T_CM_ROLEAUTH
+                                                        WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                                       , 1, ROLE_CD
+                                                                                       , 2, LAW_AUTHO
+                                                                                       , 3, EIS_AUTHO
+                                                                                       , 4, L3_AUTHO ) AS ROLE_CD
+                                                                            FROM (SELECT 1 AS NUM FROM DUAL
+                                                                                   UNION
+                                                                                  SELECT 2 AS NUM FROM DUAL
+                                                                                   UNION
+                                                                                  SELECT 3 AS NUM FROM DUAL
+                                                                                   UNION
+                                                                                  SELECT 4 AS NUM FROM DUAL
+                                                                                  ) A
+                                                                               , (SELECT ROLE_CD
+                                                                                       , DECODE( LAW_AUTHO
+                                                                                               , 'M'   , '2010'
+                                                                                               , NULL  , ''
+                                                                                               , '2011' ) AS LAW_AUTHO
+                                                                                       , DECODE(EIS_AUTHO, 'M', '2020') AS EIS_AUTHO
+                                                                                       , DECODE(L3_AUTHO,  'M', '2021','A', '2022') AS L3_AUTHO
+                                                                                    FROM T_CM_EMPLIST
+                                                                                   WHERE ENO_NO = ?
+                                                                                  ) B
+                                                                          )
+                                                        MINUS
+                                                       --개인메뉴에서 설정한 모든 메뉴는 제외한다.
+                                                       SELECT MENU_ID
+                                                         FROM T_CM_USERAUTH
+                                                        WHERE ENO_NO = ?
+                                                       )
+                                     UNION
+                                    --추가시킬 메뉴를 추가
+                                    SELECT MENU_ID
+                                         , BTN_01
+                                         , BTN_02
+                                         , BTN_03
+                                         , BTN_04
+                                         , BTN_05
+                                         , BTN_06
+                                         , 1 AS MENU_CNT
+                                      FROM T_CM_USERAUTH
+                                     WHERE ENO_NO = ?
+                                       AND ADD_GBN = 'P'
+                                    ) B
+                             WHERE A.MENU_ID = B.MENU_ID (+)
+                            ) J
+
+                         --메뉴별 사용가능한 갯수 가져오기
+                         , (SELECT DISTINCT MENU_ID
+                                 , 1 AS MENU_CNT
+                              FROM T_CM_MENULST
+                        START WITH MENU_ID IN (SELECT MENU_ID
+                                                 FROM T_CM_ROLEAUTH
+                                                WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                               , 1, ROLE_CD
+                                                                               , 2, LAW_AUTHO
+                                                                               , 3, L3_AUTHO ) AS ROLE_CD
+                                                                    FROM (SELECT 1 AS NUM FROM DUAL
+                                                                           UNION
+                                                                          SELECT 2 AS NUM FROM DUAL
+                                                                           UNION
+                                                                          SELECT 3 AS NUM FROM DUAL
+                                                                          ) A
+                                                                       , (SELECT ROLE_CD
+                                                                               , DECODE( LAW_AUTHO
+                                                                                       , 'M'   , '2010'
+                                                                                       , NULL  , ''
+                                                                                       , '2011' ) AS LAW_AUTHO
+                                                                               , DECODE(L3_AUTHO,  'M', '2021','A', '2022') AS L3_AUTHO
+                                                                            FROM T_CM_EMPLIST
+                                                                           WHERE ENO_NO = ?
+                                                                          ) B
+                                                                  )
+                                                  AND MENU_ID IN (SELECT MENU_ID
+                                                                    FROM T_CM_ROLEAUTH
+                                                                   WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                                                  , 1, ROLE_CD
+                                                                                                  , 2, LAW_AUTHO
+                                                                                                  , 3, L3_AUTHO ) AS ROLE_CD
+                                                                                       FROM (SELECT 1 AS NUM FROM DUAL
+                                                                                              UNION
+                                                                                             SELECT 2 AS NUM FROM DUAL
+                                                                                              UNION
+                                                                                             SELECT 3 AS NUM FROM DUAL
+                                                                                             ) A
+                                                                                          , (SELECT ROLE_CD
+                                                                                                  , DECODE( LAW_AUTHO
+                                                                                                          , 'M'   , '2010'
+                                                                                                          , NULL  , ''
+                                                                                                          , '2011' ) AS LAW_AUTHO
+                                                                                                  , DECODE(L3_AUTHO,  'M', '2021','A', '2022') AS L3_AUTHO
+                                                                                               FROM T_CM_EMPLIST
+                                                                                              WHERE ENO_NO = ?
+                                                                                             ) B
+                                                                                     )
+                                                                   MINUS
+                                                                  --개인메뉴에서 설정한 모든 메뉴는 제외한다.
+                                                                  SELECT MENU_ID
+                                                                    FROM T_CM_USERAUTH
+                                                                   WHERE ENO_NO = ?
+                                                                  )
+                                                UNION
+                                               --추가시킬 메뉴를 추가
+                                               SELECT MENU_ID
+                                                 FROM T_CM_USERAUTH
+                                                WHERE ENO_NO = ?
+                                                  AND ADD_GBN = 'P'
+                                               )
+                        CONNECT BY MENU_ID =  PRIOR UPMENU_ID
+                            ) E
+
+                     WHERE J.MENU_ID = E.MENU_ID (+)
+                    )
+             WHERE MENU_CNT != 0
+               AND DISP_YN IS NOT NULL          -- 사용자 권한없는 FORM 메뉴를 제거하기 위함
+          ORDER BY GROUP_SEQ
+                 , MENU_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 즐겨찾기(신인사시스템)  -->
+    <sql name="USERAUTH_SHR_02">
+        <description>즐겨찾기</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                 , MENU_ID
+                 , MENU_NM
+                 , MENU_SEQ
+                 , GROUP_ID
+                 , GROUP_SEQ
+                 , UPMENU_ID
+                 , MENU_LBL
+                 , FORM_ID
+                 , MENU_FLD
+                 , MENU_GBN
+              FROM (SELECT M.*
+                      FROM (SELECT ENO_NO
+                                 , MENU_ID
+                                 , MENU_NM
+                                 , MENU_SEQ
+                                 , GROUP_ID
+                                 , GROUP_SEQ
+                                 , UPMENU_ID
+                                 , MENU_LBL
+                                 , FORM_ID
+                                 , MENU_FLD
+                                 , MENU_GBN
+                              FROM T_CM_FAVORITES
+                             WHERE ENO_NO = ?
+                               AND MENU_GBN = 'f'
+                            ) M
+                         , (SELECT MENU_ID
+                              FROM T_CM_ROLEAUTH
+                             WHERE /*ROLE_CD IN (SELECT DECODE( A.NUM
+                                                            , 1, ROLE_CD
+                                                            , 2, LAW_AUTHO
+                                                            , 3, L3_AUTHO ) AS ROLE_CD
+                                                 FROM (SELECT 1 AS NUM FROM DUAL
+                                                        UNION
+                                                       SELECT 2 AS NUM FROM DUAL
+                                                        UNION
+                                                       SELECT 3 AS NUM FROM DUAL
+                                                       ) A
+                                                    , (SELECT ROLE_CD
+                                                            , DECODE( LAW_AUTHO
+                                                                    , 'M'   , '2010'
+                                                                    , NULL  , ''
+                                                                    , '2011' ) AS LAW_AUTHO
+                                                            , DECODE(L3_AUTHO,  'M', '2021','A','2022') AS L3_AUTHO
+                                                         FROM T_CM_EMPLIST
+                                                        WHERE ENO_NO = '1111111'  -- 임시사번
+                                                       ) B
+                                               )
+                               AND */ MENU_ID IN (SELECT MENU_ID
+                                                 FROM T_CM_ROLEAUTH
+                                                WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                               , 1, ROLE_CD
+                                                                               , 2, LAW_AUTHO
+                                                                               , 3, L3_AUTHO ) AS ROLE_CD
+                                                                    FROM (SELECT 1 AS NUM FROM DUAL
+                                                                           UNION
+                                                                          SELECT 2 AS NUM FROM DUAL
+                                                                           UNION
+                                                                          SELECT 3 AS NUM FROM DUAL
+                                                                          ) A
+                                                                       , (SELECT ROLE_CD
+                                                                               , DECODE( LAW_AUTHO
+                                                                                       , 'M'   , '2010'
+                                                                                       , NULL  , ''
+                                                                                       , '2011' ) AS LAW_AUTHO
+                                                                               , DECODE(L3_AUTHO,  'M', '2021','A','2022') AS L3_AUTHO
+                                                                            FROM T_CM_EMPLIST
+                                                                           WHERE ENO_NO = ?
+                                                                          ) B
+                                                                  )
+                                                MINUS
+                                               --개인메뉴에서 설정한 모든 메뉴는 제외한다.
+                                               SELECT MENU_ID
+                                                 FROM T_CM_USERAUTH
+                                                WHERE ENO_NO = ?
+                                               )
+                             UNION
+                            --추가시킬 메뉴를 추가
+                            SELECT MENU_ID
+                              FROM T_CM_USERAUTH
+                             WHERE ENO_NO = ?
+                               AND ADD_GBN = 'P'
+                            ) N
+                     WHERE M.MENU_ID = N.MENU_ID
+                   )
+             UNION
+            SELECT ENO_NO
+                 , MENU_ID
+                 , MENU_NM
+                 , MENU_SEQ
+                 , GROUP_ID
+                 , GROUP_SEQ
+                 , UPMENU_ID
+                 , MENU_LBL
+                 , FORM_ID
+                 , MENU_FLD
+                 , MENU_GBN
+              FROM T_CM_FAVORITES
+             WHERE ENO_NO = ?
+               AND MENU_GBN = 'm'
+          ORDER BY GROUP_SEQ
+                 , MENU_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사용자가 사용가능한 상위 메뉴를 가지고 온다.  -->
+    <sql name="USERAUTH_SHR_03">
+        <description>사용자권한정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT MENU_ID
+                 , GROUP_SEQ
+              FROM T_CM_MENULST
+             WHERE MENU_LBL = '1'
+               AND MENU_ID <> 'eis'
+          ORDER BY GROUP_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- EIS 사용자가 사용가능한 상위 메뉴를 가지고 온다.  -->
+    <sql name="USERAUTH_SHR_04">
+        <description>EIS 사용자권한정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT SUM(DECODE(SUBSTR(MENU_ID, 1, 4), 'eisa', 1, 0)) AS EIS_CNT_1
+                 , SUM(DECODE(SUBSTR(MENU_ID, 1, 4), 'eisb', 1, 0)) AS EIS_CNT_2
+                 , SUM(DECODE(SUBSTR(MENU_ID, 1, 4), 'eisc', 1, 0)) AS EIS_CNT_3
+                 , SUM(DECODE(SUBSTR(MENU_ID, 1, 4), 'eisd', 1, 0)) AS EIS_CNT_4
+              FROM (SELECT MENU_ID
+                      FROM T_CM_ROLEAUTH
+                     WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                    , 1, ROLE_CD
+                                                    , 2, LAW_AUTHO
+                                                    , 3, EIS_AUTHO
+                                                    , 4, L3_AUTHO ) AS ROLE_CD
+                                         FROM (SELECT 1 AS NUM FROM DUAL
+                                                UNION
+                                               SELECT 2 AS NUM FROM DUAL
+                                                UNION
+                                               SELECT 3 AS NUM FROM DUAL
+                                                UNION
+                                               SELECT 4 AS NUM FROM DUAL
+                                               ) A
+                                            , (SELECT ROLE_CD
+                                                    , DECODE( LAW_AUTHO
+                                                            , 'M'   , '2010'
+                                                            , NULL  , ''
+                                                            , '2011' ) AS LAW_AUTHO
+                                                    , DECODE(EIS_AUTHO, 'M', '2020') AS EIS_AUTHO
+                                                    , DECODE(L3_AUTHO,  'M', '2021','A','2022') AS L3_AUTHO
+                                                 FROM T_CM_EMPLIST
+                                                WHERE ENO_NO = ?
+                                               ) B
+                                       )
+                       AND MENU_ID IN (SELECT MENU_ID
+                                         FROM T_CM_ROLEAUTH
+                                        WHERE ROLE_CD IN (SELECT DECODE( A.NUM
+                                                                       , 1, ROLE_CD
+                                                                       , 2, LAW_AUTHO
+                                                                       , 3, EIS_AUTHO
+                                                                       , 4, L3_AUTHO ) AS ROLE_CD
+                                                            FROM (SELECT 1 AS NUM FROM DUAL
+                                                                   UNION
+                                                                  SELECT 2 AS NUM FROM DUAL
+                                                                   UNION
+                                                                  SELECT 3 AS NUM FROM DUAL
+                                                                   UNION
+                                                                  SELECT 4 AS NUM FROM DUAL
+                                                                  ) A
+                                                               , (SELECT ROLE_CD
+                                                                       , DECODE( LAW_AUTHO
+                                                                               , 'M'   , '2010'
+                                                                               , NULL  , ''
+                                                                               , '2011' ) AS LAW_AUTHO
+                                                                       , DECODE(EIS_AUTHO, 'M', '2020') AS EIS_AUTHO
+                                                                       , DECODE(L3_AUTHO,  'M', '2021','A','2022') AS L3_AUTHO
+                                                                    FROM T_CM_EMPLIST
+                                                                   WHERE ENO_NO = ?
+                                                                  ) B
+                                                          )
+                                        MINUS
+                                       --개인메뉴에서 설정한 모든 메뉴는 제외한다.
+                                       SELECT MENU_ID
+                                         FROM T_CM_USERAUTH
+                                        WHERE ENO_NO = ?
+                                       )
+                     UNION
+                    --추가시킬 메뉴를 추가
+                    SELECT MENU_ID
+                      FROM T_CM_USERAUTH
+                     WHERE ENO_NO = ?
+                       AND ADD_GBN = 'P'
+                    )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- sso  -->
+    <sql name="USERAUTH_SHR_05">
+        <description>sso</description>
+        <query>
+            <![CDATA[
+            SELECT MENU_ID, FORM_ID, MENU_NM, MENU_FLD, MENU_GBN
+            FROM   T_CM_MENULST
+            WHERE  GUBUN   = ?
+            AND    MENU_ID = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : ACHPNT
+* @description : 달성도배점정보조회
+***********************************************************************
+* 2006/11/10      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 달성도배점정보를 조회한다.  -->
+    <sql name="ACHPNT_SHR">
+        <description>달성도배점정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT EVL_YY      ,                   -- 해당년도
+                   RATE_OVER   ,                   -- 달성율(이상)
+                   RATE_UNDER  ,                   -- 달성율(미만)
+                   ACH_PNT     ,                   -- 배점
+                   GAUGE_THM   ,                   -- 계량지표
+                   NONGAUGE_THM                    -- 비계량지표
+            FROM   T_EV_ACHPNT
+            WHERE  GUBUN  = ?
+            AND    EVL_YY = ?
+            ORDER BY RATE_OVER
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : EMPL2
+* @description : 사원정보조회
+***********************************************************************
+* 2006/11/30      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 사원코드/명에 해당하는 부서와 직책을 조회한다.  -->
+    <sql name="EMPL2_SHR">
+        <description>사원코드/명 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                    -- 사번
+                   ENO_NM,                                                    -- 성명
+                   TO_CHAR(HIRG_YMD, 'YYYY-MM-DD')        AS HIRG_YMD,        -- 입사일
+                   TO_CHAR(DPA_YMD, 'YYYY-MM-DD')         AS DPA_YMD,         -- 소속발령일
+                   OCC_CD,                                                    -- 직종코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A1', OCC_CD)   AS OCC_NM,          -- 직종명
+                   HEAD_CD,                                                   -- 본부코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN, 'B2', HEAD_CD)  AS HEAD_NM,         -- 본부명
+                   DPT_CD,                                                    -- 부서코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN,  'A4', DPT_CD)   AS DPT_NM,          -- 부서명
+                   JOB_CD,                                                    -- 직위코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A2', JOB_CD)   AS JOB_NM,          -- 직위명
+                   HOB_CD,                                                    -- 호봉코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A3', HOB_CD)   AS HOB_NM,          -- 호봉명
+                   CET_NO,
+                   TO_CHAR(HIR_YMD, 'YYYY-MM-DD')         AS HIR_YMD,
+                   TO_CHAR(RET_YMD, 'YYYY-MM-DD')         AS RET_YMD,
+                   MF_TAG
+            FROM ( SELECT A.GUBUN, A.ENO_NO,  A.NAME AS ENO_NM,
+                          DECODE(B.ENO_NO, NULL, TO_DATE(A.HIR_YMD, 'YYYY-MM-DD HH24:MI:SS'), B.HIRG_YMD) AS HIRG_YMD,
+                          DECODE(B.ENO_NO, NULL, TO_DATE(NULL, 'YYYY-MM-DD HH24:MI:SS'),      B.DPA_YMD)  AS DPA_YMD,
+                          DECODE(B.ENO_NO, NULL, A.OCC_CD,  B.OCC_CD)            AS OCC_CD,
+                          DECODE(B.ENO_NO, NULL, A.HEAD_CD, B.HEAD_CD)           AS HEAD_CD,
+                          DECODE(B.ENO_NO, NULL, A.DPT_CD,  B.DPT_CD)            AS DPT_CD,
+                          DECODE(B.ENO_NO, NULL, A.JOB_CD,  B.JOB_CD)            AS JOB_CD,
+                          DECODE(B.ENO_NO, NULL, NULL,      B.HOB_CD)            AS HOB_CD,
+                          B.CET_NO,
+                          TO_DATE(A.HIR_YMD, 'YYYY-MM-DD HH24:MI:SS')            AS HIR_YMD,
+                          TO_DATE(A.RET_YMD, 'YYYY-MM-DD HH24:MI:SS')            AS RET_YMD,
+                          B.MF_TAG
+                   FROM   ASNHR.T_CM_EMPLIST A,
+                         (SELECT GUBUN, ENO_NO, HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG
+                          FROM   ASNHR.T_CM_PERSON
+                          UNION ALL
+                          SELECT '01' AS GUBUN, ENO_NO, HIR_YMD HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG
+                          FROM   ASNHR.T_ME_PERSON
+                         )  B
+                   WHERE  (A.RET_YMD IS NULL
+                   OR      A.RET_YMD >= sysdate)
+                   AND    (A.ENO_NO  LIKE '%'||?||'%'
+                   OR      A.NAME    LIKE '%'||?||'%')
+                   AND    A.GUBUN    = B.GUBUN(+)
+                   AND    A.ENO_NO   = B.ENO_NO(+)
+                 )
+            ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : DPTSEL
+* @description : 부서트리조회
+***********************************************************************
+* 2007/02/08      오대성        최초작성.
+***********************************************************************
+-->
+	<!-- 부서정보 트리구성 데이터 조회 -->
+    <sql name="DPTSEL_SHR">
+        <description>부서 트리 조회</description>
+        <query>
+            <![CDATA[
+            SELECT GUBUN
+                 , CD_GBN
+                 , DPT_CD
+                 , DPT_NM
+                 , UPDPT_CD
+                 , DOWNDPT_CD
+                 , DPT_LBL
+                 , COUNT_REM
+                 , NON_DELI
+                 , TO_CHAR(IPT_YMD, 'YYYY-MM-DD') AS IPT_YMD
+              FROM ASNHR.T_CM_DEPT
+             WHERE (DPT_LBL = '2' OR DPT_LBL = '3')
+               AND END_YMD IS NULL
+               AND (SORT_NO BETWEEN 100 AND 750 OR DPT_CD = 'IT')
+          ORDER BY COUNT_REM
+                 , IPT_YMD
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : ACCESSLOG
+* @description : 프로그램 사용 로그 정보 저장
+***********************************************************************
+* 2007/02/13      오대성        최초작성.
+***********************************************************************
+-->
+    <!-- 프로그램 사용 로그 정보를 저장한다.  -->
+    <sql name="ACCESSLOG_INS">
+        <description>프로그램 사용 로그 정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO ASNHR.T_CM_ACCESSLOG
+            ( ACCESS_TIME,
+              SESS_ID,
+              PROG_ID,
+              ENO_NO,
+              ENO_NM,
+              DPT_CD,
+              JOB_CD,
+              IPADDRESS,
+              ACT_GBN )
+            VALUES
+            ( TO_CHAR(CURRENT_TIMESTAMP(7),'YYYY-MM-DD HH24:MI:SS.FF'),
+              ?,
+			  ?,
+			  ?,
+			  ?,
+			  ?,
+			  ?,
+			  ?,
+			  ? )
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : LCTR
+* @description : 강사정보조회
+***********************************************************************
+* 2007/03/02      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 강사정보를 조회한다.  -->
+    <sql name="LCTR_SHR">
+        <description>강사정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NM,
+                   CET_NO,
+                   LCT_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'Q9', LCT_CD)                AS LCT_NM,
+                   REPLACE(LCT_Q5_GBN, '|', ', ')                     AS LCT_Q5_GBN,
+                   REPLACE(SF_GET_LCTQ5NAME(LCT_Q5_GBN), '|', ', ')   AS LCT_Q5_NM,
+                   ENO_NO
+            FROM   ASNHR.T_ED_LCTRLIST
+            WHERE  ENO_NM  LIKE '%'||?||'%'
+            OR     CET_NO  LIKE '%'||?||'%'
+          ORDER BY ENO_NM
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : EMPL2
+* @description : 사원정보조회
+***********************************************************************
+* 2006/11/30      박인이        최초작성.
+***********************************************************************
+-->
+    <!-- 사원코드/명에 해당하는 부서와 직책을 조회한다.  -->
+    <sql name="EMPL2_SHR_01">
+        <description>사원코드/명 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                    -- 사번
+                   ENO_NM,                                                    -- 성명
+                   OCC_CD,                                                    -- 직종코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A1', OCC_CD)   AS OCC_NM,          -- 직종명
+                   HEAD_CD,                                                   -- 본부코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN, 'B2', HEAD_CD)  AS HEAD_NM,         -- 본부명
+                   DPT_CD,                                                    -- 부서코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN,  'A4', DPT_CD)   AS DPT_NM,          -- 부서명
+                   JOB_CD,                                                    -- 직위코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A2', JOB_CD)   AS JOB_NM,          -- 직위명
+                   HOB_CD,                                                    -- 호봉코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A3', HOB_CD)   AS HOB_NM,          -- 호봉명
+                   CET_NO,
+                   MF_TAG
+            FROM ( SELECT A.GUBUN, A.ENO_NO,  A.NAME AS ENO_NM,
+                          DECODE(B.ENO_NO, NULL, A.OCC_CD,  B.OCC_CD)            AS OCC_CD,
+                          DECODE(B.ENO_NO, NULL, A.HEAD_CD, B.HEAD_CD)           AS HEAD_CD,
+                          DECODE(B.ENO_NO, NULL, A.DPT_CD,  B.DPT_CD)            AS DPT_CD,
+                          DECODE(B.ENO_NO, NULL, A.JOB_CD,  B.JOB_CD)            AS JOB_CD,
+                          DECODE(B.ENO_NO, NULL, NULL,      B.HOB_CD)            AS HOB_CD,
+                          B.CET_NO,
+                          B.MF_TAG
+                   FROM   ASNHR.T_CM_EMPLIST A,
+                         (SELECT GUBUN, ENO_NO, HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG
+                          FROM   ASNHR.T_CM_PERSON
+                          UNION ALL
+                          SELECT '01' AS GUBUN, ENO_NO, HIR_YMD HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG
+                          FROM   ASNHR.T_ME_PERSON
+                         )  B
+                   WHERE  A.RET_YMD IS NULL
+                   AND    (A.ENO_NO  LIKE '%'||?||'%'
+                   OR      A.NAME    LIKE '%'||?||'%')
+                   AND    A.GUBUN    = B.GUBUN(+)
+                   AND    A.ENO_NO   = B.ENO_NO(+)
+                 )
+
+            ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원코드/명에 해당하는 부서와 직책을 조회한다.(퇴사자포함)  -->
+    <sql name="EMPL2_SHR_02">
+        <description>사원코드/명 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,                                                    -- 사번
+                   ENO_NM,                                                    -- 성명
+                   OCC_CD,                                                    -- 직종코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A1', OCC_CD)   AS OCC_NM,          -- 직종명
+                   HEAD_CD,                                                   -- 본부코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN, 'B2', HEAD_CD)  AS HEAD_NM,         -- 본부명
+                   DPT_CD,                                                    -- 부서코드
+                   ASNHR.SF_GET_DPTNAME(GUBUN,  'A4', DPT_CD)   AS DPT_NM,          -- 부서명
+                   JOB_CD,                                                    -- 직위코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A2', JOB_CD)   AS JOB_NM,          -- 직위명
+                   HOB_CD,                                                    -- 호봉코드
+                   ASNHR.SF_GET_COMMNAME(GUBUN, 'A3', HOB_CD)   AS HOB_NM,          -- 호봉명
+                   CET_NO,
+                   MF_TAG,
+                   EM_PHN_NO
+            FROM ( SELECT A.GUBUN, A.ENO_NO,  A.NAME AS ENO_NM,
+                          DECODE(B.ENO_NO, NULL, A.OCC_CD,  B.OCC_CD)            AS OCC_CD,
+                          DECODE(B.ENO_NO, NULL, A.HEAD_CD, B.HEAD_CD)           AS HEAD_CD,
+                          DECODE(B.ENO_NO, NULL, A.DPT_CD,  B.DPT_CD)            AS DPT_CD,
+                          DECODE(B.ENO_NO, NULL, A.JOB_CD,  B.JOB_CD)            AS JOB_CD,
+                          DECODE(B.ENO_NO, NULL, NULL,      B.HOB_CD)            AS HOB_CD,
+                          B.CET_NO,
+                          B.MF_TAG,
+                          b.EM_PHN_NO
+                   FROM   ASNHR.T_CM_EMPLIST A,
+                         (SELECT GUBUN, ENO_NO, HIR_YMD, HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG,EM_PHN_NO
+                          FROM   ASNHR.T_CM_PERSON
+                          UNION ALL
+                          SELECT '01' AS GUBUN, ENO_NO, HIR_YMD, HIR_YMD HIRG_YMD, DPA_YMD, OCC_CD, HEAD_CD, DPT_CD, JOB_CD, HOB_CD, CET_NO, MF_TAG,EM_PHN_NO
+                          FROM   ASNHR.T_ME_PERSON
+                         )  B
+                   WHERE  (A.ENO_NO  LIKE '%'||?||'%'
+                   OR      A.NAME    LIKE '%'||?||'%')
+                   AND    A.GUBUN    = B.GUBUN(+)
+                   AND    A.ENO_NO   = B.ENO_NO(+)
+                 )
+
+            ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 임원 사원코드/명에 해당하는 부서와 직책을 조회한다.  -->
+    <sql name="EMPL2_SHR_03">
+        <description>사원코드/명 조회</description>
+        <query>
+            <![CDATA[
+		      SELECT ENO_NO,                                                    -- 사번
+		             ENO_NM,                                                    -- 성명
+		             HEAD_CD,                                                   -- 본부코드
+		             ASNHR.SF_GET_DPTNAME(GUBUN, 'B2', HEAD_CD)  AS HEAD_NM,          -- 본부명
+		             DPT_CD,                                                    -- 부서코드
+		             ASNHR.SF_GET_DPTNAME(GUBUN,  'A4', DPT_CD)   AS DPT_NM,          -- 부서명
+		             JOB_CD,                                                    -- 직위코드
+		             ASNHR.SF_GET_COMMNAME(GUBUN, 'A2', JOB_CD)   AS JOB_NM           -- 직위명
+		      FROM ( SELECT A.GUBUN, A.ENO_NO,  A.NAME AS ENO_NM,
+		                    A.HEAD_CD AS HEAD_CD,
+		                    A.DPT_CD  AS DPT_CD,
+		                    A.JOB_CD  AS JOB_CD
+		             FROM   ASNHR.T_CM_EMPLIST A
+		             WHERE  (A.ENO_NO  LIKE '%'||?||'%'
+		             OR      A.NAME    LIKE '%'||?||'%')
+		             AND A.JOB_CD IN ('060','080','120')
+		             AND A.RET_YMD IS NULL
+		           )
+		      ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+		             , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+		             , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : EMPL3
+* @description : 파견사원정보조회
+***********************************************************************
+* 2007/03/05      오대성        최초작성.
+***********************************************************************
+-->
+	<!-- 파견사원정보조회 -->
+    <sql name="EMPL3_SHR">
+        <description>파견사원정보조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO,
+                   ENO_NM,
+                   TO_CHAR(DPA_YMD, 'YYYY-MM-DD')        AS DPA_YMD,
+                   OCC_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'A1', OCC_CD)   AS OCC_NM,
+                   HEAD_CD,
+                   ASNHR.SF_GET_DPTNAME('01', 'B2', HEAD_CD)  AS HEAD_NM,
+                   DPT_CD,
+                   ASNHR.SF_GET_DPTNAME('01',  'A4', DPT_CD)   AS DPT_NM,
+                   JOB_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD)   AS JOB_NM,
+                   HOB_CD,
+                   ASNHR.SF_GET_COMMNAME('01', 'A3', HOB_CD)   AS HOB_NM,
+                   CET_NO,
+                   TO_CHAR(HIR_YMD, 'YYYY-MM-DD')        AS HIR_YMD,
+                   MF_TAG
+            FROM   ASNHR.T_ME_PERSON
+            WHERE ( ENO_NO  LIKE '%'||?||'%'
+            OR      ENO_NM  LIKE '%'||?||'%' )
+            [1]
+
+            ORDER BY ASNHR.SF_GET_DPTSEQ( '01', 'A4', DPT_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A2', JOB_CD)
+                   , ASNHR.SF_GET_COMMSEQ('01', 'A3', HOB_CD) DESC
+                   , ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : FILE
+* @description : 파일 업로드 관련
+***********************************************************************
+* 2016/07/22      이동훈                  ERP 이사
+***********************************************************************
+-->
+
+    <!-- 시퀀스 조회 -->
+    <sql name="FILE_SHR_SEQ">
+        <description>시퀀스 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ASNHR.S_T_CM_FILEUPLOAD.NEXTVAL AS SEQ_NO
+              FROM DUAL
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파일 업로드 내역 조회 -->
+    <sql name="FILE_SHR">
+        <description>파일 업로드 내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT KEY
+                 , SEQ_NO
+                 , FILE_NAME
+                 , FILE_URL
+                 , FILE_URL AS UPLOAD_URL
+              FROM ASNHR.T_CM_FILEUPLOAD
+             WHERE KEY      = ?
+               AND SEQ_NO   = NVL(?, SEQ_NO)
+          ORDER BY IPT_YMD ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파일 업로드 내역 등록 -->
+    <sql name="FILE_INS">
+        <description>파일 업로드 내역 등록</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_CM_FILEUPLOAD
+                 ( KEY
+                 , SEQ_NO
+                 , FILE_NAME
+                 , FILE_URL
+                 , IPT_MAN
+                 , IPT_YMD
+                 , UPT_MAN
+                 , UPT_YMD)
+            VALUES
+                 ( ?
+                 , ?
+                 , ?
+                 , ?
+                 , ?
+                 , SYSDATE
+                 , ?
+                 , SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 파일 업로드 내역 삭제 -->
+    <sql name="FILE_DEL">
+        <description>파일 업로드 내역 조회</description>
+        <query>
+            <![CDATA[
+            DELETE
+              FROM ASNHR.T_CM_FILEUPLOAD
+             WHERE KEY      = ?
+               AND SEQ_NO   = NVL(?, SEQ_NO)
+            ]]>
+        </query>
+    </sql>
+
+
+
+ <!--
+***********************************************************************
+* @UseCase     : WORLD_CITY
+* @description : 세계국가, 도시 관련
+***********************************************************************
+* 2010/03/12      임종태        최초작성.
+***********************************************************************
+-->
+
+    <!-- 시퀀스 조회 -->
+    <sql name="NAT_SHR">
+        <description>국가 조회</description>
+        <query>
+            <![CDATA[
+		SELECT DISTINCT NAT_CD, NAT_NM
+		FROM ASNHR.T_CM_WORLD_CITY
+		ORDER BY NAT_NM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 도시 내역 조회 -->
+    <sql name="CITY_SHR">
+        <description>도시 내역 조회</description>
+        <query>
+            <![CDATA[
+		SELECT NAT_CD, NAT_NM, CITY_CD, CITY_NM
+		FROM ASNHR.T_CM_WORLD_CITY
+		WHERE NAT_CD = ?
+		ORDER BY CITY_NM
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>HDAsan</display-name>
+  <filter>
+    <filter-name>GauceFilter</filter-name>
+    <filter-class>com.gauce.filter.GauceFilter</filter-class>
+    <init-param>
+      <param-name>conf-reload</param-name>
+      <param-value>5000</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>GauceFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  
+  
+  <listener>
+    <listener-class>com.shift.gef.listener.GefListener</listener-class>
+  </listener>
+  
+
+
+  <servlet>
+    <servlet-name>ServletServlet</servlet-name>
+    <servlet-class>weblogic.servlet.ServletServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+	  <servlet-name>AriveLoginServlet</servlet-name>
+	  <servlet-class>common.sys.AriveLoginServlet</servlet-class>
+	  <init-param>
+	    <param-name>ImageType</param-name>
+	    <param-value>JPG</param-value> <!-- valid values are JPG, JPEG, and PNG -->
+	  </init-param>
+	  <load-on-startup>0</load-on-startup>
+  </servlet>
+
+
+
+
+  <servlet>
+    <servlet-name>JspChannelSVL</servlet-name>
+    <servlet-class>com.shift.gef.jsp.servlet.JspChannelSVL</servlet-class>
+    <load-on-startup>0</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>DownloadSVL</servlet-name>
+    <servlet-class>com.shift.gef.jsp.servlet.DownloadSVL</servlet-class>
+    <load-on-startup>0</load-on-startup>
+  </servlet>  
+  
+    <servlet>
+    <servlet-name>GauceChannelSVL</servlet-name>
+    <servlet-class>com.shift.gef.gauce.servlet.GauceChannelSVL</servlet-class>
+    <load-on-startup>0</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>JspChannelSVL</servlet-name>
+    <url-pattern>/servlet/JspChannelSVL</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>DownloadSVL</servlet-name>
+    <url-pattern>/servlet/DownloadSVL</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet-mapping>
+    <servlet-name>GauceChannelSVL</servlet-name>
+    <url-pattern>/servlet/GauceChannelSVL</url-pattern>
+  </servlet-mapping>  
+
+
+  <servlet-mapping>
+    <servlet-name>ServletServlet</servlet-name>
+    <url-pattern>/servlet/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+	<servlet-name>AriveLoginServlet</servlet-name>
+    <url-pattern>/arivels</url-pattern>
+  </servlet-mapping>
+  
+  
+  
+  <welcome-file-list>
+    <welcome-file>newIndeX.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>

@@ -1,0 +1,317 @@
+<!---------------------------------------------------------------------------
++ 시 스 템 명	:  재무회계관리 - 거래처코드1	
++ 프로그램 ID	:  Gczm_vender_poopup1.html
++ 기 능 정 의	:  거래처코드 팝업창1
++ 작   성  자 :  구자헌
++ 작 성 일 자 :  2006.04.13
+-----------------------------------------------------------------------------
++ 서 블 릿 명	: 
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title>거래처코드조회</title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+var parentGubun="";
+var gs_strGubun =""; //전표유무
+get_cookdata();
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+  
+	var strParam = new Array();
+	strParam=window.dialogArguments;
+	
+	if(strParam.length==0){
+
+	}else if(strParam.length==1){
+		gs_strGubun = strParam[0];
+		//ln_Query();
+	}else if(strParam.length==2) {
+    gs_strGubun = strParam[0];
+		txt_vend_nm.value=strParam[1];
+		//alert("txt_vend_nm"+txt_vend_nm.value);
+		if(txt_vend_nm.value==""){
+		}else{
+			//ln_Query();
+		}
+	}
+
+	//계정구분
+	gcds_comcode01.DataID =  g_servlet+"/Account.vendcode_s1?v_str1=";
+	//prompt("",gcds_comcode01.DataID);
+	gcds_comcode01.Reset();
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(){
+
+	gcds_code02.clearall();
+	ln_SetDataHeader();
+
+	gcds_code01.DataID =  g_servlet+"/Account.a010003_s0?v_str1="+txt_vend_cd.value+"&v_str2="+txt_vend_nm.value
+	                                                 // +"&v_str3="+gclx_atdiv.Bindcolval+"&v_str4="+gs_strGubun; 
+	//prompt("gcds_code01",gcds_code01.DataID);
+	gcds_code01.Reset();
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save(){
+
+}
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+/******************************************************************************
+	Description :
+******************************************************************************/
+function ln_SetDataHeader(){
+
+	var s_temp = "VEND_ID:STRING,VEND_NO:STRING,VEND_CD:STRING,VEND_NM:STRING,VD_DIRECT:STRING,BSNS_CND:STRING,BSNS_KND:STRING,VD_TELNO:STRING,VD_FAXNO:STRING,POST_NM:STRING,POST_NO1:STRING,POST_NO2:STRING,ADDRESS1:STRING,ADDRESS2:STRING,C_BANKCD:STRING,C_ACCTNO:STRING,C_ACCTNO_NM:STRING,C_ACCTNM:STRING,B_BANKCD:STRING,B_ACCTNO:STRING,B_ACCTNO_NM:STRING,B_ACCTNM:STRING,O_VENDGB:STRING,O_VENDCD:STRING,VEND_MAG:STRING,USE_TAG:STRING,REMARK:STRING,CREAT_DT:STRING,CREAT_NM:STRING,MSN:STRING,MPWD:STRING,SELECT:STRING,";
+	gcds_code02.SetDataHeader(s_temp);
+}
+
+/******************************************************************************
+	Description : 창닫기
+	parameter   : A - 선택
+******************************************************************************/
+function ln_Close(p){
+	if (p=="A") {
+		var num = 0;
+		var ret = "";
+
+		var row = gcds_code02.countrow;
+		for(i=1;i<=row;i++) {
+			if(gcds_code02.namevalue(i,"SELECT")=="T") {
+				num++;
+				if(num>1) {
+					ret=ret+";"+gcds_code02.namevalue(i,"VEND_CD")  + ";" 
+	                   	 + gcds_code02.namevalue(i,"VEND_NM")  + ";"
+											 + gcds_code02.namevalue(i,"VD_DIRECT") + ";"
+											 + gcds_code02.namevalue(i,"BSNS_CND")  + ";"
+											 + gcds_code02.namevalue(i,"BSNS_KND");
+				}
+				else {
+					ret=ret+gcds_code02.namevalue(i,"VEND_CD")  + ";" 
+	                   	 + gcds_code02.namevalue(i,"VEND_NM")  + ";"
+											 + gcds_code02.namevalue(i,"VD_DIRECT") + ";"
+											 + gcds_code02.namevalue(i,"BSNS_CND")  + ";"
+											 + gcds_code02.namevalue(i,"BSNS_KND");
+				}
+			}
+		}
+		window.returnValue=ret;
+		window.close();
+	} else {
+		window.close();
+	}
+}
+</script>
+
+
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object  id=gcds_code01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<comment id="__NSID__"><object  id=gcds_code02 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<comment id="__NSID__"><object  id=gcds_comcode01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcds_comcode01" event="onloadCompleted(row,colid)">
+	gcds_comcode01.insertrow(1);
+	gcds_comcode01.namevalue(1,"VEND_CD") = "";
+	gcds_comcode01.namevalue(1,"VEND_NM") = "전체";
+	gcds_comcode01.index=0;
+</script>
+
+<script language="javascript" for="gcds_code01" event="OnLoadStarted()">
+	ft_cnt1.innerText="데이타 조회중입니다.";
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language="javascript" for="gcds_code01" event="onloadCompleted(row,colid)">
+	ft_cnt1.innerText = "조회건수 : " + row + " 건";
+	window.status="조회가 완료 되었습니다.";
+	var row = gcds_code01.countrow;
+	for(i=1;i<=row;i++) {
+		gcds_code02.importdata(gcds_code01.exportdata(i,1,false));
+	}
+	document.all.LowerFrame.style.visibility="hidden";
+	if(gcds_code01.countrow <=0)
+			alert("조회된 데이타가 없습니다.");
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcgd_disp" event="OnDblClick()">
+	ln_Close('A');
+</script>
+
+<script language=JavaScript for=gcgd_disp event=Onclick(row,colid)>
+	if(row<1) return;
+	if(colid=="SELECT") {
+		if(gcds_code02.namevalue(row,"SELECT") == "T")
+			gcds_code02.namevalue(row,"SELECT") = "F";
+		else {
+			gcds_code02.namevalue(row,"SELECT") = "T";
+		}
+	}
+</script>
+
+<script language=JavaScript for="gcgd_disp" event=OnKeyPress(kcode)>
+	if (kcode==13) ln_Close('A');
+</script>
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+<table border="0" cellpadding="0" cellspacing="0" style="position:relative;left:5px;top:5px;width:508px;border:1 solid #708090">
+	<tr>
+		<td class="tab16" width="65px;" bgcolor="#eeeeee" align="center">거래처명</td>
+		<td width="110px"><input type="text" class="txt11" id="txt_vend_nm" style="position:relative;left:5px;width:100px;" onkeydown="if(event.keyCode==13) ln_Query();"  maxlength="30"></td>
+		<td class="tab12" width="70px;" bgcolor="#eeeeee">거래처코드</td>
+		<td width="60px"><input type="text" class="txt11" id="txt_vend_cd" style="position:relative;left:5px;width:50px;" onkeydown="if(event.keyCode==13) ln_Query();"  maxlength="7"></td>
+		<!-- <td class="tab16" width="40px;" bgcolor="#eeeeee" align="center">구분</td>
+		<td>
+			<comment id="__NSID__"><object  id=gclx_atdiv classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+					style="position:relative;left:3px;top:1px;font-size:12px;width:60px;">
+						<param name=ComboDataID     value="gcds_comcode01">
+						<param name=SearchColumn		value=CDNAM>
+						<param name=Sort						value=false>
+						<param name=ListExprFormat	value="CDNAM^0^65">
+						<param name=BindColumn			value=CDCODE>
+			</object></comment><script>__ws__(__NSID__);</script> 
+		</td> -->
+		<td><img src="../../Common/img/btn/com_b_find.gif" alt="거래처코드를 검색합니다" style="position:relative;left:146px;top:0px;cursor:hand;" onclick="ln_Query()"></td>
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" border="0" style="position:relative;left:5px;top:10px">
+	<tr>
+		<td class="tab21" colspan="3">
+			<comment id="__NSID__"><object  classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_disp style="width:506;height:239px;border:0 solid #708090;border-left-width:1px;border-top-width:1px;">
+		    <PARAM NAME="DataID"			VALUE="gcds_code02">
+			  <PARAM NAME="BorderStyle" VALUE="0">
+			  <PARAM NAME="Indwidth"		VALUE="0">
+				<PARAM NAME="Fillarea"		VALUE="true">
+				<param name="sortview"    value=left>
+			  <PARAM NAME="Format"			VALUE="  
+					<C>ID=SELECT,		 Name=선택,   	  width=30,	  HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = false, editstyle=checkbox</C>
+					<C>ID=VEND_CD,		 Name=거래처코드,   	  width=100,	  HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true</C>
+					<C>ID=VEND_NM,		 Name=거래처명, width=270,	HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=left, sort = true</C>
+					<C>ID=VEND_ID,		 Name='사업자번호'	,width=90, HeadBgColor=#B9D4DC,HeadAlign=center, align=center,   mask='XXX-XX-XXXXX',Edit=none sort=true</C>
+					<C>ID=VD_DIRECT,	 Name=대표자,       width=50,	  HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true show = false </C>
+					<C>ID=BSNS_CND,		 Name=업태,   width=80,	  HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true show = false </C>
+					<C>ID=BSNS_KND,		 Name=업종,   width=80,	  HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true show = false </C>
+					<C>ID=POST_NM,		 Name=우편번호,   width=80,	  HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true show = false </C>
+					<C>ID=ADDRESS1,		 Name=주소1,   width=80,	  HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true show = false </C>
+					<C>ID=ADDRESS2,		 Name=주소2,   width=80,	  HeadBgColor=#B9D4DC, bgcolor=#ffffff, align=center, sort = true show = false </C>
+					
+				">
+	    </object></comment><script>__ws__(__NSID__);</script> 
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<fieldset id=ft_div1 style="width:508;height:20px;border:1 solid #708090;border-top-width:0px;text-align:left;">
+				&nbsp;<font id=ft_cnt1 style="position:relative;top:3px;"></font>
+			</fieldset>
+		</td>
+	</tr>
+	<tr><td height="4px"></td></tr>
+	<tr>
+		<td height="30px;" align="center">
+			<img name="btn_select" border="0" src="../../Common/img/btn/com_b_select.gif" style="cursor:hand" onClick="ln_Close('A')">
+			<img name="btn_close" border="0" src="../../Common/img/btn/com_b_close.gif" style="cursor:hand" onClick="ln_Close('C')">
+		</td>
+	</tr>
+</table>
+
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:100px; top:130px;" FrameBorder="0" src="../../Common/img/flash/loading.swf" width="320px" height="42px"> </iframe>
+
+</body>
+</html>

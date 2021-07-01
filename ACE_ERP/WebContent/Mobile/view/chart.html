@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/mobile/lib/common.css" />
+    <link rel="stylesheet" href="/mobile/lib/dhtmlxchart.css" />
+
+    <script src="/mobile/lib/dhtmlxchart.js"></script>
+    <script src="/mobile/controller/chart.js"></script>
+    
+    <script data-main="/mobile/lib/app" src="/mobile/lib/require.js"></script>
+
+</head>
+<body>
+    <div id="pageCompany" data-role="page">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div><!--//menu-->
+
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div id="barchart" style="width:95%;height:250px;border:1px solid #A4BED4;margin-top:20px;"></div>
+            <div id="piechart" style="width:95%;height:250px;border:1px solid #A4BED4;margin-top:20px;"></div>
+            <div id="linechar" style="width:95%;height:250px;border:1px solid #A4BED4;margin-top:20px;"></div>
+            <div id="areachart" style="width:95%;height:250px;border:1px solid #A4BED4;margin-top:20px;"></div>
+        </div>
+    </div>
+</body>
+</html>

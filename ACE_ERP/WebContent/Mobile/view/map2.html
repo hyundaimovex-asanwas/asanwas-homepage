@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>getCurrentPosition + Googlemap marker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" href="/mobile/lib/jquery.mobile.flatui.css" />
+    <link rel="stylesheet" href="/mobile/lib/common.css" />
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script src="/mobile/controller/map2.js"></script>
+    <script data-main="/mobile/lib/app" src="/mobile/lib/require.js"></script>
+</head>
+<body>
+    <div id="pagemap" data-role="page">
+        <!--menu-->
+        <div data-role="panel" id="menu">
+            <ul id="listMenu" data-role="listview" data-theme="a">
+            </ul>
+        </div><!--//menu-->
+        <div data-role="header">
+			<a href="#menu" data-icon="bars" data-iconpos="notext">Menu</a>
+            <h1>Goodsen</h1>
+        </div>
+        <div role="main" class="ui-content">
+        
+         <div class="ui-grid-a">
+                <div class="ui-block-a">
+                     <div id="errormsg"></div>
+                     <div id="latlng"></div>
+                </div>
+                <div class="ui-block-b">
+                    <input type="button" value="GetCurrentPosition " data-theme="d" data-mini="true" onclick="Javascript:fnGetCurrentPosition();" />
+                </div>
+          </div>
+          
+          
+            <div style="margin-top: 25px;margin-bottom:40px;">      
+                <ul id="listAccount" data-role="listview" data-theme="c">
+                    <li data-role="list-divider" data-theme="f"></li>
+                </ul>     
+                <div id="map_canvas" style="width:100%;height:500px;margin-top:20px;"></div>      
+                <div id="outputDiv"></div>   
+            </div>
+                   
+          
+        </div>
+    </div>
+
+
+
+
+</body>
+</html>

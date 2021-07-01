@@ -1,0 +1,72 @@
+@charset "euc-kr";
+/* ÀüÃ¼°øÅë
+ . class, # id 
+	±âº»ÆùÆ®´Â µ¸¿ò
+ */
+
+/*³ª´®°íµñ À¥ÆùÆ®? */
+@import url("http://fonts.googleapis.com/earlyaccess/nanumgothic.css");
+/*@import url("http://fonts.googleapis.com/earlyaccess/nanumbrushscript.css");
+@import url("http://fonts.googleapis.com/earlyaccess/nanumgothiccoding.css");
+@import url("http://fonts.googleapis.com/earlyaccess/nanummyeongjo.css");
+@import url("http://fonts.googleapis.com/earlyaccess/nanumpenscript.css");
+ 
+font-family:'³ª´®°íµñ', NanumGothic, '±¼¸²', 'Gulim', 'sans-serif', 'Tahoma';
+font-family:'Nanum Brush Script' '±¼¸²', 'Gulim', 'sans-serif', 'Tahoma';
+font-family:'Nanum Gothic Coding '±¼¸²', 'Gulim', 'sans-serif', 'Tahoma'';
+font-family:'³ª´®¸íÁ¶', NanumMyeongjo, 'fontnm', 'Nanum Myeongjo' '±¼¸²', 'Gulim', 'sans-serif', 'Tahoma';
+font-family:'³ª´®Ææ', NanumPen, 'fontnp', 'Nanum Pen Script' '±¼¸²', 'Gulim', 'sans-serif', 'Tahoma';}*/
+
+
+
+/* BASE SET */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address,
+fieldset, form, label, legend {
+	margin:0;
+	padding:0;
+	border:0;
+}
+
+body{font-family:'³ª´®°íµñ', NanumGothic, Dotum,Tahoma,sans-serif;font-size:12px;line-height:1.5;color:#424242}
+ul,ol{list-style:none} 
+dl, dt, dd, ol, ul, li {margin:0;padding:0;}
+
+/* Alink */
+a{color:#424242;text-decoration:none;}
+a:hover{text-decoration:underline}
+
+/* Basic */
+em, address{font-style:normal}
+img{border:0; vertical-align:top}
+.u, .u a{text-decoration:underline !important;}
+.s, .s a{font-size:.9em !important;}
+.bold, .bold a{font-weight:bold !important;}
+
+/* Display */
+.fl{float:left;}
+.fr{float:right;}
+.clr{clear:both !important;}
+.clr:after{content:'';display:block;clear:both}
+.blind{position:absolute;top:0;left:0;width:0;height:0;overflow:hidden;font-size:0;line-height:0}
+
+
+/* Align */
+.l{text-align:left !important;}
+.c{text-align:center !important;}
+.r{text-align:right !important}
+.t{vertical-align:top !important;}
+.m{vertical-align:middle !important;}
+.b{vertical-align:bottom !important}
+
+/* Form */
+legend{display:block;position:absolute;top:0;left:0;width:0;height:0;overflow:hidden;visibility:hidden;font-size:0;line-height:0} 
+select, textarea, input, label{vertical-align:middle}
+button {cursor:pointer;}
+button {overflow:visible;margin:0;padding:0;border:none;background:none;vertical-align:middle;display:inline-block;}
+button::-moz-focus-inner {border:0;padding:0}
+
+/* Table */
+table {border-collapse:collapse;border-spacing:0}
+caption {padding:0;width:0;height:0;overflow:hidden;visibility:hidden;font-size:0;line-height:0}
+

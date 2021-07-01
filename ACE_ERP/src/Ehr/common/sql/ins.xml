@@ -1,0 +1,2536 @@
+
+
+<sqls>
+
+<!-- 국민연금 -->
+<!--
+***********************************************************************
+* @UseCase     : IDSA010
+* @description : 국민연금테이블관리
+***********************************************************************
+* 2007/02/06      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 국민연금테이블관리 정보를 조회 한다. -->
+    <sql name="INSA010_SHR">
+        <description>국민연금테이블관리 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT TO_CHAR(TO_DATE(APY_YMD,'YYYY-MM-DD'), 'YYYY-MM-DD') AS APY_YMD
+                 , GBN_TAG
+                 , GRD_CD
+                 , APY_TAG
+                 , MAFF_AMT
+                 , MAFT_AMT
+                 , STDB_AMT
+                 , CAMT_AMT
+                 , GRD_PCT
+              FROM ASNHR.T_IS_GRADETABLE
+             WHERE APY_YMD  = (SELECT MAX(APY_YMD)
+                                 FROM ASNHR.T_IS_GRADETABLE
+                                WHERE APY_YMD <= ?
+                                  AND GBN_TAG  = ?
+                               )
+               AND GBN_TAG  = ?
+          ORDER BY LPAD(GRD_CD,3,0) ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 최근 처리일자 및 세율을 조회 한다. -->
+    <sql name="INSA010_SHR_01">
+        <description>최근등록일자 및 세율 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  TO_CHAR(TO_DATE(APY_YMD,'YYYYMMDD'),'YYYY-MM-DD') AS APY_YMD, GRD_PCT
+             FROM    (SELECT APY_YMD, GRD_PCT, ROWNUM AS RN FROM ASNHR.T_IS_GRADETABLE ORDER BY APY_YMD DESC)
+             WHERE   RN = 1
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 국민연금테이블관리 정보를 저장 한다. -->
+    <sql name="INSA010_INS">
+        <description>국민연금테이블관리 정보 저장</description>
+        <query>
+            <![CDATA[
+             INSERT INTO ASNHR.T_IS_GRADETABLE
+                    ( APY_YMD, GBN_TAG, GRD_CD , APY_TAG, MAFF_AMT, MAFT_AMT, STDB_AMT, CAMT_AMT, GRD_PCT
+                     ,IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+             VALUES (       ?,       ?,       ?,       ?,        ?,        ?,        ?,        ?,       ?
+                     ,      ?, sysdate,       ?, sysdate
+                     )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 국민연금테이블관리 정보를수정한다. -->
+    <sql name="INSA010_UPT">
+        <description>국민연금테이블관리 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_IS_GRADETABLE
+               SET APY_TAG      = ?         -- 적용태그
+                 , MAFF_AMT     = ?         -- 소득월액(미만)
+                 , MAFT_AMT     = ?         -- 소득월액(이상)
+                 , STDB_AMT     = ?         -- 표준소득월액
+                 , CAMT_AMT     = ?         -- 월갹출료
+                 , GRD_PCT      = ?         -- 세율
+                 , UPT_MAN      = ?         -- 최종수정자
+                 , UPT_YMD      = SYSDATE
+             WHERE APY_YMD      = ?         -- 적용일자
+               AND GBN_TAG      = ?         -- 구분(P:연금, I:보험)
+               AND GRD_CD       = ?         -- 등급
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 국민연금테이블관리 정보를수정한다. -->
+    <sql name="INSA010_UPT_APP_TAG">
+        <description>국민연금테이블관리 정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_IS_GRADETABLE
+               SET APY_TAG = 'N'
+             WHERE APY_TAG = 'Y'
+               AND GBN_TAG = ?                -- 구분(P:연금, I:보험)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 국민연금테이블관리 정보를 삭제한다. -->
+    <sql name="INSA010_DEL">
+        <description>국민연금테이블관리 정보 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  FROM ASNHR.T_IS_GRADETABLE
+             WHERE   APY_YMD          = ?          -- 적용일자
+             AND     GBN_TAG          = ?          -- 구분(P:연금, I:보험)
+             AND     GRD_CD           = ?          -- 등급
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : IDSA020
+* @description : 국민연금월납입액집계표
+***********************************************************************
+* 2007/08/01      조정호       최초작성
+***********************************************************************
+-->
+    <!-- 국민연금월납입액 정보를 조회 한다. -->
+    <sql name="INSA020_SHR">
+        <description>국민연금월납입액 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.GRD_CD
+                 , NVL(A.CAMT_AMT, 0)               AS NPN_AMT
+                 , NVL(B.NPN_CNT, 0)                AS NPN_CNT
+                 , NVL(B.CAMT_AMT, 0)               AS NPN_SUM
+              FROM (SELECT APY_YMD
+                         , GRD_CD
+                         , CAMT_AMT
+                      FROM (SELECT ROW_NUMBER() OVER(PARTITION BY GRD_CD
+                                                         ORDER BY APY_YMD DESC
+                                                     ) AS NUM
+                                 , APY_YMD
+                                 , GRD_CD
+                                 , CAMT_AMT
+                              FROM ASNHR.T_IS_GRADETABLE
+                             WHERE APY_TAG = 'Y'  -- 적용구분
+                               AND GBN_TAG = 'P'  -- 연금
+                           )
+                     WHERE NUM = 1
+                    ) A
+         LEFT JOIN (SELECT PIS_YY||PIS_MM  AS APY_YMD
+                         , NPN_GRD         AS GRD_CD
+                         , SUM(NPEN_AMT)   AS CAMT_AMT
+                         , COUNT(NPN_GRD)  AS NPN_CNT
+                      FROM ASNHR.T_CP_PAYMASTER
+                     WHERE PIS_YY  = ?
+                       AND PIS_MM  = ?
+                       AND OCC_CD  = NVL(?, OCC_CD)
+                       AND NPN_TAG = '1'   -- 공제구분 (연금)
+                       AND SAL_GBN = '0'   -- 급상여구분 (급여)
+                       AND SEQ = '1'
+                       AND NPN_GRD IS NOT NULL
+                  GROUP BY PIS_YY||PIS_MM
+                         , NPN_GRD
+                    ) B
+                ON A.GRD_CD = B.GRD_CD
+             WHERE NVL(B.NPN_CNT, 0) > 0
+          ORDER BY A.GRD_CD
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : IDSA020
+* @description : 국민연금월납입액집계표
+***********************************************************************
+* 2007/03/31     방석호       최초작성
+***********************************************************************
+-->
+    <!-- 국민연금월납입액 정보를 조회 한다. -->
+    <sql name="INSA020_PRT">
+        <description>국민연금월납입액 정보 조회 인쇄</description>
+        <query>
+            <![CDATA[
+					SELECT
+					 JOB_NM,
+					 JOB_NM2,
+					 TRUNC(GUR_01, 0) GUR_01,
+					 GUR_02,
+					 GUR_03,
+					 DECODE(JOB_NM, '합계', '',GUR_04) GUR_04,
+					 DECODE(JOB_NM, '합계', '',GUR_05) GUR_05,
+					 DECODE(JOB_NM, '합계', '',GUR_06) GUR_06
+					FROM
+					(
+					SELECT
+						   DECODE(NO, 1, GRD_CD1, '합계') JOB_NM,
+						   MIN (DECODE(NO, 1, GRD_CD2, ''))JOB_NM2,
+						   SUM( DECODE(NO,1,CAMT_AMT1,CAMT_AMT1 +  CAMT_AMT2)) GUR_01,
+					   	   SUM( DECODE(NO,1,NPN_CNT1, NPN_CNT1 +  NPN_CNT2)) GUR_02,
+					   	   SUM( DECODE(NO,1,NPN_SUM1, NPN_SUM1 +  NPN_SUM2 )) GUR_03,
+					   	   SUM( DECODE(NO,1,CAMT_AMT2,CAMT_AMT1 +  CAMT_AMT2)) GUR_04,
+					   	   SUM( DECODE(NO,1,NPN_CNT2, NPN_CNT1 +  NPN_CNT2)) GUR_05,
+					   	   SUM( DECODE(NO,1,NPN_SUM2, NPN_SUM1 +  NPN_SUM2 )) GUR_06
+
+					FROM
+						(
+						SELECT
+							     MIN (DECODE (C_GRP, 1, GRD_CD)) GRD_CD1
+						       , MIN (DECODE (C_GRP, 1, CAMT_AMT)) CAMT_AMT1
+						       , MIN (DECODE (C_GRP, 1, NPN_CNT)) NPN_CNT1
+						       , MIN (DECODE (C_GRP, 1, NPN_SUM)) NPN_SUM1
+						       , MIN (DECODE (C_GRP, 2, GRD_CD)) GRD_CD2
+							   , MIN (DECODE (C_GRP, 2, CAMT_AMT)) CAMT_AMT2
+						       , MIN (DECODE (C_GRP, 2, NPN_CNT)) NPN_CNT2
+						       , MIN (DECODE (C_GRP, 2, NPN_SUM)) NPN_SUM2
+						FROM
+						(
+
+									 SELECT B.GRD_CD, B.CAMT_AMT/NPN_CNT AS CAMT_AMT, B.NPN_CNT, (B.CAMT_AMT) AS NPN_SUM, MOD(ROWNUM - 1, 2) + 1 C_GRP, CEIL (ROWNUM / 2) R_GRP
+						             FROM (
+						             	   SELECT  PIS_YY||PIS_MM AS APY_YMD ,  NPN_GRD AS GRD_CD, Sum(NPEN_AMT) AS CAMT_AMT , COUNT(NPN_GRD) AS NPN_CNT
+						                   FROM    ASNHR.T_CP_PAYMASTER
+						                   WHERE   PIS_YY = ?
+						                   AND     PIS_MM = ?
+						                   [1]
+						                   AND
+										     NPN_GRD IS NOT NULL
+						                   AND     NPN_TAG = '1'   -- 공제구분 (연금)
+						                   AND     SAL_GBN = '0'   -- 급상여구분 (급여)
+						                   AND     SEQ = '1'
+						                   GROUP   BY PIS_YY||PIS_MM , NPN_GRD
+						                   ) B
+
+						)MAIN
+						GROUP BY R_GRP
+						ORDER BY R_GRP
+					)AA,
+					(SELECT LEVEL NO
+					          FROM DUAL
+					        CONNECT BY LEVEL <= 2) BB
+					group by NO,  DECODE(NO, 1, GRD_CD1, '합계')
+					)
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : IDSA030
+* @description : 국민연금개인별조회
+***********************************************************************
+* 2007/02/08      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 국민연금개인별 정보를 조회 한다. -->
+    <sql name="INSA030_SHR">
+        <description>국민연금개인별 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , A.PIS_YY
+                 , A.PIS_MM
+                 , B.OCC_CD
+                 , B.OCC_NM
+                 , B.JOB_NM
+                 , B.DPT_NM
+                 , B.CET_NO
+                 , TO_CHAR(B.HIR_YMD,'YYYY-MM-DD') AS HIR_YMD
+                 , ''                       AS NPN_GRD
+                 , ''                       AS STDB_AMT
+                 , NVL(A.NPEN_AMT, 0)       AS NPEN_AMT
+                 , NVL(A.NPEN_AMT, 0)       AS COM_AMT
+                 , NVL(A.NPEN_AMT, 0)*2     AS NPN_SUM
+                 , NVL(D.RTPL_AMT ,0)       AS RTPL_AMT
+                 , NVL((SELECT SUM(NVL(RTPL_AMT ,0))
+                          FROM ASNHR.T_AC_NPN_HISTORY
+                         WHERE ENO_NO = A.ENO_NO
+                        ), 0)               AS RTPL_TOT
+              FROM (SELECT ENO_NO
+                         , PIS_YY
+                         , PIS_MM
+                         , NPN_GRD
+                         , NPEN_AMT
+                      FROM ASNHR.T_CP_PAYMASTER C
+                     WHERE SAL_GBN = '0'  -- 급여
+                       [1]
+                     ) A
+                 , (SELECT ENO_NO
+                         , OCC_CD
+                         , OCC_NM
+                         , JOB_NM
+                         , DPT_NM
+                         , HIR_YMD
+                         , CET_NO
+                      FROM ASNHR.VI_T_CM_PERSON2
+                       [2]
+                     ) B
+                  , ASNHR.T_AC_NPN_HISTORY D
+              WHERE A.ENO_NO  = B.ENO_NO
+                AND A.ENO_NO = D.ENO_NO(+)
+                AND A.PIS_YY = D.PIS_YY(+)
+                AND A.PIS_MM = D.PIS_MM(+)
+           ORDER BY A.PIS_YY
+                  , A.PIS_MM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 국민연금개인별 정보를 조회 한다.(EZ-gen용) -->
+    <sql name="INSA030_SHR02">
+        <description>국민연금개인별 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  DECODE(INT,1,'',2,'',3,A.ENO_NO)                        AS ENO_NO
+                   , DECODE(INT,1,'총계',2,A.PIS_YY||'계',3,A.PIS_YY)        AS PIS_YY
+                   , DECODE(INT,1,'총계',2,'소계',3,A.PIS_MM)                AS PIS_MM
+                   , SUM(A.NPEN_AMT)                                         AS NPEN_AMT
+                   , DECODE(INT,1,'',2,'',3,B.OCC_CD)                        AS OCC_CD
+                   , DECODE(INT,1,'',2,'',3,B.OCC_NM)                        AS OCC_NM
+                   , DECODE(INT,1,'',2,'',3,B.JOB_NM)                        AS JOB_NM
+                   , DECODE(INT,1,'',2,'',3,B.DPT_NM)                        AS DPT_NM
+                   , DECODE(INT,1,'',2,'',3,B.CET_NO)                        AS CET_NO
+                   , DECODE(INT,1,'',2,'',3,TO_CHAR(B.HIR_YMD,'YYYY-MM-DD')) AS HIR_YMD
+                   , ''                                                      AS NPN_GRD
+                   , ''                                                      AS STDB_AMT
+                   , SUM(NVL(A.NPEN_AMT, 0))                                 AS NPEN_AMT
+                   , SUM(NVL(A.NPEN_AMT, 0))                                 AS COM_AMT
+                   , SUM(NVL(A.NPEN_AMT*2, 0))                               AS NPN_SUM
+                   --, SUM(NVL(C.CAMT_AMT, 0))                                 AS COM_AMT
+                   --, SUM(NVL(C.CAMT_AMT*2, 0))                               AS NPN_SUM
+             FROM   (SELECT  ENO_NO
+                           , PIS_YY
+                           , PIS_MM
+                           , NPN_GRD
+                           , NPEN_AMT
+                     FROM    ASNHR.T_CP_PAYMASTER
+                     WHERE   SAL_GBN = '0'  -- 급여
+                     AND     SEQ = '1'
+                     [1]
+                    ) A
+                   ,(SELECT  ENO_NO
+                           , OCC_CD
+                           , ASNHR.SF_GET_COMMNAME('01','A1',OCC_CD) OCC_NM
+                           , ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) JOB_NM
+                           , ASNHR.SF_GET_DPTNAME('01','A4',DPT_CD)  DPT_NM
+                           , HIR_YMD
+                           , CET_NO
+                     FROM    ASNHR.T_CM_PERSON
+                     [2]
+                    ) B
+                   ,(SELECT ROWNUM INT
+                     FROM   DICT
+                     WHERE  ROWNUM <= 3
+                    ) COPYT
+             WHERE   A.ENO_NO  = B.ENO_NO
+             GROUP BY DECODE(INT,1,'',2,'',3,A.ENO_NO)
+                     ,DECODE(INT,1,'총계',2,A.PIS_YY||'계',3,A.PIS_YY)
+                     ,DECODE(INT,1,'총계',2,'소계',3,A.PIS_MM)
+                     ,DECODE(INT,1,'',2,'',3,B.OCC_CD)
+                     ,DECODE(INT,1,'',2,'',3,B.OCC_NM)
+                     ,DECODE(INT,1,'',2,'',3,B.JOB_NM)
+                     ,DECODE(INT,1,'',2,'',3,B.DPT_NM)
+                     ,DECODE(INT,1,'',2,'',3,B.CET_NO)
+                     ,DECODE(INT,1,'',2,'',3,TO_CHAR(B.HIR_YMD,'YYYY-MM-DD'))
+                     ,DECODE(INT,1,'',2,'',3,A.NPN_GRD)
+             ORDER BY DECODE(INT,1,'총계',2,A.PIS_YY||'계',3,A.PIS_YY)
+                     ,DECODE(INT,1,'총계',2,'소계',3,A.PIS_MM)
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : IDSA040
+* @description : 국민연금납부현황
+***********************************************************************
+* 2007/02/08      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 국민연금납부현황을 조회 한다. -->
+    <sql name="INSA040_SHR">
+        <description>국민연금납부현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT B.ENO_NM
+                 , B.DPT_NM
+                 , B.JOB_NM
+                 , B.CET_NO
+                 , NVL(A.NPEN_AMT, 0)       AS CAMT_AMT
+                 , NVL(A.NPEN_AMT, 0)       AS COM_AMT
+                 , NVL(A.NPEN_AMT, 0)*2     AS NPN_SUM
+              FROM (SELECT C.ENO_NO
+                         , SUM(NVL(C.NPEN_AMT, 0)) AS NPEN_AMT
+                      FROM ASNHR.T_CP_PAYMASTER C
+                         , ASNHR.T_CM_PERSON D
+                     WHERE C.ENO_NO = D.ENO_NO
+                       AND C.SAL_GBN  = '0'   -- 급여
+                       AND C.PIS_YY   = ?     -- 년
+                       AND C.PIS_MM  >= '01'  -- 1월부터
+                       AND C.PIS_MM  <= ?     --  월까지
+                       [1]
+                  GROUP BY C.ENO_NO
+                    ) A
+                 , VI_T_CM_PERSON B
+             WHERE A.ENO_NO  = B.ENO_NO
+          ORDER BY B.DPT_SEQ
+                 , B.JOB_SEQ
+                 , B.HOB_SEQ DESC
+                 , B.ENO_NO
+
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : IDSA040
+* @description : 국민연금납부현황
+***********************************************************************
+* 2007/03/31     방석       최초작성
+***********************************************************************
+-->
+    <!-- 국민연금납부현황을 조회 한다. -->
+    <sql name="INSA040_PRT">
+        <description>국민연금납부현황 조회</description>
+        <query>
+            <![CDATA[
+    			SELECT
+				  MAIN.CET_NO,
+				  MIN(MAIN.JOB_SEQ) AS SEQ,
+				  MIN(MAIN.ENO_NM) AS ENO_NM,
+				  MIN(MAIN.ENO_NO) AS ENO_NO,
+				  MIN(MAIN.JOB_NM) AS JOB_NM,
+				  MIN(MAIN.DPT_NM) AS DPT_NM,
+				  SUM(MAIN.NPEN_AMT) AS CAMT_AMT,
+				  SUM(MAIN.COM_AMT) AS COM_AMT,
+				  SUM(MAIN.NPEN_AMT+MAIN.COM_AMT) AS NPN_SUM
+				FROM
+				      (
+			             SELECT  B.ENO_NM, B.JOB_NM, B.CET_NO,B.JOB_SEQ,B.ENO_NO
+			                    ,C.CAMT_AMT, C.CAMT_AMT AS COM_AMT,  NPEN_AMT , DPT_SEQ ,DPT_NM
+			             FROM  ( SELECT  ENO_NO, PIS_YY, PIS_MM, NPN_GRD , NPEN_AMT
+			                     FROM    ASNHR.T_CP_PAYMASTER C
+			                     WHERE   SAL_GBN = '0'  -- 급여
+								 AND     PIS_YY  = ?    -- 년
+								 AND     PIS_MM >= '01'  -- 1월부터
+								 AND     PIS_MM <= ?    --  월까지
+								 AND 	 NPN_TAG = '1'
+								 [1]
+			                     ) A
+			                  ,( SELECT  ENO_NO, ENO_NM, JOB_NM, CET_NO , JOB_SEQ , DPT_NM ,DPT_SEQ
+			                     FROM    ASNHR.VI_T_CM_PERSON
+			                     ) B
+			                  ,  ASNHR.T_IS_GRADETABLE C
+			             WHERE   A.ENO_NO = B.ENO_NO
+			             AND     A.NPN_GRD = C.GRD_CD
+			             AND     C.APY_YMD = ( SELECT MAX(APY_YMD)
+			                                   FROM   ASNHR.T_IS_GRADETABLE
+			                                   WHERE  APY_TAG = 'Y'
+			                                   AND    GBN_TAG = 'P'
+			                                   AND    A.PIS_YY||A.PIS_MM >= SUBSTR(APY_YMD,0,6))
+			             ORDER   BY A.PIS_YY, A.PIS_MM, B.JOB_SEQ
+			             ) MAIN
+					GROUP BY CET_NO
+					ORDER BY MIN(MAIN.DPT_SEQ) , MIN(MAIN.JOB_SEQ)
+             ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : IDSA050
+* @description : 국민연금등급Update
+***********************************************************************
+* 2007/02/09      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 대상자가 있는지 여부 확인 -->
+    <sql name="INSA050_SHR">
+        <description>대상자가 있는지 여부 확인</description>
+        <query>
+            <![CDATA[
+            SELECT A.CET_NO
+                 , CASE
+                   WHEN NVL(B.CNT, 0) = 0
+                   THEN 'N'
+                   WHEN NVL(C.CNT, 0) = 0
+                   THEN 'R'
+                   ELSE 'Y'
+                    END AS CHK
+              FROM (SELECT ? AS CET_NO
+                      FROM DUAL
+                    ) A
+         LEFT JOIN (SELECT CET_NO
+                         , COUNT(*) AS CNT
+                      FROM ASNHR.T_CM_PERSON
+                  GROUP BY CET_NO
+                     ) B
+                ON A.CET_NO = B.CET_NO
+         LEFT JOIN (SELECT CET_NO
+                         , COUNT(*) AS CNT
+                      FROM ASNHR.T_CM_PERSON
+                     WHERE (RET_YMD IS NULL
+                        OR  RET_YMD >= SYSDATE)
+                  GROUP BY CET_NO
+                    ) C
+                ON A.CET_NO = C.CET_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 국민연금등급을 수정 한다.(인사마스터) -->
+    <sql name="INSA050_UPT">
+        <description>국민연금등급 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_PERSON
+               SET NPEN_AMT  = ?  -- 갱신등급
+             WHERE ENO_NO   = ?  -- 주민번호
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : IDSA060
+* @description : 국민연금신고내역서
+***********************************************************************
+* 2007/02/14      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 국민연금신고내역서(취득자)를 조회 한다. -->
+    <sql name="INSA060_SHR_01">
+        <description>국민연금신고내역서(취득자) 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ROW_NUMBER() OVER(ORDER BY HIR_YMD DESC) AS NUM
+            	 , A.ENO_NO
+                 , A.ENO_NM
+                 , A.CET_NO
+                 , A.JOB_NM
+                 , A.DPT_NM
+                 , TO_CHAR(A.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD
+                 , NVL2( A.MAPP_AMT, A.MAPP_AMT, A.MON_PAY) AS MON_PAY
+                 , NVL2( A.NPEN_AMT
+                       , A.NPEN_AMT
+                       , CASE WHEN TRUNC(A.MON_PAY * 0.045 / 10) * 10 > 162000 THEN 162000
+                              WHEN TRUNC(A.MON_PAY * 0.045 / 10) * 10 < 9900   THEN 9900
+                              ELSE TRUNC(A.MON_PAY * 0.045 / 10) * 10
+                         END) AS NPEN_AMT
+                 --인사마스터에 적용이 되었는지 아닌지 여부 결정
+                 , NVL2( A.NPEN_AMT
+                       , ''
+                       , 'F') AS IS_PROC
+                 , NVL2( A.NPEN_AMT
+                       , ''
+                       , '미반영') AS IS_PROC_MSG
+                 --만나이 계산
+                 , CASE
+                   WHEN TRUNC(MONTHS_BETWEEN( HIR_YMD
+                                            , TO_DATE(CASE
+                                                      WHEN SUBSTR(CET_NO,1,2) > 20
+                                                      THEN '19'
+                                                      ELSE '20'
+                                                       END||SUBSTR(CET_NO,1,6), 'YYYYMMDD'
+                                                      )
+                                             )/12
+                              ) <= 18
+                   THEN '만18세'
+                   ELSE ''
+                   END AS REMARK
+              FROM (SELECT ENO_NO
+                         , ASNHR.SF_GET_ENONAME('01',ENO_NO) ENO_NM
+                         , OCC_CD
+                         , CET_NO
+                         , DPT_CD
+                         , ASNHR.SF_GET_DPTNAME('01','A4',DPT_CD)  DPT_NM
+                         , JOB_CD
+                         , ASNHR.SF_GET_COMMNAME('01','A2',JOB_CD) JOB_NM
+                         , HOB_CD
+                         , MAPP_AMT
+                         , NPEN_AMT
+                         , HIR_YMD
+                         , ASNHR.SF_GET_STDB_AMT(ENO_NO, OCC_CD, DPT_CD, JOB_CD, HOB_CD, TO_CHAR(SYSDATE, 'YYYYMMDD')) AS MON_PAY
+                      FROM ASNHR.T_CM_PERSON
+                     WHERE TO_CHAR(HIR_YMD,'YYYYMMDD') BETWEEN ? AND ?
+                       AND OCC_CD = NVL(?, OCC_CD)
+                    ) A
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 국민연금신고내역서(상실자)를 조회 한다. -->
+    <sql name="INSA060_SHR_02">
+        <description>국민연금신고내역서(상실자) 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  ROW_NUMBER() OVER(ORDER BY RET_YMD DESC) AS NUM
+             		,ENO_NO, ENO_NM, CET_NO
+                    ,TO_CHAR(TO_DATE(RET_YMD)+1,'YYYY-MM-DD') AS RET_YMD
+                    ,ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                    ,ASNHR.SF_GET_DPTNAME('01', 'A4', DPT_CD) AS DPT_NM
+             FROM    ASNHR.T_CM_PERSON
+             WHERE   1=1
+             [1]
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 국민연금등급을 수정 한다.(사원마스터) -->
+    <sql name="INSA060_UPT01">
+        <description>국민연금등급 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  ASNHR.T_CM_PERSON
+             SET     NPEN_AMT = ?  -- 갱신등급
+                    ,NPN_TAG = '1'
+             WHERE   ENO_NO   = ?  -- 사번
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : IDSA070
+* @description : 국민연금전산매체
+***********************************************************************
+* 2007/03/18      조정호       최초작성
+***********************************************************************
+-->
+    <!-- 국민연금전산매체 리스트를 조회 한다. -->
+    <sql name="INSA070_SHR">
+        <description>국민연금전산매체 리스트를 조회</description>
+        <query>
+            <![CDATA[
+            SELECT NUM
+                 , ENO_NO
+                 , ENO_NM
+                 , CET_NO
+                 , DPT_NM
+                 , JOB_NM
+                 , PIS_MM_CNT
+                 , CASE
+                   WHEN TMP_SUM_AMT > 999999999
+                   THEN 999999999
+                   ELSE TMP_SUM_AMT
+                    END AS TMP_SUM_AMT
+
+                 , 1 AS STATUS
+                 , '10281230120;'
+                   ||TO_CHAR(NUM,'FM00000')||';'
+                   ||'000'||';'
+                   ||SUBSTR(CET_NO,1,6)||SUBSTR(CET_NO,8,7)||0||';'
+                   ||'7777'||';'
+                   ||'000'||';'
+                   ||'06'||';'
+                   ||TO_CHAR(PIS_MM_CNT,'FM00')||';'
+                   ||TO_CHAR(LEAST(999999999,TMP_SUM_AMT),'FM000000000') AS NPN_NO
+              FROM (SELECT ROW_NUMBER() OVER(ORDER BY A.ENO_NM) AS NUM
+                         , A.ENO_NO
+                         , A.ENO_NM
+                         , A.CET_NO
+                         , ASNHR.SF_GET_DPTNAME('01', 'A4', A.DPT_CD) AS DPT_NM
+                         , ASNHR.SF_GET_COMMNAME('01', 'A2', A.JOB_CD) AS JOB_NM
+                         , F.PIS_MM_CNT                     --근무월수
+                         , D.TMP_SUM_AMT                    --소득총액
+                      FROM ASNHR.T_CM_PERSON A
+                         , (SELECT B.ENO_NO
+                                 , NVL(SUM(C.SALT_AMT),0)-NVL(SUM(C.FREE_TAX),0)-NVL(SUM(C.SEA_FREE),0) AS TMP_SUM_AMT
+                              FROM (SELECT PIS_YY
+                                         , PIS_MM
+                                         , ENO_NO
+                                         , SUM(NVL(PDD_CNT, 0)) AS PDD_CNT
+                                      FROM ASNHR.T_CP_PAYMASTER_OFFICE
+                                     WHERE JCD_CD <> 'L28'
+                                  GROUP BY PIS_YY
+                                         , PIS_MM
+                                         , ENO_NO
+                                    ) B
+                                 , ASNHR.T_CP_PAYMASTER C
+                             WHERE B.PIS_YY = SUBSTR(?, 1, 4)
+                               AND B.PIS_YY = C.PIS_YY(+)
+                               AND B.PIS_MM = C.PIS_MM(+)
+                               AND B.ENO_NO = C.ENO_NO(+)
+                               AND B.PDD_CNT >= 20
+                          GROUP BY B.ENO_NO
+                            ) D
+                         , (SELECT E.ENO_NO
+                                 , COUNT(E.PIS_MM) AS PIS_MM_CNT
+                              FROM (SELECT PIS_YY
+                                         , PIS_MM
+                                         , ENO_NO
+                                         , SUM(NVL(PDD_CNT, 0)) AS PDD_CNT
+                                      FROM ASNHR.T_CP_PAYMASTER_OFFICE
+                                     WHERE JCD_CD <> 'L28'
+                                  GROUP BY PIS_YY
+                                         , PIS_MM
+                                         , ENO_NO
+                                    ) E
+                             WHERE E.PIS_YY = SUBSTR(?, 1, 4)
+                               AND E.PDD_CNT >= 20
+                          GROUP BY E.ENO_NO
+                            ) F
+                     WHERE (A.RET_YMD IS NULL OR A.RET_YMD >= SYSDATE)
+                       AND A.JOB_CD NOT IN ('A7')
+                       AND TO_CHAR(A.HIR_YMD,'YYYYMMDD') <= ?
+                       AND A.ENO_NO = D.ENO_NO(+)
+                       AND A.ENO_NO = F.ENO_NO(+)
+                       [1] )
+              WHERE TMP_SUM_AMT > 0
+            ]]>
+        </query>
+    </sql>
+
+<!-- 건강보험 -->
+<!--
+***********************************************************************
+* @UseCase     : IDSB010
+* @description : 개인별건강보험납부현황
+***********************************************************************
+* 2007/02/27      채갑병       최초작성
+***********************************************************************
+-->
+    <!-- 개인별건강보험납부현황을 조회 한다.(2007이후) -->
+    <sql name="INSB010_SHR">
+        <description>개인별건강보험납부현황 조회</description>
+        <query>
+            <![CDATA[
+                    SELECT ENO_NO, PIS_YY, PIS_MM, NPN_GRD, HIU_NO, HIU_GRA, MAPP_AMT AS STDB_AMT, HINU_AMT AS CAMT_AMT
+                          ,SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+                          ,SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                          ,SF_GET_DPTNAME('01', 'A4', DPT_CD) AS DPT_NM
+                            ,DECODE(OCC_CD,'A','사무직','택배직') AS OCC_NM
+                    FROM   ASNHR.T_CP_PAYMASTER
+                    WHERE  PIS_YY  = ?
+                    AND    SAL_GBN = '0'
+                    AND    ENO_NO  = ?
+                    ORDER BY PIS_MM
+            ]]>
+        </query>
+    </sql>
+    <!--
+ SELECT  A.ENO_NO, A.PIS_YY, A.PIS_MM, A.ENO_NM, A.DPT_NM, A.JOB_NM, A.HIU_NO, E.GRD_PCT, E.APY_YMD, A.HIU_GRA
+                    ,( ROUND(((NVL(A.PAY,0) + DECODE(C.GBN2_TAG, '9', NVL(B.AMOUNT_20,0), 0) + NVL(B.AMOUNT_AB,0)
+                             + NVL(D.CAR_TRA_AMT,0) + NVL(A.WEL_POINT,0))*12 + (NVL(A.BON,0)*8))/12/10)*10
+                      ) AS STDB_AMT
+                    ,( ROUND(((NVL(A.PAY,0) + DECODE(C.GBN2_TAG, '9', NVL(B.AMOUNT_20,0), 0) + NVL(B.AMOUNT_AB,0)
+                             + NVL(D.CAR_TRA_AMT,0) + NVL(A.WEL_POINT,0))*12 + (NVL(A.BON,0)*8))/12*E.GRD_PCT/100/10)*10
+                      ) AS CAMT_AMT
+                      ,DECODE(A.OCC_CD,'A','사무직','택배직') AS OCC_NM
+
+             FROM    (SELECT  ENO_NO, PIS_YY, PIS_MM, WEL_POINT, HIU_NO, DPT_CD,HIU_GRA, OCC_CD
+                            ,(BAS_AMT+DUTY_AMT+OT_AMT+WEL_AMT+OSE_AMT+RUN_AMT+MH_AMT) AS PAY
+                            ,( CASE WHEN OCC_CD = 'A'
+                                    THEN (CASE WHEN JOB_CD = 'SD' OR JOB_CD = 'JD' OR JOB_CD = 'A7'
+                                               THEN 0
+                                               ELSE (BAS_AMT+DUTY_AMT+OT_AMT+WEL_AMT+OSE_AMT+RUN_AMT+MH_AMT)
+                                          END)
+                                    WHEN OCC_CD = 'M'
+                                    THEN (CASE WHEN JOB_CD = '7B' OR JOB_CD = '7C'
+                                               THEN (BAS_AMT+OT_AMT+WEL_AMT+OSE_AMT)
+                                               WHEN JOB_CD = 'Z1' OR JOB_CD = 'SD' OR JOB_CD = 'JD' OR JOB_CD = 'A7'
+                                               THEN 0
+                                               ELSE (BAS_AMT+OT_AMT+MH_AMT)
+                                          END)
+                               END ) AS BON
+                              ,SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+                              ,SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                              ,SF_GET_DPTNAME('01', 'A4', DPT_CD) AS DPT_NM
+                      FROM    ASNHR.T_CP_PAYMASTER
+                      WHERE   PIS_YY = ?
+                      AND     ENO_NO = ?
+                      AND     SAL_GBN = '0'
+                      ) A
+                    ,(SELECT  ENO_NO, OCC_CD
+                             ,SUM(DECODE(SAL_CD, 'AB', AMOUNT)) AS AMOUNT_AB
+                             ,SUM(DECODE(SAL_CD, '20', AMOUNT)) AS AMOUNT_20
+                      FROM    ASNHR.T_CP_FIXED
+                      WHERE   SAL_CD IN ('AB','20')
+                      AND     END_YMD IS NULL
+                      GROUP   BY ENO_NO, OCC_CD
+                      ) B
+                    ,(SELECT DPT_CD, GBN2_TAG
+                      FROM   ASNHR.T_CM_DEPT
+                      WHERE  GBN2_TAG = '9'
+                      ) C
+                    ,(SELECT ENO_NO, PIS_YY, PIS_MM, (NVL(CAR_AMT,0)+NVL(TRA_AMT,0)) AS CAR_TRA_AMT
+                      FROM   ASNHR.T_WL_CTLNBOOK
+                      ) D
+                    ,(SELECT GRD_PCT, APY_YMD
+                      FROM  (SELECT GRD_PCT, APY_YMD, ROW_NUMBER() OVER(ORDER BY APY_YMD DESC) AS RN
+                             FROM   ASNHR.T_IS_GRADETABLE
+                             WHERE  APY_YMD <= TO_CHAR(SYSDATE, 'YYYYMMDD')
+                             AND    GRD_PCT IS NOT NULL
+                             AND    GRD_CD = '0'
+                             AND    APY_TAG IS NULL )
+                      WHERE  RN = 1
+                      ) E
+              WHERE   A.ENO_NO = B.ENO_NO(+)
+              AND     A.DPT_CD = C.DPT_CD(+)
+              AND     A.ENO_NO = D.ENO_NO(+)
+              AND     A.PIS_YY = D.PIS_YY(+)
+              AND     A.PIS_MM = D.PIS_MM(+)
+              ORDER   BY A.PIS_MM
+     -->
+
+    <!-- 개인별건강보험납부현황을 조회 한다.(2007이전) -->
+    <sql name="INSB010_SHR_01">
+        <description>개인별건강보험납부현황 조회</description>
+        <query>
+            <![CDATA[
+             SELECT A.ENO_NO, A.PIS_YY ,A.PIS_MM, B.GRD_CD, B.STDB_AMT, B.CAMT_AMT, A.ENO_NM, A.HIU_NO, A.DPT_NM, A.JOB_NM,A.HIU_GRA, A.OCC_NM
+             FROM  (SELECT ENO_NO, PIS_YY, PIS_MM, NPN_GRD, HIU_NO,HIU_GRA
+                          ,SF_GET_ENONAME('01', ENO_NO) AS ENO_NM
+                          ,SF_GET_COMMNAME('01', 'A2', JOB_CD) AS JOB_NM
+                          ,SF_GET_DPTNAME('01', 'A4', DPT_CD) AS DPT_NM
+                            ,DECODE(OCC_CD,'A','사무직','택배직') AS OCC_NM
+                    FROM   ASNHR.T_CP_PAYMASTER
+                    WHERE  PIS_YY  = ?
+                    AND    SAL_GBN = '0'
+                    AND    ENO_NO  = ? ) A
+                  ,(SELECT GRD_CD, STDB_AMT, CAMT_AMT
+                    FROM   ASNHR.T_IS_GRADETABLE
+                    WHERE  GBN_TAG = 'I'
+                    AND    APY_TAG = 'Y') B
+             WHERE A.NPN_GRD = B.GRD_CD(+)
+             ORDER  BY PIS_MM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 보험료율 데이터 존재여부를 조회 한다. -->
+    <sql name="INSB010_SHR_02">
+        <description>보험료율 데이터 존재여부 조회</description>
+        <query>
+            <![CDATA[
+             SELECT APY_YMD
+             FROM   ASNHR.T_IS_GRADETABLE
+             WHERE  APY_YMD = ?
+             AND    GBN_TAG = 'I'
+             AND    GRD_CD  = '0'
+             AND    APY_TAG IS NULL
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : IDSB020
+* @description : 건강보험신고내역서
+***********************************************************************
+* 2007/03/01     조정호       최초작성
+***********************************************************************
+-->
+    <!-- 개인별 건강보험신고내역서를 조회 한다. (취득자) -->
+    <sql name="INSB020_SHR_01">
+        <description>개인별건강보험납부현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.DPT_NM
+                 , A.JOB_NM
+                 , A.ENO_NO
+                 , A.ENO_NM
+                 , A.CET_NO
+                 , A.ZIP_NO
+                 , A.ADDRESS
+                   --보험료 (한도규정)
+                 , CASE WHEN NVL2( A.HINU_AMT, A.HINU_AMT, FLOOR(A.MON_PAY * 0.0508/2/10) * 10) < 7110    THEN 7110
+                        WHEN NVL2( A.HINU_AMT, A.HINU_AMT, FLOOR(A.MON_PAY * 0.0508/2/10) * 10) > 1671060 THEN 1671060
+                        ELSE NVL2( A.HINU_AMT, A.HINU_AMT, FLOOR(A.MON_PAY * 0.0508/2/10) * 10)
+                   END HINU_AMT
+                   --표준보수월액
+                 , NVL2( A.MAPP_AMT, A.MAPP_AMT, A.MON_PAY) AS STDB_AMT
+                 , NVL2( A.HINU_AMT
+                       , ''
+                       , 'F'
+                        ) AS IS_PROC
+                 , NVL2( A.HINU_AMT
+                       , ''
+                       , '미반영'
+                        ) AS IS_PROC_MSG
+                 , TO_CHAR(A.HIRG_YMD, 'YYYY/MM/DD')    AS HIRG_YMD
+
+                 , A.OCC_CD
+                 , A.OCC_NM
+                 , TO_CHAR(A.HIR_YMD, 'YYYY/MM/DD')     AS HIR_YMD
+                 , TO_CHAR(A.HIR_YMD, 'YYYY/MM/DD')     AS LAST_YMD
+                 , A.PHN_NO
+                 , A.ABA_CD
+                 , A.ABA_NM
+                 , A.ACC_NO
+                 , A.GET_RSN
+                 , A.EDGR_NM
+                 , A.WRK_HOUR
+                 , A.HIR_PATH
+                 , A.HDC_NM         -- 장애유형
+                 , A.HDC_GRA        -- 장애등급
+                 , TO_CHAR(SYSDATE, 'YYYY/MM/DD') AS REG_YMD
+              FROM (SELECT ENO_NO
+                         , ENO_NM
+                         , OCC_CD
+                         , OCC_NM
+                         , CET_NO
+                         , CASE
+                           WHEN LENGTH(ZIP_NO) = 6
+                           THEN SUBSTR(ZIP_NO,1,3)||'-'||SUBSTR(ZIP_NO,4,6)
+                            END AS ZIP_NO
+                         , ADR_CT||' '||ADDRESS AS ADDRESS
+                         , DPT_CD
+                         , DPT_NM
+                         , JOB_CD
+                         , JOB_NM
+                         , HOB_CD
+                         , HIRG_YMD
+                         , ASNHR.SF_GET_STDB_AMT( ENO_NO
+                                          , OCC_CD
+                                          , DPT_CD
+                                          , JOB_CD
+                                          , HOB_CD
+                                          , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                                          ) AS MON_PAY
+                         , MAPP_AMT
+                         , HINU_AMT
+
+
+                         , PHN_NO
+                         , HIR_YMD
+                         , ABA_CD
+                         , ABA_NM
+                         , ACC_NO
+                         , ASNHR.SF_GET_COMMNAME('01','C4',GET_RSN) AS GET_RSN
+                         , EDGR_NM
+                         , '44' AS WRK_HOUR
+                         , ASNHR.SF_GET_COMMNAME('01','C5',HIR_PATH) AS HIR_PATH
+                         , HDC_NM
+                         , ASNHR.SF_GET_COMMNAME('01','C7',HDC_GRA) AS HDC_GRA
+                      FROM VI_T_CM_PERSON2
+                     WHERE TO_CHAR(HIR_YMD,'YYYY-MM-DD') BETWEEN ?
+                                                             AND ?
+                       AND OCC_CD = NVL(?, OCC_CD)
+                    ) A
+          ORDER BY HIR_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별 건강보험신고내역서를 조회 한다. (상실자) -->
+    <sql name="INSB020_SHR_02">
+        <description>개인별건강보험납부현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT OCC_CD
+                  ,OCC_NM
+		          ,DPT_CD
+		          ,DPT_NM
+		          ,JOB_CD
+		          ,JOB_NM
+		          ,ENO_NO
+		          ,HIU_NO
+		          ,ENO_NM
+		          ,CET_NO
+                  ,CASE
+                   WHEN LENGTH(ZIP_NO) = 6
+                   THEN SUBSTR(ZIP_NO,1,3)||'-'||SUBSTR(ZIP_NO,4,6)
+                    END AS ZIP_NO
+		          ,ADR_CT||' '||ADDRESS AS ADDRESS
+		          ,PHN_NO
+		          ,TO_CHAR(TO_DATE(RET_YMD)+1, 'YYYY/MM/DD') AS RET_YMD
+                  ,NVL(RET_NM, '기타개인사정') AS RET_NM
+                  ,DECODE(RET_CD
+                          ,'11','11'
+                          ,'12','12'
+                          ,'13','13'
+                          ,'14','14'
+                          ,'15','15'
+                          ,'22','22'
+                          ,'23','23'
+                          ,'24','24'
+                          ,'25','25'
+                          ,'31','31'
+                          ,'32','32'
+                          ,'41','41'
+                          ,'42','42'
+                          ,'15') AS RET_CD
+		      FROM VI_T_CM_PERSON2
+		     WHERE TO_CHAR(RET_YMD, 'YYYY-MM-DD') BETWEEN ? AND ?
+               AND OCC_CD = NVL(?, OCC_CD)
+          ORDER BY RET_YMD DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별 건강보험신고내역서를 조회 한다. (보직변경자) -->
+    <sql name="INSB020_SHR_03">
+        <description>개인별건강보험납부현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT C.ENO_NO
+                 , C.ENO_NM
+                 , C.DPT_NM
+                 , C.JOB_NM
+                 , C.HIU_NO
+                 , C.CET_NO
+                 , CASE
+                   WHEN LENGTH(C.ZIP_NO) = 6
+                   THEN SUBSTR(C.ZIP_NO,1,3)||'-'||SUBSTR(C.ZIP_NO,4,6)
+                    END AS ZIP_NO
+                 , C.ADR_CT||' '||C.ADDRESS AS ADDRESS
+                 , C.PHN_NO
+
+                 --보직변경일
+                 , TO_CHAR(TO_DATE(B.STR_YMD, 'YYYYMMDD'), 'YYYY/MM/DD') AS CHANGE_YMD
+
+                 -- 입사 전
+                 , A.OCC_CD                 AS CHANGE_OCC_CD
+                 , A.DPT_CD                 AS CHANGE_DPT_CD
+                 , A.JOB_CD                 AS CHANGE_JOB_CD
+                 , A.HOB_CD                 AS CHANGE_HOB_CD
+                 , ASNHR.SF_GET_DPTNAME( '01', 'A4', A.DPT_CD) AS CHANGE_DPT_NM
+                 , ASNHR.SF_GET_COMMNAME('01', 'A2', A.JOB_CD) AS CHANGE_JOB_NM
+                 , ASNHR.SF_GET_STDB_AMT( A.ENO_NO
+                                  , A.OCC_CD
+                                  , A.DPT_CD
+                                  , A.JOB_CD
+                                  , A.HOB_CD
+                                  , NVL(A.END_YMD, TO_CHAR(SYSDATE, 'YYYYMMDD'))
+                                  )         AS CHANGE_AMT
+
+                -- 입사 후
+                 , B.OCC_CD                 AS BEFORE_OCC_CD
+                 , B.DPT_CD                 AS BEFORE_DPT_CD
+                 , B.JOB_CD                 AS BEFORE_JOB_CD
+                 , B.HOB_CD                 AS BEFORE_HOB_CD
+                 , ASNHR.SF_GET_DPTNAME( '01', 'A4', B.DPT_CD) AS BEFORE_DPT_NM
+                 , ASNHR.SF_GET_COMMNAME('01', 'A2', B.JOB_CD) AS BEFORE_JOB_NM
+                 , ASNHR.SF_GET_STDB_AMT( B.ENO_NO
+                                  , B.OCC_CD
+                                  , B.DPT_CD
+                                  , B.JOB_CD
+                                  , B.HOB_CD
+                                  , NVL(B.END_YMD, TO_CHAR(SYSDATE, 'YYYYMMDD'))
+                                  )         AS BEFORE_AMT
+              FROM (SELECT ROW_NUMBER() OVER(PARTITION BY ENO_NO
+                                                 ORDER BY ENO_NO
+                                                     , STR_YMD DESC
+                                                     , SEQ_NO DESC
+                                             )-1 AS NUM
+                         , ENO_NO
+                         , OCC_CD
+                         , STR_YMD
+                         , END_YMD
+                         , APP_CD
+                         , DPT_CD
+                         , JOB_CD
+                         , HOB_CD
+                      FROM ASNHR.T_CM_AHISTORY
+                    ) A
+                 , (SELECT ROW_NUMBER() OVER(PARTITION BY ENO_NO
+                                                 ORDER BY ENO_NO
+                                                        , STR_YMD DESC
+                                                        , SEQ_NO DESC
+                                             ) AS NUM
+                         , ENO_NO
+                         , OCC_CD
+                         , STR_YMD
+                         , END_YMD
+                         , APP_CD
+                         , DPT_CD
+                         , JOB_CD
+                         , HOB_CD
+                      FROM ASNHR.T_CM_AHISTORY
+                    ) B
+                 , VI_T_CM_PERSON C
+             WHERE A.NUM    = B.NUM(+)
+               AND A.ENO_NO = B.ENO_NO(+)
+               AND A.ENO_NO = C.ENO_NO
+               AND B.APP_CD = 'LG1'
+               AND TO_CHAR(TO_DATE(B.STR_YMD), 'YYYY-MM-DD') BETWEEN ? AND ?
+               AND C.OCC_CD = NVL(?, C.OCC_CD)
+	      ORDER BY C.DPT_SEQ
+                 , C.JOB_SEQ
+                 , C.HOB_SEQ
+                 , C.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 2007년 이후 사용 할 보험세율을 수정 한다. -->
+    <sql name="INSB020_UPT_01">
+        <description>의료보험료 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_PERSON
+               SET HINU_AMT = ?     --보험료
+				  ,HIU_TAG = '1'	--default 납입
+                  ,MAPP_AMT = ?     --표준보수월액
+             WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : IDSB030
+* @description : 건강보험전산매체
+***********************************************************************
+* 2007/03/21     조정호       최초작성
+***********************************************************************
+-->
+    <!-- 건강보험전산매체 리스트를 조회 한다. -->
+    <sql name="INSB030_SHR">
+        <description>건강보험전산매체 리스트를 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ROW_NUMBER() OVER(ORDER BY INS_NO) AS NUM
+                 , H.INS_NO
+                 , H.PLA_NO
+                 , H.DIS_NO
+                 , H.ACCOUNT
+                 , H.PLA_NM
+                 , H.HIU_NO
+                 , I.ENO_NO
+                 , REPLACE(H.ENO_NM, ' ','') AS ENO_NM
+                 , H.CET_NO
+                 , H.HIRG_YMD
+                 , H.PST_MM
+                 , H.PST_OLD_MM
+                 , H.PST_AMT
+                 , H.PST_OLD_AMT
+                 , H.PST_TOT_AMT
+                 , I.TMP_SUM_AMT
+                 , I.PIS_MM_CNT
+                 , 1 AS STATUS
+                 , TO_CHAR(ROW_NUMBER() OVER(ORDER BY INS_NO),'FM000000')
+                   ||SUBSTR(H.NPN_NO,7,99)
+                   ||TO_CHAR(I.TMP_SUM_AMT,'FM0000000000000')
+                   ||TO_CHAR(I.PIS_MM_CNT,'FM00') AS NPN_NO
+              FROM ASNHR.T_INS_TEMP H
+                 , (SELECT A.ENO_NO
+                         , A.CET_NO
+                         , A.ENO_NM
+                         , D.PIS_MM_CNT
+                         , NVL(B.SALT_AMT, 0) AS TMP_SUM_AMT
+                      FROM (SELECT ENO_NO
+                                 , ENO_NM
+                                 , CET_NO
+                              FROM ASNHR.T_CM_PERSON
+                             WHERE (RET_YMD IS NULL
+                                OR  TO_CHAR(RET_YMD, 'YYYYMMDD') >= TO_CHAR(SYSDATE, 'YYYYMMDD'))
+                               AND TO_CHAR(HIR_YMD,'YYYYMMDD') <= ?
+                            ) A
+                         , (SELECT ENO_NO
+                                 , SUM(NVL(SALT_AMT,0)) - SUM(NVL(FREE_TAX,0)) AS SALT_AMT
+                              FROM ASNHR.T_CP_PAYMASTER
+                             WHERE PIS_YY = SUBSTR(?, 1, 4)
+                          GROUP BY ENO_NO
+                            ) B
+                         , (SELECT ENO_NO
+                                 , COUNT(DISTINCT PIS_MM) AS PIS_MM_CNT
+                              FROM ASNHR.T_CP_PAYMASTER
+                             WHERE PIS_YY = SUBSTR(?, 1, 4)
+                          GROUP BY ENO_NO
+                            ) D
+                     WHERE A.ENO_NO = B.ENO_NO(+)
+                       AND A.ENO_NO = D.ENO_NO(+)
+                  ORDER BY A.ENO_NO
+                    ) I
+             WHERE H.CET_NO = REPLACE(I.CET_NO,'-')
+             [1]
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 건강보험전산매체 리스트를 삭제 한다. -->
+    <sql name="INSB030_DEL">
+        <description>건강보험전산매체 리스트를 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE
+               FROM ASNHR.T_INS_TEMP
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 건강보험전산매체 리스트를 조회 한다. -->
+    <sql name="INSB030_INS">
+        <description>건강보험전산매체 리스트를 조회</description>
+        <query>
+            <![CDATA[
+             INSERT
+               INTO ASNHR.T_INS_TEMP
+                    (INS_NO
+                    ,PLA_NO
+                    ,DIS_NO
+                    ,ACCOUNT
+                    ,PLA_NM
+                    ,HIU_NO
+                    ,ENO_NM
+                    ,CET_NO
+                    ,HIRG_YMD
+                    ,PST_MM
+                    ,PST_OLD_MM
+                    ,PST_TOT_AMT
+                    ,PST_AMT
+                    ,PST_OLD_AMT
+                    ,NPN_NO)
+             VALUES (?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 퇴직자인지 아닌지 여부 체크 -->
+    <sql name="INSB030_CHK">
+        <description>건강보험전산매체 리스트를 조회</description>
+        <query>
+            <![CDATA[
+             SELECT COUNT(*) AS CHK
+               FROM ASNHR.T_CM_PERSON
+              WHERE ENO_NO = ?
+                AND (RET_YMD IS NULL
+                 OR  RET_YMD >= ?)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 의료보험료 입력하기 (T_CM_PERSON) -->
+    <sql name="INSB030_UPT">
+        <description>건강보험전산매체 리스트를 조회</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_PERSON
+               SET HINU_AMT     = ?         --의료보험료
+             WHERE ENO_NO       = ?
+               AND RET_YMD IS NULL
+                OR RET_YMD >= SYSDATE
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : INSB040
+* @description : 건강보험등급Update
+***********************************************************************
+* 2007/07/05      조정호       최초작성
+***********************************************************************
+-->
+    <!-- 대상자가 있는지 여부 확인 -->
+    <sql name="INSB040_SHR">
+        <description>대상자가 있는지 여부 확인</description>
+        <query>
+            <![CDATA[
+            SELECT CASE
+                   WHEN CNT = 0
+                   THEN 'N'
+                   WHEN RET_YMD IS NULL
+                     OR RET_YMD >= SYSDATE
+                   THEN 'Y'
+                   ELSE 'R'
+                    END AS CHK
+              FROM (SELECT CNT
+                         , (SELECT RET_YMD
+                              FROM ASNHR.T_CM_PERSON
+                             WHERE CET_NO = ?
+                            ) AS RET_YMD
+                      FROM (SELECT COUNT(ENO_NO) AS CNT
+                              FROM ASNHR.T_CM_PERSON
+                             WHERE CET_NO = ?
+                            )
+                    )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 건강보험등급을 수정 한다.(인사마스터) -->
+    <sql name="INSB040_UPT">
+        <description>건강보험등급 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_PERSON
+               SET 
+                   HINU_AMT = ?     -- 보험료
+                 , OLD_AMT = ?     -- 장기요양보험료
+             WHERE ENO_NO   = ?     -- 주민번호
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : INSC010
+* @description : 평균임금산정
+***********************************************************************
+* 2007/03/06     조정호       최초작성
+***********************************************************************
+-->
+
+
+  <!-- 회사 정보를 조회 한다. -->
+    <sql name="INSC010_SHR_COMP">
+        <description>회사 정보  조회</description>
+        <query>
+            <![CDATA[
+            SELECT COMP_NM, PRESIDENT_NM, ADDRESS_HD, ADDRESS_DT
+            FROM ASNHR.T_CM_COMPANY
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 선택 직원의 정보를 조회 한다. -->
+    <sql name="INSC010_SHR_EMP">
+        <description>선택 직원의 정보  조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                  ,ENO_NM
+                  ,DPT_NM
+                  ,JOB_NM
+                  ,CET_NO
+                  ,TO_CHAR(HIR_YMD, 'YYYY-MM-DD') AS HIRG_YMD
+                  ,OCC_CD
+                  ,OCC_NM
+              FROM VI_T_CM_PERSON PERSON
+             WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 선택 직원의 정보를 조회 한다. -->
+    <sql name="INSC010_PRT_EMP">
+        <description>선택 직원의 정보  조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO
+                  ,ENO_NM
+                  ,DPT_NM
+                  ,JOB_NM
+                  ,CET_NO
+                  ,TO_CHAR(HIRG_YMD, 'YYYY/MM/DD') AS HIRG_YMD
+                  ,OCC_CD
+                  ,OCC_CD||' '||OCC_NM AS OCC_NM
+                  , ? AS DATE_NM
+                  , ? AS DATE_TERM
+              FROM VI_T_CM_PERSON PERSON
+             WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 임금산정 상여금 -->
+    <sql name="INSC010_PRT_SANG">
+        <description>선택 직원의 정보  조회</description>
+        <query>
+            <![CDATA[
+              SELECT sf_get_sang_800(?,?) AS SANG_AMT , sf_get_sang_800(?,?)*3/12 AS AVR_SANGAMT FROM DUAL
+
+             ]]>
+        </query>
+    </sql>
+
+
+   <!-- 산정 내역 정보를 조회 한다. -->
+    <sql name="INSC013_PRT">
+        <description>산정 내역  조회</description>
+        <query>
+            <![CDATA[
+                SELECT '2' as GBN, SUM(YEARLY.PAY_AMT) AS YEAR, (SUM(YEARLY.PAY_AMT)*3/12) AS YEAR_AVG
+                FROM (SELECT PIS_YY||PIS_MM AS PIS_YM
+                            ,ENO_NO
+                            ,PAY_AMT
+                        FROM ASNHR.T_CP_YEARLYBONUS) YEARLY
+                WHERE PIS_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(?),-12), 'YYYYMM') AND TO_CHAR(TO_DATE(?)-1, 'YYYYMM')
+                 AND ENO_NO =?
+
+                   ]]>
+        </query>
+    </sql>
+
+  <!-- 산정 내역 정보를 조회 한다. -->
+    <sql name="INSC012_PRT">
+        <description>산정 내역  조회</description>
+        <query>
+            <![CDATA[
+
+              SELECT '1' AS GBN, SUM(PAY.BONUS)+SUM(ADD_AMT) AS BONUS,
+			  ((SUM(PAY.BONUS)+SUM(ADD_AMT)) / 4) AS BONUS_AVG
+                FROM (SELECT PAY.PIS_YY||PAY.PIS_MM AS PIS_YM
+                            ,PAY.ENO_NO
+                            ,ADD_AMT
+                            ,CASE
+                             WHEN OCC_CD = 'A'
+                             THEN (CASE
+                                   WHEN JOB_CD = 'SD' OR JOB_CD = 'JD' OR JOB_CD = 'A7'
+                                   THEN 0
+                                   ELSE (BAS_AMT+DUTY_AMT+OT_AMT+WEL_AMT+OSE_AMT+RUN_AMT+MH_AMT)
+                                    END)
+                             WHEN OCC_CD = 'M'
+                             THEN (CASE
+                                   WHEN JOB_CD = '7B' OR JOB_CD = '7C'
+                                   THEN (BAS_AMT+OT_AMT+WEL_AMT+OSE_AMT)
+                                   WHEN JOB_CD = 'Z1' OR JOB_CD = 'SD' OR JOB_CD = 'JD' OR JOB_CD = 'A7'
+                                   THEN 0
+                                   ELSE (BAS_AMT+OT_AMT+MH_AMT)
+                                    END)
+                              END AS BONUS--상여
+                        FROM ASNHR.T_CP_PAYMASTER PAY
+                            ,(SELECT ENO_NO
+                                    ,BACK_YY AS PIS_YY
+                                    ,BACK_MM AS PIS_MM
+                                    ,SUM(AMOUNT) AS ADD_AMT
+                                FROM ASNHR.T_CP_CHANGE CHANGE
+                               WHERE SAL_CD IN ('DA')
+                                 AND BACK_GBN = '1'
+                               GROUP BY ENO_NO, BACK_YY, BACK_MM) ADD_PAY
+                       WHERE SAL_GBN='1'
+                         AND PAY.ENO_NO = ADD_PAY.ENO_NO(+)
+                         AND PAY.PIS_YY = ADD_PAY.PIS_YY(+)
+                         AND PAY.PIS_MM = ADD_PAY.PIS_MM(+)) PAY
+               WHERE PAY.PIS_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(?),-12), 'YYYYMM') AND TO_CHAR(TO_DATE(?)-1, 'YYYYMM')
+                 AND ENO_NO = ?
+                   ]]>
+        </query>
+    </sql>
+
+
+    <!-- 산정 내역 정보를 조회 한다. -->
+    <sql name="INSC011_PRT">
+        <description>산정 내역  조회</description>
+        <query>
+            <![CDATA[
+            SELECT COMP_NM, ('대 표 이 사 ' || PRESIDENT_NM ) AS PRESIDENT_NM, (ADDRESS_HD || ' ' || ADDRESS_DT) AS ADDRESS FROM ASNHR.T_CM_COMPANY
+
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 산정 내역 정보를 조회 한다. -->
+    <sql name="INSC010_PRT">
+        <description>산정 내역  조회</description>
+        <query>
+            <![CDATA[
+	        SELECT WORKING_DATE,MIN(PIS_YY) as PIS_YY ,MIN(PIS_MM) as PIS_MM  ,MIN(LAST_DAY) as LAST_DAY  ,MIN(PAST_DAY) as PAST_DAY  ,MIN(BAS_AMT) as BAS_AMT  ,MIN(DUTY_AMT) as  DUTY_AMT ,MIN(OT_AMT) as OT_AMT  ,MIN(WEL_AMT) as  WEL_AMT ,MIN(OSE_AMT) as  OSE_AMT ,MIN(RUN_AMT) as RUN_AMT  ,MIN(MH_AMT) as  MH_AMT , MIN(LSEV_AMT) as  LSEV_AMT ,MAX(AMOUNT20) as  AMOUNT20 ,MAX(AMOUNTLU) as AMOUNTLU ,MAX(AMOUNTTR) as AMOUNTTR
+              ,MAX(NM20) AS NM20,MAX(NMTR) AS NMTR,MAX(NMLU) AS NMLU
+              FROM
+              (
+	          SELECT MAIN.*, SUB.SAL_CD, SUB.SAL_NM, SUB.AMOUNT,
+		      DECODE(SUB.SAL_CD, '20', SUB.SAL_NM, '')AS NM20,
+		      DECODE(SUB.SAL_CD, 'LU', SUB.SAL_NM, '')AS NMLU,
+		      DECODE(SUB.SAL_CD, 'TR', SUB.SAL_NM, '')AS NMTR,
+		      DECODE(SUB.SAL_CD, '20', ROUND(SUB.AMOUNT/MAIN.LAST_DAY*PAST_DAY),0) AS AMOUNT20,
+		      DECODE(SUB.SAL_CD, 'LU', ROUND(SUB.AMOUNT/MAIN.LAST_DAY*PAST_DAY),0) AS AMOUNTLU,
+		      DECODE(SUB.SAL_CD, 'TR', ROUND(SUB.AMOUNT/MAIN.LAST_DAY*PAST_DAY),0) AS AMOUNTTR
+				FROM
+					(
+					SELECT WORKING_DATE
+						  ,PIS_YY
+						  ,PIS_MM
+						  ,LAST_DAY
+						  ,PAST_DAY
+						  ,ROUND(BAS_AMT/LAST_DAY*PAST_DAY) AS BAS_AMT     --기본급여
+						  ,ROUND(DUTY_AMT/LAST_DAY*PAST_DAY) AS DUTY_AMT    --직책/주휴수당
+						  ,ROUND(OT_AMT/LAST_DAY*PAST_DAY) AS OT_AMT      --시간외수당
+						  ,ROUND(WEL_AMT/LAST_DAY*PAST_DAY) AS WEL_AMT     --복지/기술수당
+						  ,ROUND(OSE_AMT/LAST_DAY*PAST_DAY) AS OSE_AMT     --자기개발비/택배수당
+						  ,ROUND(RUN_AMT/LAST_DAY*PAST_DAY) AS RUN_AMT     --운행/면허/작업수당
+						  ,ROUND(MH_AMT/LAST_DAY*PAST_DAY) AS MH_AMT      --월차수당
+						  ,ROUND(LSEV_AMT/LAST_DAY*PAST_DAY) AS LSEV_AMT      --근속수당
+						  ,ENO_NO
+					 FROM (SELECT PAY.*
+						         ,DECODE(NUM
+						         ,1, LAST_DAY - TO_CHAR(FROM_YMD, 'DD') +1
+						         ,4, TO_CHAR(TO_YMD, 'DD')
+						         ,LAST_DAY) AS PAST_DAY
+						         ,DECODE(NUM
+						         ,1, PIS_YM||'.'||TO_CHAR(FROM_YMD, 'DD')||'~'||PIS_YM||'.'||LAST_DAY
+						         ,4, PIS_YM||'.'||'01~'||PIS_YM||'.'||TO_CHAR(TO_YMD, 'DD')
+						         ,PIS_YM||'.'||'01~'||PIS_YM||'.'||LAST_DAY) AS WORKING_DATE
+						   FROM (SELECT ROW_NUMBER() OVER(ORDER BY PAY.PIS_YY , PAY.PIS_MM) AS NUM
+						              ,SUBSTR(PAY.PIS_YY, 3, 2)||'.'||PAY.PIS_MM AS PIS_YM
+						              ,PAY.PIS_YY
+						              ,PAY.PIS_MM
+						              ,TO_CHAR(LAST_DAY(TO_DATE(PAY.PIS_YY||PAY.PIS_MM||'01')), 'DD') AS LAST_DAY
+						              ,BAS_AMT
+						               +NVL((SELECT SUM(AMOUNT) AS ADD_AMT
+						         FROM ASNHR.T_CP_CHANGE CHANGE
+						          WHERE SAL_CD IN ('DA')
+						          AND BACK_GBN = '0'
+						          AND ENO_NO = PAY.ENO_NO
+						          AND BACK_YY = PAY.PIS_YY
+						          AND BACK_MM = PAY.PIS_MM),0) AS BAS_AMT      --기본급여
+						            ,DUTY_AMT   --A:직책수당 M:복지수당
+						            ,OT_AMT     --시간외수당
+						            ,WEL_AMT    --A:복지수당 M:기술수당
+						            ,OSE_AMT    --A:자기개발 M:택배수당
+						            ,RUN_AMT    --A:운행수당
+						            ,MH_AMT     --M:자기개발
+						            ,LSEV_AMT   --:근속수당
+						            ,FROM_YMD
+						            ,TO_YMD
+					                ,ENO_NO
+						          FROM ASNHR.T_CP_PAYMASTER PAY
+						          ,(SELECT CASE WHEN TO_CHAR(LAST_DAY(SCH_YMD),'DD') = TO_CHAR(SCH_YMD,'DD')
+						                      THEN ADD_MONTHS(TO_DATE(TO_CHAR(SCH_YMD,'YYYYMM')||'01'),-2)
+						                      ELSE ADD_MONTHS(SCH_YMD,-3)+1
+						                      END AS FROM_YMD
+						                  ,SCH_YMD AS TO_YMD
+						            FROM (SELECT TO_DATE(?)-1 AS SCH_YMD
+						          FROM DUAL))  --날짜값 비교를 위해 더미 TABLE
+						          WHERE PAY.ENO_NO = ?
+						              ND PAY.PIS_YY||PAY.PIS_MM
+						               BETWEEN TO_CHAR(FROM_YMD, 'YYYYMM')
+						                     AND TO_CHAR(TO_YMD, 'YYYYMM')
+						                     AND PAY.SAL_GBN = '0') PAY)
+										) MAIN ,
+							( SELECT SAL_CD, ENO_NO
+								     ,SF_GET_COMMNAME('01','U4',SAL_CD) AS SAL_NM
+									 ,AMOUNT
+						       FROM ASNHR.T_CP_CHANGE CHANGE
+					                 ,(SELECT TO_CHAR(LAST_DAY(TO_DATE(?)), 'YYYY') as PIS_YY
+						             ,TO_CHAR(LAST_DAY(TO_DATE(?)), 'MM')  as PIS_MM
+							      FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+						          WHERE ENO_NO = ?
+					              AND CHANGE.PIS_YY = DUMY.PIS_YY
+								  AND CHANGE.PIS_MM = DUMY.PIS_MM
+							      AND TRS_TAG = 'F'
+								  AND SAL_CD NOT IN ('DA')
+								  AND SAL_GBN = '0'
+						       ORDER BY SAL_CD) SUB
+							   WHERE MAIN.ENO_NO = SUB.ENO_NO
+                            )
+                    GROUP BY WORKING_DATE
+                 ]]>
+        </query>
+    </sql>
+
+    <!-- 신청내역의 기타수당 정보의 필드를 조회 한다. -->
+    <sql name="INSC010_SHR_ETC_FIELD">
+        <description>신청내역의 기타수당 정보의 필드를 조회 한다.</description>
+        <query>
+            <![CDATA[
+              SELECT SAL_CD
+                    ,SF_GET_COMMNAME('01','U4',SAL_CD) AS SAL_NM
+                    ,DECODE(SAL_CD,'LU','1','TR','2','20','3','4') SAL_SEQ
+                FROM ASNHR.T_CP_CHANGE
+                    ,(SELECT ADD_MONTHS(TO_DATE(?),-3) AS FROM_YMD
+                            ,TO_DATE(?)-1 AS TO_YMD
+                        FROM DUAL) --날짜값 비교를 위해 더미 TABLE
+               WHERE ENO_NO = ?
+                 AND PIS_YY||PIS_MM
+                     BETWEEN TO_CHAR(FROM_YMD, 'YYYYMM')
+                         AND TO_CHAR(TO_YMD, 'YYYYMM')
+                 AND TRS_TAG = 'F'
+                 AND SAL_CD NOT IN ('DA')
+                 AND SAL_GBN = '0'
+               GROUP BY SAL_CD
+               ORDER BY SAL_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신청내역의 기타수당 금액(인쇄용) -->
+    <sql name="INSC010_SHR_ETC_PRT">
+        <description>신청내역의 기타수당 금액(인쇄용)</description>
+        <query>
+            <![CDATA[
+
+             SELECT A.AMOUNT AS AMOUNT1, B.AMOUNT AS AMOUNT2, C.AMOUNT AS AMOUNT3, NVL(D.AMOUNT,0) AS AMOUNT4
+                FROM (SELECT SAL_CD
+                        ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT, ENO_NO
+                         FROM ASNHR.T_CP_CHANGE CHANGE
+                           ,(SELECT SubStr(?,1,4) as PIS_YY
+                               ,SubStr(?,5,2) as PIS_MM
+                               ,(SELECT To_Char(Last_Day(To_Date(SubStr(?,1,6),'yyyy-MM')),'dd') AS last_day FROM dual) AS LAST_DAY
+                               ,? AS PAST_DAY
+                             FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+                              WHERE ENO_NO = ?
+                              AND CHANGE.PIS_YY = DUMY.PIS_YY
+                              AND CHANGE.PIS_MM = DUMY.PIS_MM
+                              AND TRS_TAG = 'F'
+                              AND SAL_CD NOT IN ('DA')
+                              AND SAL_GBN = '0'
+                              AND SAL_CD = 'LU'
+                              GROUP BY SAL_CD, ENO_NO ) A,
+                      (SELECT SAL_CD
+                         ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT
+                         FROM ASNHR.T_CP_CHANGE CHANGE
+                           ,(SELECT SubStr(?,1,4) as PIS_YY
+                               ,SubStr(?,5,2) as PIS_MM
+                               ,(SELECT To_Char(Last_Day(To_Date(SubStr(?,1,6),'yyyy-MM')),'dd') AS last_day FROM dual) AS LAST_DAY
+                               ,? AS PAST_DAY
+                             FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+                              WHERE ENO_NO = ?
+                              AND CHANGE.PIS_YY = DUMY.PIS_YY
+                              AND CHANGE.PIS_MM = DUMY.PIS_MM
+                              AND TRS_TAG = 'F'
+                              AND SAL_CD NOT IN ('DA')
+                              AND SAL_GBN = '0'
+                              AND SAL_CD = 'TR'
+                              GROUP BY SAL_CD ) B,
+                       (SELECT SAL_CD
+                         ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT
+                         FROM ASNHR.T_CP_CHANGE CHANGE
+                           ,(SELECT SubStr(?,1,4) as PIS_YY
+                               ,SubStr(?,5,2) as PIS_MM
+                               ,(SELECT To_Char(Last_Day(To_Date(SubStr(?,1,6),'yyyy-MM')),'dd') AS last_day FROM dual) AS LAST_DAY
+                               ,? AS PAST_DAY
+                             FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+                              WHERE ENO_NO = ?
+                              AND CHANGE.PIS_YY = DUMY.PIS_YY
+                              AND CHANGE.PIS_MM = DUMY.PIS_MM
+                              AND TRS_TAG = 'F'
+                              AND SAL_CD NOT IN ('DA')
+                              AND SAL_GBN = '0'
+                              AND SAL_CD = '20'
+                              GROUP BY SAL_CD ) C,
+                       (SELECT SAL_CD
+                         ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT, ENO_NO
+                         FROM ASNHR.T_CP_CHANGE CHANGE
+                           ,(SELECT SubStr(?,1,4) as PIS_YY
+                               ,SubStr(?,5,2) as PIS_MM
+                               ,(SELECT To_Char(Last_Day(To_Date(SubStr(?,1,6),'yyyy-MM')),'dd') AS last_day FROM dual) AS LAST_DAY
+                               ,? AS PAST_DAY
+                             FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+                              WHERE ENO_NO = ?
+                              AND CHANGE.PIS_YY = DUMY.PIS_YY
+                              AND CHANGE.PIS_MM = DUMY.PIS_MM
+                              AND TRS_TAG = 'F'
+                              AND SAL_CD NOT IN ('DA')
+                              AND SAL_GBN = '0'
+                              AND SAL_CD = 'JY'
+                              GROUP BY SAL_CD, ENO_NO) D
+                      WHERE A.ENO_NO=D.ENO_NO(+)
+                ]]>
+        </query>
+    </sql>
+
+    <!-- 신청내역의 기타수당 금액(인쇄용) -->
+    <sql name="INSC010_SHR_ETC2_PRT">
+        <description>신청내역의 기타수당2 금액(인쇄용)</description>
+        <query>
+            <![CDATA[
+             SELECT A.AMOUNT AS AMOUNT1, B.AMOUNT AS AMOUNT2, C.AMOUNT AS AMOUNT3, NVL(D.AMOUNT,0) AS AMOUNT4
+                FROM( SELECT SAL_CD
+				    ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT, ENO_NO
+				FROM ASNHR.T_CP_CHANGE CHANGE
+				    ,(SELECT To_char(Add_Months(?,+1),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+1),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+1),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				          WHERE ENO_NO = ?
+				          AND CHANGE.PIS_YY = DUMY.PIS_YY
+				          AND CHANGE.PIS_MM = DUMY.PIS_MM
+				          AND TRS_TAG = 'F'
+				          AND SAL_CD NOT IN ('DA')
+				          AND SAL_GBN = '0'
+				          AND SAL_CD = 'LU'
+                        GROUP BY SAL_CD, ENO_NO ) A,
+                (SELECT SAL_CD
+				     ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT
+				      FROM ASNHR.T_CP_CHANGE CHANGE
+				     ,(SELECT To_char(Add_Months(?,+1),'yyyy') as PIS_YY
+				             ,To_char(Add_Months(?,+1),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+1),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				         WHERE ENO_NO = ?
+				         AND CHANGE.PIS_YY = DUMY.PIS_YY
+				         AND CHANGE.PIS_MM = DUMY.PIS_MM
+				         AND TRS_TAG = 'F'
+				         AND SAL_CD NOT IN ('DA')
+				         AND SAL_GBN = '0'
+				         AND SAL_CD = 'TR'
+                       GROUP BY SAL_CD) B,
+                (SELECT SAL_CD
+				     ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT
+				     FROM ASNHR.T_CP_CHANGE CHANGE
+				     ,(SELECT To_char(Add_Months(?,+1),'yyyy') as PIS_YY
+				             ,To_char(Add_Months(?,+1),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+1),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				      FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+				        AND SAL_CD = '20'
+                     GROUP BY SAL_CD) C,
+                (SELECT SAL_CD
+				     ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT, ENO_NO
+				      FROM ASNHR.T_CP_CHANGE CHANGE
+				      ,(SELECT To_char(Add_Months(?,+1),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+1),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+1),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				      FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+				        AND SAL_CD = 'JY'
+                     GROUP BY SAL_CD, ENO_NO ) D
+                 WHERE A.ENO_NO=D.ENO_NO(+)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신청내역의 기타수당 금액(인쇄용) -->
+    <sql name="INSC010_SHR_ETC3_PRT">
+        <description>신청내역의 기타수당3 금액(인쇄용)</description>
+        <query>
+            <![CDATA[
+             SELECT A.AMOUNT AS AMOUNT1, B.AMOUNT AS AMOUNT2, C.AMOUNT AS AMOUNT3, NVL(D.AMOUNT,0) AS AMOUNT4
+                  FROM(SELECT SAL_CD
+				    ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT, ENO_NO
+				      FROM ASNHR.T_CP_CHANGE CHANGE
+				     ,(SELECT To_char(Add_Months(?,+2),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+2),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+2),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				       FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+    			        AND SAL_CD = 'LU'
+				        GROUP BY SAL_CD, ENO_NO) A,
+				   (SELECT SAL_CD
+				      ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT
+				       FROM ASNHR.T_CP_CHANGE CHANGE
+				       ,(SELECT To_char(Add_Months(?,+2),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+2),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+2),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+    			        AND SAL_CD = 'TR'
+				        GROUP BY SAL_CD) B,
+				    (SELECT SAL_CD
+				      ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT
+				       FROM ASNHR.T_CP_CHANGE CHANGE
+				       ,(SELECT To_char(Add_Months(?,+2),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+2),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+2),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+    			        AND SAL_CD = '20'
+				        GROUP BY SAL_CD) C,
+				    (SELECT SAL_CD
+				      ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT, ENO_NO
+				       FROM ASNHR.T_CP_CHANGE CHANGE
+				       ,(SELECT To_char(Add_Months(?,+2),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+2),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+2),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+    			        AND SAL_CD = 'JY'
+				        GROUP BY SAL_CD, ENO_NO ) D
+				    WHERE A.ENO_NO=D.ENO_NO(+)
+               ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 신청내역의 기타수당 금액(인쇄용) -->
+    <sql name="INSC010_SHR_ETC4_PRT">
+        <description>신청내역의 기타수당4 금액(인쇄용)</description>
+        <query>
+            <![CDATA[
+             SELECT A.AMOUNT AS AMOUNT1, B.AMOUNT AS AMOUNT2, C.AMOUNT AS AMOUNT3, NVL(D.AMOUNT,0) AS AMOUNT4
+               FROM(SELECT SAL_CD
+				    ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT, ENO_NO
+				     FROM ASNHR.T_CP_CHANGE CHANGE
+				     ,(SELECT To_char(Add_Months(?,+3),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+3),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+3),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+				        AND SAL_CD = 'LU'
+				        GROUP BY SAL_CD, ENO_NO) A,
+				    (SELECT SAL_CD
+				       ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT
+				        FROM ASNHR.T_CP_CHANGE CHANGE
+				      ,(SELECT To_char(Add_Months(?,+3),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+3),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+3),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+				        AND SAL_CD = 'TR'
+				        GROUP BY SAL_CD) B,
+				    (SELECT SAL_CD
+				       ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT
+				        FROM ASNHR.T_CP_CHANGE CHANGE
+				      ,(SELECT To_char(Add_Months(?,+3),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+3),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+3),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+				        AND SAL_CD = '20'
+				        GROUP BY SAL_CD) C,
+				     (SELECT SAL_CD
+				      ,NVL(SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)),0) AS AMOUNT, ENO_NO
+				       FROM ASNHR.T_CP_CHANGE CHANGE
+				       ,(SELECT To_char(Add_Months(?,+3),'yyyy') as PIS_YY
+				            ,To_char(Add_Months(?,+3),'mm') as PIS_MM
+				            ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+3),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				            ,? AS PAST_DAY
+				        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+				        WHERE ENO_NO = ?
+				        AND CHANGE.PIS_YY = DUMY.PIS_YY
+				        AND CHANGE.PIS_MM = DUMY.PIS_MM
+				        AND TRS_TAG = 'F'
+				        AND SAL_CD NOT IN ('DA')
+				        AND SAL_GBN = '0'
+				        AND SAL_CD = 'JY'
+				        GROUP BY SAL_CD, ENO_NO) D
+				      WHERE A.ENO_NO=D.ENO_NO(+)
+
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 신청내역의 기타수당 금액(인쇄용) -->
+    <sql name="INSC010_SHR_ETC_SUM_PRT">
+        <description>신청내역의 기타수당4 금액(인쇄용)</description>
+        <query>
+            <![CDATA[
+            	SELECT sal_cd , Sum(amount) amount
+				FROM
+				(
+				  SELECT SAL_CD
+				      ,SF_GET_COMMNAME('01','U4',SAL_CD) AS SAL_NM
+				      ,ROUND(AMOUNT/LAST_DAY*PAST_DAY) AS AMOUNT
+				  FROM ASNHR.T_CP_CHANGE CHANGE
+				      ,(
+				          SELECT To_char(Add_Months(?,0),'yyyy') as PIS_YY
+				                ,To_char(Add_Months(?,0),'mm') as PIS_MM
+				                ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,0),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				                ,? AS PAST_DAY
+				          FROM DUAL
+				       ) DUMY--날짜값 비교를 위해 더미 TABLE
+				  WHERE ENO_NO = ?
+				       AND CHANGE.PIS_YY = DUMY.PIS_YY
+				       AND CHANGE.PIS_MM = DUMY.PIS_MM
+				       AND TRS_TAG = 'F'
+				       AND SAL_CD NOT IN ('DA')
+				       AND SAL_GBN = '0'
+				  UNION ALL
+				  SELECT SAL_CD
+				      ,SF_GET_COMMNAME('01','U4',SAL_CD) AS SAL_NM
+				      ,ROUND(AMOUNT/LAST_DAY*PAST_DAY) AS AMOUNT
+				  FROM ASNHR.T_CP_CHANGE CHANGE
+				      ,(
+				          SELECT To_char(Add_Months(?,+1),'yyyy') as PIS_YY
+				                ,To_char(Add_Months(?,+1),'mm') as PIS_MM
+				                ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+1),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				                ,? AS PAST_DAY
+				          FROM DUAL
+				       ) DUMY--날짜값 비교를 위해 더미 TABLE
+				  WHERE ENO_NO = ?
+				       AND CHANGE.PIS_YY = DUMY.PIS_YY
+				       AND CHANGE.PIS_MM = DUMY.PIS_MM
+				       AND TRS_TAG = 'F'
+				       AND SAL_CD NOT IN ('DA')
+				       AND SAL_GBN = '0'
+				  UNION ALL
+				  SELECT SAL_CD
+				      ,SF_GET_COMMNAME('01','U4',SAL_CD) AS SAL_NM
+				      ,ROUND(AMOUNT/LAST_DAY*PAST_DAY) AS AMOUNT
+				  FROM ASNHR.T_CP_CHANGE CHANGE
+				      ,(
+				          SELECT To_char(Add_Months(?,+2),'yyyy') as PIS_YY
+				                ,To_char(Add_Months(?,+2),'mm') as PIS_MM
+				                ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+2),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				                ,? AS PAST_DAY
+				          FROM DUAL
+				       ) DUMY--날짜값 비교를 위해 더미 TABLE
+				  WHERE ENO_NO = ?
+				       AND CHANGE.PIS_YY = DUMY.PIS_YY
+				       AND CHANGE.PIS_MM = DUMY.PIS_MM
+				       AND TRS_TAG = 'F'
+				       AND SAL_CD NOT IN ('DA')
+				       AND SAL_GBN = '0'
+				  UNION ALL
+				  SELECT SAL_CD
+				      ,SF_GET_COMMNAME('01','U4',SAL_CD) AS SAL_NM
+				      ,ROUND(AMOUNT/LAST_DAY*PAST_DAY) AS AMOUNT
+				  FROM ASNHR.T_CP_CHANGE CHANGE
+				      ,(
+				          SELECT To_char(Add_Months(?,+3),'yyyy') as PIS_YY
+				                ,To_char(Add_Months(?,+3),'mm') as PIS_MM
+				                ,(SELECT To_Char(Last_Day(To_Date(To_char(Add_Months(?,+3),'yyyymm'),'yyyy-mm')),'dd') AS last_day FROM dual) AS LAST_DAY
+				                ,? AS PAST_DAY
+				          FROM DUAL
+				       ) DUMY--날짜값 비교를 위해 더미 TABLE
+				  WHERE ENO_NO = ?
+				       AND CHANGE.PIS_YY = DUMY.PIS_YY
+				       AND CHANGE.PIS_MM = DUMY.PIS_MM
+				       AND TRS_TAG = 'F'
+				       AND SAL_CD NOT IN ('DA')
+				       AND SAL_GBN = '0'
+				)
+				GROUP BY sal_cd
+				ORDER BY sal_cd
+
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 신청내역의 기타수당 정보를 조회 한다. -->
+    <sql name="INSC010_SHR_ETC">
+        <description>신청내역의 기타수당 정보 조회</description>
+        <query>
+            <![CDATA[
+              SELECT SAL_CD
+                    ,SF_GET_COMMNAME('01','U4',SAL_CD) AS SAL_NM
+                    ,SUM(ROUND(AMOUNT/LAST_DAY*PAST_DAY)) AS AMOUNT
+                    ,DECODE(SAL_CD,'LU','1','TR','2','20','3','4') SAL_SEQ
+                FROM ASNHR.T_CP_CHANGE CHANGE
+                    ,(SELECT ? as PIS_YY
+                            ,? as PIS_MM
+                            ,? AS LAST_DAY
+                            ,? AS PAST_DAY
+                        FROM DUAL) DUMY--날짜값 비교를 위해 더미 TABLE
+               WHERE ENO_NO = ?
+                 AND CHANGE.PIS_YY = DUMY.PIS_YY
+                 AND CHANGE.PIS_MM = DUMY.PIS_MM
+                 AND TRS_TAG = 'F'
+                 AND SAL_CD NOT IN ('DA')
+                 AND SAL_GBN = '0'
+               GROUP BY SAL_CD
+               ORDER BY SAL_SEQ
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 신청내역의 연월차 수당 정보를 조회 한다. -->
+    <sql name="INSC010_SHR_YEAR_BONUS">
+        <description>신청내역의 연월차 수당 정보를 조회</description>
+        <query>
+            <![CDATA[
+              SELECT SUM(YEARLY.PAY_AMT) AS YEAR_BONUS
+                FROM (SELECT PIS_YY||PIS_MM AS PIS_YM
+                            ,ENO_NO
+                            ,PAY_AMT
+                        FROM ASNHR.T_CP_YEARLYBONUS) YEARLY
+               WHERE PIS_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(?),-12), 'YYYYMM') AND TO_CHAR(TO_DATE(?)-1, 'YYYYMM')
+                 AND ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : INSC020
+* @description : 산업재해발생관리
+***********************************************************************
+* 2007/03/06     조정호       최초작성
+***********************************************************************
+-->
+    <!-- 산업재해 정보를 조회 한다. -->
+    <sql name="INSC020_SHR">
+        <description>산업재해 정보를 조회</description>
+        <query>
+            <![CDATA[
+             SELECT REQ_NO
+                    ,PERSON.ENO_NO
+                    ,ENO_NM
+                    ,DPT_CD
+                    ,DPT_NM
+                    ,JOB_CD
+                    ,JOB_NM
+                    ,CET_NO
+                    ,TO_CHAR(HIRG_YMD, 'YYYY-MM-DD') AS HIRG_YMD
+                    ,TO_CHAR(TO_DATE(SAN_YMD), 'YYYY-MM-DD') AS SAN_YMD
+                    ,SAN_NAM
+                    ,SAN_REM
+                    ,HDC_GRA
+                    ,HDC_CD
+                    ,SF_GET_COMMNAME('01','C6',HDC_CD) AS HDC_NM
+                    ,MED_AMT
+                    ,HDC_AMT
+                    ,SUR_AMT
+                    ,TO_CHAR(TO_DATE(STR_YMD), 'YYYY-MM-DD') AS STR_YMD
+                    ,TO_CHAR(TO_DATE(END_YMD), 'YYYY-MM-DD') AS END_YMD
+                    ,TMR_DD
+                    ,SAL_AMT
+                    ,ROUND(SAL_AMT/TMR_DD) AS AVG_AMT
+                    ,ROUND(SAL_AMT/TMR_DD*0.70) AS DAY_AMT
+                    ,REC_AMT
+                    ,REMARK
+                FROM ASNHR.T_IS_ACCIDENT ACCI
+                    ,(SELECT ENO_NO
+                            ,ENO_NM
+                            ,DPT_CD
+                            ,DPT_NM
+                            ,JOB_CD
+                            ,JOB_NM
+                            ,CET_NO
+                            ,HIRG_YMD
+                        FROM VI_T_CM_PERSON) PERSON
+               WHERE ACCI.ENO_NO = PERSON.ENO_NO
+                 AND ACCI.ENO_NO = NVL(?, ACCI.ENO_NO)
+                 AND SUBSTR(ACCI.SAN_YMD,1,6) BETWEEN ?
+                                                  AND ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 산업재해 정보를 등록 한다. -->
+    <sql name="INSC020_INS">
+        <description>산업재해 정보를 등록</description>
+        <query>
+            <![CDATA[
+            INSERT
+              INTO ASNHR.T_IS_ACCIDENT
+                   (REQ_NO
+                   ,ENO_NO
+                   ,SAN_YMD
+                   ,SAN_NAM
+                   ,SAN_REM
+                   ,HDC_GRA
+                   ,HDC_CD
+                   ,MED_AMT
+                   ,HDC_AMT
+                   ,SUR_AMT
+                   ,STR_YMD
+                   ,END_YMD
+                   ,TMR_DD
+                   ,SAL_AMT
+                   ,REC_AMT
+                   ,REMARK
+                   ,IPT_MAN
+                   ,IPT_YMD
+                   ,UPT_MAN
+                   ,UPT_YMD)
+            VALUES (?
+                   ,?
+                   ,TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                   ,?
+                   ,?
+                   ,?
+                   ,?
+                   ,?
+                   ,?
+                   ,?
+                   ,TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                   ,TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                   ,?
+                   ,?
+                   ,?
+                   ,?
+                   ,?
+                   ,SYSDATE
+                   ,?
+                   ,SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 산업재해 정보를 수정 한다. -->
+    <sql name="INSC020_UPT">
+        <description>산업재해 정보를 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_IS_ACCIDENT
+               SET SAN_NAM  = ?
+                  ,SAN_REM  = ?
+                  ,HDC_GRA  = ?
+                  ,HDC_CD   = ?
+                  ,MED_AMT  = ?
+                  ,HDC_AMT  = ?
+                  ,SUR_AMT  = ?
+                  ,STR_YMD  = TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                  ,END_YMD  = TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                  ,TMR_DD   = ?
+                  ,SAL_AMT  = ?
+                  ,REC_AMT  = ?
+                  ,REMARK   = ?
+                  ,UPT_MAN  = ?
+                  ,UPT_YMD  = SYSDATE
+             WHERE REQ_NO   = ?
+               AND ENO_NO   = ?
+               AND SAN_YMD  = TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 산업재해 정보를 삭제 한다. -->
+    <sql name="INSC020_DEL">
+        <description>산업재해 정보를 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE
+              FROM ASNHR.T_IS_ACCIDENT
+             WHERE REQ_NO   = ?
+               AND ENO_NO   = ?
+               AND SAN_YMD  = TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+            ]]>
+        </query>
+    </sql>
+
+
+
+
+
+
+    <!--
+***********************************************************************
+* @UseCase     : INSC020
+* @description : 산업재해발생관리 출력
+***********************************************************************
+* 2007/05/04     방석호        최초작성
+***********************************************************************
+-->
+    <!-- 산업재해 정보를 조회 한다. -->
+    <sql name="INSC020_PRT">
+        <description>산업재해 정보를 조회</description>
+        <query>
+            <![CDATA[
+             SELECT
+             		 TO_CHAR(TO_DATE(SAN_YMD), 'YY') AS SAN_YEAR
+             		,REQ_NO
+                    ,PERSON.ENO_NO
+                    ,ENO_NM
+                    ,DPT_CD
+                    ,DPT_NM
+                    ,JOB_CD
+                    ,JOB_NM
+                    ,CET_NO
+                    ,TO_CHAR(HIRG_YMD, 'YYYY-MM-DD') AS HIRG_YMD
+                    ,TO_CHAR(TO_DATE(SAN_YMD), 'YYYY/MM/DD') AS SAN_YMD
+                    ,SAN_NAM
+                    ,SAN_REM
+                    ,HDC_GRA
+                    ,HDC_CD
+                    ,SF_GET_COMMNAME('01','C6',HDC_CD) AS HDC_NM
+                    ,MED_AMT
+                    ,HDC_AMT
+                    ,SUR_AMT
+                    ,(TO_CHAR(TO_DATE(STR_YMD), 'YYYY/MM/DD') || '∼' ||    TO_CHAR(TO_DATE(END_YMD), 'YYYY/MM/DD')) AS SHR_YMD
+                    ,TMR_DD
+                    ,(TMR_DD || '일') as TMR_NM
+                    ,SAL_AMT
+                    ,ROUND(SAL_AMT/TMR_DD) AS AVG_AMT
+                    ,ROUND(SAL_AMT/TMR_DD*0.70) AS DAY_AMT
+                    ,REC_AMT
+                    ,REMARK
+                FROM ASNHR.T_IS_ACCIDENT ACCI
+                    ,(SELECT ENO_NO
+                            ,ENO_NM
+                            ,DPT_CD
+                            ,DPT_NM
+                            ,JOB_CD
+                            ,JOB_NM
+                            ,CET_NO
+                            ,HIRG_YMD
+                        FROM VI_T_CM_PERSON) PERSON
+               WHERE ACCI.ENO_NO = PERSON.ENO_NO
+                 AND ACCI.SAN_YMD between to_char(ADD_MONTHs(to_date(?,'YYYYMM'), - 60),'YYYY') || '0101' and  to_char(to_date(?,'YYYYMM'),'YYYYMM')  || '31'
+            ]]>
+        </query>
+    </sql>
+
+
+    <!--
+***********************************************************************
+* @UseCase     : INSD020
+* @description : 고용보험 갱신
+***********************************************************************
+* 2011/10/13     이동훈        최초작성
+***********************************************************************
+-->
+    <!-- 2011년 이후 사용 할 보험세율을 수정 한다. -->
+    <sql name="INSD020_UPT">
+        <description>고용보험료 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_PERSON
+               SET HINS_AMT = ?     --고용보험료
+             WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!--
+***********************************************************************
+* @UseCase     : INSC030
+* @description : 회사지원 산재보험 갱신
+***********************************************************************
+* 2011/10/13     이동훈        최초작성
+******-->
+    <!-- 회사지원 산재보험 정보를 입력 한다. (인사마스터)-->
+    <sql name="INSC030_UPT">
+        <description>회사지원 산재보험 정보 입력</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_PERSON
+               SET AVR_SAL = ?      -- 회사지원 산재보험
+             WHERE ENO_NO   = ?     -- 사번
+            ]]>
+        </query>
+    </sql>
+
+    <!--
+***********************************************************************
+* @UseCase     : INSD030
+* @description : 회사지원 고용보험 갱신
+***********************************************************************
+* 2011/10/13     이동훈        최초작성
+******-->
+    <!-- 회사지원 고용보험 정보를 입력 한다. (인사마스터)-->
+    <sql name="INSD030_UPT">
+        <description>회사지원 고용보험 정보 입력</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_PERSON
+               SET HOL_AMT = ?      -- 회사지원 산재보험
+             WHERE ENO_NO   = ?     -- 사번
+            ]]>
+        </query>
+    </sql>
+
+    <!--
+***********************************************************************
+* @UseCase     : INSE010
+* @description : 보증보험 갱신
+***********************************************************************
+* 2011/10/13     이동훈        최초작성
+***********************************************************************
+-->
+
+    <!-- 2011년 이후 사용 할 보험세율을 조회 한다. -->
+    <sql name="INSE010_SHR">
+        <description>보증보험료 조회</description>
+        <query>
+            <![CDATA[
+            SELECT ENO_NO, ENO_NM, INSU_AMT
+            FROM ASNHR.T_CM_PERSON
+             WHERE RET_YMD IS NULL
+		      AND ENO_NO NOT LIKE '4%'
+		      AND ENO_NO NOT LIKE '6%'
+             ORDER BY ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 2011년 이후 사용 할 보험세율을 수정 한다. -->
+    <sql name="INSE010_UPT">
+        <description>보증보험료 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE ASNHR.T_CM_PERSON
+               SET INSU_AMT = ?     --보증보험료
+             WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+
+<!--
+***********************************************************************
+* @UseCase     : INSF010
+* @description : 개인연금관리
+***********************************************************************
+* 2016/04/28            이동훈            	ERP 이사
+***********************************************************************
+-->
+    <!-- 선택 직원의 정보를 조회 한다. -->
+    <sql name="INSF010_SHR_EMP">
+        <description>선택 직원의 정보  조회</description>
+        <query>
+            <![CDATA[
+     SELECT ENO_NO
+           ,ENO_NM
+           ,ASNHR.SF_GET_DPTNAME('01', 'A4', DPT_CD)                   AS DPT_NM      -- 소속
+           ,ASNHR.SF_GET_COMMNAME('01', 'A2', JOB_CD)                   AS JOB_NM      -- 직위
+           ,CET_NO
+           ,TO_CHAR(HIRG_YMD, 'YYYY-MM-DD') AS HIRG_YMD
+           ,ASNHR.SF_GET_COMMNAME(GUBUN, 'A1', OCC_CD) AS OCC_NM
+           ,NVL((SELECT SUM(SUM_SAV)
+                   FROM ASNHR.T_SV_SAVELIST SAVE
+                  WHERE SAVE.ENO_NO = PERSON.ENO_NO
+                ), 0) AS TOTAL_SAV
+       FROM ASNHR.T_CM_PERSON PERSON
+	         WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 선택한 직원의 개인연금 내역을 가져온다. -->
+    <sql name="INSF010_SHR">
+        <description>개인연금 내역  조회</description>
+        <query>
+            <![CDATA[
+             SELECT BNK_CD
+             		, SAV_CD
+                   ,ASNHR.SF_GET_COMMNAME('01', 'V1', SAV_CD) AS SAV_NM
+                   ,SAV_CD2
+                   ,ASNHR.SF_GET_COMMNAME('01', 'V2', SAV_CD2) AS SAV_NM2
+                   ,(SELECT SUM(PYM_AMT)
+                       FROM ASNHR.T_SV_SAVEBOOK
+                      WHERE ENO_NO = SAVE.ENO_NO) AS PYM_AMT
+                   ,TO_CHAR(TO_DATE(CON_YMD), 'YYYY-MM-DD') AS CON_YMD
+                   ,TO_CHAR(TO_DATE(DUE_YMD), 'YYYY-MM-DD') AS DUE_YMD
+                   ,CONM_AMT
+                   ,DSC_PCT
+                   ,DSC_AMT
+                   ,WOL_AMT
+                   ,OTHP_AMT
+                   ,OTH_AMT
+                   ,SUM_SAV
+                   ,SUMP_CNT
+                   ,(SELECT MAX(DED_YM)
+			                FROM ASNHR.T_SV_SAVEBOOK
+			               WHERE ENO_NO = SAVE.ENO_NO) AS FAPP_YMD
+                   ,CAN_TAG
+                   ,TO_CHAR(TO_DATE(CAN_YMD), 'YYYY-MM-DD') AS CAN_YMD
+                   ,ACC_NO
+               FROM ASNHR.T_SV_SAVELIST SAVE
+              WHERE ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+	<!-- 선택한 직원의 개인연금 내역을 등록 -->
+    <sql name="INSF010_INS">
+        <description>개인연금 내역  등록</description>
+        <query>
+            <![CDATA[
+             INSERT
+               INTO ASNHR.T_SV_SAVELIST
+                    (ENO_NO
+                    ,BNK_CD
+                    ,PIN_MTH
+                    ,SAV_CD
+                    ,SAV_CD2
+                    ,CON_YMD
+                    ,DUE_YMD
+                    ,CONM_AMT
+                    ,DSC_PCT
+                    ,DSC_AMT
+                    ,WOL_AMT
+                    ,OTHP_AMT
+                    ,OTH_AMT
+                    ,SUM_SAV
+                    ,SUMP_CNT
+                    ,FAPP_YMD
+                    ,CAN_TAG
+                    ,CAN_YMD
+                    ,ACC_NO
+                    ,IPT_MAN
+                    ,UPT_MAN
+                    ,IPT_YMD
+                    ,UPT_YMD)
+             VALUES (?
+                    ,(SELECT EXT_01 FROM ASNHR.T_CM_COMMON WHERE  GUBUN = '01' AND CD_GBN = 'V2' AND COMM_CD=?)
+                    ,'0'
+                    ,'10'
+                    ,?
+                    ,TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                    ,TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
+                    ,TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+                    ,'123-456-789'
+                    ,?
+                    ,?
+                    ,SYSDATE
+                    ,SYSDATE)
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 선택한 직원의 개인연금 내역을 수정 -->
+    <sql name="INSF010_UPT">
+        <description>개인연금 내역  수정</description>
+        <query>
+            <![CDATA[
+			 UPDATE ASNHR.T_SV_SAVELIST
+			    SET CAN_TAG     = ?
+			       ,CAN_YMD     = TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+			       ,DUE_YMD     = TO_CHAR(TO_DATE(?), 'YYYYMMDD')
+			       ,CONM_AMT     = ?
+			       ,DSC_PCT     = ?
+			       ,DSC_AMT     = ?
+			       ,WOL_AMT     = ?
+			       ,OTHP_AMT     = ?
+			       ,OTH_AMT     = ?
+			       ,UPT_MAN     = ?
+			       ,UPT_YMD     = SYSDATE
+			  WHERE ENO_NO      = ?
+			    AND ACC_NO      = ?
+			    AND SAV_CD2      = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 선택한 직원의 개인연금 내역을 삭제 -->
+    <sql name="INSF010_DEL">
+        <description>개인연금 내역  삭제</description>
+        <query>
+            <![CDATA[
+		    DELETE
+		      FROM ASNHR.T_SV_SAVELIST
+		     WHERE ENO_NO = ?
+		       AND BNK_CD = ?
+		       AND ACC_NO = ?
+		       AND SAV_CD2 = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : INSF020
+* @description : 개인연금공제내역
+***********************************************************************
+* 2016/04/28            이동훈            	ERP 이사
+***********************************************************************
+-->
+    <!-- 개인연금공제내역을 조회 한다. -->
+    <sql name="INSF020_SHR">
+        <description>개인연금공제내역 조회</description>
+        <query>
+            <![CDATA[
+            SELECT A.ENO_NO
+                 , A.ENO_NM
+                 , A.DPT_NM
+                 , A.JOB_NM
+                 , A.OCC_CD
+                 , A.OCC_NM
+                 , TO_CHAR(A.HIRG_YMD , 'YYYY-MM-DD') AS HIRG_YMD
+                 , TO_CHAR(A.RET_YMD  , 'YYYY-MM-DD') AS RET_YMD
+                 , B.BNK_CD
+                 , B.ACC_NO
+                 , ASNHR.SF_GET_COMMNAME('01', 'V1', B.SAV_CD) AS SAV_NM
+                 , ASNHR.SF_GET_COMMNAME('01', 'V2', B.SAV_CD2) AS SAV_NM2
+                 , NVL(B.CONM_AMT, 0) AS CONM_AMT     --불입액
+                 , NVL(B.SUM_SAV, 0)  AS SUM_SAV      --누적액
+                 , NVL(B.OTHP_AMT, 0) AS OTHP_AMT     --기타지불액
+                 , B.CON_CNT
+                 , TO_CHAR(TO_DATE(B.CON_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS CON_YMD
+                 , TO_CHAR(TO_DATE(B.DUE_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS DUE_YMD
+                 , TO_CHAR(TO_DATE(B.CAN_YMD, 'YYYYMMDD'), 'YYYY-MM-DD') AS CAN_YMD
+              FROM ASNHR.VI_T_CM_PERSON2 A
+                 , ASNHR.T_SV_SAVELIST B
+             WHERE A.ENO_NO   = B.ENO_NO
+               AND B.SAV_CD   = '10'
+               AND B.SAV_CD2  = NVL(?, B.SAV_CD2)
+			   AND A.RET_YMD IS NULL
+          ORDER BY A.DPT_SEQ
+                 , A.JOB_SEQ
+                 , A.HOB_SEQ DESC
+                 , A.ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+</sqls>
+

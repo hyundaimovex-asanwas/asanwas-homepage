@@ -1,0 +1,122 @@
+@charset "utf-8";
+/* 전체공통 */
+
+
+
+/* BASE SET */
+body { background-color:#FFFFFF; color:#444444; font:normal 12px/1.45 '굴림',Gulim,'돋움',Dotum,AppleGothic,Sans-serif; cursor:default; margin:0px; text-align:center; }
+a { text-decoration:none; color:#444444; }
+a:hover, a:active { text-decoration:underline; }
+td { font:normal 12px/1.45 '굴림',Gulim,'돋움',Dotum,AppleGothic,Sans-serif; }
+
+h1,h2,h3,h4,h5 { margin:0px; padding:0px; text-align:left; }
+form,input,button { margin:0px; padding:0px; text-align:left; }
+ul,li,ol { margin:0px; padding:0px; list-style:none; text-align:left; }
+dl,dt,dd { margin:0px; padding:0px; text-align:left; }
+div,ul,dl { clear:both; display:block; text-align:left; }
+img { border:0px; }
+
+
+
+/* LAYOUT BOX (Header-Footer를 제외한 레이아웃) */
+#ndBody { width:980px; background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/all_layout_vline.gif); overflow:hidden; }
+	/* BodyAREA MAIN */
+	#ndBodyMain { float:left; width:710px; }
+		/* BodyAREA MAIN LEFT */
+		#ndBodyMainLeft { float:left; width:455px; }
+		/* BodyAREA MAIN RIGHT */
+		#ndBodyMainRight { clear:none; float:right; width:230px; }
+	/* BodyAREA RIGHT */
+	#ndBodyRight { clear:none; float:right; width:240px; }
+#ndBodyMerge { width:980px; }
+
+
+
+/* COMMON */
+.layoutCenter { margin:0 auto; }
+
+.ndThumbPic { float:left; margin:0px 10px 3px 0px; padding:1px; border:solid 1px #CCCCCC; font:0/0 Arial; list-style:none; list-style-image:none; }
+.ndThumbTit,			.ndThumbTit a { font-weight:bold; line-height:160%; list-style:none; list-style-image:none; }
+.ndThumbTitLong,    .ndThumbTitLong a { font-weight:bold; line-height:160%; list-style:none; list-style-image:none; }
+.ndThumbTitSub, .ndThumbTitSub a { font-weight:bold; line-height:160%; list-style:none; list-style-image:none; }
+.ndThumbPs,     .ndThumbPs a { color:#666666; line-height:150%; padding-top:3px; list-style:none; list-style-image:none; }
+
+.ndPartTxtTit { border:solid 1px #DDDDDD; padding:5px 10px; font-weight:bold; }
+.ndPartTxtTit a { color:#222222; }
+
+.ndPartListp0 li { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/list_dot_t1.gif) no-repeat 0px 8px; }
+.ndPartListp10 li { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/list_dot_t1.gif) no-repeat 10px 8px; }
+
+.sTitCyan, .sTitCyan a { font-weight:bold; color:#4778ac; }
+
+.ndHiddenBlock { margin:0 auto; font:0/0 Arial; }
+.ndDotlineH { background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/line_h_t1.gif) repeat-x; font-size:0px; height:15px; }
+.ndDotlineH2 { background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/line_h_t1.gif) repeat-x; font-size:0px; height:7px; }
+
+/* 화제집중-해외토픽 [초기화면, 기사뷰ㆍ목록:전체] */
+	#ndTopic { padding-bottom:15px; }
+	#ndTopic dl { border-left:solid 1px #DDDDDD; border-top:solid 1px #DDDDDD; border-right:solid 1px #DDDDDD; height:30px; }
+	#ndTopic dd { width:48.5%; background-color:#EFEFEF; text-align:center; height:25px; margin:1px; padding:3px 0px 0px 0px; }
+	#ndTopicMu1 { float:left; }
+	#ndTopicMu2 { clear:none; float:right; }
+	#ndTopicList1, #ndTopicList2 { border-left:solid 1px #DDDDDD; border-right:solid 1px #DDDDDD; border-bottom:solid 1px #DDDDDD; padding:15px 10px 10px 10px; }
+	#ndTopicList1 .ndTopicThumb a,  #ndTopicList2 .ndTopicThumb a { font-family:'돋움',Dotum; letter-spacing:-1px; }
+	#ndTopicList1 .ndThumbTit a,    #ndTopicList2 .ndThumbTit a { color:#4778ac; }
+	#ndTopicList1 .ndThumbPs,       #ndTopicList2 .ndThumbPs { overflow:hidden; text-overflow:ellipsis; height:35px; }
+	#ndTopicList1 .ndPartListp0,    #ndTopicList2 .ndPartListp0 { padding-top:3px; }
+	#ndTopicList1 .ndPartListp0 li, #ndTopicList2 .ndPartListp0 li { width:200px; line-height:180%; padding-left:7px; }
+/* 초기화면ㆍ기사뷰ㆍ목록ㆍ기타: 오른쪽영역 */
+	/* 오늘의칼럼 */
+	#ndColumn { padding-bottom:15px; }
+	#ndColumn ul { border-left:solid 1px #DDDDDD; border-right:solid 1px #DDDDDD; border-bottom:solid 1px #DDDDDD; padding:10px 10px 5px 10px; }
+	#ndColumn li { width:215px; height:24px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+	/* AD240 */
+	.ndAd240 { padding-bottom:20px; }
+	/* 주간핫클릭 */
+	#ndWeekly { padding-bottom:15px; }
+	#ndWeekly span { color:#c31f25; }
+	#ndWeekly dl { padding-top:5px; }
+	#ndWeekly dd { clear:none; float:left; }
+	#ndWeekly ul { border-left:solid 1px #DDDDDD; border-right:solid 1px #DDDDDD; border-bottom:solid 1px #DDDDDD; padding:10px 10px 3px 10px; }
+	#ndWeekly .ndPartListp0 li { list-style:none; width:215px; height:24px;  }
+/* 목록: 전체, BBS */
+	/* 리스트페이징 [목록:전체,BBS] */
+	.ndPageNum { text-align:center; padding:10px 0px 15px 0px; }
+	.ndPageNum a { border:solid 1px #DDDDDD; padding:4px 5px 3px 5px; font-size:11px; color:#999999; font-weight:bold; font-family:Arial,Verdana,sans-serif; }
+	.ndPageNum a span { color:#c46c6d; }
+
+
+/* HEADER */
+#ndHeader { width:980px; }
+	/* 회원-시간 */
+	#ndHeaderMember { float:left; width:50%; }
+	#ndHeaderTime { clear:none; float:right; padding-right:5px; font-size:11px; color:#999999; }
+	/* AD(MH2)-로고-AD(MH1) */
+	#ndHeaderLogoAd { height:80px; padding:5px 0px 10px 0px; }
+	#ndAdMH2 { float:left; width:300px;  background-color:red}
+	#ndHeaderLogo { clear:none; float:left; width:380px; height:80px; text-align:center; padding-top:10px;   background-color:green}
+	#ndAdMH1 { clear:none; float:right; width:300px;   background-color:blue}
+	/* 이슈메뉴-검색 */
+	#ndHeaderMMU { height:41px; background:url(http://ad.cache.newdaily.co.kr/web/newdaily/img_1010/all_layout_mubg1101.gif); }
+	#ndHeaderCategory { float:left; font-size:13px; font-weight:bold; padding:11px 0px 0px 35px; }
+	#ndHeaderCategory a { color:#FFFFFF; }
+	#ndHeaderSearch { clear:none; float:right; width:180px; padding:8px 20px 0px 0px; }
+	#ndHeaderSearch form { width:170px; }
+	#ndHeaderSearch .ndSearchFiled { width:120px; height:19px; border:solid 1px #DDDDDD; }
+
+
+
+/* FOOTER */
+#ndFooter { width:980px; border-top:solid 5px #d2dde8; color:#666666; }
+#ndFooter a { color:#666666; }
+	/* 알립니다-기사제보-제안마당 */
+	#ndFooterNotice { float:left; margin-left:5px; padding:10px 0px 5px 0px; width:50%; }
+	#ndFooterNotice dt, #ndFooterNotice dd { clear:none; float:left; }
+	#ndFooterNotice dt { font-weight:bold; }
+	#ndFooterNotice dd { padding-left:10px; }
+	#ndFooterNotice .ndFooterNoticeNavi { padding-top:2px; }
+	#ndFooterProposal { clear:none; float:right; margin-right:5px; padding:10px 0px 5px 0px; }
+	/* 회사소개 */
+	#ndFooterAboutus { border-top:solid 1px #ececec; text-align:center; padding:5px 0px; }
+	/* 카피라이트 */
+	#ndFooterCopyright { border-top:solid 1px #ececec; padding:5px 0px 0px 5px; line-height:150%; }

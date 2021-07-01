@@ -1,0 +1,317 @@
+<!-------------------------------------------------------------------------------
++ 시 스 템 명	:	
++ 프로그램 ID	: COM_0060.HTML
++ 기 능 정 의	: 
++ 변 경 이 력	: 
++ 서 블 릿 명	: 
+------------------------------------------------------------------------------>
+
+<html>
+<head>
+<title>공지사항보기</title>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+get_cookdata();
+lfn_init();
+var gs_date = gcurdate.substr(0,4) + gcurdate.substr(5,2) + gcurdate.substr(8,2);
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+function ln_Start(){
+  txb_Maiymd.value = "";
+	txb_Maiseq.value = "";
+	txb_Maifname.value = "";
+	txt_obj.value="";
+	gcds_data.DataID = "/services/servlet/common.bd0001s1";
+	//prompt("",gcds_data.DataID);
+	gcds_data.Reset();
+  
+}
+
+/******************************************************************************
+	Description : 조회
+******************************************************************************/
+function ln_Query(row){
+	//txt_subject.value = gcds_data.NameValue(row,"MAISUBJ");
+	//txt_person.value = gcds_data.NameValue(row,"MAISMAN");
+	//eme_Maiymd.Text = gcds_data.NameValue(row,"MAIYMD");
+	txb_Maiymd.value = gcds_data.NameValue(row,"MAIYMD");
+	txb_Maiseq.value = gcds_data.NameValue(row,"MAISEQ");
+	txb_Maifname.value = gcds_data.NameValue(row,"MAIFNAME");
+  
+	var tdaecod = "ALL";
+	var t1 = gcds_data.NameValue(row,"MAIYMD");
+	var t2 = gcds_data.NameValue(row,"MAISEQ");
+
+	//Detail 내용 보기
+	gcds_detail.DataID ="/services/servlet/common.bd0032S?strDAECOD="+tdaecod+"&strMAIYMD="+t1+"&strMAISEQ="+t2;
+	//prompt("",gcds_detail.DataID);
+	gcds_detail.Reset();
+
+	if (gcds_detail.countrow == 0){
+		
+	}else{
+		txt_obj.value = gcds_detail.NameValue(gcds_detail.RowPosition,"MAIDESC");
+		txt_subj.value = gcds_detail.NameValue(gcds_detail.RowPosition,"MAISUBJ");
+		var tfiles = Number(gcds_detail.NameValue(gcds_detail.RowPosition,"MAIFILES"));
+
+		if (tfiles == 0){
+			btn_Add.style.display = "none";
+			btn_Add.src = "";
+			btn_Add.disabled=true;
+			btn_Add.style.cursor = "default";
+		}else{
+			btn_Add.style.display = "block";
+			btn_Add.disabled=false;
+			btn_Add.src = "../img/btn/com_btn_download.gif";
+			btn_Add.style.cursor = "hand";
+		}
+		
+	}	
+
+}
+
+/******************************************************************************
+	Description : 추가
+******************************************************************************/
+function ln_Add(){
+
+}
+
+/******************************************************************************
+	Description : 저장
+******************************************************************************/
+function ln_Save(){
+
+}
+
+/******************************************************************************
+	Description : 삭제
+******************************************************************************/
+function ln_Delete(){
+
+}
+
+/******************************************************************************
+	Description : 취소
+******************************************************************************/
+function ln_Cancel(){
+
+}
+
+/******************************************************************************
+	Description : 출력
+******************************************************************************/
+function ln_Print(){
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+******************************************************************************/
+function ln_Excel(){
+
+}
+
+/******************************************************************************
+	Description : 
+******************************************************************************/
+function ln_Download(){
+	var w = window.top.screen.width;
+	var h = window.top.screen.height;
+	var Lf=0, Tp=15;
+	if(w>=600){Lf=(w-750);}
+	if(h>=500){Tp=(h-570);}
+
+	var t1 = txb_Maiymd.value;
+	var t2 = txb_Maiseq.value;
+	var t3 = txb_Maifname.value;
+	var strURL = "http://203.242.32.198/services/servlet/common.bd0032DOWN?strMAIYMD="+t1+"&strMAISEQ="+t2+"&fileName="+t3;
+	var pan = window.open(strURL,"","toolbar=no,menubar=no,scrollbars=no,resizable=yes,width=0,height=0,left=999999,top=999999");
+
+}
+
+</script>
+
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<OBJECT id=gcds_data  classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49   VIEWASTEXT> 
+  <PARAM NAME="SyncLoad" VALUE="false">
+</OBJECT>
+
+<OBJECT id=gcds_detail  classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true"> 
+ </OBJECT>
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcds_data" event="OnLoadStarted()">
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language="javascript" for="gcds_data" event="onloadCompleted(row,colid)">
+	window.status="조회가 완료 되었습니다.";
+	ln_Query(1);
+	document.all.LowerFrame.style.visibility="hidden";
+
+	if (row <1) alert("검색된 데이터가 없습니다.");
+	else {
+		ititle.ln_disp(gcds_data);
+	}
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<script language=JavaScript for=gcgd_disp2 event=OnDblClick(row,colid)>
+	if (row <1) return;
+  ln_Query(row);
+</script>
+
+<script language=JavaScript for=gcgd_disp2 event=OnClick(row,colid)>
+	if (row <1) return;
+  ln_Query(row);
+</script>
+
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+
+<table width="877px" border="0" cellspacing="0" cellpadding="0" style="position:relative;left:3px;">
+<!--	<tr>
+		<td valign="top">
+		<img src="../img/new_img2/main_img.gif" style="position:relative;top:10px;left:20px">
+		</td>
+	</tr>-->
+	<tr>
+		<td>
+      <table width="877" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td width=197 background="../img/com_t_bg.gif"><img src="../img/com_bdr0031_head.gif" width="197" height="47"></td>
+		  <td background="../img/com_t_bg.gif" style="padding-top:3px"><A HREF="http://old.mtkumgang.com/warRoom/default.htm"><B>회의실 예약/조회</B></A></td>
+		  <td align="right" background="../img/com_t_bg.gif"></td>
+        </tr>
+	  </table>
+		</td>
+	</tr>
+	<tr>
+		<td height="20px">
+			<img src="../img/new_img2/new_info.gif" border=0 style="position:relative;left:20px;top:10px">
+			<table border=0 cellpadding=0 cellspacing=0 style="position:absolute;left:538px;top:65px;">
+				<tr>
+					<td>|</td>
+					<td width=115px align=center>작성자</td>
+					<td>|</td>
+					<td width=90px align=center>작성일자</td>
+					<td>|</td>
+					<td width=60px align=center>첨부파일</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			<iframe id=ititle src="ifrm_notice.html" frameborder=0 framespacing=0 style="position:relative;left:10px;top:10px;width:835px; height:159px;"></iframe>
+			<!--
+			<div id=div01 style="position:relative;left:20px;top:10px;width:877px; height:119px;border:1"></div>
+			-->
+			<!--
+			<OBJECT classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_disp2  
+				style="position:relative;left:20px;width:827px; height:119px; border:1 solid #6AA1C4;">
+			    <PARAM NAME="DataID"			VALUE="gcds_data">
+					<param name="Indwidth" 		value="0">
+					<param name="HeadBorder" 	value="4">
+					<param name="HeadLineColor" value="#6AA1C4">
+					<param name="LineColor" 	value="#AECDFF">
+					<param name="TitleHeight"	value="20">
+					<param name="RowHeight"	value="20">
+					<param name="BorderStyle" 	value="0">
+					<param name="ColSelect" 	value="0">
+					<param name="ColSizing" 	value="1">
+					<param name="FillArea" 		value="1">
+					<param name="ViewUnbind" 	value="-1">
+					<param name="Editable" 		value="0">
+					<param name="AllShowEdit" 	value="0">
+					<param name="ViewHeader" 	value="-1">
+					<param name="AutoInsert" 	value="0">
+					<param name="MultiRowSelect"value="0">
+					<param name="UsingOneClick"  value=1>
+				  <PARAM NAME="Format"			VALUE="  
+						<C> Name='No',  ID={CURROW},  HeadAlign=Center HeadColor=#003F68 HeadBgColor=#CEE0EB Width=30 align=center</C> 
+						<C> Name='첨부' ID=						HeadAlign=Center HeadBgColor=#CEE0EB Width=30 align=center value={decode(MAIFILES,0,'','Y')}, cursor=hand</C> 
+						<C> Name='제 목'  ID=MAISUBJ  HeadAlign=Center HeadBgColor=#CEE0EB Width=353 align=left</C> 
+						<C> Name='작성일' ID=MAIYMD  	HeadAlign=Center HeadBgColor=#CEE0EB Width=80 align=center, mask='XXXX/XX/XX'</C> 
+						<C> Name='작성자' ID=MAISMAN  HeadAlign=Center HeadBgColor=#CEE0EB Width=100 align=left</C> 
+					">
+			</OBJECT>
+			<fieldset style="position:relative;left:20px;width:829px;height:20px;border:1 solid #6AA1C4;border-top-width:0px;text-align:left;">
+				&nbsp;<font id=ft_cnt style="position:relative;top:4px;"></font>
+			</fieldset>-->
+		</td>
+	</tr>
+</table>
+<img src="../img/new_img2/main_title.gif" style="position:absolute;left:20px;top:250px;">
+<input type="text" id="txt_subj" style="position:absolute;left:125px;top:256px;width:470px;border:0;font-size:8.7pt;" readonly>
+<img src="../img/new_img2/main_file.gif" style="position:absolute;left:675px;top:251px;">
+<input type="image" border="0" id="btn_Add" name="btn_Add"  onclick="ln_Download()" alt="첨부" align="absmiddle" style="position:absolute;left:790px;top:255px;display:none;" >
+
+<textarea id="txt_obj" class="inputTXAR" style="position:absolute;left:21px;top:280px;width:825px;height:250px;" readonly></textarea>
+
+<input id=txb_Maiymd readOnly size=8 type=hidden>
+<input id=txb_Maiseq readOnly size=5 type=hidden>
+<input id=txb_Maifname readOnly size=100 type=hidden>
+
+<object id=gcbn_data classid=CLSID:9C9AB433-EA85-11D2-A4F9-00608CEBEE49> 
+	<param name=DataID    value=gcds_data>
+	<param name=BindInfo  value='
+		<C>Col=MAISUBJ    Ctrl=txt_subj	Param=Value</C>
+		<C>Col=MAIDESC		Ctrl=txt_obj	Param=Value</C>
+	'>
+</object>
+
+
+<iframe id="LowerFrame" name="work" style="visibility:hidden; 	position:absolute; left:280px; top:220px;" FrameBorder="0" src="../../common/img/flash/loading.swf" width="320px" height="42px"></iframe> 
+
+</body>
+</html>

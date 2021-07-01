@@ -1,0 +1,1062 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 직무이동작업 -->
+<!--
+***********************************************************************
+* @UseCase     : JOBA010
+* @description : 직무이동대상자설정
+***********************************************************************
+* 2006/10/18     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 직무이동대상정보 조사년월 조회 -->
+    <sql name="JOBA010_SHR">
+        <description>조사년월 조회</description>
+        <query>
+            <![CDATA[
+            SELECT (PIS_YY||'-'||PIS_MM) AS PIS_YYMM, --년월을 더해서 출력한다.
+                   TO_CHAR(BASIC_YMD, 'YYYY-MM-DD') AS BASIC_YMD,
+                   RSH_DEC,
+                   RSHOBJ_01,
+                   RSHOBJ_02,
+                   EXCEPT_MON,
+                   TOTAL_CNT,
+                   OBJECT_CNT,
+                   STATUS_JOB
+            FROM   T_EV_JOBHEAD
+            WHERE  GUBUN = ?
+            ORDER BY PIS_YY||PIS_MM DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무이동대상정보 신규 저장 -->
+    <sql name="JOBA010_INS">
+        <description>직무이동대상정보 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_EV_JOBHEAD
+                 ( GUBUN, PIS_YY, PIS_MM,
+                   BASIC_YMD, RSH_DEC, RSHOBJ_01, RSHOBJ_02, EXCEPT_MON, TOTAL_CNT, OBJECT_CNT, STATUS_JOB,
+                   IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                 )
+            VALUES
+                 ( ?, ?, ?,
+                   ?, ?, ?, ?, ?, ?, ?, ?,
+                   ?, SYSDATE, ?, SYSDATE
+                 )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무이동대상정보 수정 -->
+    <sql name="JOBA010_UPT">
+        <description>직무이동대상정보 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_EV_JOBHEAD
+            SET    BASIC_YMD = ?, --기준일자
+                   RSH_DEC = ?, --조사내용
+                   RSHOBJ_01 = ?, --조사대상(사무직)
+                   RSHOBJ_02 = ?, --조사대상(택배직)
+                   EXCEPT_MON = ?, --제외대상
+                   TOTAL_CNT = ?, --총원
+                   OBJECT_CNT = ?, --대상
+                   STATUS_JOB = ?, --작업상태
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE -- 최종수정일시
+            WHERE  GUBUN = ? -- 회계단위
+            AND    PIS_YY = ? -- 해당년도
+            AND    PIS_MM = ? -- 해당월
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무이동대상정보 삭제 -->
+    <sql name="JOBA010_DEL">
+        <description>직무이동대상정보 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_EV_JOBHEAD
+            WHERE  GUBUN = ?
+            AND    PIS_YY = ?
+            AND    PIS_MM = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 대상자를 선정하여 리스트를 생성한다. -->
+    <sql name="JOBA010_INS_01">
+        <description>대상자 리스트 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_EV_JOBCHG
+                        (GUBUN, PIS_YY, PIS_MM, ENO_NO,
+                         OCC_CD, DPT_CD, JOB_CD, DPA_YMD, JPR_YMD, MF_GBN, AGE_CNT, EXM_PNT, ANS_GBN, RSH_GBN, OTH_DEC,
+                         IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+            SELECT      ? AS GUBUN, ? AS PIS_YY, ? AS PIS_MM, ENO_NO,
+                        OCC_CD, DPT_CD, JOB_CD, DPA_YMD, JPR_YMD, MF_TAG, (TO_CHAR(SYSDATE,'YYYY')-TO_CHAR(BIR_YMD,'YYYY')) AS AGE_CNT, 0, '', ?, '',
+                        ? AS IPT_MAN, SYSDATE AS IPT_YMD, ? AS UPT_MAN, SYSDATE AS UPT_YMD
+            FROM        T_CM_PERSON
+            WHERE       (RET_YMD IS NULL OR RET_YMD >= ?)
+            AND         MONTHS_BETWEEN(?,HIR_YMD) >= ?
+            AND         (OCC_CD = ? OR OCC_CD = ?)
+            AND         JOB_CD NOT IN (SELECT COMM_CD FROM T_CM_COMMON WHERE CD_GBN = 'A2' AND REMARK = '1A')
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 대상자를 선정하고 대상인원 및 작업상태를 수정한다. -->
+    <sql name="JOBA010_UPT_01">
+        <description>대상자 선정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_EV_JOBHEAD A
+            SET     TOTAL_CNT  = (SELECT  COUNT(ENO_NO)
+                                  FROM    T_CM_PERSON
+                                  WHERE   RET_YMD IS NULL
+                                  OR      RET_YMD >= A.BASIC_YMD
+                                 ), --총원
+                    OBJECT_CNT = (SELECT  COUNT(ENO_NO)
+                                  FROM    T_CM_PERSON
+                                  WHERE   (RET_YMD IS NULL OR RET_YMD >= A.BASIC_YMD)
+                                  AND     MONTHS_BETWEEN(A.BASIC_YMD,HIR_YMD) >= A.EXCEPT_MON
+                                  AND     (OCC_CD = ? OR OCC_CD = ?)
+                                  AND     JOB_CD NOT IN (SELECT COMM_CD FROM T_CM_COMMON WHERE CD_GBN = 'A2' AND REMARK = '1A')
+                                 ), --대상
+                    STATUS_JOB = ?, --작업상태
+                    UPT_MAN = ?, --최종 수정자
+                    UPT_YMD = SYSDATE -- 최종수정일시
+            WHERE   GUBUN = ? -- 회계단위
+            AND     PIS_YY = ? -- 해당년도
+            AND     PIS_MM = ? -- 해당월
+            ]]>
+        </query>
+    </sql>
+
+ <!-- 선정된 대상자를 모두 삭제한다. -->
+    <sql name="JOBA010_DEL_01">
+        <description>선정대상 삭제</description>
+        <query>
+            <![CDATA[
+            DELETE T_EV_JOBCHG
+            WHERE  GUBUN = ?
+            AND    PIS_YY = ?
+            AND    PIS_MM = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 대상자를 선정하고 대상인원 및 작업상태를 수정한다. -->
+    <sql name="JOBA010_UPT_02">
+        <description>대상자 선정</description>
+        <query>
+            <![CDATA[
+            UPDATE  T_EV_JOBHEAD A
+            SET     STATUS_JOB = ?, --작업상태
+                    UPT_MAN = ?, --최종 수정자
+                    UPT_YMD = SYSDATE -- 최종수정일시
+            WHERE   GUBUN = ? -- 회계단위
+            AND     PIS_YY = ? -- 해당년도
+            AND     PIS_MM = ? -- 해당월
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 가장 최근의 설문을 바탕으로 새로 생성한다. -->
+    <sql name="JOBA010_INS_02">
+        <description>설문 생성</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_EV_QSTLST
+                       (GUBUN, PIS_YY, PIS_MM, QST_KIND, QST_GBN, QST_ITEM,
+                        QST_GBN_NM, QST_ITEM_SNM, QST_ITEM_NM, ANS_A, ANS_B, ANS_C, ANS_D, ANS_E,
+                        IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD)
+            SELECT      ? AS GUBUN, ? AS PIS_YY, ? AS PIS_MM, QST_KIND, QST_GBN, QST_ITEM,
+                        QST_GBN_NM, QST_ITEM_SNM, QST_ITEM_NM, ANS_A, ANS_B, ANS_C, ANS_D, ANS_E,
+                        ?, SYSDATE, ?, SYSDATE
+            FROM        T_EV_QSTLST
+            WHERE       PIS_YY||PIS_MM = (SELECT MAX(PIS_YY||PIS_MM) FROM T_EV_QSTLST)
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : JOBA020
+* @description : 직무이동설문작성
+***********************************************************************
+* 2006/10/18     한학현        최초작성.
+***********************************************************************
+-->
+    <!-- 직무이동대상 개인정보 조회 -->
+    <sql name="JOBA020_SHR">
+        <description>개인정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT   (PIS_YY||'-'||PIS_MM) AS PIS_YYMM, --조사년월
+                     A.ENO_NO AS ENO_NO, --사번
+                     B.ENO_NM AS ENO_NM, --성명
+                     A.DPT_CD AS DPT_CD, -- 부서코드
+                     SF_GET_DPTNAME(A.GUBUN, 'A4',A.DPT_CD) AS DPT_NM, --부서명
+                     A.JOB_CD AS JOB_CD, --직위코드
+                     (SELECT COMM_NM FROM T_CM_COMMON C WHERE A.GUBUN=C.GUBUN AND C.CD_GBN = 'A2' AND C.COMM_CD=A.JOB_CD) AS JOB_NM, --직위명
+                     TO_CHAR(B.BIR_YMD, 'YYYY-MM-DD') AS BIR_YMD, --생년월일
+                     TO_CHAR(B.HIR_YMD, 'YYYY-MM-DD') AS HIR_YMD, --입사일
+                     TO_CHAR(A.DPA_YMD, 'YYYY-MM-DD') AS DPA_YMD, --현부서발령일
+                     TO_CHAR(A.JPR_YMD, 'YYYY-MM-DD') AS JPR_YMD, --현직위 승진일
+                     A.EXM_PNT AS EXM_PNT, --어학성적
+                     A.RSH_GBN AS RSH_GBN, --조사내용 구분
+                     (SELECT STATUS_JOB FROM T_EV_JOBHEAD D WHERE A.GUBUN=D.GUBUN AND A.PIS_YY=D.PIS_YY AND A.PIS_MM=D.PIS_MM) AS STATUS_JOB --작업상태
+            FROM     T_EV_JOBCHG A, T_CM_PERSON B
+            WHERE    A.GUBUN = B.GUBUN(+)
+            AND      A.ENO_NO = B.ENO_NO(+)
+            AND      A.PIS_YY||A.PIS_MM = (SELECT MAX(PIS_YY||PIS_MM) AS PIS_YY FROM T_EV_JOBHEAD)
+            AND      A.GUBUN = ?
+            AND      A.ENO_NO = ?
+            ORDER BY PIS_YY||PIS_MM DESC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무이동대상 직무이동 조회 -->
+    <sql name="JOBA020_SHR_01">
+        <description>직무이동 조회</description>
+        <query>
+            <![CDATA[
+            SELECT    PIS_YY,
+                      PIS_MM,
+                      ENO_NO,
+                      CHANGE_GBN,
+                      CHANGE_DEC,
+                      CHANGE_TIME,
+                      HOPE_DEP1,
+                      SF_GET_DPTNAME(GUBUN, 'A4',HOPE_DEP1) AS HOPE_DEP1NM,
+                      HOPE_DEP2,
+                      SF_GET_DPTNAME(GUBUN, 'A4',HOPE_DEP2) AS HOPE_DEP2NM,
+                      HOPE_DEP3,
+                      SF_GET_DPTNAME(GUBUN, 'A4',HOPE_DEP3) AS HOPE_DEP3NM,
+                      NOCHANGE_GBN,
+                      NOCHANGE_DEC
+            FROM      T_EV_CHGANS
+            WHERE     GUBUN = ?
+            AND       PIS_YY = ?
+            AND       PIS_MM = ?
+            AND       ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무이동대상 자기신고서 조회 -->
+    <sql name="JOBA020_SHR_02">
+        <description>자기신고서 조회</description>
+        <query>
+            <![CDATA[
+            SELECT    A.PIS_YY AS PIS_YY,
+                      A.PIS_MM AS PIS_MM,
+                      A.QST_GBN AS QST_GBN,
+                      A.QST_ITEM AS QST_ITEM,
+                      A.QST_GBN_NM AS QST_GBN_NM,
+                      A.QST_ITEM_NM AS QST_ITEM_NM,
+                      A.ANS_A AS LST_A,
+                      A.ANS_B AS LST_B,
+                      A.ANS_C AS LST_C,
+                      A.ANS_D AS LST_D,
+                      A.ANS_E AS LST_E,
+                      B.ANS_A AS ANS_A,
+                      B.ANS_B AS ANS_B,
+                      B.ANS_C AS ANS_C,
+                      B.ANS_D AS ANS_D,
+                      B.ANS_E AS ANS_E,
+                      B.PIS_MM AS SAV_FLAG
+            FROM      T_EV_QSTLST A, (SELECT * FROM T_EV_QSTANS WHERE ENO_NO = ? ) B
+            WHERE     A.GUBUN = B.GUBUN(+)
+            AND       A.PIS_YY = B.PIS_YY(+)
+            AND       A.PIS_MM = B.PIS_MM(+)
+            AND       A.QST_GBN = B.QST_GBN(+)
+            AND       A.QST_ITEM = B.QST_ITEM(+)
+            AND       A.GUBUN = ?
+            AND       A.PIS_YY = ?
+            AND       A.PIS_MM = ?
+            ORDER BY  QST_GBN, QST_ITEM
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무이동 신규 저장 -->
+    <sql name="JOBA020_INS_01">
+        <description>직무이동 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_EV_CHGANS
+                        (GUBUN, PIS_YY, PIS_MM, ENO_NO,
+                         CHANGE_GBN, CHANGE_DEC, CHANGE_TIME, HOPE_DEP1, HOPE_DEP2, HOPE_DEP3, NOCHANGE_GBN, NOCHANGE_DEC,
+                         IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                         )
+            VALUES
+                        (?, ?, ?, ?,
+                         ?, ?, ?, ?, ?, ?, ?, ?,
+                         ?, SYSDATE, ?, SYSDATE
+                         )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무이동 응답 수정 -->
+    <sql name="JOBA020_UPT_01">
+        <description>직무이동 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_EV_CHGANS
+            SET    CHANGE_GBN = ?, --이동사유 구분
+                   CHANGE_DEC = ?, --이동사유 기타
+                   CHANGE_TIME = ?, --이동시기
+                   HOPE_DEP1 = ?, --희망부서1
+                   HOPE_DEP2 = ?, --희망부서2
+                   HOPE_DEP3 = ?, --희망부서3
+                   NOCHANGE_GBN = ?, --이동불희망사유 구분
+                   NOCHANGE_DEC = ?, --이동불희망사유 기타
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE -- 최종수정일시
+            WHERE  GUBUN = ? -- 회계단위
+            AND    PIS_YY = ? -- 해당년도
+            AND    PIS_MM = ? -- 해당월
+            AND    ENO_NO = ? -- 사번
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 자기신고서 응답 신규 저장 -->
+    <sql name="JOBA020_INS_02">
+        <description>자기신고서 저장</description>
+        <query>
+            <![CDATA[
+            INSERT INTO T_EV_QSTANS
+                        (GUBUN, PIS_YY, PIS_MM, ENO_NO, QST_GBN, QST_ITEM,
+                         ANS_A, ANS_B, ANS_C, ANS_D, ANS_E, OTH_DEC,
+                         IPT_MAN, IPT_YMD, UPT_MAN, UPT_YMD
+                         )
+            VALUES
+                        (?, ?, ?, ?, ?, ?,
+                         ?, ?, ?, ?, ?, '',
+                         ?, SYSDATE, ?, SYSDATE
+                         )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 자기신고서 응답 수정 -->
+    <sql name="JOBA020_UPT_02">
+        <description>자기신고서 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_EV_QSTANS
+            SET    ANS_A = ?, --응답A
+                   ANS_B = ?, --응답B
+                   ANS_C = ?, --응답C
+                   ANS_D = ?, --응답D
+                   ANS_E = ?, --응답E
+                   OTH_DEC = '', --기타항목사유
+                   UPT_MAN = ?, --최종 수정자
+                   UPT_YMD = SYSDATE -- 최종수정일시
+            WHERE  GUBUN = ? -- 회계단위
+            AND    PIS_YY = ? -- 해당년도
+            AND    PIS_MM = ? -- 해당월
+            AND    ENO_NO = ? -- 사번
+            AND    QST_GBN = ? -- 설문구분
+            AND    QST_ITEM = ? -- 설문항목
+            ]]>
+        </query>
+    </sql>
+
+<!-- 직무이동현황 -->
+<!--
+***********************************************************************
+* @UseCase     : JOBB010
+* @description : 직무이동희망자현황
+***********************************************************************
+* 2006/10/30      안준성        최초작성.
+***********************************************************************
+-->
+
+    <!-- 회계단위, 조사년월, 직종, 소속,직위에  따른 데이터 조회 -->
+    <sql name="JOBB010_SHR">
+        <description>직무이동희망자현황 조회</description>
+        <query>
+            <![CDATA[
+                SELECT A.PIS_YY AS PIS_YY,
+                        A.PIS_MM AS PIS_MM,
+                        C.HEAD_NM AS HEAD_NM,
+                        SF_GET_DPTNAME(A.GUBUN,'A4',A.DPT_CD) AS DPT_NM,
+                        SF_GET_COMMNAME(A.GUBUN,'A2',A.JOB_CD) AS JOB_NM,
+                        A.ENO_NO AS ENO_NO,
+                        SF_GET_ENONAME(A.GUBUN,A.ENO_NO) AS ENO_NM,
+                        TO_CHAR(C.HIR_YMD,'YYYY-MM-DD') AS HIR_YMD,
+                        TO_CHAR(C.BIR_YMD,'YYYY-MM-DD') AS BIR_YMD,
+                        TO_CHAR(A.JPR_YMD,'YYYY-MM-DD') AS JPR_YMD,
+                        TO_CHAR(A.DPA_YMD,'YYYY-MM-DD') AS DPA_YMD,
+                       -- SYSDATE-A.DPA_YMD AS DHO_YMD,
+                        SF_GET_YMDCNT(TO_CHAR(A.DPA_YMD,'YYYYMMDD'),TO_CHAR(SYSDATE,'YYYYMMDD')) AS DHO_YMD,
+                       (SELECT MAX(TTL_AVR)
+                        FROM   T_CM_EXAMINATION
+                        WHERE  SBJ_CD='E2'
+                        AND    ENO_NO=A.ENO_NO) AS EXM_PNT,
+                        SF_GET_DPTNAME(A.GUBUN,'A4',B.HOPE_DEP1) AS HOPE_DEP1,
+                        SF_GET_DPTNAME(A.GUBUN,'A4',B.HOPE_DEP2) AS HOPE_DEP2,
+                        SF_GET_DPTNAME(A.GUBUN,'A4',B.HOPE_DEP3) AS HOPE_DEP3,
+                        DECODE(B.CHANGE_GBN,'1','적성 부적합','2','장래를 위한 타부분 경험','3','부서내 인간관계','4','기타') AS CHANGE_GBN,
+                        SUBSTRB(B.CHANGE_DEC,1,40)||CHR(10)||TRIM(SUBSTRB(B.CHANGE_DEC,40,41)) AS CHANGE_DEC,
+                        DECODE(B.CHANGE_TIME,'1','즉시이동','2','3개월 이후 이동','3','6개월 이후 이동','4','회사방침대로') AS CHANGE_TIME,
+                        A.ACCEPT_GBN AS ACCEPT_GBN,
+                        A.ACCEPT_DPTCD AS ACCEPT_DPTCD,
+                        SF_GET_DPTNAME(A.GUBUN,'A4',A.ACCEPT_DPTCD) AS ACCEPT_DPTNM,
+                        NVL2(B.ENO_NO,'Yes','') ANS_YN
+                FROM T_EV_JOBCHG A, T_EV_CHGANS B, VI_T_CM_PERSON C
+                WHERE A.GUBUN = ?
+                    AND A.PIS_YY = SUBSTR(?,0,4)
+                    AND A.PIS_MM = SUBSTR(?,6,2)
+                    AND A.OCC_CD LIKE '%'||?||'%'
+                    AND A.DPT_CD LIKE '%'||?||'%'
+                    AND A.JOB_CD LIKE '%'||?||'%'
+                      AND A.GUBUN = B.GUBUN(+)
+                      AND A.PIS_YY =  B.PIS_YY(+)
+                      AND A.PIS_MM = B.PIS_MM(+)
+                      AND A.ENO_NO = B.ENO_NO(+)
+                      AND A.GUBUN = C.GUBUN
+                      AND A.ENO_NO = C.ENO_NO
+                 ORDER BY C.HEAD_SEQ, C.DPT_SEQ, C.JOB_SEQ, C.HOB_SEQ DESC, C.HIRG_YMD
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 직무이동희망자현황 수정 -->
+    <sql name="JOBB010_UPT">
+        <description>직무이동희망자현황 수정</description>
+        <query>
+            <![CDATA[
+            UPDATE T_EV_JOBCHG
+            SET   ACCEPT_GBN = ?,            --확정여부
+                    ACCEPT_DPTCD = ?,        --확정부서
+                    UPT_MAN = ?,                    --최종수정자
+                    UPT_YMD = SYSDATE        --최종수정일시
+            WHERE  GUBUN = ?
+                AND    PIS_YY = ?
+                AND    PIS_MM = ?
+                AND    ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : JOBB020
+* @description : 자기신고서설문현황
+***********************************************************************
+* 2006/10/31      박인이        최초작성.
+***********************************************************************
+-->
+    <sql name="JOBB020_SHR">
+        <description>자기신고서설문현황 조회</description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YY,                                 -- 조회년
+                   PIS_MM,                                 -- 조회월
+                   DPT_CD,                                 -- 부서코드
+                   DPT_NM,                                 -- 부서명
+                   TOT_CNT,                                -- 부서별 현인원수
+                   DPT_CNT,                                -- 부서별 응답인원수
+                   QST_ITEM_SNM,                           -- 설문항목약칭
+                   ANS_B,                                  -- 응답명(A, B)
+                   ANS_D,                                  -- 응답명(D, E)
+                   ANS_PER1,                               -- 응답퍼센트(A, B)
+                   ANS_PER2                                -- 응답퍼센트(D, E)
+            FROM ( SELECT CNT.PIS_YY, CNT.PIS_MM,  CNT.DPT_CD, CNT.DPT_NM,
+                          SF_GET_DPTSEQ(CNT.GUBUN, 'A4', CNT.DPT_CD) AS DPT_SEQ,
+                          CNT.TOT_CNT, CNT.DPT_CNT, LST.QST_ITEM_SNM,
+                          NVL(LST.ANS_B, '적합')          ANS_B,                                          -- 응답명(A, B)
+                          NVL(LST.ANS_D, '부적합')        ANS_D,                                          -- 응답명(D, E)
+                          ROUND(DECODE(CNT.DPT_CNT, 0, 0, NVL(LST.ANS_1, 0) / CNT.DPT_CNT * 100),2) ANS_PER1,      -- 응답퍼센트(A, B)
+                          ROUND(DECODE(CNT.DPT_CNT, 0, 0, NVL(LST.ANS_2, 0) / CNT.DPT_CNT * 100),2) ANS_PER2       -- 응답퍼센트(D, E)
+                   FROM ( SELECT TOT.GUBUN,
+                                 NVL(DPT.PIS_YY, SUBSTR(?, 1, 4)) PIS_YY,
+                                 NVL(DPT.PIS_MM, SUBSTR(?, 6, 2)) PIS_MM,
+                                 TOT.DPT_CD, TOT.DPT_NM, NVL(DPT.DPT_CNT, 0) DPT_CNT, TOT.TOT_CNT
+                          FROM ( SELECT DISTINCT GUBUN, DPT_CD, SF_GET_DPTNAME(GUBUN, 'A4',DPT_CD) DPT_NM, COUNT(*) TOT_CNT
+                                 FROM   T_EV_JOBCHG
+                                 WHERE  ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                 AND    OCC_CD   LIKE ? || '%'
+                                 AND    PIS_YY = SUBSTR(?, 1, 4)
+                                 AND    PIS_MM = SUBSTR(?, 6, 2)
+                                 GROUP BY GUBUN, DPT_CD, SF_GET_DPTNAME(GUBUN, 'A4',DPT_CD)
+                               ) TOT,                                                                      -- 부서별 총인원
+                               ( SELECT D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD, COUNT(*) DPT_CNT
+                                 FROM ( SELECT DISTINCT B.GUBUN, B.PIS_YY, B.PIS_MM, B.ENO_NO, C.DPT_CD
+                                        FROM   T_EV_QSTANS B,
+                                               T_EV_JOBCHG C
+                                        WHERE  B.GUBUN  = ?
+                                        AND    B.PIS_YY = SUBSTR(?, 1, 4)
+                                        AND    B.PIS_MM = SUBSTR(?, 6, 2)
+                                        AND    B.GUBUN  = C.GUBUN
+                                        AND    B.ENO_NO = C.ENO_NO
+                                        AND    B.PIS_YY = C.PIS_YY
+                                        AND    B.PIS_MM = C.PIS_MM
+                                        AND    C.ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                        AND    C.OCC_CD LIKE ? || '%'
+                                      ) D
+                                 GROUP BY D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD
+                               ) DPT                                                                       -- 부서별 응답인원
+                          WHERE  TOT.GUBUN  = DPT.GUBUN (+)
+                          AND    TOT.DPT_CD = DPT.DPT_CD(+)
+                        ) CNT,
+                        ( SELECT C.GUBUN,    C.PIS_YY,       C.PIS_MM, C.DPT_CD, C.QST_GBN,
+                                 C.QST_ITEM, C.QST_ITEM_SNM, C.ANS_B,  C.ANS_D,  SUM(C.ANS_1) ANS_1, SUM(C.ANS_2) ANS_2
+                          FROM ( SELECT A.GUBUN, A.PIS_YY, A.PIS_MM, B.ENO_NO, B.DPT_CD, A.QST_GBN, A.QST_ITEM, A.QST_ITEM_SNM,
+                                        A.ANS_B,
+                                        CASE WHEN B.ANS_A = 'T' OR B.ANS_B = 'T' THEN 1
+                                             ELSE 0
+                                        END  ANS_1,
+                                        A.ANS_D,
+                                        CASE WHEN B.ANS_D = 'T' OR B.ANS_E = 'T' THEN 1
+                                             ELSE 0
+                                        END  ANS_2
+                                 FROM   T_EV_QSTLST A,
+                                      ( SELECT ANS.GUBUN, ANS.PIS_YY, ANS.PIS_MM, ANS.ENO_NO, ANS.QST_GBN, ANS.QST_ITEM,
+                                               ANS.ANS_A, ANS.ANS_B,  ANS.ANS_C,  ANS.ANS_D,  ANS.ANS_E,   PSN.DPT_CD
+                                        FROM   T_EV_QSTANS ANS, T_EV_JOBCHG PSN
+                                        WHERE  ANS.GUBUN  = ?
+                                        AND    ANS.PIS_YY = SUBSTR(?, 1, 4)
+                                        AND    ANS.PIS_MM = SUBSTR(?, 6, 2)
+                                        AND    ANS.GUBUN  = PSN.GUBUN
+                                        AND    ANS.ENO_NO = PSN.ENO_NO
+                                        AND    PSN.ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                        AND    ANS.PIS_YY = PSN.PIS_YY
+                                        AND    ANS.PIS_MM = PSN.PIS_MM
+                                        AND    PSN.OCC_CD LIKE ? || '%'
+                                      ) B
+                                 WHERE  A.GUBUN    = ?
+                                 AND    A.PIS_YY   = SUBSTR(?, 1, 4)
+                                 AND    A.PIS_MM   = SUBSTR(?, 6, 2)
+                                 AND    A.GUBUN    = B.GUBUN   (+)
+                                 AND    A.PIS_YY   = B.PIS_YY  (+)
+                                 AND    A.PIS_MM   = B.PIS_MM  (+)
+                                 AND    A.QST_GBN  = B.QST_GBN (+)
+                                 AND    A.QST_ITEM = B.QST_ITEM(+)
+                                 AND    A.QST_KIND = '2'
+                               ) C
+                          GROUP BY C.GUBUN, C.PIS_YY, C.PIS_MM,  C.DPT_CD, C.QST_GBN, C.QST_ITEM, C.QST_ITEM_SNM,
+                                   C.ANS_B, C.ANS_D
+                        ) LST
+                   WHERE  CNT.GUBUN  = LST.GUBUN (+)
+                   AND    CNT.PIS_YY = LST.PIS_YY(+)
+                   AND    CNT.PIS_MM = LST.PIS_MM(+)
+                   AND    CNT.DPT_CD = LST.DPT_CD(+)
+                   ORDER BY DPT_SEQ, DPT_CD, TOT_CNT, DPT_CNT, QST_ITEM_SNM
+                 )
+
+            UNION ALL
+
+            SELECT PIS_YY,                                 -- 조회년
+                   PIS_MM,                                 -- 조회월
+                   DPT_CD,                                 -- 부서코드
+                   DPT_NM,                                 -- 부서명
+                   TOT_CNT,                                -- 부서별 현인원수
+                   DPT_CNT,                                -- 부서별 응답인원수
+                   QST_ITEM_SNM,                           -- 설문항목약칭
+                   ANS_B,                                  -- 응답명(A, B)
+                   ANS_D,                                  -- 응답명(D, E)
+                   ANS_PER1,                               -- 응답퍼센트(A, B)
+                   ANS_PER2                                -- 응답퍼센트(D, E)
+            FROM ( SELECT CNT.PIS_YY, CNT.PIS_MM, CNT.OCC_CD, CNT.DPT_CD,
+                          '평균'                          AS DPT_NM,
+                          CNT.TOT_CNT,
+                          CNT.DPT_CNT,
+                          LST.QST_ITEM_SNM                QST_ITEM_SNM,
+                          NVL(LST.ANS_B, '적합')          ANS_B,
+                          NVL(LST.ANS_D, '부적합')        ANS_D,
+
+                          ROUND(DECODE(CNT.DPT_CNT, 0, 0, NVL(SUM(LST.ANS_1), 0) / CNT.DPT_CNT * 100),2) AS ANS_PER1, -- 응답퍼센트(A, B)
+                          ROUND(DECODE(CNT.DPT_CNT, 0, 0, NVL(SUM(LST.ANS_2), 0) / CNT.DPT_CNT * 100),2) AS ANS_PER2  -- 응답퍼센트(D, E)
+                          --AVG(DECODE(CNT.DPT_CNT, 0, 0, NVL(LST.ANS_1, 0) / CNT.DPT_CNT * 100)) ANS_PER1, -- 응답퍼센트(A, B)
+                          --AVG(DECODE(CNT.DPT_CNT, 0, 0, NVL(LST.ANS_2, 0) / CNT.DPT_CNT * 100)) ANS_PER2  -- 응답퍼센트(D, E)
+
+                   FROM ( SELECT TOT.GUBUN,
+                                 NVL(DPT.PIS_YY, SUBSTR(?, 1, 4)) PIS_YY,
+                                 NVL(DPT.PIS_MM, SUBSTR(?, 6, 2)) PIS_MM,
+                                 '' OCC_CD, '' DPT_CD, NVL(DPT.DPT_CNT, 0) DPT_CNT, TOT.TOT_CNT
+                          FROM ( SELECT GUBUN, COUNT(*) TOT_CNT
+                                 FROM   T_EV_JOBCHG
+                                 WHERE  ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                 AND    OCC_CD   LIKE ? || '%'
+                                 AND    PIS_YY = SUBSTR(?, 1, 4)
+                                 AND    PIS_MM = SUBSTR(?, 6, 2)
+                                 GROUP BY GUBUN
+                               ) TOT,                                                                    -- 총인원
+                               ( SELECT D.GUBUN, D.PIS_YY, D.PIS_MM, COUNT(*) DPT_CNT
+                                 FROM ( SELECT DISTINCT B.GUBUN, B.PIS_YY, B.PIS_MM, B.ENO_NO
+                                        FROM   T_EV_QSTANS B,
+                                               T_EV_JOBCHG C
+                                        WHERE  B.GUBUN  = ?
+                                        AND    B.PIS_YY = SUBSTR(?, 1, 4)
+                                        AND    B.PIS_MM = SUBSTR(?, 6, 2)
+                                        AND    B.GUBUN  = C.GUBUN
+                                        AND    B.ENO_NO = C.ENO_NO
+                                        AND    B.PIS_YY = C.PIS_YY
+                                        AND    B.PIS_MM = C.PIS_MM
+                                        AND    C.ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                        AND    C.OCC_CD LIKE ? || '%'
+                                      ) D
+                                 GROUP BY D.GUBUN, D.PIS_YY, D.PIS_MM
+                               ) DPT                                                                     -- 응답총인원
+                          WHERE  TOT.GUBUN  = DPT.GUBUN (+)
+                        ) CNT,
+                        ( SELECT C.GUBUN,    C.PIS_YY,       C.PIS_MM, C.OCC_CD, C.DPT_CD, C.QST_GBN,
+                                 C.QST_ITEM, C.QST_ITEM_SNM, C.ANS_B,  C.ANS_D,  SUM(C.ANS_1) ANS_1, SUM(C.ANS_2) ANS_2
+                          FROM ( SELECT A.GUBUN, A.PIS_YY, A.PIS_MM, B.ENO_NO, B.OCC_CD, B.DPT_CD, A.QST_GBN, A.QST_ITEM, A.QST_ITEM_SNM,
+                                        A.ANS_B,
+                                        CASE WHEN B.ANS_A = 'T' OR B.ANS_B = 'T' THEN 1
+                                             ELSE 0
+                                        END  ANS_1,
+                                        A.ANS_D,
+                                        CASE WHEN B.ANS_D = 'T' OR B.ANS_E = 'T' THEN 1
+                                             ELSE 0
+                                        END  ANS_2
+                                 FROM   T_EV_QSTLST A,
+                                      ( SELECT ANS.GUBUN, ANS.PIS_YY, ANS.PIS_MM, ANS.ENO_NO, ANS.QST_GBN, ANS.QST_ITEM,
+                                               ANS.ANS_A, ANS.ANS_B,  ANS.ANS_C,  ANS.ANS_D,  ANS.ANS_E,   PSN.OCC_CD,  PSN.DPT_CD
+                                        FROM   T_EV_QSTANS ANS, T_EV_JOBCHG PSN
+                                        WHERE  ANS.GUBUN  = ?
+                                        AND    ANS.PIS_YY = SUBSTR(?, 1, 4)
+                                        AND    ANS.PIS_MM = SUBSTR(?, 6, 2)
+                                        AND    ANS.GUBUN  = PSN.GUBUN
+                                        AND    ANS.ENO_NO = PSN.ENO_NO
+                                        AND    PSN.ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                        AND    ANS.PIS_YY = PSN.PIS_YY
+                                        AND    ANS.PIS_MM = PSN.PIS_MM
+                                        AND    PSN.OCC_CD LIKE ? || '%'
+                                      ) B
+                                 WHERE  A.GUBUN    = ?
+                                 AND    A.PIS_YY = SUBSTR(?, 1, 4)
+                                 AND    A.PIS_MM = SUBSTR(?, 6, 2)
+                                 AND    A.GUBUN    = B.GUBUN   (+)
+                                 AND    A.PIS_YY   = B.PIS_YY  (+)
+                                 AND    A.PIS_MM   = B.PIS_MM  (+)
+                                 AND    A.QST_GBN  = B.QST_GBN (+)
+                                 AND    A.QST_ITEM = B.QST_ITEM(+)
+                                 AND    A.QST_KIND = '2'
+                               ) C
+                          GROUP BY C.GUBUN, C.PIS_YY, C.PIS_MM,  C.OCC_CD, C.DPT_CD, C.QST_GBN, C.QST_ITEM, C.QST_ITEM_SNM,
+                                   C.ANS_B, C.ANS_D
+                        ) LST
+                   WHERE  CNT.GUBUN  = LST.GUBUN (+)
+                   AND    CNT.PIS_YY = LST.PIS_YY(+)
+                   AND    CNT.PIS_MM = LST.PIS_MM(+)
+                   GROUP BY CNT.PIS_YY, CNT.PIS_MM, CNT.DPT_CD, CNT.TOT_CNT, CNT.DPT_CNT,
+                            LST.QST_ITEM, LST.QST_ITEM_SNM, LST.ANS_B, LST.ANS_D
+            )
+
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : JOBB030
+* @description : 직원설문결과
+***********************************************************************
+* 2006/11/03      박인이        최초작성.
+***********************************************************************
+-->
+    <sql name="JOBB030_SHR">
+        <description>직원설문결과 조회</description>
+        <query>
+            <![CDATA[
+            SELECT PIS_YY,
+                   PIS_MM,
+                   QST_ITEM_SNM,                       -- 항목명
+                   RNUM,                               -- 순서(퍼센트가 높은 순서)
+                   ANS,                                -- 응답명
+                   DPT_NM,                             -- 부서명
+                   CNT,                                -- 인원
+                   ANS_PER                             -- 응답퍼센트
+            FROM ( SELECT PIS_YY,
+                          PIS_MM,
+                          DPT_CD,
+                          QST_ITEM_SNM,
+                          ROW_NUMBER() OVER(PARTITION BY QST_ITEM_SNM, ANS  ORDER BY PIS_YY, PIS_MM, ANS_PER DESC, CNT DESC, DPT_SEQ, DPT_CD) RNUM,
+                          ANS,                         -- 응답명
+                          DPT_NM,
+                          CNT||'/'||TOT_CNT CNT,
+                          ANS_PER                      -- 응답퍼센트
+                   FROM ( SELECT SUBSTR(?, 1, 4) PIS_YY,
+                                 SUBSTR(?, 6, 2) PIS_MM,
+                                 CNT.DPT_SEQ, CNT.DPT_CD, CNT.DPT_NM, CNT.TOT_CNT, LST.CNT, LST.QST_ITEM_SNM, LST.ANS,
+                                 ROUND(DECODE(CNT.TOT_CNT, 0, 0, NVL(LST.CNT, 0) / CNT.TOT_CNT * 100), 0) ANS_PER
+                          FROM ( SELECT DISTINCT GUBUN, DPT_CD, SF_GET_DPTSEQ(GUBUN, 'A4',DPT_CD) DPT_SEQ, SF_GET_DPTNAME(GUBUN, 'A4',DPT_CD) DPT_NM, COUNT(*) TOT_CNT
+                                 FROM   T_EV_JOBCHG
+                                 WHERE  ENO_NO IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NULL OR RET_YMD >= SYSDATE)
+                                 AND    PIS_YY = SUBSTR(?, 1, 4)
+                                 AND    PIS_MM = SUBSTR(?, 6, 2)
+                                 GROUP BY GUBUN, DPT_CD, SF_GET_DPTSEQ(GUBUN, 'A4',DPT_CD), SF_GET_DPTNAME(GUBUN, 'A4',DPT_CD)
+                               ) CNT,
+                               ( SELECT A.GUBUN, A.PIS_YY, A.PIS_MM, B.DPT_CD, A.QST_GBN, A.QST_ITEM, A.QST_ITEM_SNM,
+                                        --DECODE(B.ANS, '1', A.ANS_B, '2', A.ANS_D, '') ANS,
+                                        DECODE(B.ANS, '1', '적합', '2', '부적합', '') ANS,
+                                        SUM(B.CNT) CNT
+                                 FROM   T_EV_QSTLST A,
+                                      ( SELECT ANS.GUBUN, ANS.PIS_YY, ANS.PIS_MM, ANS.QST_GBN, ANS.QST_ITEM,
+                                               ANS.ANS, PSN.DPT_CD, SUM(ANS.CNT) CNT
+                                        FROM ( SELECT GUBUN, PIS_YY, PIS_MM, ENO_NO, QST_GBN, QST_ITEM, '1' ANS, 1 CNT
+                                               FROM   T_EV_QSTANS
+                                               WHERE  GUBUN  = ?
+                                               AND    PIS_YY = SUBSTR(?, 1, 4)
+                                               AND    PIS_MM = SUBSTR(?, 6, 2)
+                                               AND  ( ANS_A  = 'T'
+                                               OR     ANS_B  = 'T')
+                                               UNION ALL
+                                               SELECT GUBUN, PIS_YY, PIS_MM, ENO_NO, QST_GBN, QST_ITEM, '2' ANS, 1 CNT
+                                               FROM   T_EV_QSTANS
+                                               WHERE  GUBUN  = ?
+                                               AND    PIS_YY = SUBSTR(?, 1, 4)
+                                               AND    PIS_MM = SUBSTR(?, 6, 2)
+                                               AND  ( ANS_D  = 'T'
+                                               OR     ANS_E  = 'T')
+                                             ) ANS,
+                                               T_EV_JOBCHG PSN
+                                        WHERE  ANS.GUBUN  = PSN.GUBUN
+                                        AND    ANS.ENO_NO = PSN.ENO_NO
+                                        AND    PSN.ENO_NO IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NULL OR RET_YMD >= SYSDATE)
+                                        AND    ANS.PIS_YY = PSN.PIS_YY
+                                        AND    ANS.PIS_MM = PSN.PIS_MM
+                                        GROUP BY ANS.GUBUN, ANS.PIS_YY, ANS.PIS_MM, ANS.QST_GBN, ANS.QST_ITEM,
+                                                 ANS.ANS, PSN.DPT_CD
+                                      ) B
+                                 WHERE  A.GUBUN    = ?
+                                 AND    A.PIS_YY   = SUBSTR(?, 1, 4)
+                                 AND    A.PIS_MM   = SUBSTR(?, 6, 2)
+                                 AND    A.GUBUN    = B.GUBUN
+                                 AND    A.PIS_YY   = B.PIS_YY
+                                 AND    A.PIS_MM   = B.PIS_MM
+                                 AND    A.QST_GBN  = B.QST_GBN
+                                 AND    A.QST_ITEM = B.QST_ITEM
+                                 AND    A.QST_KIND = '2'
+                                 GROUP BY A.GUBUN, A.PIS_YY, A.PIS_MM, B.DPT_CD, A.QST_GBN, A.QST_ITEM, A.QST_ITEM_SNM,
+                                          --DECODE(B.ANS, '1', A.ANS_B, '2', A.ANS_D, '')
+                                          DECODE(B.ANS, '1', '적합', '2', '부적합', '')
+                               ) LST
+                          WHERE  CNT.GUBUN  = LST.GUBUN
+                          AND    CNT.DPT_CD = LST.DPT_CD
+                          ORDER BY CNT.DPT_SEQ, CNT.DPT_CD, LST.QST_ITEM_SNM
+                        )
+                 )
+            WHERE   RNUM <= 100                         --  상위 10개부서 보여줌
+            ORDER BY QST_ITEM_SNM, RNUM
+            ]]>
+        </query>
+    </sql>
+<!--
+***********************************************************************
+* @UseCase     : JOBB040
+* @description : 응답현황총괄표
+***********************************************************************
+* 2006/10/31      박인이        최초작성.
+***********************************************************************
+-->
+    <sql name="JOBB040_SHR">
+        <description>응답현황총괄표 조회</description>
+        <query>
+            <![CDATA[
+            SELECT GUBUN,
+                   PIS_YY,
+                   PIS_MM,
+                   DPT_CD,
+                   DPT_NM,
+                   JOB_CD,
+                   ROW_NUMBER() OVER(PARTITION BY DPT_SEQ ORDER BY JOB_SEQ)||'.'||JOB_NM JOB_NM,
+                   DTOT_CNT,
+                   DDPT_CNT,
+                   TTOT_CNT,
+                   TDPT_CNT,
+                   DPT_SEQ,
+                   JOB_SEQ
+            FROM ( SELECT LST.GUBUN,
+                          LST.PIS_YY,
+                          LST.PIS_MM,
+                          LST.DPT_CD,
+                          SF_GET_DPTNAME(LST.GUBUN, 'A4',LST.DPT_CD) DPT_NM,
+                          SF_GET_DPTSEQ(LST.GUBUN, 'A4',LST.DPT_CD)  DPT_SEQ,
+                          LST.JOB_CD,
+                          LST.JOB_NM,
+                          SF_GET_COMMSEQ(LST.GUBUN, 'A2',LST.JOB_CD)  JOB_SEQ,
+                          LST.TOT_CNT                           DTOT_CNT,
+                          LST.DPT_CNT                           DDPT_CNT,
+                          TOT.TOT_CNT                           TTOT_CNT,
+                          TOT.DPT_CNT                           TDPT_CNT
+                   FROM (
+
+
+
+                   SELECT AA.GUBUN, AA.PIS_YY, AA.PIS_MM, AA.DPT_CD, AA.JOB_CD, AA.JOB_NM, NVL(BB.TOT_CNT,0) TOT_CNT, NVL(BB.DPT_CNT,0) DPT_CNT
+                   FROM  (SELECT GUBUN, SUBSTR(?, 1, 4) PIS_YY, SUBSTR(?, 6, 2) PIS_MM,
+                                 DPT_CD, JOB_CD, JOB_NM
+                          FROM  (SELECT GUBUN, DPT_CD
+                                 FROM   T_EV_JOBCHG
+                                 WHERE  ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                 AND    OCC_CD   LIKE ? || '%'
+                                 AND    PIS_YY = SUBSTR(?, 1, 4)
+                                 AND    PIS_MM = SUBSTR(?, 6, 2)
+                                 GROUP BY GUBUN, DPT_CD) A,
+                                (SELECT B.COMM_CD JOB_CD, B.COMM_NM JOB_NM
+                                 FROM   T_CM_COMMON A,
+                                        T_CM_COMMON B
+                                 WHERE  A.CD_GBN = 'A2'
+                                 AND   (A.END_YMD IS NULL OR A.END_YMD >= SYSDATE)
+                                 AND    A.EXT_01 = B.COMM_CD
+                                 AND    B.CD_GBN = 'A2'
+                                 GROUP BY B.COMM_CD, B.COMM_NM) B
+                         ) AA,
+                         (SELECT GUBUN,  PIS_YY,       PIS_MM,  DPT_CD, COM.JOB_CD,   COM.JOB_NM,
+                                 SUM(TOT_CNT) TOT_CNT, SUM(DPT_CNT) DPT_CNT
+                          FROM ( SELECT JOB_CNT.GUBUN,
+                                        NVL(ANS_CNT.PIS_YY, SUBSTR(?, 1, 4)) PIS_YY,
+                                        NVL(ANS_CNT.PIS_MM, SUBSTR(?, 6, 2)) PIS_MM,
+                                        JOB_CNT.DPT_CD, JOB_CNT.JOB_CD,
+                                        NVL(ANS_CNT.DPT_CNT, 0) DPT_CNT, JOB_CNT.TOT_CNT
+                                 FROM ( SELECT GUBUN, DPT_CD, JOB_CD, COUNT(*) TOT_CNT
+                                        FROM   T_EV_JOBCHG
+                                        WHERE  ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                        AND    PIS_YY = SUBSTR(?, 1, 4)
+                                        AND    PIS_MM = SUBSTR(?, 6, 2)
+                                        AND    OCC_CD   LIKE ? || '%'
+                                        GROUP BY GUBUN, DPT_CD, JOB_CD
+                                      ) JOB_CNT,
+                                      ( SELECT D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD, D.JOB_CD, COUNT(*) DPT_CNT
+                                        FROM ( SELECT DISTINCT B.GUBUN, B.PIS_YY, B.PIS_MM, B.ENO_NO,
+                                                      C.DPT_CD, C.JOB_CD
+                                               FROM   T_EV_QSTANS B,
+                                                      T_EV_JOBCHG C
+                                               WHERE  B.GUBUN  = ?
+                                               AND    B.PIS_YY = SUBSTR(?, 1, 4)
+                                               AND    B.PIS_MM = SUBSTR(?, 6, 2)
+                                               AND    B.GUBUN  = C.GUBUN
+                                               AND    B.ENO_NO = C.ENO_NO
+                                               AND    C.ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                               AND    B.PIS_YY = C.PIS_YY
+                                               AND    B.PIS_MM = C.PIS_MM
+                                               AND    C.OCC_CD LIKE ? || '%'
+                                             ) D
+                                        GROUP BY D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD, D.JOB_CD
+                                      ) ANS_CNT
+                                 WHERE  JOB_CNT.GUBUN  = ANS_CNT.GUBUN (+)
+                                 AND    JOB_CNT.DPT_CD = ANS_CNT.DPT_CD(+)
+                                 AND    JOB_CNT.JOB_CD = ANS_CNT.JOB_CD(+)
+                               ) DAT,
+                               ( SELECT A.COMM_CD, A.COMM_NM, B.COMM_CD JOB_CD, B.COMM_NM JOB_NM
+                                 FROM   T_CM_COMMON A,
+                                        T_CM_COMMON B
+                                 WHERE  A.CD_GBN = 'A2'
+                                 AND   (A.END_YMD IS NULL OR A.END_YMD >= SYSDATE)
+                                 AND    A.EXT_01 = B.COMM_CD
+                                 AND    B.CD_GBN = 'A2'
+                                 ORDER BY A.SORT_NO
+                               ) COM
+                          WHERE  DAT.JOB_CD = COM.COMM_CD
+                          GROUP BY GUBUN, PIS_YY, PIS_MM, DPT_CD, COM.JOB_CD, COM.JOB_NM
+                         ) BB
+                   WHERE  AA.DPT_CD = BB.DPT_CD(+)
+                   AND    AA.JOB_CD = BB.JOB_CD(+)
+
+
+
+
+                        ) LST,
+                        ( SELECT TOT.GUBUN,
+                                 NVL(ANS.PIS_YY, SUBSTR(?, 1, 4)) PIS_YY,
+                                 NVL(ANS.PIS_MM, SUBSTR(?, 6, 2)) PIS_MM,
+                                 TOT.DPT_CD,     NVL(ANS.DPT_CNT, 0) DPT_CNT, TOT.TOT_CNT
+                          FROM (
+                                 SELECT GUBUN, DPT_CD, COUNT(*) TOT_CNT
+                                 FROM   T_EV_JOBCHG
+                                 WHERE  ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                 AND    PIS_YY = SUBSTR(?, 1, 4)
+                                 AND    PIS_MM = SUBSTR(?, 6, 2)
+                                 AND    OCC_CD   LIKE ? || '%'
+                                 GROUP BY GUBUN, DPT_CD
+                               ) TOT,
+                               ( SELECT D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD, COUNT(*) DPT_CNT
+                                 FROM ( SELECT DISTINCT B.GUBUN, B.PIS_YY, B.PIS_MM, B.ENO_NO, C.DPT_CD
+                                        FROM   T_EV_QSTANS B,
+                                               T_EV_JOBCHG C
+                                        WHERE  B.GUBUN  = ?
+                                        AND    B.PIS_YY = SUBSTR(?, 1, 4)
+                                        AND    B.PIS_MM = SUBSTR(?, 6, 2)
+                                        AND    B.GUBUN  = C.GUBUN
+                                        AND    B.ENO_NO = C.ENO_NO
+                                        AND    B.PIS_YY = C.PIS_YY
+                                        AND    B.PIS_MM = C.PIS_MM
+                                        AND    C.ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                        AND    C.OCC_CD LIKE ? || '%'
+                                      ) D
+                                 GROUP BY D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD
+                               ) ANS
+                          WHERE  TOT.GUBUN  = ANS.GUBUN (+)
+                          AND    TOT.DPT_CD = ANS.DPT_CD(+)
+                        ) TOT
+                   WHERE  LST.GUBUN  = TOT.GUBUN
+                   AND    LST.PIS_YY = TOT.PIS_YY
+                   AND    LST.PIS_MM = TOT.PIS_MM
+                   AND    LST.DPT_CD = TOT.DPT_CD
+                 )
+
+            UNION ALL
+
+            SELECT GUBUN,
+                   PIS_YY,
+                   PIS_MM,
+                   '' DPT_CD,
+                   '합계' DPT_NM,
+                   JOB_CD,
+                   ROW_NUMBER() OVER(ORDER BY JOB_SEQ)||'.'||JOB_NM JOB_NM,
+                   SUM(DTOT_CNT) AS DTOT_CNT,
+                   SUM(DDPT_CNT) AS DDPT_CNT,
+                   SUM(TTOT_CNT) AS TTOT_CNT,
+                   SUM(TDPT_CNT) AS TDPT_CNT,
+                   999 AS DPT_SEQ,
+                   JOB_SEQ
+
+            FROM ( SELECT LST.GUBUN,
+                          LST.PIS_YY,
+                          LST.PIS_MM,
+                          LST.DPT_CD,
+                          SF_GET_DPTNAME(LST.GUBUN, 'A4',LST.DPT_CD) DPT_NM,
+                          SF_GET_DPTSEQ(LST.GUBUN, 'A4',LST.DPT_CD)  DPT_SEQ,
+                          LST.JOB_CD,
+                          LST.JOB_NM,
+                          SF_GET_COMMSEQ(LST.GUBUN, 'A2',LST.JOB_CD)  JOB_SEQ,
+                          LST.TOT_CNT                           DTOT_CNT,
+                          LST.DPT_CNT                           DDPT_CNT,
+                          TOT.TOT_CNT                           TTOT_CNT,
+                          TOT.DPT_CNT                           TDPT_CNT
+                   FROM (
+
+
+
+                   SELECT AA.GUBUN, AA.PIS_YY, AA.PIS_MM, AA.DPT_CD, AA.JOB_CD, AA.JOB_NM, NVL(BB.TOT_CNT,0) TOT_CNT, NVL(BB.DPT_CNT,0) DPT_CNT
+                   FROM  (SELECT GUBUN, SUBSTR(?, 1, 4) PIS_YY, SUBSTR(?, 6, 2) PIS_MM,
+                                 DPT_CD, JOB_CD, JOB_NM
+                          FROM  (SELECT GUBUN, DPT_CD
+                                 FROM   T_EV_JOBCHG
+                                 WHERE  ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                 AND    OCC_CD   LIKE ? || '%'
+                                 AND    PIS_YY = SUBSTR(?, 1, 4)
+                                 AND    PIS_MM = SUBSTR(?, 6, 2)
+                                 GROUP BY GUBUN, DPT_CD) A,
+                                (SELECT B.COMM_CD JOB_CD, B.COMM_NM JOB_NM
+                                 FROM   T_CM_COMMON A,
+                                        T_CM_COMMON B
+                                 WHERE  A.CD_GBN = 'A2'
+                                 AND   (A.END_YMD IS NULL OR A.END_YMD >= SYSDATE)
+                                 AND    A.EXT_01 = B.COMM_CD
+                                 AND    B.CD_GBN = 'A2'
+                                 GROUP BY B.COMM_CD, B.COMM_NM) B
+                         ) AA,
+                         (SELECT GUBUN,  PIS_YY,       PIS_MM,  DPT_CD, COM.JOB_CD,   COM.JOB_NM,
+                                 SUM(TOT_CNT) TOT_CNT, SUM(DPT_CNT) DPT_CNT
+                          FROM ( SELECT JOB_CNT.GUBUN,
+                                        NVL(ANS_CNT.PIS_YY, SUBSTR(?, 1, 4)) PIS_YY,
+                                        NVL(ANS_CNT.PIS_MM, SUBSTR(?, 6, 2)) PIS_MM,
+                                        JOB_CNT.DPT_CD, JOB_CNT.JOB_CD,
+                                        NVL(ANS_CNT.DPT_CNT, 0) DPT_CNT, JOB_CNT.TOT_CNT
+                                 FROM ( SELECT GUBUN, DPT_CD, JOB_CD, COUNT(*) TOT_CNT
+                                        FROM   T_EV_JOBCHG
+                                        WHERE  ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                        AND    PIS_YY = SUBSTR(?, 1, 4)
+                                        AND    PIS_MM = SUBSTR(?, 6, 2)
+                                        AND    OCC_CD   LIKE ? || '%'
+                                        GROUP BY GUBUN, DPT_CD, JOB_CD
+                                      ) JOB_CNT,
+                                      ( SELECT D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD, D.JOB_CD, COUNT(*) DPT_CNT
+                                        FROM ( SELECT DISTINCT B.GUBUN, B.PIS_YY, B.PIS_MM, B.ENO_NO,
+                                                      C.DPT_CD, C.JOB_CD
+                                               FROM   T_EV_QSTANS B,
+                                                      T_EV_JOBCHG C
+                                               WHERE  B.GUBUN  = ?
+                                               AND    B.PIS_YY = SUBSTR(?, 1, 4)
+                                               AND    B.PIS_MM = SUBSTR(?, 6, 2)
+                                               AND    B.GUBUN  = C.GUBUN
+                                               AND    B.ENO_NO = C.ENO_NO
+                                               AND    C.ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                               AND    B.PIS_YY = C.PIS_YY
+                                               AND    B.PIS_MM = C.PIS_MM
+                                               AND    C.OCC_CD LIKE ? || '%'
+                                             ) D
+                                        GROUP BY D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD, D.JOB_CD
+                                      ) ANS_CNT
+                                 WHERE  JOB_CNT.GUBUN  = ANS_CNT.GUBUN (+)
+                                 AND    JOB_CNT.DPT_CD = ANS_CNT.DPT_CD(+)
+                                 AND    JOB_CNT.JOB_CD = ANS_CNT.JOB_CD(+)
+                               ) DAT,
+                               ( SELECT A.COMM_CD, A.COMM_NM, B.COMM_CD JOB_CD, B.COMM_NM JOB_NM
+                                 FROM   T_CM_COMMON A,
+                                        T_CM_COMMON B
+                                 WHERE  A.CD_GBN = 'A2'
+                                 AND   (A.END_YMD IS NULL OR A.END_YMD >= SYSDATE)
+                                 AND    A.EXT_01 = B.COMM_CD
+                                 AND    B.CD_GBN = 'A2'
+                                 ORDER BY A.SORT_NO
+                               ) COM
+                          WHERE  DAT.JOB_CD = COM.COMM_CD
+                          GROUP BY GUBUN, PIS_YY, PIS_MM, DPT_CD, COM.JOB_CD, COM.JOB_NM
+                         ) BB
+                   WHERE  AA.DPT_CD = BB.DPT_CD(+)
+                   AND    AA.JOB_CD = BB.JOB_CD(+)
+
+
+
+
+                        ) LST,
+                        ( SELECT TOT.GUBUN,
+                                 NVL(ANS.PIS_YY, SUBSTR(?, 1, 4)) PIS_YY,
+                                 NVL(ANS.PIS_MM, SUBSTR(?, 6, 2)) PIS_MM,
+                                 TOT.DPT_CD,     NVL(ANS.DPT_CNT, 0) DPT_CNT, TOT.TOT_CNT
+                          FROM (
+                                 SELECT GUBUN, DPT_CD, COUNT(*) TOT_CNT
+                                 FROM   T_EV_JOBCHG
+                                 WHERE  ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                 AND    OCC_CD   LIKE ? || '%'
+                                 AND    PIS_YY = SUBSTR(?, 1, 4)
+                                 AND    PIS_MM = SUBSTR(?, 6, 2)
+                                 GROUP BY GUBUN, DPT_CD
+                               ) TOT,
+                               ( SELECT D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD, COUNT(*) DPT_CNT
+                                 FROM ( SELECT DISTINCT B.GUBUN, B.PIS_YY, B.PIS_MM, B.ENO_NO, C.DPT_CD
+                                        FROM   T_EV_QSTANS B,
+                                               T_EV_JOBCHG C
+                                        WHERE  B.GUBUN  = ?
+                                        AND    B.PIS_YY = SUBSTR(?, 1, 4)
+                                        AND    B.PIS_MM = SUBSTR(?, 6, 2)
+                                        AND    B.GUBUN  = C.GUBUN
+                                        AND    B.ENO_NO = C.ENO_NO
+                                        AND    C.ENO_NO NOT IN (SELECT ENO_NO FROM T_CM_PERSON WHERE RET_YMD IS NOT NULL)
+                                        AND    B.PIS_YY = C.PIS_YY
+                                        AND    B.PIS_MM = C.PIS_MM
+                                        AND    C.OCC_CD LIKE ? || '%'
+                                      ) D
+                                 GROUP BY D.GUBUN, D.PIS_YY, D.PIS_MM, D.DPT_CD
+                               ) ANS
+                          WHERE  TOT.GUBUN  = ANS.GUBUN (+)
+                          AND    TOT.DPT_CD = ANS.DPT_CD(+)
+                        ) TOT
+                   WHERE  LST.GUBUN  = TOT.GUBUN
+                   AND    LST.PIS_YY = TOT.PIS_YY
+                   AND    LST.PIS_MM = TOT.PIS_MM
+                   AND    LST.DPT_CD = TOT.DPT_CD
+                 )
+            GROUP BY GUBUN, PIS_YY, PIS_MM, JOB_CD, JOB_NM, JOB_SEQ
+            ORDER BY DPT_SEQ, JOB_SEQ
+            ]]>
+        </query>
+    </sql>
+
+</sqls>

@@ -1,0 +1,2201 @@
+<!---------------------------------------------------------------------------
++ 시 스 템 명	:  경리회계 - 전표관리	
++ 프로그램 ID	:  A020001.html
++ 기 능 정 의	:  전표를 입력/조회 하는 화면이다
++ 작   성  자 :  정 영 식
++ 작 성 일 자 : 
+-----------------------------------------------------------------------------
++ 수 정 내 용 :	   
++ 수   정  자 :
++ 수 정 일 자 :
+-----------------------------------------------------------------------------
++ 서 블 릿 명	:
+------------------------------------------------------------------------------>
+
+<!-- A020002.html 적용시 변경사항 
+function ln_Start(){
+  ln_DispChk(1);
+	ln_Add('01');
+
+	
+<script language="javascript" for="gcds_dept" event="onloadCompleted(row,colid)">
+	if (row >=1){
+		txt_deptcd.value=gcds_dept.namevalue(row,"DEPTCD");
+		txt_deptnm.value=gcds_dept.namevalue(row,"DEPTNM"); 
+		gs_deptcd=gcds_dept.namevalue(row,"DEPTCD");
+		gs_deptnm=gcds_dept.namevalue(row,"DEPTNM");
+
+    //등록시만 사용=======================================
+		txt_deptcd02.value=gcds_dept.namevalue(row,"DEPTCD");
+		txt_deptnm02.value=gcds_dept.namevalue(row,"DEPTNM");
+		//====================================================
+
+ 
+ <table id="div_disp1" cellpadding="0" cellspacing="0" border="0" style="display:none">
+<table id="div_disp2" cellpadding="0" cellspacing="0" border="0" >
+ 
+
+ 닫기버튼 안보이게함.
+ <!-- 	<img src="../../common/img/btn/com_b_exit.gif"  style="cursor:hand" onclick="ln_Cancel('02')"> -->
+
+
+<!-- Slipno_popup시 적용시 변경사항 ==================================
+function ln_Start(){
+<table id="div_disp1" cellpadding="0" cellspacing="0" border="0" style="display:none">
+<table id="div_disp2" cellpadding="0" cellspacing="0" border="0" >
+
+  ln_DispChk(1);
+	ln_Add('01');
+  
+  //alert("test2");
+	//회계개발자 편의상 만듬---------------------
+	if (gs_userid=="ACCOUNT"){
+	    gs_userid="1990046";
+      gs_fdcode = '01';
+			gs_deptcd= 'C210';
+			gs_deptnm='회계팀';
+			gs_cocode='03';
+		}
+	//-------------------------------------------
+
+	gcds_dept.DataID = g_servlet+"/Account.a020001_s2?v_str1="+gs_userid;
+	//prompt("", gcds_dept.DataID);
+	gcds_dept.Reset();
+
+	ln_Before();
+
+	//gclx_fswrkdiv.index=2;
+	//gcra_spip.CodeValue="A";
+	gcra_sign.CodeValue="A";
+	//gcem_fsdat_fr.text=gs_date.substring(0,6)+"01";
+  gcem_fsdat_fr.text='20050601';
+	gcem_fsdat_to.text=gs_date;
+
+	//경리관련부서만 열어놓음.
+	if(gf_Dept_Enable(gs_deptcd)){
+      gclx_fdcode.bindcolval=gs_fdcode;
+			gclx_fdcode02.bindcolval=gs_fdcode;
+	}else{
+			gclx_fdcode.Enable=false;
+			gclx_fdcode02.Enable=false; 
+			gclx_fdcode.bindcolval=gs_fdcode;
+			gclx_fdcode02.bindcolval=gs_fdcode;
+	}
+
+
+  /*********************************************************
+	 파라미터 넘겨받기
+	 *********************************************************/
+	var strParam = new Array();
+	strParam=window.dialogArguments;
+	
+	if (strParam[0]=="") {
+		alert("지점을 선택하십시요.");
+		return;
+	}
+
+	gclx_fdcode02.bindcolval=strParam[0];
+	//alert("gclx_fdcode02.bindcolval::"+gclx_fdcode02.bindcolval);
+	gstr_fsdat=strParam[1];
+	gcem_fsnbr02.text=strParam[2];
+  gcem_fs02.text = gstr_fsdat.substring(0,1);
+  gcem_fsdat02.text = gstr_fsdat.substring(1,9);
+	ln_Query('03');
+}
+
+A020001.html
+ln_Find_Slipno() 에서 파라미터 하나 추가함.
+-->
+
+
+<html>
+<head>
+<title></title>
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<!-----------------------------------------------------------------------------
+		S T Y L E   S H E E T   L I N K   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<link rel="stylesheet" href="../../common/include/common.css">
+
+<!-----------------------------------------------------------------------------
+		C O M M O N   M O D U L E   S C R I P T S( MESSAGE & FUNCTION )
+------------------------------------------------------------------------------>
+<Script language="javascript" src="../../common/include/PubFun.js"></script>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S T Y L E   S H E E T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<style type="text/css">
+<!--
+//-->
+</style>
+
+<!-----------------------------------------------------------------------------
+		L O C A L   S C R I P T   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript">
+
+/******************************************************************************
+	Description : 페이지 로딩
+******************************************************************************/
+get_cookdata();
+lfn_init(); //로그인 체크 함수 호출
+var gs_date = gcurdate.substring(0,4) + gcurdate.substring(5,7) + gcurdate.substring(8,10);
+var gs_date2 = gcurdate.substring(0,4) + gcurdate.substring(5,7);
+var gs_userid = gusrid;
+var gs_usernm = gusrnm;
+var gs_deptcd = gdeptcd;
+var gs_deptnm = gdeptnm;
+var gs_fdcode = gfdcode;
+var gs_cocode = gcocode;
+var gs_InsGubun=""; //조회와 등록 구분
+var gs_dept2="";    //경리관련부서
+function ln_Start(){
+  ln_DispChk(0);
+
+	//회계개발자 편의상 만듬---------------------
+	if (gs_userid=="ACCOUNT"){
+	    gs_userid="1990046";
+      gs_fdcode = '02';
+			gs_deptcd= 'C260';
+			gs_deptnm='회계팀';
+			gs_cocode='02';
+	}
+	//-------------------------------------------
+
+	gcds_dept.DataID = g_servlet+"/Account.a020001_s2?v_str1="+gs_userid;
+	gcds_dept.Reset();
+
+	ln_Before();
+	gclx_fsstat.bindcolval="A";
+	gcem_fsdat_fr.text=gs_date.substring(0,6)+"01";
+	gcem_fsdat_to.text=gs_date;
+	gcem_fswrtdat02.text=gs_date;  
+  
+	//alert("gs_deptcd::::"+gs_deptcd);
+	//경리관련부서만 열어놓음.
+	if(gf_Dept_Enable(gs_deptcd,gcds_dept2)){
+      gclx_fdcode.bindcolval=gs_fdcode;
+			gclx_fdcode02.bindcolval=gs_fdcode;
+			gs_dept2="true";
+	}else{
+	    //alert("gs_fdcode"+gs_fdcode);
+		  gclx_fdcode.bindcolval=gs_fdcode;
+			gclx_fdcode02.bindcolval=gs_fdcode;
+			gclx_fdcode.Enable=false;
+			gclx_fdcode02.Enable=false; 
+			gs_dept2="false";
+	}
+}
+
+/******************************************************************************
+	Description : 세금계산서 저장시 부가세 reflash
+	parameter   : p - 부가세금액
+******************************************************************************/
+function ln_fsvat(p){
+	//gcem_fsvat02.text=p;
+}
+
+/******************************************************************************
+	Description : 조회
+	parameter   : p - 01:전표 조회
+	                  02:전표 DETAIL 조회 - 전표번호별
+										03:전표 입력화면에서 Master와 Dtl 조회
+
+  참고        : 전표 DETAIL 조회 - 전표번호별 (접수번호가 000000 일 경우는 접수일자+전표번호로만 조회함.)
+******************************************************************************/
+function ln_Query(p){
+  var strempno="";
+
+	if (p=='01'){
+    var strGubun ="";
+
+		if(gs_dept2=="true"){
+			strGubun="A";  //회계 or 재무팀일 경우만 
+		}else{
+       strGubun="";
+		}
+
+		  //임시
+      if(gs_deptcd=="C260"||gs_deptcd=="C250"){
+					strGubun="A";  //회계 or 재무팀일 경우만 
+					strempno="";
+			}else{
+          strGubun="";
+					strempno=gs_userid;
+			}
+			
+			gcds_data01.DataID = g_servlet+"/Account.a020001_s1?v_str1="+gs_fdcode
+																											 +"&v_str2="+gcem_fsdat_fr.text
+																											 +"&v_str3="+gcem_fsdat_to.text
+																											 +"&v_str4="+txt_deptcd.value
+																											 +"&v_str5="+strGubun
+																											 +"&v_str6="+gclx_fsstat.bindcolval
+																											 +"&v_str7="+txt_remark.value
+																											 +"&v_str8="+gclx_fdcode.bindcolval
+																											 +"&v_str9="+gclx_fsdat.bindcolval
+																											 +"&v_str10="+strempno;
+			//prompt("",gcds_data01.DataID );																							
+			gcds_data01.Reset();
+	
+	}else if (p=='02'){
+    var row = gcds_data01.rowposition; 
+		//전표 Detail 조회
+		ifrm.ln_Query("01",
+		              gcds_data01.namevalue(row,"FDCODE"),
+									gcds_data01.namevalue(row,"FSDAT"),
+									gcds_data01.namevalue(row,"FSNBR"),
+									gcds_data01.namevalue(row,"FSSTAT"));
+		ifrm.ln_Bgt_Amt_Clear();
+   }else if (p=='03'){
+
+	     if (gcem_fsnbr02.text!="000000"||gcem_fsnbr02.text!=""){
+			    //전표 Detail 조회
+					ifrm.ln_Query("01",gclx_fdcode02.bindcolval,gcem_fs02.text+gcem_fsdat02.text,gcem_fsnbr02.text,gclx_fsstat02.bindcolval,'','' );
+          
+					//전표Master조회
+				  gcds_data01_2.DataID = g_servlet+"/Account.a020001_s8?v_str1="+gclx_fdcode02.bindcolval
+																										 +"&v_str2="+gcem_fs02.text+gcem_fsdat02.text
+																										 +"&v_str3="+gcem_fsnbr02.text;										
+					//prompt("",gcds_data01_2.DataID );																							
+		      gcds_data01_2.Reset();
+					ifrm.ln_Bgt_Amt_Clear();
+					//alert("cocode step1"+gcds_data01_2.namevalue(gcds_data01_2.rowposition,"COCODE"));
+
+          hid_cocode02.value = gcds_data01_2.namevalue(gcds_data01_2.rowposition,"COCODE"); //전표삭제시 사용함.
+					//alert("cocode step2"+hid_cocode02.value);
+
+		   }else if(gcem_fsnbr02.text=="000000"&& gclx_fdcode02.bindcolval!=""&&gcem_fs02.text!=""&&gcem_fsdat02.text!=""&&gcem_fsnbr02.text!=""){
+					ifrm.ln_Query("01",gclx_fdcode02.bindcolval,'','',gclx_fsstat02.bindcolval,gcem_ss02.text+gcem_ssdat02.text,gcem_ssnbr02.text);
+          
+					//전표Master조회
+				  gcds_data01_2.DataID = g_servlet+"/Account.a020001_s8?v_str1="+gclx_fdcode02.bindcolval
+																										 +"&v_str2=''"
+																										 +"&v_str3=''"
+																										 +"&v_str2="+gcem_ss02.text+gcem_ssdat02.text
+																										 +"&v_str3="+gcem_ssnbr02.text;		
+					 gcds_data01_2.Reset();
+					 ifrm.ln_Bgt_Amt_Clear();
+		 
+           //alert("cocode step3"+gcds_data01_2.namevalue(gcds_data01_2.rowposition,"COCODE"));
+					 hid_cocode02.value = gcds_data01_2.namevalue(gcds_data01_2.rowposition,"COCODE"); //전표삭제시 사용함.
+					 //alert("cocode step4"+hid_cocode02.value);
+			 }
+	 }
+}
+
+/************************************************************************************************************
+	Description : 접수번호 찾기
+	parameter   :
+************************************************************************************************************/
+function ln_Find_Slipno(){
+    
+		var fsdat02 = gcem_fs02.text+gcem_fsdat02.text;
+		var gubun="";
+    
+   // gclx_fdcode02.BindColVal
+	 // gcem_fs02.text
+	 // gcem_fsdat02.text
+   //gcem_fsnbr02.text
+    
+		//alert("gclx_fdcode"+gclx_fdcode02.BindColVal+"fsdat"+fsdat02+"gcem_fsnbr"+gcem_fsnbr02.text);
+		
+	//ln_SetDataHeader("key");
+    ln_SetDataHeader("key");
+    gctr_slipno.Action = g_servlet+"/Account.a020001_t4f?";
+		gctr_slipno.Parameters = "v_str1="+gclx_fdcode02.BindColVal +",v_str2="+fsdat02+",v_str3="+gclx_fdcode02.BindColVal+",v_str4="+gs_userid+",v_str5="+gs_date+",v_str6=";		
+		//prompt("gcds_slipno",gcds_slipno.text);
+		gctr_slipno.post();
+
+}
+
+
+/************************************************************************************************************
+	Description : 본부코드 찾기
+	parameter   :
+*************************************************************************************************************/
+function ln_Find_Divcd(){
+
+		gcds_divcd.DataID = g_servlet+"/Account.a020001_s9?v_str1="+gs_deptcd;																						
+		gcds_divcd.Reset();
+    if(gcds_divcd.countrow>0){
+			return gcds_divcd.namevalue(gcds_divcd.rowposition,"DIVCD");
+		}else{
+			return;
+		}
+}
+
+/************************************************************************************************************
+	Description : 전표 신규등록
+	parameter   : p - 01 : 조회화면에서 등록, 02-전표등록화면에서 등록,  99 - ifrm화면으로 넘김, 88-세금계산서에서 추가 될경우
+*************************************************************************************************************/
+function ln_Add(p){
+  var i_row=0;
+	var strDivcd="";  //본부코드
+  
+	if (p=='01'){
+		ln_DispChk(1);
+		ln_Read("t");
+		ln_Data_Add();
+		//gs_InsGubun="I";
+		//ln_SetDataHeader("02");
+	  ifrm.ln_SetFormat_add('new',1,'');
+		ifrm.ln_row_Cnt('01',1);
+		ifrm.ln_Bgt_Amt_Clear(); //예산금액 초기화
+		//ln_Find_Slipno();      //접수번호 채번하기
+	  //ln_Find_Divcd();       //본부찾기 찾기 
+	
+	}else if(p=='02'){
+		ln_Read("t");
+		ln_Data_Add();
+		//gs_InsGubun="I";
+		ln_SetDataHeader("02");
+		ifrm.ln_SetFormat_add('new',1,'');
+		ifrm.ln_row_Cnt('01',1);
+		ifrm.ln_Bgt_Amt_Clear();  //예산금액 초기화
+		//ln_Find_Divcd();        //본부찾기 찾기 
+		//ln_Find_Slipno();       //접수번호 채번하기
+	  
+	}else if(p=='99'){
+		
+		//결재완료 확인
+    if (ln_Status('I','')){
+		  //전표번호가 000000 일경우 return
+			//alert("FSKND"+gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSKND"));
+			if(gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSKND")!=""&&gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSKND")!="0"){
+				alert("자동기표 전표입니다. 행추가 할 수 없습니다.");
+				return;
+			}
+			/*
+			alert("gcem_fsnbr02"+gcem_fsnbr02.text);
+			if(gcem_fsnbr02.text=="000000"){
+				alert("등록버튼을 먼저 누르세요.");
+				return;
+			}
+			*/
+			i_row = ifrm.ln_row_Cnt('01',1);
+			ifrm.ln_SetFormat_add('add',i_row,'');
+		}
+	}else if(p=='88'){  //세금계산서에서 추가 될 경우
+		
+		//결재완료 확인
+    if (ln_Status('I','')){
+		  //전표번호가 000000 일경우 return
+      if(gcem_fsnbr02.text=="000000"){
+				alert("등록버튼을 먼저 누르세요.");
+				return;
+			}
+
+			i_row = ifrm.ln_row_Cnt('01',1);
+			ifrm.ln_SetFormat_add('add',i_row,'Tax');
+		}
+	}
+}
+
+/******************************************************************************
+	Description : 저장
+	parameter   : p0  - 구분자
+	             //p1 - MST : 전표 Master Data, DTL : 전표 Detail 데이타     
+	              p2 - status     
+								p3 - 현장코드(2자리)  
+                p4 - 접수일자(9자리)
+								p5 - 접수번호(000000) ==> 서블릿에서 Max+1로 생성
+								p6 - 작성일자
+								p7 - 작성부서
+								p8 - 작성자
+								p9 - 가전표금액
+								p10- 부가세
+								p11- 차변합계
+								p12- 대변합계
+								p13- 적요
+								p14- 가전표상태
+								p15- 작업일자
+								p16- 회계일자
+								p18 -본부코드
+								p19 -사업장코드
+								p20 -전표구분 (수동기표/자동기표)
+******************************************************************************/
+function ln_Save(p0){
+  var result="";
+  var tempArray = new Array(); 
+
+	if (p0=='02'){
+		if(ln_Chk(p0)){
+			/*result = ln_Popup_Confirm();
+			if (result!=undefined){
+				tempArray = result.split(";");
+				//alert("tempArray[0]:"+ tempArray[0]+":tempArray[1]:" +tempArray[1]);
+				if (tempArray[0] == "" && tempArray[1]=="N"){
+					alert("결재자가 존재하지 않습니다. 확인하시고 다시 저장하십시요")
+					ln_Save('02');
+					return;
+        }else if (tempArray[0] != "" && tempArray[1]=="N"){ //결재
+           
+				}else if (tempArray[1]=="Y"){ //전결일경우
+          tempArray[0] == gs_userid ; //결재자 
+				}else if (tempArray[1]=="B"){ //결재보류일 경우
+          tempArray[0] =="";          //결재자 
+				}
+			//alert("SysStatus"+gcds_data01_1.SysStatus(gcds_data01_1.rowposition));
+			//alert("UserStatus"+gcds_data01_1.UserStatus(gcds_data01_1.rowposition));
+			//alert("RowStatus"+gcds_data01_1.RowStatus(gcds_data01_1.rowposition));		
+			 */
+				ifrm.ln_Save(
+										 gcds_data01_1.SysStatus(gcds_data01_1.rowposition),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FDCODE"),
+									   gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT1")+gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT2"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSNBR"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSWRTDAT"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DEPTCD"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"EMPNO"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSAMT"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSVAT"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DETOT"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"CRTOT"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"REMARK"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSSTAT"),
+										 gs_date,
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"ACTDAT"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DIVCD"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"COCODE"),
+										 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSKND")
+										)
+			//}
+		}				
+	}
+}
+
+/******************************************************************************
+	Description : 취소
+	parameter   :  02 - 전표 등록  03- 전표 Detail취소 
+******************************************************************************/
+function ln_Cancel(p){
+	if(p=="02"){
+	 // if(ln_Chk("02")==false) return;
+		ln_DispChk(0);
+		ln_Data_Add();
+    gcds_data02.ClearAll();
+		ifrm.ln_row_Cnt('',0);
+    //gcds_data03.ClearAll();
+		//gcds_data04.ClearAll();
+	}else if(p=="03"){
+	  if(ln_Status("C","")){
+			gcds_data02.undo(gcds_data02.rowposition);
+		}
+	}
+}
+
+/******************************************************************************
+	Description : 삭제
+	parameter   : p - 01 : 전표전체삭제  mst, detail, 관리항목 + (계산서 Master, 계산서 Detail)
+	                  99 : detail  및 관리항목 삭제 + (계산서 Master, 계산서 Detail)
+										dis: 화면에서만 삭제되고 실제 DB 삭제는 안됨.
+******************************************************************************/
+function ln_Delete(p){
+	
+	if(p=='02'){	
+		 if (ln_Status('D','')){  //결재완료 체크
+		    
+				ifrm.ln_Delete_All(gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FDCODE"),
+				                   gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT"),
+											     gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSNBR"));
+		 }
+
+	}else if(p=='99'){
+	  
+		 if (ln_Status('D','')){  //결재완료 체크
+		    if(ln_Chk("02")==false) return;
+				ifrm.ln_Delete(gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FDCODE"),
+											 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT"),
+											 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSNBR"),
+											 '',
+                       gclx_fsstat02.bindcolval
+											 );
+		 }
+		
+	}else if(p=='dis'){
+ 
+	  if (ln_Status('D','')){  //화면상에서만 삭제
+				ifrm.ln_Delete(gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FDCODE"),
+				               gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT"),
+											 gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSNBR"), 
+											 'dis',
+											 gclx_fsstat02.bindcolval
+											 );
+				ifrm.ln_Fsnum_Reset(); //전표순번 재설정
+		}
+	}
+}
+
+/******************************************************************************
+	Description : 출력
+	parameter   : 
+******************************************************************************/
+function ln_Print(){
+
+	var fdcd01 = gclx_fdcode02.bindcolval;														    //지점코드
+	var fsnb04 = gcem_fs02.text+gcem_fsdat02.text+"-"+gcem_fsnbr02.text;	//접수번호
+	ifrm.ln_Print(fdcd01,fsnb04);
+
+
+/*
+	var fdcd02 = gclx_fdcode02.text;																	//지점명
+	var dept03 = fn_trim(txt_deptnm02.value);													//부서
+	
+	if (gcds_data01_2.namevalue(1,"ACTDAT")==undefined){
+		var cudt05 = gcds_data01_1.namevalue(1,"ACTDAT");									//회계일자
+	}else{
+    var cudt05 = gcds_data01_2.namevalue(1,"ACTDAT");									//회계일자
+	}
+
+	if (gcds_data01_2.namevalue(1,"ACTDAT")==undefined){
+		var cudt06 = gcds_data01_1.namevalue(1,"FSWRTDAT");								//작성일자
+	}else{
+    var cudt06 = gcds_data01_2.namevalue(1,"FSWRTDAT");								//작성일자
+	}
+
+
+	ifrm.ln_Print(fdcd01,fdcd02,dept03,fsnb04,cudt05,cudt06);
+*/
+	
+
+
+}
+
+/******************************************************************************
+	Description : 엑셀
+	parameter   : 
+******************************************************************************/
+function ln_Excel(){
+	
+}
+
+/******************************************************************************
+	Description : FILE 
+******************************************************************************/
+function ln_File(){
+
+}
+
+/******************************************************************************
+	Description : 코드 작업
+******************************************************************************/
+function ln_Before() {
+
+  	//지점구분
+	gcds_comfield.DataID =  g_servlet+"/Account.comfield_s1?v_str1="+gs_date;
+	//prompt("",gcds_comfield.DataID);
+	gcds_comfield.Reset();
+
+		//지점구분2
+	gcds_comfield02.DataID =  g_servlet+"/Account.comfield_s1?v_str1="+gs_date;
+	//prompt("",gcds_comfield.DataID);
+	gcds_comfield02.Reset();
+
+	//업무구분(회계일자 구분코드)
+	gcds_comcode01.DataID =  g_servlet+"/Account.comcode_s1?v_str1=1155";
+	//prompt("",gcds_comcode01.DataID);
+	gcds_comcode01.Reset();
+
+	//계정코드 구분코드
+	gcds_code01.DataID =  g_servlet+"/Account.a010002_s0?"; 
+	//prompt("gcds_code01",gcds_code01.DataID);
+	gcds_code01.Reset();
+
+}
+
+
+/******************************************************************************
+	Description : 체크
+	parameter   : p1-구분
+******************************************************************************/
+function ln_Chk(p1){
+
+  if(gclx_fsstat02.bindcolval=="Y"){
+		alert("결재완료된 전표입니다.");
+		return false;
+	}
+
+	if (p1=="02"){
+		//필수항목체크	
+		/*if (fn_trim(gcem_atcode.text)=="" ){
+			alert("계정코드를 입력하십시요.");
+			gcem_atcode.focus();
+			return false; 
+		}
+
+		if (fn_trim(txt_atkornam.value)==""){
+			alert("계정과목명을 입력하십시요.");
+			txt_atkornam.focus();
+			return false; 
+		}
+		*/
+   
+		//차변대변 동일 확인
+		if(gcem_detot02.text!=gcem_crtot02.text){
+			alert("차변합계와 대변합계가 같지 않습니다.");
+			return false;
+		}
+		return true; 
+	}
+
+}
+
+/******************************************************************************
+	Description : 체크
+	parameter   : p1-구분, p2-차변값, p3-대변값, p4-차대구분
+******************************************************************************/
+
+function ln_Chk2(p1,p2,p3,p4){
+}
+
+
+/******************************************************************************
+	Description : 체크
+	parameter   : p1-구분, p2 - 1:차변 2:대변 3:적요
+******************************************************************************/
+
+function ln_Chk3(p1,p2){
+
+}
+
+/******************************************************************************
+	Description : 저장시 체크박스값 변환
+	prameter : 
+******************************************************************************/
+function ln_Chkbox(){
+
+}
+
+/******************************************************************************
+	Description : 계정코드 찾기
+	parameter   : p1 - 구분,  01-전표일괄 복사(비릿지 ==> 전표)
+	                          02-계정
+														03-관리항목
+	              p2 - Data, row - grid의 rowposition
+******************************************************************************/
+function ln_Popup(p1,p2,row){
+  
+	var result="";
+	var arrParam	= new Array();
+	var arrResult	= new Array();
+	var strURL;	
+	var strPos;
+
+/*
+	if ((p1=="00")) {
+    strURL = "./Slipno_popup.html";
+		arrParam[0]="";
+		strPos = "dialogWidth:890px;dialogHeight:580px;dialogTop:150px;dialogLeft:128px;status:no;scroll:no;resizable:no";
+		result = showModalDialog(strURL,arrParam,strPos);
+	}
+*/
+
+	if ((p1=="01")) {
+		strURL = "./Commiface_popup.html";
+		arrParam[0]="";
+		strPos = "dialogWidth:878px;dialogHeight:490px;dialogTop:220px;dialogLeft:128px;status:no;scroll:no;resizable:no";
+		result = showModalDialog(strURL,arrParam,strPos);
+
+		if (result != null) {
+			arrResult = result.split(";");
+			gcds_data02.namevalue(row,"ATCODE")=arrResult[0];
+			gcds_data02.namevalue(row,"ATKORNAM")=arrResult[1];
+			gcds_data02.namevalue(row,"ATDECR")=arrResult[2];
+
+		} else {
+			gcds_data02.namevalue(row,"ATCODE")="";
+			gcds_data02.namevalue(row,"ATKORNAM")="";
+			gcds_data02.namevalue(row,"ATDECR")="";
+
+			gcds_data02.namevalue(row,"REMARK")=""
+			gcds_data02.namevalue(row,"CHAAMT")="0";
+			gcds_data02.namevalue(row,"DAEAMT")="0";
+		}
+
+	}else if (p1=="02"){
+		strURL = "./Actcode_popup.html";
+		arrParam[0]="ATUSEYN" 
+		arrParam[1]=p2;
+		strPos = "dialogWidth:495px;dialogHeight:379px;status:no;scroll:no;resizable:no";
+		result = showModalDialog(strURL,arrParam,strPos);
+
+		if (result != null) {
+			arrResult = result.split(";");
+			gcds_data02.namevalue(row,"ATCODE")=arrResult[0];
+			gcds_data02.namevalue(row,"ATKORNAM")=arrResult[1];
+			gcds_data02.namevalue(row,"ATDECR")=arrResult[2];
+		} else {
+			gcds_data02.namevalue(row,"ATCODE")="";
+			gcds_data02.namevalue(row,"ATKORNAM")="";
+			gcds_data02.namevalue(row,"ATDECR")="";
+
+			gcds_data02.namevalue(row,"REMARK")=""
+			gcds_data02.namevalue(row,"CHAAMT")="0";
+			gcds_data02.namevalue(row,"DAEAMT")="0";
+		}
+
+		//ln_Grid_Property("02",arrResult[2]);전표입력할 때는 사용하지 계정에 따른 차변, 대변 구분하지 않음.
+	
+	}else if(p1=="03"){
+		strURL = "./Slipref_popup.html";
+		arrParam[0]=p2;
+		strPos = "dialogWidth:495px;dialogHeight:379px;status:no;scroll:no;resizable:no";
+		result = showModalDialog(strURL,arrParam,strPos);
+
+		if (result != null) {
+			arrResult = result.split(";");
+			gcds_data04.namevalue(row,"FSREFVAL")=arrResult[0];
+			gcds_data04.namevalue(row,"FSREFVALNM")=arrResult[1];
+		} else {
+			gcds_data04.namevalue(row,"FSREFVAL")="";
+			gcds_data04.namevalue(row,"FSREFVALNM")="";
+		}
+	}else if (p1=="09"){
+		strURL = "./Slipno_loca_popup.html";    
+		if(gcds_data01.namevalue(gcds_data01.rowposition,"FDCODE")!=undefined){
+			arrParam[0]=gcds_data01.namevalue(gcds_data01.rowposition,"FDCODE"); 
+			arrParam[1]=gcds_data01.namevalue(gcds_data01.rowposition,"FSDAT"); 
+			arrParam[2]=gcds_data01.namevalue(gcds_data01.rowposition,"FSNBR"); 	
+		}else{
+			arrParam[0]=gclx_fdcode02.bindcolval; 
+			arrParam[1]=gcem_fs02.text+gcem_fsdat02.text; 
+			arrParam[2]=gcem_fsnbr02.text; 	
+		}
+
+		strPos = "dialogWidth:800px;dialogHeight:425px;dialogTop:220px;dialogLeft:128px;status:no;scroll:no;resizable:no";
+		result = showModalDialog(strURL,arrParam,strPos);
+   	/*
+		if (result != null) {
+		 
+		  arrResult = result.split(";");
+      gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FDCODE")=arrResult[0];		
+      gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT")=arrResult[1];
+		  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSNBR")=arrResult[2];
+
+		} else {
+      gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FDCODE")="";	
+      gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT")="";
+		  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSNBR")="";	   
+		}
+    */
+
+	}
+}
+
+/******************************************************************************
+	Description : 결재 팝업
+	parameter   : 
+******************************************************************************/
+function ln_Popup_Confirm(){
+  
+	var result="";
+	var arrParam	= new Array();
+	var arrResult	= new Array();
+	var strURL;	
+	var strPos;
+
+	if (gclx_fsstat02.bindcolval!="B"&&gclx_fsstat02.bindcolval!="N"){ //Y-결재완료,C-결재취소, N-결재대기, R-결재요청, B-반송
+		alert("전표상태가 결재요청 할 수 없습니다.");
+		return;
+	}
+
+	if(!ifrm.ln_Confirm_Chk()){ //결재요청 체크
+		alert("전표상태가 결재요청 할 수 없습니다.");
+		return;
+	}
+
+	strURL = "./Confirm_popup.html";
+	strPos = "dialogWidth:330px;dialogHeight:180px;status:no;scroll:no;resizable:no";
+
+	result = showModalDialog(strURL,window,strPos);
+	//return result;
+	if (result != null) {
+		arrResult = result.split(";");
+		//alert("0"+arrResult[0]);
+		//alert("1"+arrResult[1]);
+		gcds_confirm.ClearData();
+		if (arrResult[1]= "Y" ){ //결재저장시
+			ln_Confirm_Save(arrResult[0],arrResult[3],arrResult[4]); //결재자, 회계(예산)구분 01 회계, 02예산, 03 자금 ,  Y -회계일자 변경
+		}
+	}
+}
+
+
+/******************************************************************************
+	Description : 멀리결재
+	parameter   : 
+******************************************************************************/
+function ln_Multi_Confirm(){
+  
+	  alert("작업중입니다.");
+		return;
+	  if(gcds_confirm.countrow<=0){
+			ln_SetDataHeader("CONFIRM");
+		}
+
+		for(k=1;k<=gcds_data01.countrow;k++){
+		  if(gcds_data01.namevalue(k,"CHK")=="T"){
+				gcds_confirm.addrow();
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"FDCODE")=gcds_data01.namevalue(k,"FDCODE"); 
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"FSDAT")=gcds_data01.namevalue(k,"FSDAT");  
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"FSNBR")=gcds_data01.namevalue(k,"FSNBR");  
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"SEQ")=""; 
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"ACCSGNID")="";      //결재자
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"EMPNO")= "";        //작업자(결재요청자와 입력자구분해야함.)
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"ACCSGNDAT") ="";  
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"ACCSGNEND") ="R"; 
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"FROMGB") ="01"; 
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"TOGB") =""; 
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"BIGO") =""; 
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"BGTGB")=""; 
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"WRDT") =gs_date;  
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"WRID") =gs_userid;  
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"UPDT") =gs_date;  
+				gcds_confirm.namevalue(gcds_confirm.rowposition,"UPID") =gs_userid;  
+
+				if (confirm("결재요청 하시겠습니까?")){	
+					gctr_data07.Action = g_servlet+"/Account.a020001_t7?";
+					//prompt("gcds_confirm",gcds_confirm.text);
+					gctr_data07.post();
+				}
+		  }
+		}
+	
+}
+
+/******************************************************************************
+	Description : 결재시 저장
+	parameter   :  p - 결재자 사번
+	               p1 - 회계/ 예산 / 자금  구분 01/02/03   
+								 p2 - 회계일자 변경시 전표등록에서 함(Y)
+******************************************************************************/
+function ln_Confirm_Save(p,p1,p2){
+		var row1 = gcds_data01.rowposition;
+		var row2 = gcds_data01_2.rowposition;
+		var strfdcode="";
+		var strfsdat="";
+		var strfsnbr="";
+		var strempno="";
+    var strtogb="";
+
+		if (p1=="01"){        //회계
+			strtogb="03";       //예산일경우는 02 로 변경해야함.
+    }else if(p1=="02"){   //예산
+      strtogb="02";
+		}else if(p1=="03"){   //자금
+      strtogb="06";
+		}
+
+		ln_SetDataHeader("CONFIRM");
+
+		//alert("strtogb"+strtogb);
+
+    if((gcds_data01_2.namevalue(row2,"FDCODE"))==""||(gcds_data01_2.namevalue(row2,"FDCODE"))==undefined){
+			strfdcode = gcds_data01.namevalue(row1,"FDCODE");
+		}else{
+			strfdcode = gcds_data01_2.namevalue(row2,"FDCODE");
+		}
+
+		if(gcds_data01_2.namevalue(row2,"FSDAT")==""||gcds_data01_2.namevalue(row2,"FSDAT")==undefined){
+			strfsdat = gcds_data01.namevalue(row1,"FSDAT");
+		}else{
+			strfsdat = gcds_data01_2.namevalue(row2,"FSDAT");
+		}
+
+		if(gcds_data01_2.namevalue(row2,"FSNBR")==""||gcds_data01_2.namevalue(row2,"FSNBR")==undefined){
+			strfsnbr = gcds_data01.namevalue(row1,"FSNBR");
+		}else{
+			strfsnbr = gcds_data01_2.namevalue(row2,"FSNBR");
+		}
+
+		if(gcds_data01_2.namevalue(row2,"EMPNO")==""||gcds_data01_2.namevalue(row2,"EMPNO")==undefined){
+			strempno = txt_empno02.value;
+		}else{
+			strempno = gcds_data01_2.namevalue(row2,"EMPNO");
+		}
+
+    gcds_confirm.addrow();
+    gcds_confirm.namevalue(gcds_confirm.rowposition,"FDCODE")=strfdcode; 
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"FSDAT")=strfsdat;  
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"FSNBR")=strfsnbr;  
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"SEQ")=""; 
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"ACCSGNID")=p;      //결재자
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"EMPNO")= strempno;  
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"ACCSGNDAT") ="";  
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"ACCSGNEND") ="R"; 
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"FROMGB") ="01"; 
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"TOGB") =strtogb; 
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"BIGO") =""; 
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"BGTGB")=p2; 
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"WRDT") =gs_date;  
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"WRID") =gs_userid;  
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"UPDT") =gs_date;  
+		gcds_confirm.namevalue(gcds_confirm.rowposition,"UPID") =gs_userid;  
+
+		if (confirm("결재요청 하시겠습니까?")){	
+			gctr_data06.Action = g_servlet+"/Account.a020001_t6?";
+			//prompt("gcds_confirm",gcds_confirm.text);
+			gctr_data06.post();
+    }
+}
+
+/******************************************************************************
+	Description : Enable _ Disabled 
+	parameter   : p2==> t - Enable, f - Disable
+	              p==> 01 - 계정코드, 02 - 관리항목, 03 - 출력순서, 04 - Tree항목
+******************************************************************************/
+function ln_Enable(p2,p) {
+	/*
+	if (p=="01"){
+		if (p2=="t")gcem_atcode.enalbe=true;
+		else if (p2=="f")gcem_atcode.enalbe=false;
+	}
+	*/
+}
+
+/******************************************************************************
+	Description : Add시 Default 값 설정 
+	parameter   : p : 01 - 계정코드, 02 - 관리항목, 03 - 출력순서, 04 - Tree항목
+******************************************************************************/
+function ln_Defval() {
+  /*
+	gcra_atdecr.CodeValue="";   
+	gcra_atuseyn.CodeValue="N";   
+	*/
+}
+
+/******************************************************************************
+	Description : Dataset Head 설정 - 전표 Detail
+  parameter   : p - dataset 순서
+	              02 : 전표 Detail 테이블
+                05 : 관리항목 테이블
+                01_1 : 전표 Master 테이블
+								02_2 : 전표 결재 테이블(전표등록시 사용)
+								key : 회계전표번호
+******************************************************************************/
+function ln_SetDataHeader(p){
+	if(p=="02"){
+		if (gcds_data02.countrow<1){
+			var s_temp = "FDCODE:STRING,FSDAT:STRING,FSNBR:STRING,FSSEQ:DECIAML,CHAAMT:DECIAML,"
+								 + "ATCODE:STRING,ATKORNAM:STRING,DAEAMT:DECIAML,ATDECR:STRING,REMARK:STRING,"
+								 + "WRDT:STRING,WRID:STRING,UPDT:STRING,UPID:STRING,SSDAT:STRING,SSNBR:STRING ";
+			gcds_data02.SetDataHeader(s_temp);
+		}
+
+	}else if(p=="05"){
+		if (gcds_data04.countrow<1){
+			var s_temp = "FDCODE:STRING,FSDAT:STRING,FSNBR:STRING,FSSEQ:DECIAML,FSREFSEQ:STRING,"
+								 + "FSREFCD:STRING,FSREFVAL:STRING,"
+								 + "WRDT:STRING,WRID:STRING,UPDT:STRING,UPID:STRING,SSDAT:STRING,SSNBR:STRING ";
+			gcds_data04.SetDataHeader(s_temp);
+		}
+	}else if(p=="01_1"){
+		if (gcds_data01_1.countrow<1){                   
+			var s_temp = "FDCODE:STRING,FSDAT:STRING,FSDAT1:STRING,FSDAT2:STRING,FSNBR:STRING,FSKND:STRING,"
+			           + "FSWRTDAT:STRING,COCODE:STRING,DEPTCD:STRING,DEPTNM:STRING,EMPNO:STRING,EMPNMK:STRING,DIVCD:STRING,"
+								 + "FSAMT:DECIMAL,FSVAT:DECIMAL,DETOT:DECIMAL,CRTOT:DECIMAL,REMARK:STRING,"
+								 + "SGNDAT:STRING,FSSTAT:STRING,ACTDAT:STRING,"
+								 + "WRDT:STRING,WRID:STRING,UPDT:STRING,UPID:STRING,DIVNM:STRING,SSDAT:STRING,SSNBR:STRING,SSDAT1:STRING,SSDAT2:STRING ";
+
+			gcds_data01_1.SetDataHeader(s_temp);
+		}
+  }else if(p=="key"){
+		if (gcds_slipno.countrow<1){                   
+			var s_temp = "FDCODE:STRING,FSDAT:STRING,FSNBR:STRING";
+			gcds_slipno.SetDataHeader(s_temp);
+		}
+  }else if(p=="CONFIRM"){
+		if (gcds_confirm.countrow<1){                   
+			var s_temp = "FDCODE:STRING,FSDAT:STRING,FSNBR:STRING,SEQ:STRING,ACCSGNID:STRING,EMPNO:STRING,"
+								 + "ACCSGNDAT:STRING,ACCSGNEND:STRING,FROMGB:STRING,TOGB:STRING,BIGO:STRING,BGTGB:STRING,"
+								 + "WRDT:STRING,WRID:STRING,UPDT:STRING,UPID:STRING";
+			gcds_confirm.SetDataHeader(s_temp);
+		}
+  }
+}
+
+/******************************************************************************
+	Description : 전표조회 및 입력 구분
+	prameter    : 0-전표조회, 1-전표입력
+******************************************************************************/
+function ln_DispChk(index){
+  var div_cm = new Array("div_disp1","div_disp2");
+
+	for(var i=0;i<=1;i++)	{
+		if(i==index) eval("document.all."+div_cm[i]+".style.display='block';");
+		else eval("document.all."+div_cm[i]+".style.display='none';");
+		//else eval("document.all."+div_cm[i]+".style.display='block';");
+	}
+	
+}
+
+
+/******************************************************************************
+	Description : 전표 조회에서 입력으로 넘어갈때 Data 등록 
+	prameter    : row 
+******************************************************************************/
+function ln_Data_Add(row){
+  
+  var temp_fsdat="";
+  temp_fsdat = gcem_fsdat02.text;
+
+	gcds_data01_1.ClearAll();
+	ln_SetDataHeader("01_1"); 
+	gcds_data01_1.addrow();
+
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FDCODE")=gs_fdcode;      //현장코드
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT1")='A';  
+	
+	if (temp_fsdat==""||temp_fsdat=="undefined"){
+		gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT2")=gs_date;	
+		gcds_data01_1.namevalue(gcds_data01_1.rowposition,"ACTDAT")=gs_date;	
+	}else{
+		gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT2")=temp_fsdat;
+		gcds_data01_1.namevalue(gcds_data01_1.rowposition,"ACTDAT")=temp_fsdat;	
+	}
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT") =gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT1")+gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT2");             //회계일자(접수일자)
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSNBR")='000000';	
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSKND")='';
+	//txt_fsknd02.value='1';
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSWRTDAT")=gs_date;	
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"COCODE")=gs_cocode;	
+
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DEPTCD")=gs_deptcd;	
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DEPTNM")=gs_deptnm;	
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"EMPNO")=gs_userid;	
+	//alert("gs_userid"+gs_userid);
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"EMPNMK")=gs_usernm;	
+
+  //alert("divcd"+gcds_divcd.namevalue(gcds_divcd.rowposition,"DIVCD"));
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DIVCD")=gcds_divcd.namevalue(gcds_divcd.rowposition,"DIVCD"); //본부코드
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSAMT")=0;
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSVAT")=0;	
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DETOT")=0;	
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"CRTOT")=0;	
+
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"REMARK")="";	
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"SGNDAT")="";
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSSTAT")="N";	
+ 
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"WRDT")=gs_date;	
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"WRID")=gs_userid;
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"UPDT")=gs_date;
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"UPID")=gs_userid;
+/*
+
+	gcem_fs02.text ="A";            //접수번호 - 회계쪽입력
+	gcem_fsdat02.text=gs_date;
+	
+	if((row="")||(row="undefined")){
+		gcem_fsnbr02.text="";        //추후 Max값 가져올 수 있음.
+	}else{
+		gcem_fsnbr02.text=gcds_data01.namevalue(row,"FSNBR");		
+	}
+							             
+	txt_empnmk02.value=gs_usernm;																				//담당자     
+	gclx_fdcode02.bindcolval = gs_fdcode;                               //지점코드   
+	gcem_fswrtdat02.text=gs_date;                             					//작성일자   
+	txt_deptcd02.value=gcds_dept.namevalue(1,"DEPTCD");									             
+	txt_deptnm02.value=gcds_dept.namevalue(1,"DEPTNM"); 								             
+	gclx_fsstat02.index=1;				      //전표상태 
+	gcem_fsamt02.text="";								//금액       
+	gcem_fsvat02.text="";								//부가세액   
+	gcem_remark02.text="";       	      //건명     
+	gcem_detot02.text="";							  //차변합계   
+	gcem_crtot02.text="";								//대변합계   
+	gcem_remark02.text="";						  //적요       
+	*/
+  gcem_fswrtdat02.text=gs_date;  
+
+	//예산관련해서 사용
+	hid_cocode02.value="";
+  hid_actdat02.value="";
+}
+
+/******************************************************************************
+	Description : 전표 조회에서 입력으로 넘어갈때 Data 조회 
+	            : Data Bind을 위해서 기존 데이타셋을 복사하여 사용함.
+	prameter    : row 
+******************************************************************************/
+function ln_Data(row){
+
+	ln_SetDataHeader("01_1"); 	
+	gcds_data01_1.addrow();
+
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FDCODE")=gcds_data01.namevalue(row,"FDCODE");      //현장코드
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT") =gcds_data01.namevalue(row,"FSDAT");       //회계일자(접수일자)
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT1")=gcds_data01.namevalue(row,"FSDAT1");       
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSDAT2")=gcds_data01.namevalue(row,"FSDAT2");
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSNBR")=gcds_data01.namevalue(row,"FSNBR");        //접수번호
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSKND")=gcds_data01.namevalue(row,"FSKND");        //전표종류
+	txt_fsknd02.value=gcds_data01.namevalue(row,"FSKND"); 
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSWRTDAT")=gcds_data01.namevalue(row,"FSWRTDAT");  //작성일자
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"COCODE")=gcds_data01.namevalue(row,"COCODE");      //사업장코드
+	//alert("row::"+row);
+	//alert("COCODE::"+gcds_data01.namevalue(row,"COCODE"));
+	hid_cocode02.value=gcds_data01.namevalue(row,"COCODE");
+	//alert("hid_cocode02.value:::"+hid_cocode02.value);
+  //alert("EMPNMK::"+gcds_data01.namevalue(row,"EMPNMK"));
+
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DEPTCD")=gcds_data01.namevalue(row,"DEPTCD");      //담당부서
+  gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DEPTNM")=gcds_data01.namevalue(row,"DEPTNM");      //담당부서명
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"EMPNO")=gcds_data01.namevalue(row,"EMPNO");        //담당자
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"EMPNMK")=gcds_data01.namevalue(row,"EMPNMK");      //담당자명
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DIVCD")=gcds_data01.namevalue(row,"DIVCD");        //본부코드
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DIVNM")=gcds_data01.namevalue(row,"DIVNM");        //본부명
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSAMT")=gcds_data01.namevalue(row,"FSAMT");        //전표금액
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSVAT")=gcds_data01.namevalue(row,"FSVAT");        //부가세
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"DETOT")=gcds_data01.namevalue(row,"DETOT");        //차변합계
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"CRTOT")=gcds_data01.namevalue(row,"CRTOT");        //대변합계
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"REMARK")=gcds_data01.namevalue(row,"REMARK");      //적요
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"SGNDAT")=gcds_data01.namevalue(row,"SGNDAT");      //결재일자
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"FSSTAT")=gcds_data01.namevalue(row,"FSSTAT");      //전표상태
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"ACTDAT")=gcds_data01.namevalue(row,"ACTDAT");      //회계처리일자
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"WRDT")=gcds_data01.namevalue(row,"WRDT");          //작업일자
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"WRID")=gcds_data01.namevalue(row,"WRID");          //작업자
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"UPDT")=gcds_data01.namevalue(row,"UPDT");          //수정일자
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"UPID")=gcds_data01.namevalue(row,"UPID");          //수정자
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"SSDAT") =gcds_data01.namevalue(row,"SSDAT");       //전표일자
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"SSDAT1")=gcds_data01.namevalue(row,"SSDAT1");      //전표일자1
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"SSDAT2")=gcds_data01.namevalue(row,"SSDAT2");      //전표일자2
+	gcds_data01_1.namevalue(gcds_data01_1.rowposition,"SSNBR")=gcds_data01.namevalue(row,"SSNBR");        //전표번호
+}
+
+
+/******************************************************************************
+	Description : readonly
+	prameter    : p - f : readonly
+******************************************************************************/
+function ln_Read(p){
+ 
+	if (p=="f"){
+		gcem_fsdat02.ReadOnly = "true";
+		gcem_fs02.ReadOnly = "true";
+		gcem_fsdat02.ReadOnly = "true";
+		gcem_fsnbr02.ReadOnly = "true";
+		//gclx_fsknd02.Enable = false;
+		//gclx_fswrkdiv02.Enable = false;
+		txt_empnmk02.ReadOnly = "true";
+		
+		gcem_fswrtdat02.ReadOnly = "true";
+		gcem_actdat02.ReadOnly = "true";
+		txt_deptcd02.ReadOnly = "true";
+		txt_deptnm02.ReadOnly = "true";
+		//gcem_ts02.ReadOnly = "true";
+		//gcem_tsdat02.ReadOnly = "true";
+		//gcem_tsnbr02.ReadOnly = "true";
+		gclx_fsstat02.Enable = false;
+		gcem_fsamt02.ReadOnly = "true";
+		//gcem_fsvat02.ReadOnly = "true";
+		gcem_remark02.ReadOnly = "true";//적요
+		//gcem_detot02.ReadOnly = "true";
+		//gcem_crtot02.ReadOnly = "true";
+		//gcem_remark02.ReadOnly = "true";
+
+		img_calendar1.ReadOnly = "true";
+	}else if (p=="t"){
+		gcem_fsdat02.ReadOnly = "false";
+		gcem_fs02.ReadOnly = "false";
+		gcem_fsdat02.ReadOnly = "false";
+		gcem_fsnbr02.ReadOnly = "false";
+		//gclx_fsknd02.Enable = true;
+		//gclx_fswrkdiv02.Enable = true;
+		txt_empnmk02.ReadOnly = "false";
+		
+		gcem_fswrtdat02.ReadOnly = "false";
+		gcem_actdat02.ReadOnly= "false";
+		txt_deptcd02.ReadOnly = "false";
+		txt_deptnm02.ReadOnly = "false";
+		//gcem_ts02.ReadOnly = "false";
+		//gcem_tsdat02.ReadOnly = "false";
+		//gcem_tsnbr02.ReadOnly = "false";
+		//gclx_fsstat02.Enable = true;
+		gcem_fsamt02.ReadOnly = "true";
+		//gcem_fsvat02.ReadOnly = "true";
+		gcem_remark02.ReadOnly = "true";   //적요
+		//gcem_detot02.ReadOnly = "true";
+		//gcem_crtot02.ReadOnly = "true";
+		//gcem_remark02.ReadOnly = "false";
+
+		img_calendar1.ReadOnly = "false";
+	}
+}
+
+/******************************************************************************
+	Description : 결재완료 확인
+	prameter    : p- U :조회 후 수정시    I:신규입력시  , D - 
+******************************************************************************/
+function ln_Status(p,row){
+  //alert("Status::" + p);
+	if (p=="U"){
+		if(gcds_data01.namevalue(row,"FSSTAT")=="Y"){
+			alert("결재완료건은 수정할 수 없습니다.");
+			return false;
+		}else{
+			return true;
+		}
+	}else if(p=="I"){
+	  //alert("gclx_fsstat02::"+gclx_fsstat02.bindcolval);
+		if(gclx_fsstat02.bindcolval=="Y"){
+		  alert("결재완료건은 수정할 수 없습니다."); 
+			return false;
+		}else{
+			return true;
+		}
+	}else if(p=="D"){
+	  //alert("gclx_fsstat02::"+gclx_fsstat02.bindcolval);
+		if(gclx_fsstat02.bindcolval=="Y"){
+		  alert("결재완료건은 삭제할 수 없습니다."); 
+			return false;
+		}else{
+			return true;
+		}
+	}else if(p=="C"){
+		if(gclx_fsstat02.bindcolval=="Y"){
+		  alert("결재완료건은 취소할 수 없습니다."); 
+			return false;
+		}else{
+			return true;
+		}
+	}
+}
+
+
+/******************************************************************************
+	Description : ln_remark
+	prameter    : p - 값
+******************************************************************************/
+function ln_remark(p){
+  gcem_remark02.text=p;
+}
+
+/******************************************************************************
+	Description : 합계 금액을 가져옴
+	prameter    : p1 -  차변     p2 -  대변
+******************************************************************************/
+function ln_Sum_Amt(p1,p2){
+	 gcem_detot02.text=p1;
+	 gcem_crtot02.text=p2;
+	 gcem_fsamt02.text=p1;
+	 gcem_diff02.text=gcem_detot02.text-gcem_crtot02.text;
+}
+
+/******************************************************************************
+	Description : 전표 신규 등록 후 쿼리하면서 키값만 변경함.
+	prameter    :	p1 - fdcode 
+	              p2 - fsdat
+								p3 - fsnbr
+******************************************************************************/
+function ln_key_change(p1,p2,p3){
+   ///alert("p1"+p1+"p2"+p2+"p3"+p3);
+	 if (p1!='undefined'&&p2!='undefined'&&p3!='undefined'){
+		 gclx_fdcode02.bindcolval=p1;
+		 gcem_fs02.text=p2.substring(0,1);
+		 gcem_fsdat02.text=p2.substring(1,9);
+		 gcem_fsnbr02.text=p3;
+	 }
+}
+
+/******************************************************************************
+	Description : 세금계산서 계산시 부가세합계를 받아서 보여줌
+	prameter    :	p1 부가세합계
+	             
+******************************************************************************/
+function ln_update(p1){
+	//gcem_fsvat02.text=p1;
+}
+
+/******************************************************************************
+	Description : 반제버튼
+	prameter    :	    
+******************************************************************************/
+function ln_Repay(){
+  /*
+  var arrParam	= new Array();
+	var arrResult	= new Array();
+	var strURL;	
+
+  strURL = "./Actcode_popup_ifrm.html";
+	strPos = "dialogWidth:400px;dialogHeight:379px;status:no;scroll:no;resizable:no";
+	result = showModalDialog(strURL,arrParam,strPos);
+  //ln_Excel();
+  return;
+	*/
+  var strfsdat = gcem_fs02.text+gcem_fsdat02.text
+	ifrm.ln_Popup_Repay(gclx_fdcode02.bindcolval,strfsdat,gcem_fsnbr02.text);
+}
+
+
+/******************************************************************************
+	Description : 달력
+	prameter    :	    
+******************************************************************************/
+function ln_Calendar(){
+
+	if(gclx_fsstat02.bindcolval=="Y"){
+		alert("결재완료된 전표입니다.");
+	}else{
+		__GetCallCalendar('gcem_actdat02', 'Text');
+	}
+}
+
+
+/******************************************************************************
+	Description : 예산금액조회
+	prameter    :	    
+******************************************************************************/
+function ln_BgtFind(){
+	ifrm.ln_BgtFind();
+}
+</script>
+<!-----------------------------------------------------------------------------
+		D A T A S E T   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<comment id="__NSID__"><object  id=gcds_dept classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- Master -->
+<comment id="__NSID__"><object  id=gcds_data01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- Detail -->
+<comment id="__NSID__"><object  id=gcds_data02 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- 업무구분 회계일자구분 -->
+<comment id="__NSID__"><object  id=gcds_comcode01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- 지점구분 -->
+<comment id="__NSID__"><object  id=gcds_comfield classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- 지점구분2 -->
+<comment id="__NSID__"><object  id=gcds_comfield02 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- 계정코드 -->
+<comment id="__NSID__"><object  id=gcds_code01 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!--전표Master 복사 -->
+<comment id="__NSID__"><object  id=gcds_data01_1 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!--전표Master 조회 -->
+<comment id="__NSID__"><object  id=gcds_data01_2 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!--부서로 본부코드 찾기-->
+<comment id="__NSID__"><object  id=gcds_divcd classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- 접수번호 채번을 위해 넘기는값 -->
+<comment id="__NSID__"><object  id=gcds_input classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- 접수번호 채번 -->
+<comment id="__NSID__"><object  id=gcds_slipno classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- 전표결재 -->
+<comment id="__NSID__"><object  id=gcds_confirm classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="false">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- 로그인 부서 체크 -->
+<comment id="__NSID__"><object  id=gcds_dept2 classid=clsid:3267EA0D-B5D8-11D2-A4F9-00608CEBEE49 VIEWASTEXT>
+	<PARAM NAME="SyncLoad" VALUE="true">
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-----------------------------------------------------------------------------
+	  T R A N S A C T I O N   C O M P O N E N T S   D E C L A R A T I O N
+------------------------------------------------------------------------------>
+<!-- 접수번호 생성 -->
+<comment id="__NSID__"><object  id=gctr_slipno classid=clsid:0a2233ad-e771-11d2-973d-00104b15e56f viewastext>
+	<param name="keyname"			value="toinb_dataid4">
+	<param name="keyvalue"    value="a020001_t4f(O:USER=gcds_slipno)">   
+</object></comment><script>__ws__(__NSID__);</script> 
+
+
+<!-- 결재  -->
+<comment id="__NSID__"><object  id=gctr_data06 classid=clsid:0a2233ad-e771-11d2-973d-00104b15e56f viewastext>
+	<param name="keyname"			value="toinb_dataid4">
+	<param name="keyvalue"    value="a020001_t6f(I:USER=gcds_confirm)">   
+</object></comment><script>__ws__(__NSID__);</script>  
+
+<!-- multi 결재  -->
+<comment id="__NSID__"><object  id=gctr_data07 classid=clsid:0a2233ad-e771-11d2-973d-00104b15e56f viewastext>
+	<param name="keyname"			value="toinb_dataid4">
+	<param name="keyvalue"    value="a020001_t7(I:USER=gcds_confirm)">   
+</object></comment><script>__ws__(__NSID__);</script>  
+
+
+<!-----------------------------------------------------------------------------
+					D A T A S E T   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language="javascript" for="gcds_data01" event="OnLoadStarted()">
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	
+	document.all.LowerFrame.style.visibility="visible";
+</script>
+
+<script language="javascript" for="gcds_data01" event="onloadCompleted(row,colid)">
+	window.status="조회가 완료 되었습니다.";
+	ft_cnt.innerText = "조회건수 : " + row + " 건";
+	document.all.LowerFrame.style.visibility="hidden";
+	if (row <1) alert("검색된 데이터가 없습니다.");
+</script>
+
+
+<script language="javascript" for="gcds_dept" event="onloadCompleted(row,colid)">
+	if (row>=1){
+		txt_deptcd.value=gcds_dept.namevalue(row,"DEPTCD");
+		txt_deptnm.value=gcds_dept.namevalue(row,"DEPTNM"); 
+		gs_deptcd=gcds_dept.namevalue(row,"DEPTCD");
+		gs_deptnm=gcds_dept.namevalue(row,"DEPTNM");
+	}
+</script>
+
+<script language="javascript" for="gcds_comfield" event="onloadCompleted(row,colid)">
+		gcds_comfield.insertrow(1);
+		gcds_comfield.namevalue(1,"FDCODE") = "";
+		gcds_comfield.namevalue(1,"FDNAME") = "전체";
+		//gclx_fdcode.index = 0;
+</script>
+
+<script language="javascript" for="gcds_comcode01" event="onloadCompleted(row,colid)">
+		gcds_comcode01.insertrow(1);
+		gcds_comcode01.namevalue(1,"CDCODE") = "";
+		gcds_comcode01.namevalue(1,"CDNAM") = "전체";
+		gclx_fsdat.index = 0;
+</script>
+
+<script language="javascript" for="gcds_divcd" event="onloadCompleted(row,colid)">
+		//alert("row::"+row+"::gcds_divcd::"+gcds_divcd.namevalue(gcds_divcd.rowposition,"DIVCD"));
+</script>
+
+<!-----------------------------------------------------------------------------
+					G A U C E   C O M P O N E N T' S
+		G E N E R A L   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+
+<script language="javascript" for="gcgd_disp01" event="OnClick(row,colid)">
+	if((row==0) && (colid=="CHK")){
+		if(gcds_data01.namevalue(1,"CHK")=="T"){
+			for(i=1;i<=gcds_data01.countrow;i++){
+        gcds_data01.namevalue(i,"CHK")="F";
+			}
+		}else{
+			for(i=1;i<=gcds_data01.countrow;i++){
+        gcds_data01.namevalue(i,"CHK")="T";
+			}
+		}
+		return;
+	}
+
+  //alert("colid::"+colid);
+	//alert("CHK::"+gcds_data01.namevalue(row,"CHK"));
+	if(colid=="CHK") {
+		gcgd_disp01.editable="true";
+		if(gcds_data01.namevalue(row,"CHK")=="T"){
+			gcds_data01.namevalue(row,"CHK")="F";
+		}else{
+			gcds_data01.namevalue(row,"CHK")="T";
+		}
+	}else{
+		gcgd_disp01.editable="false";
+	}
+</script>
+
+
+<script language=JavaScript for=gcgd_disp01 event=OnDblClick(row,colid)>
+	//document.all.LowerFrame.style.visibility="visible";
+	window.status="데이타 조회중입니다..잠시만 기다려 주십시오.";
+	
+	if(row<1) return;
+
+ 
+	if(colid!="CHK"){
+
+		ln_DispChk(1);
+		ln_Data(row);
+		
+		if(gcds_data01.namevalue(row,"FSSTAT")=="Y"){
+			ln_Read("f");
+		}else {
+			ln_Read("t");
+		}
+		ln_Query("02");
+		gs_InsGubun="U";
+	}
+
+	window.status="조회가 완료 되었습니다.";
+	//document.all.LowerFrame.style.visibility="hidden";
+</script>
+
+<script language=JavaScript for=gcem_fsdat02 event=OnKillFocus()>
+	//ln_Find_Slipno();
+</script>
+
+
+<!-----------------------------------------------------------------------------
+				T R A N S A C T I O N   C O M P O N E N T' S
+		M A N D A T O R Y   E V E N T S   S P E C I F I C A T I O N
+------------------------------------------------------------------------------>
+<script language=JavaScript for=gctr_slipno event=OnSuccess()>
+		//alert("fsnbr::"+gcds_slipno.namevalue(gcds_slipno.rowposition,"FSNBR"));
+		gcem_fsnbr02.text=gcds_slipno.namevalue(gcds_slipno.rowposition,"FSNBR");
+</script>
+
+<script language=JavaScript for=gctr_data06 event=OnSuccess()>
+		
+</script>
+
+<script language="javascript" for="gctr_data06" event="onsuccess()">
+	alert("작업이 성공적으로 완료되었습니다.");
+	gcds_confirm.ClearData();
+</script>
+
+<script language="javascript" for="gctr_data06" event="onfail()">
+	alert("작업이 성공적으로 완료되지 못했습니다.");
+	//alert("Error Code : " + gcds_confirm.ErrorCode + "\n" + "Error Message : " + gcds_confirm.ErrorMsg + "\n");
+	gcds_confirm.ClearData();
+</script>
+
+</HEAD>
+
+<!-----------------------------------------------------------------------------
+						B O D Y   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<BODY border="0" cellpadding="0" cellspacing="0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" OnLoad="ln_Start()">
+
+<table id="div_disp1" cellpadding="0" cellspacing="0" border="0" >
+	<tr>
+		<td>
+			<table width="876" cellpadding="0" cellspacing="0" border="0" style="position:relative;left:3px">
+				<tr> 
+					<td><img src="../img/a020001_head.gif"></td>
+					<td width="685" align="right" background="../../Common/img/com_t_bg.gif" style="padding-top:4px;"> 
+					  <!-- <img src="../../common/img/btn/com_b_trans.gif"   style="cursor:hand" onclick="ln_Popup('00')"> -->
+					  <img src="../../Common/img/btn/com_b_trans.gif"   style="cursor:hand" onclick="ln_Popup('01')">
+						<img src="../../Common/img/btn/com_b_slipsts.gif"   style="cursor:hand" onclick="ln_Popup('09')">	
+						<img src="../../Common/img/btn/com_b_sanctionreq.gif"	style="cursor:hand" onClick="ln_Multi_Confirm()" > 
+					  <!-- <img src="../../common/img/btn/com_b_print.gif"   style="cursor:hand" onclick="ln_Print('01')">	 -->
+					  <img src="../../Common/img/btn/com_b_insert.gif"	style="cursor:hand" onClick="ln_Add('01')" >
+						<img src="../../Common/img/btn/com_b_query.gif"   style="cursor:hand" onclick="ln_Query('01')">
+					</td>
+				</tr>
+			</table>
+			<table>
+				<tr>
+					<td>
+						<table  cellpadding="0" cellspacing="0" style="width:876px;height:30px;font-size:9pt;background-color:#ffffff;">
+							<tr width="876px"> 
+								<td width="80px"  style="" bgcolor="#eeeeee" class="tab15" align=center ><nobr>&nbsp;&nbsp;회계일자&nbsp;</nobr></td>
+								<td class="tab18" style="width:150px;"><nobr>&nbsp;<comment id="__NSID__"><object  id=gcem_fsdat_fr classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:70px;height:20px;position:relative;left:0px;top:3px">		
+														<param name=Text					value="">
+														<param name=Alignment     value=0>
+														<param name=Border        value=true>
+														<param name=Format        value="YYYY/MM/DD">
+														<param name=PromptChar    value="_">
+														<param name=BackColor     value="#CCCCCC">
+														<param name=InheritColor  value=false>
+									 </object></comment><script>__ws__(__NSID__);</script> 
+										~&nbsp;
+									 <comment id="__NSID__"><object  id=gcem_fsdat_to classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:70px;height:20px;position:relative;left:0px;top:3px">				
+														<param name=Text					value="">
+														<param name=Alignment     value=0>
+														<param name=Border        value=true>
+														<param name=Format        value="YYYY/MM/DD">
+														<param name=PromptChar    value="_">
+														<param name=BackColor     value="#CCCCCC">
+														<param name=InheritColor  value=false>
+										</object></comment><script>__ws__(__NSID__);</script> </nobr>
+								</td>
+         
+                <td width="80px"  style="" bgcolor="#eeeeee" class="tab18" align=center ><nobr>&nbsp;&nbsp;전표상태&nbsp;</nobr></td>
+								<td class="tab18" style="width:145px;"><nobr>&nbsp;<comment id="__NSID__">
+									<object  id=gclx_fsstat classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:120px;">
+											<param name=CBData			   value="A^전체,Y^결재완료,R^결재요청,N^결재대기,C^결재취소,B^반송">
+											<param name=CBDataColumns	 value="CODE,NAME">
+											<param name=SearchColumn	 value=NAME>
+											<param name=Sort			     value=false>
+											<param name=ListExprFormat value="NAME">								
+											<param name=BindColumn		 value="CODE">
+
+									</object></comment><script>__ws__(__NSID__);</script> 	
+								</nobr>
+								</td> 
+								<td width="80px" style="" bgcolor="#eeeeee" class="tab18" align=center><nobr>&nbsp;지점구분</nobr></td>
+								<td class="tab18" style="width:90px;" align=center><nobr>&nbsp;<comment id="__NSID__">
+									<object  id=gclx_fdcode classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:80px;">
+											<param name=ComboDataID    value="gcds_comfield">
+											<param name=CBDataColumns	 value="FDCODE,FDNAME">
+											<param name=SearchColumn	 value=FDNAME>
+											<param name=Sort			     value=false>
+											<param name=ListExprFormat value="FDNAME">								
+											<param name=BindColumn		 value="FDCODE">
+									</object></comment><script>__ws__(__NSID__);</script> </nobr>
+								</td>
+
+								<td width="80px" style="" bgcolor="#eeeeee" class="tab18" align=center><nobr>&nbsp;업무구분</nobr></td>
+								<td class="tab18" style="width:90px;" align=center><nobr>&nbsp;<comment id="__NSID__">
+								  <object  id=gclx_fsdat classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:-3px;top:2px;font-size:12px;width:80px;">
+											<param name=ComboDataID  value="gcds_comcode01">
+											<param name=CBDataColumns	 value="CDCODE,CDNAM">
+											<param name=SearchColumn	 value="CDNAM">
+											<param name=Sort			     value="false">
+											<param name=ListExprFormat value="CDNAM">								
+											<param name=BindColumn		 value="CDCODE">
+									</object></comment><script>__ws__(__NSID__);</script> </nobr>
+								</td>
+							</tr>
+
+							 <tr width="876px"> 
+								<td width="80px" style="" bgcolor="#eeeeee" class="tab17" align=center ><nobr>&nbsp;&nbsp;적    요&nbsp;</nobr></td>
+								<td class="tab19" style="width:547px;" colspan=5><nobr>&nbsp;
+									<input id="txt_remark" type="text" class="txtbox"  style= "width:547px;height:20px;position:relative;left:-4px" maxlength=30 onkeydown="if(event.keyCode==13) ln_Query('01')";>
+									</nobr>
+								</td>
+
+								<td width="80px" style="" bgcolor="#eeeeee" class="tab19" align=center ><nobr>&nbsp;&nbsp;담당부서&nbsp;</nobr></td>
+								<td class="tab19" style="width:160px;"><nobr>&nbsp;
+									<input id="txt_deptcd" type="text" class="txtbox"  style= "width:50px;height:20px;position:relative;left:-4px;background-color:#d7d7d7"  readonly="true";>
+									<input id="txt_deptnm" type="text" class="txtbox"  style= "width:110px;height:20px;position:relative;left:-4px;background-color:#d7d7d7"  readonly="true";>
+									</nobr>
+								</td>
+							</tr>
+					 </table>
+					</td>
+				</tr>  	
+			</table>
+
+			<table cellpadding="0" cellspacing="0" border="0" style="position:relative;left:0px;width:280px;border:0 solid #708090;">
+				<tr> 			
+					<td style="width:280" ALIGN=LEFT VALIGN=TOP>
+						<comment id="__NSID__"><object  classid=clsid:1F57AEAD-DB12-11D2-A4F9-00608CEBEE49 id=gcgd_disp01  
+							style="position:relative;left:3px;width:875px; height:400px; border:1 solid #708090;display:block;" viewastext>
+								<PARAM NAME="DataID"			VALUE="gcds_data01">
+								<PARAM NAME="IndWidth"		VALUE ='0'>
+								<PARAM NAME="BorderStyle" VALUE="0">
+								<PARAM NAME="Fillarea"		VALUE="true">
+								<PARAM NAME="Sortview"		VALUE="left">
+								<param name="ViewSummary"	value=1>
+								<param name="ColSizing"   value="true">
+								<param name="Editable"    value="false">
+								<PARAM NAME="Format"			VALUE="  
+								<C> Name='선택'		   ID=CHK 	  HeadAlign=Center HeadBgColor=#B9D4DC Width=28	  align=center  sort=false SumBgColor=#C3D0DB EditStyle=CheckBox</C> 
+								<C> Name='지점'		   ID=FDCODE 	HeadAlign=Center HeadBgColor=#B9D4DC Width=50	  align=left	 edit=none sort=true SumBgColor=#C3D0DB EditStyle=Combo Data='01:본사,02:서울,03:금강산,04:개성'</C> 
+								<C> Name='업무'		   ID=FSDAT1	HeadAlign=Center HeadBgColor=#B9D4DC Width=50	  align=left	 edit=none sort=true SumBgColor=#C3D0DB show=false</C> 
+								<C> Name='업무'		   ID=CDNAM 	HeadAlign=Center HeadBgColor=#B9D4DC Width=50	  align=left	 edit=none sort=true SumBgColor=#C3D0DB </C> 
+								<C> Name='전표번호'	 ID=SSDTNB 	HeadAlign=Center HeadBgColor=#B9D4DC Width=107	align=center edit=none sort=true SumBgColor=#C3D0DB </C> 
+								<C> Name='접수번호'	 ID=FSDTNB 	HeadAlign=Center HeadBgColor=#B9D4DC Width=107	align=center edit=none sort=true SumBgColor=#C3D0DB </C> 
+								<C> Name='적요'			 ID=REMARK  HeadAlign=Center HeadBgColor=#B9D4DC Width=312	align=left	 edit=none sort=true SumBgColor=#C3D0DB  SumText='합   계'</C> 
+								<C> Name='금액'		   ID=FSAMT 	HeadAlign=Center HeadBgColor=#B9D4DC Width=100	align=right  edit=none sort=true SumBgColor=#C3D0DB  SumText=@sum</C> 
+								<C> Name='구분'		   ID=TOGB 	  HeadAlign=Center HeadBgColor=#B9D4DC Width=45	  align=center edit=none sort=true SumBgColor=#C3D0DB  EditStyle=Combo Data='01:,02:예산,03:회계,05:완료,06:자금' </C> 
+								<C> Name='상태'		   ID=FSSTAT 	HeadAlign=Center HeadBgColor=#B9D4DC Width=55	  align=center edit=none SumBgColor=#C3D0DB  EditStyle=Combo Data='Y:결재완료,R:결재요청,N:결재대기,C:결재취소,B:반송' </C> 
+								">
+						</object></comment><script>__ws__(__NSID__);</script>   
+						<fieldset style="position:relative;left:3px;width:877px;height:20px;border:1 solid #708090;border-top-width:0px;border-bottom-width:1px;text-align:left;">
+							&nbsp;<font id=ft_cnt style="position:relative;top:4px;"></font>
+						</fieldset>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>		
+
+<!-- ==================================================================================================================
+						L O A D I N G  B A R   D E F I N I T I O N
+========================================================================================================================-->
+<iframe id="LowerFrame" name="work" style="visibility:hidden;position:absolute;left:280px;top:220px;" FrameBorder="0" src="../../Common/img/flash/loading.swf" width="320px" height="42px"></iframe> 
+
+
+<!-- 전표입력=========================================================================================================== -->
+<table id="div_disp2" cellpadding="0" cellspacing="0" border="0" style="display:none" >
+	<tr>
+		<td>
+			<table width="876" cellpadding="0" cellspacing="0" border="0" style="position:relative;left:3px">
+				<tr> 
+					<td><img src="../img/a020001_1_head.gif"></td>
+					<td width="685" align="right" background="../../Common/img/com_t_bg.gif" style="padding-top:4px;"> 
+						<img src="../../Common/img/btn/com_b_exit.gif"  style="cursor:hand" onclick="ln_Cancel('02')">
+						<img src="../../Common/img/btn/com_b_slipsts.gif"   style="cursor:hand" onclick="ln_Popup('09')">	
+						<img src="../../Common/img/btn/com_b_print.gif"   style="cursor:hand" onclick="ln_Print('02')">
+					 	<img src="../../Common/img/btn/com_b_sanctionreq.gif"	style="cursor:hand" onClick="ln_Popup_Confirm()" > 
+						<img src="../../Common/img/btn/com_btn_slipdel.gif"	style="cursor:hand" onClick="ln_Delete('02')" >
+          <!--  <img src="../../common/img/btn/com_btn_actdel.gif"	style="cursor:hand" onClick="ln_Delete('99')" > -->
+						<img src="../../Common/img/btn/com_b_insert.gif"  style="cursor:hand" onclick="ln_Add('02')">
+						<img src="../../Common/img/btn/com_b_save.gif"		style="cursor:hand" onClick="ln_Save('02')">
+						<img src="../../Common/img/btn/com_b_query.gif"   style="cursor:hand" onclick="ln_Query('03')">
+					</td>
+				</tr>
+			</table>
+
+			<table>
+				<tr>
+					<td>
+						<table  cellpadding="0" cellspacing="0" style="width:876px;height:30px;font-size:9pt;background-color:#ffffff;">
+							<tr width="876px"> 
+								<td width="80px" style="" bgcolor="#eeeeee" class="tab15" align=center><nobr>&nbsp;전표번호</nobr></td>
+								<td class="tab18" style="width:160px;"><nobr>&nbsp;<comment id="__NSID__">
+                  <object  id=gcem_ss02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:15px;height:20px;position:relative;left:0px;top:3px">				
+														<param name=Text					value="">
+														<param name=Border        value=true>
+														<param name=Format        value="#">
+														<param name=PromptChar    value="_">
+														<param name=UpperFlag     value=1>
+														<param name=BackColor     value="#CCCCCC">
+														<param name=InheritColor  value=false>
+									</object></comment><script>__ws__(__NSID__);</script> 
+									<comment id="__NSID__"><object  id=gcem_ssdat02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:70px;height:20px;position:relative;left:0px;top:3px">		
+														<param name=Text					value="">
+														<param name=Alignment     value=0>
+														<param name=Border        value=true>
+														<param name=Format        value="YYYY/MM/DD">
+														<param name=PromptChar    value="_">
+														<param name=BackColor     value="#CCCCCC">
+														<param name=InheritColor  value=false>
+									 </object></comment><script>__ws__(__NSID__);</script> 
+										-&nbsp;
+									 <comment id="__NSID__"><object  id=gcem_ssnbr02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:50px;height:20px;position:relative;left:0px;top:3px">				
+														<param name=Text					value="">
+														<param name=Alignment     value=0>
+														<param name=Border        value=true>
+														<param name=Format        value="######">
+														<param name=PromptChar    value="_">
+														<param name=BackColor     value="#CCCCCC">
+														<param name=InheritColor  value=false>
+										</object></comment><script>__ws__(__NSID__);</script> </nobr>
+								</td>
+
+                <td width="80px" style="" bgcolor="#eeeeee" class="tab18" align=center><nobr>&nbsp;지점</nobr></td>
+								<td class="tab18" style="width:160px;" ><nobr>&nbsp;<comment id="__NSID__">
+									<object  id=gclx_fdcode02 classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:145px;">
+											<param name=ComboDataID    value="gcds_comfield02">
+											<param name=CBDataColumns	 value="FDCODE,FDNAME">
+											<param name=SearchColumn	 value="FDNAME">
+											<param name=Sort			     value=false>
+											<param name=ListExprFormat value="FDNAME^0^150">								
+											<param name=BindColumn		 value="FDCODE">
+									</object></comment><script>__ws__(__NSID__);</script> 
+									</nobr>
+								</td>
+
+                <td width="80px" style="" bgcolor="#eeeeee" class="tab18" align=center ><nobr>&nbsp;&nbsp;전표상태&nbsp;</nobr></td>
+								<td class="tab18" style="width:130px;"><nobr>&nbsp;<comment id="__NSID__">	
+									<object  id=gclx_fsstat02 classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:120px;">
+											<param name=CBData			   value="Y^결재완료,R^결재요청,N^결재대기,C^결재취소,B^반송">
+											<param name=CBDataColumns	 value="CODE,NAME">
+											<param name=SearchColumn	 value=NAME>
+											<param name=Sort			     value=false>
+											<param name=ListExprFormat value="NAME">								
+											<param name=BindColumn		 value="CODE">
+											<param name=Enable         value=false>
+
+									</object></comment><script>__ws__(__NSID__);</script> 
+									</nobr> 
+								</td>
+                
+                <td width="80px"  style="" bgcolor="#eeeeee" class="tab18" align=center ><nobr>&nbsp;&nbsp;담당부서&nbsp;</nobr></td>
+								<td class="tab18" style="width:120px;"><nobr>&nbsp;	
+									<input id="txt_deptcd02" type="hidden" class="txtbox" style= "width:50px;height:20px;position:relative;left:-4px"  readOnly="true";> 
+									<input id="txt_deptnm02" type="text" class="txtbox"  style= "width:120px;height:20px;position:relative;left:-8px;background-color:#d7d7d7"  readOnly="true";></nobr>	
+								</td>
+
+                <!--
+
+								<td width="80px" style="" bgcolor="#eeeeee" class="tab18" align=center ><nobr>&nbsp;&nbsp;담당자&nbsp;</nobr></td>
+								<td class="tab18" style="width:130px;"><nobr>&nbsp;
+								 <input id="txt_empno02" type="hidden" class="txtbox"  style= "width:50px;height:20px;position:relative;left:-4px"  readOnly="true";>
+								 <input id="txt_empnmk02" type="text" class="txtbox"   style= "width:120px;height:20px;position:relative;left:-8px;background-color:#d7d7d7" readOnly="true";>
+									</nobr>
+								</td>
+								
+
+								 <td width="80px" style="" bgcolor="#eeeeee" class="tab18" align=center ><nobr>&nbsp;&nbsp;예산부서&nbsp;</nobr></td>
+								<td class="tab18" style="width:130px;"><nobr>&nbsp;	
+									<input id="txt_buddept02" type="text" class="txtbox"  style= "width:120px;height:20px;position:relative;left:-4px"  readonly="true";></nobr>
+								</td>  -->
+
+							<!-- 	<td width="80px" style="" bgcolor="#eeeeee" class="tab18" align=center ><nobr>&nbsp;&nbsp;예산타입&nbsp;</nobr></td>
+								<td class="tab18" style="width:130px;"><nobr>&nbsp;	
+									<comment id="__NSID__"><object  id=gclx_fswrkdiv02 classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:120px;">
+											<param name=CBData			   value="1^일반(미적용),2^부서비,3^공통,4^예비비">
+											<param name=CBDataColumns	 value="CODE,NAME">
+											<param name=SearchColumn	 value=NAME>
+											<param name=Sort			     value=false>
+											<param name=ListExprFormat value="NAME">								
+											<param name=BindColumn		 value="CODE">
+									</object></comment><script>__ws__(__NSID__);</script> </nobr>
+								</td> -->
+							</tr>
+
+							<tr width="876px"> 
+
+                <td width="80px" style="" bgcolor="#eeeeee" class="tab17" align=center><nobr>&nbsp;접수번호</nobr></td>
+								<td class="tab19" style="width:160px;"><nobr>&nbsp;<comment id="__NSID__">
+                  <object  id=gcem_fs02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:15px;height:20px;position:relative;left:0px;top:3px">				
+														<param name=Text					value="">
+														<param name=Border        value=true>
+														<param name=Format        value="#">
+														<param name=PromptChar    value="_">
+														<param name=UpperFlag     value=1>
+														<param name=BackColor     value="#CCCCCC">
+														<param name=InheritColor  value=false>
+									</object></comment><script>__ws__(__NSID__);</script> 
+									<comment id="__NSID__"><object  id=gcem_fsdat02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:70px;height:20px;position:relative;left:0px;top:3px">		
+														<param name=Text					value="">
+														<param name=Alignment     value=0>
+														<param name=Border        value=true>
+														<param name=Format        value="YYYY/MM/DD">
+														<param name=PromptChar    value="_">
+														<param name=BackColor     value="#CCCCCC">
+														<param name=InheritColor  value=false>
+									 </object></comment><script>__ws__(__NSID__);</script> 
+										-&nbsp;
+									 <comment id="__NSID__"><object  id=gcem_fsnbr02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:50px;height:20px;position:relative;left:0px;top:3px">				
+														<param name=Text					value="">
+														<param name=Alignment     value=0>
+														<param name=Border        value=true>
+														<param name=Format        value="######">
+														<param name=PromptChar    value="_">
+														<param name=BackColor     value="#CCCCCC">
+														<param name=InheritColor  value=false>
+										</object></comment><script>__ws__(__NSID__);</script> </nobr>
+								</td>
+
+               <!--  
+								<td width="80px" style="" bgcolor="#eeeeee" class="tab17" align=center><nobr>&nbsp;지점</nobr></td>
+								<td class="tab19" style="width:160px;" ><nobr>&nbsp;
+									<comment id="__NSID__"><object  id=gclx_fdcode02 classid=clsid:60109D65-70C0-425C-B3A4-4CB001513C69 
+										style="position:relative;left:0px;top:2px;font-size:12px;width:145px;">
+											<param name=ComboDataID    value="gcds_comfield02">
+											<param name=CBDataColumns	 value="FDCODE,FDNAME">
+											<param name=SearchColumn	 value="FDNAME">
+											<param name=Sort			     value=false>
+											<param name=ListExprFormat value="FDNAME^0^150">								
+											<param name=BindColumn		 value="FDCODE">
+									</object></comment><script>__ws__(__NSID__);</script> 
+									</nobr>
+								</td>
+
+								-->
+								
+								<td width="80px"  style="" bgcolor="#eeeeee" class="tab19" align=center ><nobr>&nbsp;&nbsp;회계일자&nbsp;</nobr></td>
+								<td class="tab19" style="width:120px;"><nobr>&nbsp;<comment id="__NSID__">
+									<object  id=gcem_actdat02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F
+											style="position:relative;top:2px;width:70px;height:20px;">
+											<param name=Alignment			value=0>
+											<param name=Border	      value=true>
+											<param name=Format	      value="YYYY/MM/DD">
+											<param name=PromptChar	  value="_">
+											</object></comment><script>__ws__(__NSID__);</script> 
+											<img src="../img/calender.gif" value="calender.gif" id=img_calendar1 OnClick="ln_Calendar()" style="position:relative;width:20px;left:2px;cursor:hand;"></nobr>
+											
+											<comment id="__NSID__"><object  id=gcem_fswrtdat02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F
+											style="position:relative;top:2px;width:1px;height:20px;">
+											<param name=Alignment			value=0>
+											<param name=Border	      value=true>
+											<param name=Format	      value="YYYY/MM/DD">
+											<param name=Visible        value="false">
+											<param name=PromptChar	  value="_">
+										</object></comment><script>__ws__(__NSID__);</script> 
+										<input type=hidden  id=hid_actdat02  value=''>
+										<input type=hidden  id=hid_cocode02  value=''>
+								</td>
+								<td width="80px"  style="" bgcolor="#eeeeee" class="tab19" align=center ><nobr>&nbsp;&nbsp;금액&nbsp;</nobr></td>
+								<td class="tab19" style="width:130px;"><nobr>&nbsp;<comment id="__NSID__">	
+									<object  id=gcem_fsamt02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:120px;height:20px;position:relative;left:0px;top:3px">				
+											<param name=Text					value="">
+											<param name=Border        value=true>
+									    <param name=Alignment     value=2>
+                      <param name=Numeric       value="true">
+                      <param name=IsComma       value=true>
+											<param name=MaxLength     value=12>
+											<param name=BackColor     value="#CCCCCC">
+                      <param name=ReadOnlyBackColor   value="#D7D7D7">
+											<param name=InheritColor  value=false>
+									</object></comment><script>__ws__(__NSID__);</script> </nobr>	
+								</td>
+
+								<td width="80px" style="" bgcolor="#eeeeee" class="tab19" align=center ><nobr>&nbsp;&nbsp;담당자&nbsp;</nobr></td>
+								<td class="tab19" style="width:130px;"><nobr>&nbsp;
+								 <input id="txt_empno02" type="hidden" class="txtbox"  style= "width:50px;height:20px;position:relative;left:-4px"  readOnly="true";>
+								 <input id="txt_empnmk02" type="text" class="txtbox"   style= "width:120px;height:20px;position:relative;left:-8px;background-color:#d7d7d7" readOnly="true";>
+									</nobr>
+								</td>
+               <!-- 
+								<td width="80px"  style="" bgcolor="#eeeeee" class="tab19" align=center ><nobr>&nbsp;&nbsp;부가세액&nbsp;</nobr></td>
+								<td class="tab19" style="width:130px;"><nobr>&nbsp;	
+									<comment id="__NSID__"><object  id=gcem_fsvat02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:120px;height:20px;position:relative;left:0px;top:3px">				
+											<param name=Text					value="">
+											<param name=Border        value=true>
+									    <param name=Alignment     value=2>
+                      <param name=Numeric       value="true">
+                      <param name=IsComma       value=true>
+											<param name=MaxLength     value=12>
+											<param name=BackColor     value="#CCCCCC">
+											<param name=ReadOnlyBackColor   value="#D7D7D7">
+											<param name=InheritColor  value=false>
+									</object></comment><script>__ws__(__NSID__);</script> </nobr>	
+								</td>
+
+							  -->
+							</tr>
+              
+							<tr width="876px"> 
+								<td width="80px" style="" bgcolor="#eeeeee" class="tab17" align=center><nobr>&nbsp;적요</nobr></td>
+								<td colspan=7 class="tab19" style="width:795px;" ><nobr>&nbsp;<comment id="__NSID__">
+									<object  id=gcem_remark02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  style="width:794px;height:20px;position:relative;left:0px;top:3px">				
+										<param name=Text					value="">
+										<param name=Alignment     value=0>
+										<param name=Border        value=true>
+										<param name=GeneralEdit   value="true">
+										<param name=BackColor     value="#CCCCCC">
+										<param name=ReadOnlyBackColor   value="#D7D7D7">
+										<param name=InheritColor  value=false>
+									</object></comment><script>__ws__(__NSID__);</script> </nobr>
+									<input id="txt_fsknd02" type="hidden" class="txtbox" style= "width:50px;height:20px;position:relative;left:-4px"  readOnly="true";> 
+								</td>
+							</tr>
+							<tr width="876px"> 
+							</tr>
+					 </table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table width=876px cellpadding=0 cellspacing=0 border=0 style=position:relative;left:0px>
+             	<tr  width=876px  >			
+							  <td color="#0000FF">수정 및 행삭제 건은 체크박스를 체크 하십시요</td>
+								<td width="240px" align=right > 
+									<img src="../../Common/img/btn/com_b_bgtcon.gif"	 style="cursor:hand;position:" onClick="ln_BgtFind()">
+								  <img src="../../Common/img/btn/com_btn_repay.gif"	 style="cursor:hand;position:" onClick="ln_Repay()">
+								  <img src="../../Common/img/btn/com_b_rowdel.gif"	 style="cursor:hand;position:" onClick="ln_Delete('dis')">
+									<img src="../../Common/img/btn/com_b_rowadd.gif"   style="cursor:hand;position:" onclick="ln_Add('99')">
+								</td>
+							</tr>
+						</table>
+						<table width=876px cellpadding=0 cellspacing=0 border=0 style=position:relative;left:0px>
+							<tr>			
+							  <td width=39px  bgcolor=#B9D4DC class=tab15 align=center>순번</td>	
+								<td width=49px  bgcolor=#B9D4DC class=tab18 align=center>계정코드</td>	
+						  	<td width=147px bgcolor=#B9D4DC class=tab18 align=center>계정명</td>	
+								<td width=89px  bgcolor=#B9D4DC class=tab18 align=center>차변금액</td>	
+								<td width=89px  bgcolor=#B9D4DC class=tab18 align=center>대변금액</td>	
+								<td width=131px bgcolor=#B9D4DC class=tab18 align=center>증빙명</td>	
+								<td width=250px bgcolor=#B9D4DC class=tab18 align=center>적요</td>	
+								<td width=82px  bgcolor=#B9D4DC class=tab18 align=center>예산타입</td> 
+							</tr>	
+							
+				 			<tr>
+								<td colspan=8> 
+									 <iframe id="ifrm" name="ifrm" src="../../Account/html/A020001_ifrm.html" frameborder=0 style="position:relative;top:1px;width:875;height:300px;border:1 solid #708090;"></iframe>
+									 <table width=876px cellpadding=0 cellspacing=0 border=0 style="position:relative;top:2px">
+										<tr>
+												<td style="width:420px;height:16px;"  bgcolor="#C3D0DB" align=center class=tab15 ><nobr>&nbsp;&nbsp;합계&nbsp;</nobr></td>
+												<td style="width:88px;height:16px;"  bgcolor="#C3D0DB" class=tab18><nobr>&nbsp;
+													<comment id="__NSID__"><object  id=gcem_detot02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F   class=txt41 style="position:relative;top:4px;left:-2px;width:83px;height:16px;">				
+															<param name=Text					value="">
+															<param name=Border        value=false>
+															<param name=Alignment     value=2>
+															<param name=Numeric       value="true">	
+															<param name=IsComma       value=true>
+															<param name=MaxLength     value=12>
+															<param name=ReadOnly      value="true">
+															<param name=BackColor     value="#C3D0DB">
+															<param name=ReadOnlyBackColor   value="#C3D0DB">
+															<param name=ReadOnlyForeColor   value="#0000FF">
+															<param name=InheritColor  value=false>
+															
+													</object></comment><script>__ws__(__NSID__);</script> </nobr>
+												</td>
+
+												<td style="width:88px;height:16px;"  bgcolor="#C3D0DB" class=tab18><nobr>&nbsp;
+													<comment id="__NSID__"><object  id=gcem_crtot02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  class=txt41 style="color:#ff0000;position:relative;top:4px;left:-2px;width:83px;height:16px;">				
+															<param name=Text					value="">
+															<param name=Border        value=false>
+															<param name=Alignment     value=2>
+															<param name=Numeric       value="true">
+															<param name=IsComma       value=true>
+															<param name=MaxLength     value=12>
+															<param name=ReadOnly      value="true">
+															<param name=BackColor     value="#C3D0DB">
+															<param name=ReadOnlyBackColor   value="#C3D0DB">
+															<param name=ReadOnlyForeColor   value="#FF0000">
+															<param name=InheritColor  value=false>
+													</object></comment><script>__ws__(__NSID__);</script> </nobr>
+												</td> 
+
+                        <td style="width:170px;height:16px;"  bgcolor="#C3D0DB" align=center class=tab18 ><nobr>&nbsp;&nbsp;차변-대변&nbsp;</nobr></td>
+												<td style="width:86px;height:16px;"   bgcolor="#C3D0DB" class=tab18><nobr>&nbsp;
+													<comment id="__NSID__"><object  id=gcem_diff02 classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  class=txt41 style="color:#ff0000;position:relative;top:4px;left:-2px;width:80px;height:16px;">				
+															<param name=Text					value=0>
+															<param name=Border        value=false>
+															<param name=Alignment     value=2>
+															<param name=Numeric       value="true">
+															<param name=IsComma       value=true>
+															<param name=MaxLength     value=12>
+															<param name=ReadOnly      value="true">
+															<param name=BackColor     value="#C3D0DB">
+															<param name=ReadOnlyBackColor   value="#C3D0DB">
+															<param name=InheritColor  value=false>
+													</object></comment><script>__ws__(__NSID__);</script> </nobr>
+												</td> 
+												
+												
+												<td style="width:465px;height:16px;"  bgcolor="#C3D0DB" align=center class=tab18 colspan=3 ><nobr>&nbsp;&nbsp;</nobr></td>
+											<!-- 	<td style="width:269px;height:16px;"  bgcolor="#C3D0DB" class=tab13 colspan =2 ><nobr>&nbsp;</nobr></td>
+												<td style="width:99px;height:16px;"  bgcolor="#C3D0DB" align=center class=tab18 ><nobr>&nbsp;&nbsp;</nobr></td> -->
+										</tr>	
+									</table>
+                 
+									<table width=876px cellpadding=0 cellspacing=0 border=0 style="position:relative;top:2px">
+										<tr><td style="height:1px;"> </td></tr>
+									</table>
+									<table width=876px cellpadding=0 cellspacing=0 border=0 style="position:relative;top:2px">
+										<tr>
+												<td style="width:89px;height:20px;"   align=center class=tab15><nobr>&nbsp;예산&nbsp;</nobr></td>
+												<td style="width:144px;height:16px;"   class=tab18><comment id="__NSID__">
+												<object  id=gcem_realbgt  classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  
+													style=position:relative;left:0px;top:1px;width:141px;height:16px; >		
+													<param name=Text			     value=0> 
+													<param name=Border         value=false>
+													<param name=Alignment		   value=2>
+													<param name=Numeric			   value=true>
+													<param name=IsComma			   value=true>
+													<param name=MaxLength		   value=12>
+													<param name=ReadOnly       value=true>
+													<param name=InheritColor   value=true>
+													<param name=ReadOnlyForeColor   value=#0000FF>
+												</object></comment><script>__ws__(__NSID__);</script> 										
+												</td>
+												<td style="width:91px;height:16px;"  align=center class=tab18> <nobr>&nbsp;실적&nbsp;</nobr></td>
+												<td style="width:91px;height:16px;"   class=tab18 ><nobr><comment id="__NSID__">
+													<object  id=gcem_results  classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  
+													style=position:relative;left:0px;top:1px;width:88px;height:16px; >		
+													<param name=Text			     value=0> 
+													<param name=Border         value=false>
+													<param name=Alignment		   value=2>
+													<param name=Numeric			   value=true>
+													<param name=IsComma			   value=true>
+													<param name=MaxLength		   value=12>
+													<param name=ReadOnly       value=true>
+													<param name=InheritColor   value=true>
+													<param name=ReadOnlyForeColor   value=#0000FF>
+												</object></comment><script>__ws__(__NSID__);</script> 
+												
+												</nobr></td>
+												<td style="width:119px;height:16px;"  align=center class=tab18><nobr>&nbsp;실적(미승인포함)&nbsp;</nobr></td>
+												<td style="width:89px;height:16px;"   class=tab18 ><nobr><comment id="__NSID__">
+												<object  id=gcem_bresults  classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  
+													style=position:relative;left:0px;top:1px;width:86px;height:16px; >		
+													<param name=Text			     value=0> 
+													<param name=Border         value=false>
+													<param name=Alignment		   value=2>
+													<param name=Numeric			   value=true>
+													<param name=IsComma			   value=true>
+													<param name=MaxLength		   value=12>
+													<param name=ReadOnly       value=true>
+													<param name=InheritColor   value=true>
+													<param name=ReadOnlyForeColor   value=#0000FF>
+												</object></comment><script>__ws__(__NSID__);</script> 
+												</nobr></td>
+												<td style="width:130px;height:16px;"  align=center class=tab18 ><nobr>&nbsp;잔액&nbsp;</nobr></td>
+												<td style="width:110px;height:16px;"   class=tab18><nobr><comment id="__NSID__">
+												<object  id=gcem_janamt  classid=CLSID:E6876E99-7C28-43AD-9088-315DC302C05F  
+													style=position:relative;left:0px;top:1px;width:107px;height:16px; >		
+													<param name=Text			     value=0> 
+													<param name=Border         value=false>
+													<param name=Alignment		   value=2>
+													<param name=Numeric			   value=true>
+													<param name=IsComma			   value=true>
+													<param name=MaxLength		   value=12>
+													<param name=ReadOnly       value=true>
+													<param name=InheritColor   value=true>
+													<param name=ReadOnlyForeColor   value=#0000FF>
+												</object></comment><script>__ws__(__NSID__);</script> 
+												</nobr></td>
+										</tr>		
+								 </table>
+					</td>
+				</tr>  
+			</table>
+    </td>
+	</tr>
+</table><!-- div_disp2 전체테이블  --> 
+
+
+<!-----------------------------------------------------------------------------
+						B I N D   D E F I N I T I O N
+------------------------------------------------------------------------------>
+<!-- 전표등록 MASTER-->
+<comment id="__NSID__"><object  id=gcbn_data classid=CLSID:9C9AB433-EA85-11D2-A4F9-00608CEBEE49> 
+	<param name=DataID    value=gcds_data01_1>
+	<param name=BindInfo  value='  
+	<C>Col=FDCODE	      Ctrl=gclx_fdcode02	      Param=BindColVal</C>
+	<C>Col=FSDAT1       Ctrl=gcem_fs02            Param=Text</C>
+	<C>Col=FSDAT2       Ctrl=gcem_fsdat02         Param=Text</C>
+	<C>Col=FSNBR	      Ctrl=gcem_fsnbr02		      Param=Text</C>
+	<C>Col=FSSTAT	      Ctrl=gclx_fsstat02		    Param=BindColVal</C>
+	<C>Col=DEPTCD	      Ctrl=txt_deptcd02	        Param=value</C>
+  <C>Col=DEPTNM	      Ctrl=txt_deptnm02	        Param=value</C>
+	<C>Col=EMPNO        Ctrl=txt_empno02          Param=value</C>
+	<C>Col=EMPNMK       Ctrl=txt_empnmk02         Param=value</C>
+	<C>Col=FSWRTDAT     Ctrl=gcem_fswrtdat02		  Param=Text</C>
+	<C>Col=ACTDAT       Ctrl=gcem_actdat02		    Param=Text</C>
+	<C>Col=FSAMT	      Ctrl=gcem_fsamt02		      Param=Text</C>
+	<C>Col=REMARK       Ctrl=gcem_remark02		    Param=Text</C>
+	<C>Col=DETOT	      Ctrl=gcem_detot02		      Param=Text</C>
+	<C>Col=CRTOT	      Ctrl=gcem_crtot02		      Param=Text</C>
+	<C>Col=SSDAT1       Ctrl=gcem_ss02            Param=Text</C>
+	<C>Col=SSDAT2       Ctrl=gcem_ssdat02         Param=Text</C>
+	<C>Col=SSNBR	      Ctrl=gcem_ssnbr02		      Param=Text</C>
+	'>
+</object></comment><script>__ws__(__NSID__);</script> 
+
+<!-- 전표등록 MASTER 조회-->
+<comment id="__NSID__"><object  id=gcbn_data classid=CLSID:9C9AB433-EA85-11D2-A4F9-00608CEBEE49> 
+	<param name=DataID    value=gcds_data01_2>
+	<param name=BindInfo  value='  
+	<C>Col=FSSTAT	      Ctrl=gclx_fsstat02		    Param=BindColVal</C>
+	<C>Col=DEPTCD	      Ctrl=txt_deptcd02	        Param=value</C>
+  <C>Col=DEPTNM	      Ctrl=txt_deptnm02	        Param=value</C>
+	<C>Col=EMPNO        Ctrl=txt_empno02          Param=value</C>
+	<C>Col=EMPNMK       Ctrl=txt_empnmk02         Param=value</C>
+	<C>Col=FSWRTDAT     Ctrl=gcem_fswrtdat02		  Param=Text</C>
+	<C>Col=ACTDAT       Ctrl=gcem_actdat02		    Param=Text</C>
+	<C>Col=FSAMT	      Ctrl=gcem_fsamt02		      Param=Text</C>
+	<C>Col=REMARK       Ctrl=gcem_remark02		    Param=Text</C>
+	<C>Col=DETOT	      Ctrl=gcem_detot02		      Param=Text</C>
+	<C>Col=CRTOT	      Ctrl=gcem_crtot02		      Param=Text</C>
+	<C>Col=SSDAT1	      Ctrl=gcem_ss02		        Param=Text</C>
+	<C>Col=SSDAT2	      Ctrl=gcem_ssdat02		      Param=Text</C>
+	<C>Col=SSNBR	      Ctrl=gcem_ssnbr02		      Param=Text</C>
+	'>
+</object></comment><script>__ws__(__NSID__);</script> 
+
+</body>
+</html>

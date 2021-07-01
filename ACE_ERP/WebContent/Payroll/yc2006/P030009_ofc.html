@@ -1,0 +1,648 @@
+<!--
+	Copyright 2005 HMM Co, Ltd. All Rights Reserved.
+	Programmed by dongilseo, 2005.10.10
+-->
+
+
+
+
+
+
+
+
+<html>
+<head>
+<title>2006년 근로소득공제 종(전)근무지 상세 입력</title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+
+<LINK href="imgs/css_ehr.css" type=text/css rel=stylesheet>
+<SCRIPT language=JavaScript src="imgs/web.js"></SCRIPT>
+<SCRIPT language=JavaScript src="imgs/06YearEntry.js"></SCRIPT>
+
+<script language="JavaScript">
+<!--
+
+//-->
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<form name="entry" method="post" action="">
+	<input type="hidden" name="eyy" value="2006">
+	<input type="hidden" name="emm" value="12">
+	<input type="hidden" name="egb" value="0">
+	<input type="hidden" name="gb1" value="L">
+	<input type="hidden" name="eno" value="200089">
+	<input type="hidden" name="mod" value="IPT">
+
+	<!-- 인적사항 및 공제항목 -->
+	<table width="638" border="0" cellspacing="1" cellpadding="3">
+		<tr bgcolor="#FFFFFF">
+			<td colspan="12" height="85">
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+					<tr>
+						<td colspan="2">☞ 입력안내</td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td><font color="#FF6633"><b>① 당해년도 경력입사자 또는 2곳 이상의 근무처에서 소득이 발생하는 자일 경우에만 입력합니다.</b></font><br>
+						&nbsp;&nbsp;&nbsp;&nbsp; 예) 현대택배 퇴직후 현대상선 입사자, 현대증권 및 현대상선 2곳에서 급여를 받는 자
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td>② 전(종)근무지로부터 "<u>근로소득원천징수영수증 및 소득자별근로소득원천징수부</u>"를 발급 받아야 합니다.</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#3366FF">③ 소득자료 (전근무지 소득 + 현근무지 소득 = 합산소득 신고)</font><br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 과세소득은 급여와 상여로 구분 입력합니다. (비과세 소득은 별도 입력)<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 인정상여에 해당하는 과세소득 예 : 고용안정센터에서 지급받는 산전후 휴가급여
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#3366FF">④ 증빙서류는 종(전)근무지 입력순서와 일치되도록 정리하여 주시기 바랍니다.</font><br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 근로소득원천징수영수증상에 『<u>연금보험료(국민연금), 보험료(건강보험+고용보험)</u>』 금액이<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;표시 되어 있지 않은 경우 "소득자별근로소득원천징수부"를 참고합니다.<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#FF6633">※ 영수증 및 징수부상에 관련 금액이 없는 경우 전근무지 연말정산 담당자에게 금액을<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;문의하셔야 합니다.</font>
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><font color="#3366FF">⑤ 세액자료 (전근무지 결정 소득세/주민세 + 현근무지 결정 소득세/주민세 = 합산세액 신고)</font><br>
+						&nbsp;&nbsp;&nbsp;&nbsp;- 차감징수세액이 아닌 "<u>산출세액과 결정세액</u>"을 입력합니다.
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td align="right"><a href="javascript:checkForm(document.entry, 'S');"><img src="imgs/btn_save.gif" border="0"></a></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+
+
+	<table width="638" bgcolor="#666666" border="0" cellspacing="1" cellpadding="3">
+		<tr align="center" bgcolor="#fff8ee">
+			<td bgcolor="#ffedd2" width="30"  rowspan="9">#1</td>
+			<td width="110">회사명</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicnm_1" value="" class="input01" size="28" style="text-align:center;" maxlength="13">
+			</td>
+			<td>사업자번호</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicns_1" value="" class="input01" size="28" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">과세소득</td>
+			<td width="100">과세급여</td>
+			<td width="100">과세상여</td>
+			<td width="100">인정상여</td>
+			<td width="100">과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiydp_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydb_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydn_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiytg_1" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="hidden" name="pyiptt_1" value="0">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">비과세소득</td>
+			<td width="100">국외비과세</td>
+			<td width="100">야간근로</td>
+			<td width="100">기타비과세</td>
+			<td width="100">비과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiybg_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybn_1" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiyb2_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybt_1" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">공제</td>
+			<td>국민연금</td>
+			<td>건강보험</td>
+			<td>고용보험</td>
+			<td>공제계</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyisgm_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisbh_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisgy_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyistt_1" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">세액</td>
+			<td>결정소득세</td>
+			<td>결정주민세</td>
+			<td>결정농특세</td>
+			<td>결정세액계</td>
+			<td>산출세액</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyitgg_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitjm_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitbw_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitsp_1" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiisp_1" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+		</tr>
+	</table>
+	<br>
+
+	<table width="638" bgcolor="#666666" border="0" cellspacing="1" cellpadding="3">
+		<tr align="center" bgcolor="#fff8ee">
+			<td bgcolor="#ffedd2" width="30"  rowspan="9">#2</td>
+			<td width="110">회사명</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicnm_2" value="" class="input01" size="28" style="text-align:center;" maxlength="13">
+			</td>
+			<td>사업자번호</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicns_2" value="" class="input01" size="28" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">과세소득</td>
+			<td width="100">과세급여</td>
+			<td width="100">과세상여</td>
+			<td width="100">인정상여</td>
+			<td width="100">과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiydp_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydb_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydn_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiytg_2" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="hidden" name="pyiptt_2" value="0">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">비과세소득</td>
+			<td width="100">국외비과세</td>
+			<td width="100">야간근로</td>
+			<td width="100">기타비과세</td>
+			<td width="100">비과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiybg_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybn_2" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiyb2_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybt_2" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">공제</td>
+			<td>국민연금</td>
+			<td>건강보험</td>
+			<td>고용보험</td>
+			<td>공제계</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyisgm_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisbh_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisgy_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyistt_2" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">세액</td>
+			<td>결정소득세</td>
+			<td>결정주민세</td>
+			<td>결정농특세</td>
+			<td>결정세액계</td>
+			<td>산출세액</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyitgg_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitjm_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitbw_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitsp_2" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiisp_2" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+		</tr>
+	</table>
+	<br>
+
+	<table width="638" bgcolor="#666666" border="0" cellspacing="1" cellpadding="3">
+		<tr align="center" bgcolor="#fff8ee">
+			<td bgcolor="#ffedd2" width="30"  rowspan="9">#3</td>
+			<td width="110">회사명</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicnm_3" value="" class="input01" size="28" style="text-align:center;" maxlength="13">
+			</td>
+			<td>사업자번호</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicns_3" value="" class="input01" size="28" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">과세소득</td>
+			<td width="100">과세급여</td>
+			<td width="100">과세상여</td>
+			<td width="100">인정상여</td>
+			<td width="100">과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiydp_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydb_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydn_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiytg_3" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="hidden" name="pyiptt_3" value="0">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">비과세소득</td>
+			<td width="100">국외비과세</td>
+			<td width="100">야간근로</td>
+			<td width="100">기타비과세</td>
+			<td width="100">비과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiybg_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybn_3" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiyb2_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybt_3" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">공제</td>
+			<td>국민연금</td>
+			<td>건강보험</td>
+			<td>고용보험</td>
+			<td>공제계</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyisgm_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisbh_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisgy_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyistt_3" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">세액</td>
+			<td>결정소득세</td>
+			<td>결정주민세</td>
+			<td>결정농특세</td>
+			<td>결정세액계</td>
+			<td>산출세액</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyitgg_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitjm_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitbw_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitsp_3" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiisp_3" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+		</tr>
+	</table>
+	<br>
+
+	<table width="638" bgcolor="#666666" border="0" cellspacing="1" cellpadding="3">
+		<tr align="center" bgcolor="#fff8ee">
+			<td bgcolor="#ffedd2" width="30"  rowspan="9">#4</td>
+			<td width="110">회사명</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicnm_4" value="" class="input01" size="28" style="text-align:center;" maxlength="13">
+			</td>
+			<td>사업자번호</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicns_4" value="" class="input01" size="28" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">과세소득</td>
+			<td width="100">과세급여</td>
+			<td width="100">과세상여</td>
+			<td width="100">인정상여</td>
+			<td width="100">과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiydp_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydb_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydn_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiytg_4" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="hidden" name="pyiptt_4" value="0">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">비과세소득</td>
+			<td width="100">국외비과세</td>
+			<td width="100">야간근로</td>
+			<td width="100">기타비과세</td>
+			<td width="100">비과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiybg_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybn_4" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiyb2_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybt_4" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">공제</td>
+			<td>국민연금</td>
+			<td>건강보험</td>
+			<td>고용보험</td>
+			<td>공제계</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyisgm_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisbh_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisgy_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyistt_4" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">세액</td>
+			<td>결정소득세</td>
+			<td>결정주민세</td>
+			<td>결정농특세</td>
+			<td>결정세액계</td>
+			<td>산출세액</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyitgg_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitjm_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitbw_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitsp_4" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiisp_4" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+		</tr>
+	</table>
+	<br>
+
+	<table width="638" bgcolor="#666666" border="0" cellspacing="1" cellpadding="3">
+		<tr align="center" bgcolor="#fff8ee">
+			<td bgcolor="#ffedd2" width="30"  rowspan="9">#5</td>
+			<td width="110">회사명</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicnm_5" value="" class="input01" size="28" style="text-align:center;" maxlength="13">
+			</td>
+			<td>사업자번호</td>
+			<td colspan="2" bgcolor="#FFFFFF">
+				<input type="text" name="pyicns_5" value="" class="input01" size="28" style="text-align:center;ime-mode:disabled;" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" onKeydown="javascript:formatCompany(this);" maxlength="12">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">과세소득</td>
+			<td width="100">과세급여</td>
+			<td width="100">과세상여</td>
+			<td width="100">인정상여</td>
+			<td width="100">과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiydp_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydb_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiydn_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiytg(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiytg_5" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="hidden" name="pyiptt_5" value="0">
+			</td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">비과세소득</td>
+			<td width="100">국외비과세</td>
+			<td width="100">야간근로</td>
+			<td width="100">기타비과세</td>
+			<td width="100">비과세소득계</td>
+			<td width="100"></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyiybg_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybn_5" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiyb2_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyiybt(document.entry); calculatePyiptt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyiybt_5" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">공제</td>
+			<td>국민연금</td>
+			<td>건강보험</td>
+			<td>고용보험</td>
+			<td>공제계</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyisgm_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisbh_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyisgy_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyistt(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyistt_5" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td></td>
+		</tr>
+		<tr align="center" bgcolor="#fff8ee">
+			<td rowspan="2">세액</td>
+			<td>결정소득세</td>
+			<td>결정주민세</td>
+			<td>결정농특세</td>
+			<td>결정세액계</td>
+			<td>산출세액</td>
+		</tr>
+		<tr align="center" bgcolor="#FFFFFF">
+			<td>
+				<input type="text" name="pyitgg_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitjm_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitbw_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this); calculatePyitsp(document.entry);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+			<td>
+				<input type="text" name="pyitsp_5" value="0" class="input02" size="12" style="text-align:right;ime-mode:disabled;" readonly>
+			</td>
+			<td>
+				<input type="text" name="pyiisp_5" value="0" class="input01" size="12" style="text-align:right;ime-mode:disabled;" onFocus="clearZero(this);" onKeyup="addComma(this);" onKeypress="if (event.keyCode < 26 || event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" maxlength="13">
+			</td>
+		</tr>
+	</table>
+	<br>
+
+
+	<div id="tipbox" style="position:absolute;border:black solid 1; background-color:infobackground; font-size:9pt; display:none; z-index:100"></div>
+
+</form>
+</body>
+</html>

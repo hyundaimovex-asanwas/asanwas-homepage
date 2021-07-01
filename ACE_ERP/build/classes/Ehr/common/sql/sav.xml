@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<sqls>
+
+<!-- 저축금 -->
+<!--
+***********************************************************************
+* @UseCase     : SAVA010
+* @description : 개인별 저축금 관리
+***********************************************************************
+* 2006/12/19      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 개인별 저축금 정보를 조회 한다. -->
+    <sql name="SAVA010_SHR">
+        <description>개인별 저축금 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  A.ENO_NO  , A.BNK_CD  , A.ACC_NO  , A.OCC_CD , A.SAV_CD,
+                     A.CON_CNT , A.CON_AMT , A.CONM_AMT, A.DSC_PCT, A.DSC_AMT,
+                     A.SUM_SAV , A.SUMP_CNT, A.PIN_MTH , A.PIN_YN , A.CAN_TAG,
+                     A.TJC_AMT, A.WOL_AMT, A.OTHP_AMT, A.OTH_AMT,
+                     TO_CHAR(TO_DATE(A.CON_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')  AS CON_YMD,
+                     TO_CHAR(TO_DATE(A.DUE_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')  AS DUE_YMD,
+                     TO_CHAR(TO_DATE(A.FAPP_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS FAPP_YMD,
+                     TO_CHAR(TO_DATE(A.CAN_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD')  AS CAN_YMD,
+                     B.ENO_NM , B.JOB_NM , B.OCC_NM , B.DPT_NM, B.CET_NO, B.ACC_NO AS ACC_NO_CM,
+					 F.TOT_CONM_AMT, F.TOT_SUM_SAV
+             FROM    T_SV_SAVELIST A,
+                     ( SELECT ENO_NO, ENO_NM, JOB_NM, OCC_NM, DPT_NM, ACC_NO, CET_NO
+                       FROM   VI_T_CM_PERSON ) B,
+                     ( SELECT DISTINCT C.ENO_NO, D.TOT_CONM_AMT, E.TOT_SUM_SAV
+                       FROM   T_SV_SAVELIST C,
+                              (SELECT DISTINCT ENO_NO, SUM(CONM_AMT) AS TOT_CONM_AMT FROM T_SV_SAVELIST GROUP BY ENO_NO) D,
+                              (SELECT DISTINCT ENO_NO, SUM(SUM_SAV)  AS TOT_SUM_SAV  FROM T_SV_SAVELIST GROUP BY ENO_NO) E
+                       WHERE C.ENO_NO = D.ENO_NO
+                       AND   C.ENO_NO = E.ENO_NO
+                     ) F
+
+             WHERE   [1]
+             AND     A.ENO_NO  = B.ENO_NO
+			 AND     A.ENO_NO  = F.ENO_NO
+             ORDER   BY CAN_TAG DESC, ENO_NO DESC, ACC_NO ASC, CON_YMD ASC, BNK_CD ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 사원 정보를 조회 한다. -->
+    <sql name="SAVA010_SHR_01">
+        <description>사원 정보조회</description>
+        <query>
+            <![CDATA[
+             SELECT  A.OCC_CD, A.OCC_NM, A.CET_NO, A.ACC_NO AS ACC_NO_CM
+             FROM    VI_T_CM_PERSON A
+             WHERE   A.ENO_NO = ?
+            ]]>
+        </query>
+    </sql>
+
+
+    <!-- 은행구분코드를 조회 한다. -->
+    <sql name="SAVA010_SHR_02">
+        <description>은행 구분코드 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  COMM_CD AS CODE, COMM_NM AS CODE_NAME
+             FROM    T_CM_COMMON
+             WHERE   CD_GBN = 'BT'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 은행구분코드를 조회 한다. -->
+    <sql name="SAVA010_SHR_03">
+        <description>은행 구분코드 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  AFC_CD AS CODE, ITM_KNAM AS CODE_NAME
+             FROM    HDPS.TACCCOD
+             WHERE   COD_TAG = 'BT'
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별 저축금 정보를 저장 한다. -->
+    <sql name="SAVA010_INS">
+        <description>개인별 저축금 저장</description>
+        <query>
+            <![CDATA[
+             INSERT  INTO T_SV_SAVELIST
+                     ( ENO_NO , BNK_CD , ACC_NO  , OCC_CD , SAV_CD , CON_YMD, DUE_YMD,
+                       CON_CNT, CON_AMT, CONM_AMT, DSC_PCT, DSC_AMT, SUM_SAV, SUMP_CNT,
+                       PIN_MTH, PIN_YN , CAN_TAG , CAN_YMD, TJC_AMT, WOL_AMT, OTHP_AMT,
+                       OTH_AMT, IPT_MAN, IPT_YMD , UPT_MAN, UPT_YMD
+                      )
+             VALUES  (       ?,       ?,        ?,       ?,        ?,       ?,        ?,
+                             ?,       ?,        ?,       ?,        ?,       ?,        ?,
+                             ?,       ?,        ?,       ?,        ?,       ?,        ?,
+                             ?,       ?,  sysdate,       ?,  sysdate
+                      )
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별 저축금 정보를 수정 한다. -->
+    <sql name="SAVA010_UPT">
+        <description>개인별 저축금 수정</description>
+        <query>
+            <![CDATA[
+             UPDATE  T_SV_SAVELIST
+             SET     SAV_CD        = ?,        -- 저축종류
+                     CON_YMD       = ?,        -- 계약일
+                     DUE_YMD       = ?,        -- 만기일
+                     CON_CNT       = ?,        -- 불입횟수
+                     CON_AMT       = ?,        -- 계약금액
+                     CONM_AMT      = ?,        -- 월불입액
+                     DSC_PCT       = ?,        -- 할인율
+                     DSC_AMT       = ?,        -- 할인액
+                     PIN_MTH       = ?,        -- 불입방법
+                     PIN_YN        = ?,        -- 불입보류
+                     CAN_TAG       = ?,        -- 해약구분
+                     CAN_YMD       = ?,        -- 해약일
+                     TJC_AMT       = ?,        -- 임의장려금지급액
+                     WOL_AMT       = ?,        -- 실질월불입액
+                     OTHP_AMT      = ?,        -- 기타지불액
+                     OTH_AMT       = ?,        -- 기타공제금액
+                     UPT_MAN       = ?,        -- 최종 수정자
+                     UPT_YMD       = sysdate   -- 최종 수정일
+             WHERE   ENO_NO        = ?         -- 사번
+             AND     BNK_CD        = ?         -- 금융기관
+             AND     ACC_NO        = ?         -- 계좌번호
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개인별 저축금 정보를 삭제 한다. -->
+    <sql name="SAVA010_DEL">
+        <description>개인별 저축금 삭제</description>
+        <query>
+            <![CDATA[
+             DELETE  T_SV_SAVELIST
+             WHERE   ENO_NO  = ?
+             AND     BNK_CD  = ?
+             AND     ACC_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 개개인별 저축금 정보 상세 내역을 삭제함 -->
+    <sql name="SAVA010_DEL_01">
+        <description>개인별 저축금 정보 상세 내역을 삭제함</description>
+        <query>
+            <![CDATA[
+             DELETE  T_SV_SAVEBOOK
+             WHERE   ENO_NO  = ?
+             AND     BNK_CD  = ?
+             AND     ACC_NO  = ?
+            ]]>
+        </query>
+    </sql>
+
+<!--
+***********************************************************************
+* @UseCase     : SAVA020
+* @description : 저축금 관리대장
+***********************************************************************
+* 2006/12/20      채갑병       최초작성
+***********************************************************************
+-->
+
+    <!-- 개인별 저축금 정보를 조회 한다. -->
+    <sql name="SAVA020_SHR">
+        <description>저축금 정보 조회</description>
+        <query>
+            <![CDATA[
+            SELECT  A.ENO_NO
+			      , SF_GET_COMMNAME('01', 'BT', A.BNK_CD) AS BNK_NM
+				  , A.ACC_NO
+				  , A.SAV_CD
+				  , A.DED_YM
+				  , A.PIN_MTH
+				  , A.PIN_CNT
+				  , A.PYM_AMT
+				  , A.APP_AMT
+				  , A.DED_TAG
+				  , B.ENO_NM
+				  , B.JOB_NM
+				  , B.OCC_NM
+				  , B.DPT_NM
+				  , TO_CHAR(TO_DATE(C.CON_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS CON_YMD
+				  , TO_CHAR(TO_DATE(C.DUE_YMD, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS DUE_YMD
+				 ,DPT_SEQ, JOB_SEQ
+             FROM    T_SV_SAVEBOOK A,
+                     ( SELECT ENO_NO, ENO_NM, JOB_CD, JOB_NM, OCC_CD, OCC_NM, DPT_CD, DPT_NM ,DPT_SEQ, JOB_SEQ
+                       FROM   VI_T_CM_PERSON ) B,
+                     ( SELECT ENO_NO, BNK_CD, ACC_NO, CON_YMD, DUE_YMD
+                       FROM   T_SV_SAVELIST ) C
+             WHERE   [1]
+             AND     A.ENO_NO  = B.ENO_NO
+             AND     A.ENO_NO  = C.ENO_NO AND A.BNK_CD = C.BNK_CD AND A.ACC_NO = C.ACC_NO
+             ORDER   BY DPT_SEQ , JOB_SEQ,  ENO_NM ASC, ACC_NO ASC, DED_YM ASC
+            ]]>
+        </query>
+    </sql>
+
+    <!-- 은행구분코드를 조회 한다. -->
+    <sql name="SAVA020_SHR_01">
+        <description>은행 구분코드 조회</description>
+        <query>
+            <![CDATA[
+             SELECT  COMM_CD AS CODE, COMM_NM AS CODE_NAME
+             FROM    T_CM_COMMON
+             WHERE   CD_GBN = 'BK'
+            ]]>
+        </query>
+    </sql>
+
+
+<!--
+***********************************************************************
+* @UseCase     : SAVB010
+* @description : 분기별보고서
+***********************************************************************
+* 2008/12/03      김경주       최초작성
+***********************************************************************
+-->
+
+    <!-- 직원현황 정보를 조회한다. -->
+    <sql name="SAVB010_SHR">
+        <description>직원현황 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT B.OCC_NM, B.DPT_NM, B.JOB_NM, A.ENO_NO, A.ENO_NM, A.MF_TAG, A.CET_NO,
+                    TO_CHAR(LSE_YM,'fm00.00') AS LSE_YM, A.HIR_YMD, A.RET_YMD,
+                    C.SCH_AMT, C.SALT_AMT_0, C.SALT_AMT_1, C.SALT_AMT_4, C.WEL_POINT, C.LUN_AMT
+
+               FROM (SELECT ENO_NO
+                          ,ENO_NM
+                          ,MF_TAG                                                                       -- 성별구분
+                          ,CET_NO                                                                       -- 주민번호
+                          ,ROUND((LAST_DAY(TO_DATE( ? ,'YYYYMM'))- hir_ymd)/365 ,2) AS LSE_YM           -- 근속년수
+                          ,TO_CHAR(HIR_YMD,'YYYY/MM/DD') AS HIR_YMD                                     -- 입사일
+                          ,TO_CHAR(RET_YMD,'YYYY/MM/DD') AS RET_YMD                                     -- 퇴사일
+                      FROM T_CM_PERSON
+                      WHERE HIR_YMD < LAST_DAY(TO_DATE( ? ,'YYYYMM')) ) A,
+
+                    (SELECT ENO_NO
+                         ,OCC_CD
+                         ,SF_GET_COMMNAME('01','A1', OCC_CD) AS OCC_NM                                  -- 직종
+                         ,DPT_CD
+                         ,SF_GET_DPTNAME('01','A4', DPT_CD) AS DPT_NM                                   -- 소속
+                         ,JOB_CD
+                         ,SF_GET_COMMNAME('01','A2', JOB_CD) AS JOB_NM                                  -- 직위
+                     FROM T_CM_AHISTORY A
+                     WHERE  STR_YMD = (SELECT MAX(STR_YMD) FROM T_CM_AHISTORY WHERE TO_CHAR(LAST_DAY(TO_DATE( ? ,'YYYYMM')),'YYYYMMDD') BETWEEN STR_YMD AND NVL(END_YMD,'99999999') AND ENO_NO = A.ENO_NO)
+                       AND  SEQ_NO =  (SELECT MAX(SEQ_NO) FROM T_CM_AHISTORY WHERE STR_YMD = (SELECT MAX(STR_YMD) FROM T_CM_AHISTORY WHERE TO_CHAR(LAST_DAY(TO_DATE( ? ,'YYYYMM')),'YYYYMMDD') BETWEEN STR_YMD AND NVL(END_YMD,'99999999') AND ENO_NO = A.ENO_NO)
+                                       AND ENO_NO =A.ENO_NO)
+                       )B,
+
+                    (SELECT ENO_NO
+                            ,SUM(DECODE(SAL_GBN,'0',SALT_AMT))		SALT_AMT_0                         -- 급여
+                            ,SUM(DECODE(SAL_GBN,'1',SALT_AMT))		SALT_AMT_1                         -- 상여
+                            ,SUM(DECODE(SAL_GBN,'4',SALT_AMT))		SALT_AMT_4                         -- 연월차
+                            ,SUM(SCH_AMT)                           SCH_AMT                           -- 학자금
+                            ,SUM(WEL_POINT)							WEL_POINT                          -- 복지포인트
+                    	    ,SUM(LUN_AMT)							LUN_AMT                            -- 중식대
+                  	  FROM T_CP_PAYMASTER
+                	  WHERE  PIS_YY = ?
+                   	  AND PIS_MM BETWEEN '01' AND ?
+                      GROUP BY ENO_NO
+                      ORDER BY ENO_NO ) C
+               WHERE A.ENO_NO = B.ENO_NO(+)
+                 AND A.ENO_NO = C.ENO_NO
+               [1]
+               ORDER BY SF_GET_DPTSEQ('01','A4',B.DPT_CD), SF_GET_COMMSEQ('01','A2',JOB_CD), HIR_YMD, ENO_NO
+            ]]>
+        </query>
+    </sql>
+
+
+
+    <!-- 직원현황 정보를 조회한다. -->
+    <sql name="SAVB010_SHR_01">
+        <description>직원현황 정보 조회</description>
+        <query>
+            <![CDATA[
+             SELECT DECODE(AA.MF_TAG,'M','남','여')||' : ' ||AA.CNT|| '명'
+                   ||'    ('  || TO_CHAR(NVL(CNT2,0),'fm000') ||'명 ' || TO_CHAR(NVL(CNT3,0),'fm000') || ' )   - 근속년수 : '
+                   || ROUND((NVL(AA.LSE_YM, 0)+NVL(BB.LSE_YM, CC.LSE_YM)+NVL(CC.LSE_YM, BB.LSE_YM))/3,2)   ||'년'    AS INFO
+              FROM ( SELECT MF_TAG, COUNT(*) AS CNT, ROUND(AVG(LSE_YM),2) AS LSE_YM
+                    FROM( SELECT NVL(B.OCC_CD,A.OCC_CD) AS OCC_CD, A.ENO_NO,  MF_TAG, LSE_YM
+                           FROM (SELECT ENO_NO
+                                       ,OCC_CD
+                                       ,MF_TAG
+                                       ,ROUND((LAST_DAY(TO_DATE( ?,'YYYYMM'))- hir_ymd)/365 ,2) AS LSE_YM                                                        -- 근속년수
+                                  FROM T_CM_PERSON ) A,
+                         (SELECT ENO_NO
+                                ,OCC_CD
+                          FROM T_CM_AHISTORY A
+                          WHERE  STR_YMD = (SELECT MAX(STR_YMD) FROM T_CM_AHISTORY WHERE TO_CHAR(LAST_DAY(TO_DATE( ? ,'YYYYMM')),'YYYYMMDD') BETWEEN STR_YMD AND NVL(END_YMD,'99999999') AND ENO_NO = A.ENO_NO)
+                            AND  SEQ_NO =  (SELECT MAX(SEQ_NO) FROM T_CM_AHISTORY WHERE STR_YMD = (SELECT MAX(STR_YMD) FROM T_CM_AHISTORY WHERE TO_CHAR(LAST_DAY(TO_DATE( ? ,'YYYYMM')),'YYYYMMDD') BETWEEN STR_YMD AND NVL(END_YMD,'99999999') AND ENO_NO = A.ENO_NO)
+                                           AND ENO_NO =A.ENO_NO)    )B,
+                         ( SELECT ENO_NO
+                           FROM T_CP_PAYMASTER
+                	      WHERE  PIS_YY = ?
+                   	        AND PIS_MM BETWEEN '01' AND ?
+                          GROUP BY ENO_NO  ) C
+                      WHERE A.ENO_NO = B.ENO_NO(+)
+                        AND A.ENO_NO = C.ENO_NO
+                      [1]
+                      )
+                      GROUP BY MF_TAG
+                   ) AA,
+
+                   ( SELECT MF_TAG, COUNT(*) AS CNT2, ROUND(AVG(LSE_YM),2) AS LSE_YM
+                     FROM(  SELECT NVL(B.OCC_CD,A.OCC_CD) AS OCC_CD, A.ENO_NO,  MF_TAG, LSE_YM
+                             FROM (SELECT ENO_NO
+                                         ,OCC_CD
+                                         ,MF_TAG
+                                         ,ROUND((LAST_DAY(TO_DATE( ? ,'YYYYMM'))- hir_ymd)/365 ,2) AS LSE_YM                                                  -- 근속년수
+                                    FROM T_CM_PERSON ) A,
+                           (SELECT ENO_NO
+                                  ,OCC_CD
+                            FROM T_CM_AHISTORY A
+                           WHERE  STR_YMD = (SELECT MAX(STR_YMD) FROM T_CM_AHISTORY WHERE TO_CHAR(LAST_DAY(TO_DATE( ? ,'YYYYMM')),'YYYYMMDD') BETWEEN STR_YMD AND NVL(END_YMD,'99999999') AND ENO_NO = A.ENO_NO)
+                             AND  SEQ_NO =  (SELECT MAX(SEQ_NO) FROM T_CM_AHISTORY WHERE STR_YMD = (SELECT MAX(STR_YMD) FROM T_CM_AHISTORY WHERE TO_CHAR(LAST_DAY(TO_DATE( ? ,'YYYYMM')),'YYYYMMDD') BETWEEN STR_YMD AND NVL(END_YMD,'99999999') AND ENO_NO = A.ENO_NO)
+                                   AND ENO_NO =A.ENO_NO)     )B,
+                                  ( SELECT ENO_NO
+                                 	 FROM T_CP_PAYMASTER
+                                	 WHERE  PIS_YY = ?
+                                	 AND PIS_MM BETWEEN '01' AND ?
+                                     GROUP BY ENO_NO   ) C
+                     WHERE A.ENO_NO = B.ENO_NO(+)
+                       AND A.ENO_NO = C.ENO_NO
+                     [2]
+                    )
+                    WHERE OCC_CD ='A'
+                    GROUP BY MF_TAG
+                  ) BB,
+
+                  ( SELECT MF_TAG, COUNT(*) AS CNT3, ROUND(AVG(LSE_YM),2) AS LSE_YM
+                     FROM( SELECT NVL(B.OCC_CD,A.OCC_CD) AS OCC_CD, A.ENO_NO,  MF_TAG, LSE_YM
+                            FROM (SELECT ENO_NO
+                                        ,OCC_CD
+                                        ,MF_TAG
+                                        ,ROUND((LAST_DAY(TO_DATE( ? ,'YYYYMM'))- hir_ymd)/365 ,2) AS LSE_YM                                                      -- 근속년수
+                                  FROM T_CM_PERSON ) A,
+                         (SELECT ENO_NO
+                                ,OCC_CD
+                          FROM T_CM_AHISTORY A
+                         WHERE  STR_YMD = (SELECT MAX(STR_YMD) FROM T_CM_AHISTORY WHERE TO_CHAR(LAST_DAY(TO_DATE( ? ,'YYYYMM')),'YYYYMMDD') BETWEEN STR_YMD AND NVL(END_YMD,'99999999') AND ENO_NO = A.ENO_NO)
+                           AND  SEQ_NO =  (SELECT MAX(SEQ_NO) FROM T_CM_AHISTORY WHERE STR_YMD = (SELECT MAX(STR_YMD) FROM T_CM_AHISTORY WHERE TO_CHAR(LAST_DAY(TO_DATE( ? ,'YYYYMM')),'YYYYMMDD') BETWEEN STR_YMD AND NVL(END_YMD,'99999999') AND ENO_NO = A.ENO_NO)
+                                      AND ENO_NO =A.ENO_NO)   )B,
+                          ( SELECT ENO_NO
+                           	 FROM T_CP_PAYMASTER
+                	        WHERE PIS_YY = ?
+                           	 AND PIS_MM BETWEEN '01' AND ?
+                            GROUP BY ENO_NO ) C
+                    WHERE A.ENO_NO = B.ENO_NO(+)
+                      AND A.ENO_NO = C.ENO_NO
+                    [3]
+                    )
+                    WHERE OCC_CD ='M'
+                    GROUP BY MF_TAG
+                   ) CC
+
+                 WHERE AA.MF_TAG = BB.MF_TAG(+)
+                 AND AA.MF_TAG = CC.MF_TAG(+)
+                 ORDER BY AA.MF_TAG
+            ]]>
+        </query>
+    </sql>
+
+
+    </sqls>

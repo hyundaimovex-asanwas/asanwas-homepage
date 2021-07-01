@@ -1,0 +1,3 @@
+&credu_server=N&
+&address=../common/logo_loading.swf&
+&this_percent=20&
